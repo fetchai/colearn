@@ -4,18 +4,17 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="example-pkg-fetch-ai",
+    name="colearn-interface-fetch-ai",
     version="0.0.1",
-    author="Juan Besa",
+    author="Fetch AI",
     author_email="juan.besa@fetch.ai",
-    description="A small example package",
+    description="The Collective Learning Interface to access the Fetch AI Collective Learning Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/fetchai/colearn-interface.git",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        # Need to fill in
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
