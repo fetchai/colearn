@@ -10,7 +10,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  code_quality_checks:
 
     runs-on: ubuntu-latest
 
