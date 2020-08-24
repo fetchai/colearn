@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.1",
     author="Fetch AI",
     author_email="juan.besa@fetch.ai",
-    description="The Collective Learning Interface to access the Fetch AI Collective Learning Framework",
+    description="The Standalone Fetch AI Collective Learning Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/fetchai/colearn-interface.git",
