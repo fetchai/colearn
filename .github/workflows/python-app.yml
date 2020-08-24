@@ -41,4 +41,4 @@ jobs:
       uses: jpetrucciani/mypy-check@0.761
       with:
         # File or directory to run mypy on
-        path: .
+        path: colearn_interface
