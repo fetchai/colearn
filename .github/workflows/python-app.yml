@@ -5,7 +5,6 @@ name: Fetch AI Collective Learning Interface
 
 on:
   push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
   pull_request_review:
