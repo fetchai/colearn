@@ -51,35 +51,35 @@ class Config:
             self.data_split = [x / total_ds for x in self.data_split]
 
         if self.data == TrainingData.CHEXPERT_LIMITED_XRAY:
-            from ml.colearn.chexpert_limited.dataset import ChexpertLimited
+            from colearn.chexpert_limited.dataset import ChexpertLimited
 
             self.dataset = ChexpertLimited
         elif self.data == TrainingData.KAGGLE_XRAY:
-            from ml.colearn.kaggle_xray.dataset import KaggleXray
+            from colearn.kaggle_xray.dataset import KaggleXray
 
             self.dataset = KaggleXray
         elif self.data == TrainingData.MNIST:
-            from ml.colearn.mnist.dataset import Mnist
+            from colearn.mnist.dataset import Mnist
 
             self.dataset = Mnist
         elif self.data == TrainingData.CIFAR10:
-            from ml.colearn.cifar10.dataset import Cifar
+            from colearn.cifar10.dataset import Cifar
 
             self.dataset = Cifar
         elif self.data == TrainingData.SOUND:
-            from ml.colearn.sound.dataset import Sound
+            from colearn.sound.dataset import Sound
 
             self.dataset = Sound
         elif self.data == TrainingData.MEDICAL_SOUNDS:
-            from ml.colearn.medical_sounds.dataset import MedicalSound
+            from colearn.medical_sounds.dataset import MedicalSound
 
             self.dataset = MedicalSound
         elif self.data == TrainingData.FULL_CHEXPERT_XRAY:
-            from ml.colearn.full_chexpert.dataset import FullChexpert
+            from colearn.full_chexpert.dataset import FullChexpert
 
             self.dataset = FullChexpert
         elif self.data == TrainingData.FRAUD:
-            from ml.colearn.fraud.dataset import Fraud
+            from colearn.fraud.dataset import Fraud
 
             self.dataset = Fraud
 

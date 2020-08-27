@@ -12,9 +12,9 @@ import numpy as np
 from tqdm import tqdm
 import tensorflow.compat.v1 as tf
 
-from ml.colearn.ml_interface import ProposedWeights, MachineLearningInterface
-from ml.colearn.config import Config
-from ml.colearn.data import LearnerData
+from colearn.ml_interface import ProposedWeights, MachineLearningInterface
+from colearn.config import Config
+from colearn.data import LearnerData
 
 tf.disable_v2_behavior()
 

@@ -5,8 +5,8 @@ from numpy import mean, max, array, arange
 import os
 import matplotlib.pyplot as plt
 import matplotlib.axes._axes as mpl_ax
-from ml.colearn.config import Config, TrainingMode
-from ml.colearn.utils import Results
+from colearn.config import Config, TrainingMode
+from colearn.utils import Results
 
 
 def process_statistics(results: Results, config: Config):
