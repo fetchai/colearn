@@ -1,6 +1,9 @@
-from colearn.utils import missing_values_cross_entropy_loss
 import tensorflow.compat.v1 as tf
+
+from colearn.utils import missing_values_cross_entropy_loss
+
 from ..kaggle_xray.models import XraySuperminiLearner
+
 
 tf.disable_v2_behavior()
 
