@@ -2,13 +2,13 @@ import os
 import tempfile
 from pathlib import Path
 
-from colearn.config import Config, TrainingMode
-from colearn.utils import Results
-
 import matplotlib.axes._axes as mpl_ax
 import matplotlib.pyplot as plt
 
 from numpy import arange, array, max, mean
+
+from colearn.config import Config, TrainingMode
+from colearn.utils import Results
 
 
 def process_statistics(results: Results, config: Config):
