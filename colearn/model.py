@@ -14,7 +14,7 @@ import tensorflow.compat.v1 as tf
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface
 from colearn.config import Config
-from colearn.data import LearnerData
+from examples.utils.data import LearnerData
 
 tf.disable_v2_behavior()
 

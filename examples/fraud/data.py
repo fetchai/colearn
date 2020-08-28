@@ -8,7 +8,7 @@ from google.cloud import storage
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
-from colearn.data import shuffle_data, split_by_chunksizes
+from examples.utils.data import shuffle_data, split_by_chunksizes
 from colearn.model import LearnerData
 
 

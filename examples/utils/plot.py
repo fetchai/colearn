@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.axes._axes as mpl_ax
 from colearn.config import Config, TrainingMode
-from colearn.utils import Results
+from examples.utils.utils import Results
 
 
 def process_statistics(results: Results, config: Config):
