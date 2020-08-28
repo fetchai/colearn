@@ -1,7 +1,9 @@
 import numpy as np
+
 from tensorflow.compat import v1 as tf
 
 from colearn.model import KerasLearner
+
 
 tf.disable_v2_behavior()
 
