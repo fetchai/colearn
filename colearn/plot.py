@@ -1,12 +1,14 @@
+import os
 import tempfile
 from pathlib import Path
 
-from numpy import mean, max, array, arange
-import os
-import matplotlib.pyplot as plt
-import matplotlib.axes._axes as mpl_ax
 from colearn.config import Config, TrainingMode
 from colearn.utils import Results
+
+import matplotlib.axes._axes as mpl_ax
+import matplotlib.pyplot as plt
+
+from numpy import arange, array, max, mean
 
 
 def process_statistics(results: Results, config: Config):
