@@ -61,7 +61,8 @@ def init_list_of_objects(size):
     return [list() for _ in range(size)]
 
 
-# Splits data to len(chunks) parts and each chunks[i] defines percentage of len(data)
+# Splits data to len(chunks) parts and each chunks[i] defines percentage of
+# len(data)
 def split_by_chunksizes(data_lists, chunks):
     data_len = len(data_lists[0])
 
@@ -80,7 +81,7 @@ def split_by_chunksizes(data_lists, chunks):
             step = 1
 
         for j in range(len(data_lists)):
-            splitted_lists[j].append(data_lists[j][it : it + step])
+            splitted_lists[j].append(data_lists[j][it: it + step])
 
         it += step
 
