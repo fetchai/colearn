@@ -1,5 +1,7 @@
 import tensorflow.compat.v1 as tf
+
 from colearn.kaggle_xray.models import XrayDropout2Learner
+
 
 tf.disable_v2_behavior()
 
