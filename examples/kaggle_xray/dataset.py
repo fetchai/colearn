@@ -1,6 +1,6 @@
 from .data import split_to_folders, prepare_single_client
 from .config import load_config
-from colearn.xray_utils.plot import display_statistics, plot_results
+from examples.xray_utils.plot import display_statistics, plot_results
 from colearn.plot import plot_votes
 from colearn.model import KerasLearner
 

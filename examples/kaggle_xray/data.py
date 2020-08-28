@@ -6,7 +6,7 @@ from google.cloud import storage
 
 from colearn.config import Config
 from colearn.data import shuffle_data, split_by_chunksizes
-from colearn.xray_utils.data import estimate_cases, train_generator
+from examples.xray_utils.data import estimate_cases, train_generator
 from colearn.model import LearnerData
 
 normal_fl = "normal.pickle"
@@ -14,7 +14,8 @@ pneu_fl = "pneumonia.pickle"
 
 
 def split_to_folders(
-    config: Config, data_dir, output_folder=Path(tempfile.gettempdir()) / "kaggle_xray"
+    config: Config, data_dir,
+    output_folder=Path(tempfile.gettempdir()) / "kaggle_xray"
 ):
     if str(data_dir).startswith("gs://"):
         storage_client = storage.Client()
@@ -23,7 +24,8 @@ def split_to_folders(
         remote_data_dir = "/".join(dd_split[3:])
         cases = [
             x.name
-            for x in storage_client.list_blobs(bucket_name, prefix=remote_data_dir)
+            for x in storage_client.list_blobs(bucket_name,
+                                               prefix=remote_data_dir)
             if x.name.endswith("jpg") or x.name.endswith("jpeg")
         ]
 
@@ -51,7 +53,8 @@ def split_to_folders(
     [pneumonia_data] = shuffle_data([pneumonia_data], config.shuffle_seed)
 
     [normal_data_list] = split_by_chunksizes([normal_data], config.data_split)
-    [pneumonia_data_list] = split_by_chunksizes([pneumonia_data], config.data_split)
+    [pneumonia_data_list] = split_by_chunksizes([pneumonia_data],
+                                                config.data_split)
 
     if str(output_folder).startswith("gs://"):
         use_cloud = True
@@ -133,7 +136,8 @@ def prepare_single_client(config, data_dir):
 
     else:
         normal_data = pickle.load(open(Path(data_dir) / "normal.pickle", "rb"))
-        pneumonia_data = pickle.load(open(Path(data_dir) / "pneumonia.pickle", "rb"))
+        pneumonia_data = pickle.load(open(Path(data_dir) / "pneumonia.pickle",
+                                          "rb"))
 
     [[train_normal, test_normal]] = split_by_chunksizes(
         [normal_data], [config.train_ratio, config.test_ratio]
@@ -145,13 +149,16 @@ def prepare_single_client(config, data_dir):
     data.train_batch_size = config.batch_size
 
     data.train_gen = train_generator(
-        train_normal, train_pneumonia, config.batch_size, config, config.train_augment
+        train_normal, train_pneumonia, config.batch_size, config,
+        config.train_augment
     )
     data.val_gen = train_generator(
-        train_normal, train_pneumonia, config.batch_size, config, config.train_augment
+        train_normal, train_pneumonia, config.batch_size, config,
+        config.train_augment
     )
 
-    data.train_data_size = estimate_cases(len(train_normal), len(train_pneumonia))
+    data.train_data_size = estimate_cases(len(train_normal),
+                                          len(train_pneumonia))
 
     data.test_batch_size = config.batch_size
 
