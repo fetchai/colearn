@@ -2,12 +2,14 @@ import os
 import pickle
 import tempfile
 from pathlib import Path
-from google.cloud import storage
+
+#from google.cloud import storage
 
 from colearn.config import Config
 from colearn.data import shuffle_data, split_by_chunksizes
-from colearn.xray_utils.data import estimate_cases, train_generator
 from colearn.model import LearnerData
+from colearn.xray_utils.data import estimate_cases, train_generator
+
 
 normal_fl = "normal.pickle"
 pneu_fl = "pneumonia.pickle"
