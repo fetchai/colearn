@@ -1,12 +1,16 @@
+import os
+import pickle
+import shutil
+from pathlib import Path
+
 import imgaug.augmenters as iaa
-import tensorflow.keras.datasets.cifar10 as cifar10
+
 import numpy as np
 
-from colearn.data import shuffle_data
-from colearn.data import split_by_chunksizes
+import tensorflow.keras.datasets.cifar10 as cifar10
+
+from colearn.data import shuffle_data, split_by_chunksizes
 from colearn.model import LearnerData
-from pathlib import Path
-import os, pickle, shutil
 
 
 def split_to_folders(config, data_dir="", output_folder=Path(os.getcwd()) / "cifar"):
