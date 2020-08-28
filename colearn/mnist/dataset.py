@@ -1,7 +1,7 @@
-from ml.colearn.mnist.data import split_to_folders, prepare_single_client
-from ml.colearn.mnist.config import load_config
-from ml.colearn.plot import display_statistics, plot_results, plot_votes
-from ml.colearn.model import KerasLearner
+from colearn.mnist.data import split_to_folders, prepare_single_client
+from colearn.mnist.config import load_config
+from colearn.plot import display_statistics, plot_results, plot_votes
+from colearn.model import KerasLearner
 
 
 class Mnist:

@@ -3,8 +3,8 @@ import argparse
 import os
 from pathlib import Path
 
-from ml.colearn.config import Config, TrainingData
-from ml.colearn.training import main
+from colearn.config import Config, TrainingData
+from colearn.training import main
 
 parser = argparse.ArgumentParser(description='Run x-ray classification with tensorflow')
 parser.add_argument("-d", "--data_dir", required=True)

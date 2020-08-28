@@ -2,16 +2,16 @@ import os
 import pickle
 import tempfile
 from pathlib import Path
-from google.cloud import storage
+#from google.cloud import storage
 
 import imgaug.augmenters as iaa
 import numpy as np
 import tensorflow.keras.datasets.mnist as mnist
 
-from ml.colearn.config import Config
-from ml.colearn.data import shuffle_data
-from ml.colearn.data import split_by_chunksizes
-from ml.colearn.model import LearnerData
+from colearn.config import Config
+from colearn.data import shuffle_data
+from colearn.data import split_by_chunksizes
+from colearn.model import LearnerData
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't tracked yet
 if float(np.version.version[2:4]) == 18:
