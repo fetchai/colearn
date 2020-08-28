@@ -1,20 +1,25 @@
 import copy
 from abc import ABC
 from typing import List
+
+import numpy as np
+
 from sklearn.metrics import (
-    confusion_matrix,
     classification_report,
-    roc_auc_score,
+    confusion_matrix,
     jaccard_score,
+    roc_auc_score,
 )
 from sklearn.utils.validation import check_is_fitted
-import numpy as np
-from tqdm import tqdm
+
 import tensorflow.compat.v1 as tf
 
-from colearn.ml_interface import ProposedWeights, MachineLearningInterface
+from tqdm import tqdm
+
 from colearn.config import Config
 from colearn.data import LearnerData
+from colearn.ml_interface import MachineLearningInterface, ProposedWeights
+
 
 tf.disable_v2_behavior()
 
