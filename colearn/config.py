@@ -50,6 +50,7 @@ class Config:
         if total_ds > 1:
             self.data_split = [x / total_ds for x in self.data_split]
 
+        # pylint: disable=import-outside-toplevel
         if self.data == TrainingData.CHEXPERT_LIMITED_XRAY:
             from colearn.chexpert_limited.dataset import ChexpertLimited
 
