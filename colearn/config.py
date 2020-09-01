@@ -51,7 +51,7 @@ class Config:
             self.data_split = [x / total_ds for x in self.data_split]
 
         if self.data == TrainingData.KAGGLE_XRAY:
-            from examples.kaggle_xray.dataset import KaggleXray
+            from examples.xray.dataset import KaggleXray
             self.dataset = KaggleXray
 
         elif self.data == TrainingData.MNIST:
