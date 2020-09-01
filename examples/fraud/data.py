@@ -2,9 +2,13 @@ import os
 import pickle
 import tempfile
 from pathlib import Path
+
+#from google.cloud import storage
+
 import numpy as np
+
 import pandas as pd
-from google.cloud import storage
+
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 

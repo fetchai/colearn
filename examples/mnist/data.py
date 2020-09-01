@@ -5,13 +5,16 @@ from pathlib import Path
 #from google.cloud import storage
 
 import imgaug.augmenters as iaa
+
 import numpy as np
+
 import tensorflow.keras.datasets.mnist as mnist
 
 from colearn.config import Config
 from examples.utils.data import shuffle_data
 from examples.utils.data import split_by_chunksizes
 from colearn.model import LearnerData
+
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't tracked yet
 if float(np.version.version[2:4]) == 18:

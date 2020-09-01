@@ -1,15 +1,11 @@
+import os
 import tempfile
 from pathlib import Path
 
-import matplotlib.pyplot as plt
-from numpy import mean
-from numpy import max
-from numpy import array
-from numpy import arange
 import matplotlib.axes._axes as mpl_ax
+import matplotlib.pyplot as plt
 
-import statistics
-import os
+from numpy import arange, array, max, mean
 
 from colearn.config import Config, TrainingMode
 

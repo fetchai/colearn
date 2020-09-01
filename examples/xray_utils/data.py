@@ -1,7 +1,10 @@
-import numpy as np
 import imgaug.augmenters as iaa
+
+import numpy as np
+
 from examples.utils.data import normalize_image
 from colearn.config import Config
+
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't tracked yet
 if float(np.version.version[2:4]) == 18:

@@ -1,11 +1,12 @@
-from typing import List
-import numpy as np
 import os
+from typing import List
+
+import numpy as np
 
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
 
+tf.disable_v2_behavior()
 
 # Uncomment that to disable GPU execution
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
