@@ -1,18 +1,18 @@
-from colearn_interface.standalone_driver import run
+from standalone_driver import run
 
 from examples.plus_one_learner.plus_one_learner import PlusOneLearner
 
 
 def run_experiment(n_learners):
-    learners = [PlusOneLearner(0)] * 5
+    learners = [PlusOneLearner(0)] * n_learners
 
-    for l in learners:
-        print(l.current_value)
+    for ln in learners:
+        print(ln.current_value)
 
     run(10, learners)
 
-    for l in learners:
-        print(l.current_value)
+    for ln in learners:
+        print(ln.current_value)
 
 
 if __name__ == "__main__":

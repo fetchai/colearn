@@ -5,7 +5,7 @@ from typing import List
 from colearn.config import Config, TrainingMode
 from colearn.ml_interface import ProposedWeights
 from colearn.model import BasicLearner, setup_models
-from colearn.utils import Result, Results
+from examples.utils.utils import Result, Results
 
 # Uncomment that to disable GPU execution
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
