@@ -1,14 +1,19 @@
+import os
+import pickle
+import random
+import shutil
+from pathlib import Path
+
+import librosa
+
 import numpy as np
+
+import pandas as pd
 
 from colearn.data import shuffle_data
 from colearn.data import split_by_chunksizes
 from colearn.model import LearnerData
-from pathlib import Path
-import random
 
-import librosa
-import pandas as pd
-import pickle, os, shutil
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't tracked yet
 if float(np.version.version[2:4]) == 18:

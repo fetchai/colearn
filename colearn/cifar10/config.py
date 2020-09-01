@@ -1,5 +1,7 @@
 import tensorflow.compat.v1 as tf
+
 from .models import CIFAR10Conv2Learner
+
 
 tf.disable_v2_behavior()
 

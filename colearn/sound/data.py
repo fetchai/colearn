@@ -1,12 +1,15 @@
+import os
+import pickle
+import shutil
+from pathlib import Path
+
+import librosa
+
 import numpy as np
 
 from colearn.data import shuffle_data
 from colearn.data import split_by_chunksizes
 from colearn.model import LearnerData
-from pathlib import Path
-
-import librosa
-import os, pickle, shutil
 
 
 def wav2mfcc(file_path, augment=False, max_pad_len=11, freq_coeficients=40):
