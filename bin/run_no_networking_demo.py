@@ -6,9 +6,9 @@ from pathlib import Path
 from colearn.config import Config, TrainingData
 from colearn.training import main
 
-parser = argparse.ArgumentParser(description='Run x-ray classification with tensorflow')
+parser = argparse.ArgumentParser(description='Run colearn demo')
 parser.add_argument("-d", "--data_dir", required=True)
-parser.add_argument("-t", "--task", default="KAGGLE_XRAY")
+parser.add_argument("-t", "--task", default="XRAY")
 parser.add_argument("-s", "--seed", type=int, default=None)
 args = parser.parse_args()
 
@@ -19,7 +19,7 @@ if not os.path.isdir(data_dir):
 try:
     task = TrainingData[args.task]
 except KeyError:
-    raise Exception("task is not part of the TrainingData enum")
+    raise Exception("task %s not part of the TrainingData enum" % args.task)
 
 config = Config(Path(data_dir), task, seed=args.seed)
 main(config)

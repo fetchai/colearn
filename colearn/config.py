@@ -7,21 +7,16 @@ class TrainingMode(Enum):
 
 
 class TrainingData(Enum):
-    CHEXPERT_LIMITED_XRAY = 1
-    MNIST = 2
-    CIFAR10 = 3
-    SOUND = 4
-    MEDICAL_SOUNDS = 5
-    KAGGLE_XRAY = 6
-    FULL_CHEXPERT_XRAY = 7
-    FRAUD = 8
+    MNIST = 1
+    XRAY = 2
+    FRAUD = 3
 
 
 class Config:
     def __init__(
         self,
         main_data_dir=None,
-        task: TrainingData = TrainingData.KAGGLE_XRAY,
+        task: TrainingData = TrainingData.XRAY,
         n_learners=5,
         data_split=None,
         seed=None,
@@ -50,9 +45,9 @@ class Config:
         if total_ds > 1:
             self.data_split = [x / total_ds for x in self.data_split]
 
-        if self.data == TrainingData.KAGGLE_XRAY:
-            from examples.xray.dataset import KaggleXray
-            self.dataset = KaggleXray
+        if self.data == TrainingData.XRAY:
+            from examples.xray.dataset import Xray
+            self.dataset = Xray
 
         elif self.data == TrainingData.MNIST:
             from examples.mnist.dataset import Mnist
