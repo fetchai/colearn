@@ -41,7 +41,7 @@ The code for this tutorial is located [in the examples folder](https://github.co
 
 The learner we will use is the [MNISTConvLearner](https://github.com/fetchai/colearn/blob/master/examples/mnist/models.py) which contains a single method which just sets up the model:
 
-````
+```python
 class MNISTConvLearner(KerasLearner):
     def _get_model(self):
         input_img = tf.keras.Input(
@@ -70,15 +70,46 @@ class MNISTConvLearner(KerasLearner):
 
         model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
-````
+```
 
 As can be seen the model inherits from the (KerasLearner)[https://github.com/fetchai/colearn/blob/master/examples/keras_learner.py] which inherits from the [BasicLearner](https://github.com/fetchai/colearn/blob/66f50b446533d0bea67aea3f6bfa1990a0925d14/colearn/model.py) which implements the interface. Each of these intermediate classes are customization points the library provides to simplify the deployment of your own models. For any Keras based model we recommend starting with the KerasLearner. In the Example folder there is also a [SKLearnLearner](https://github.com/fetchai/colearn/blob/master/examples/sklearn_learner.py) for Sk learn based models (TODO add link). 
 
 TODO Maybe add an image?
 
 
+The BasicLearner handles some of the logic required by the interface and hands what is model specific to the subclass. For example BasicLearner implements test_model
 
+```python
+def test_model(self, weights=None) -> ProposedWeights:
+        """Tests the proposed weights and fills in the rest of the fields"""
+        if weights is None:
+            weights = self.get_weights()
 
+        proposed_weights = ProposedWeights()
+        proposed_weights.weights = weights
+        proposed_weights.validation_accuracy = self._test_model(weights,
+                                                                validate=True)
+        proposed_weights.test_accuracy = self._test_model(weights,
+                                                          validate=False)
+        proposed_weights.vote = (
+            proposed_weights.validation_accuracy >= self.vote_accuracy
+        )
 
-### 
+        return proposed_weights
+```
+but get_weights is left unimplemented
+```python
+def get_weights(self):
+    raise NotImplementedError
+```
+so it is implemented by the KerasLearner
+```python
+    def get_weights(self):
+        return KerasWeights(self._model.get_weights())
+```
+
+### Running the experiment
+
+For experiments using the standalone....
+
 
