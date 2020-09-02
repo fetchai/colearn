@@ -7,21 +7,16 @@ class TrainingMode(Enum):
 
 
 class TrainingData(Enum):
-    CHEXPERT_LIMITED_XRAY = 1
-    MNIST = 2
-    CIFAR10 = 3
-    SOUND = 4
-    MEDICAL_SOUNDS = 5
-    KAGGLE_XRAY = 6
-    FULL_CHEXPERT_XRAY = 7
-    FRAUD = 8
+    MNIST = 1
+    XRAY = 2
+    FRAUD = 3
 
 
 class Config:
     def __init__(
         self,
         main_data_dir=None,
-        task: TrainingData = TrainingData.KAGGLE_XRAY,
+        task: TrainingData = TrainingData.XRAY,
         n_learners=5,
         data_split=None,
         seed=None,
@@ -51,37 +46,15 @@ class Config:
             self.data_split = [x / total_ds for x in self.data_split]
 
         # pylint: disable=import-outside-toplevel
-        if self.data == TrainingData.CHEXPERT_LIMITED_XRAY:
-            from colearn.chexpert_limited.dataset import ChexpertLimited
-
-            self.dataset = ChexpertLimited
-        elif self.data == TrainingData.KAGGLE_XRAY:
-            from colearn.kaggle_xray.dataset import KaggleXray
-
-            self.dataset = KaggleXray
+        if self.data == TrainingData.XRAY:
+            from examples.xray.dataset import Xray
+            self.dataset = Xray
         elif self.data == TrainingData.MNIST:
-            from colearn.mnist.dataset import Mnist
-
+            from examples.mnist.dataset import Mnist
             self.dataset = Mnist
-        elif self.data == TrainingData.CIFAR10:
-            from colearn.cifar10.dataset import Cifar
 
-            self.dataset = Cifar
-        elif self.data == TrainingData.SOUND:
-            from colearn.sound.dataset import Sound
-
-            self.dataset = Sound
-        elif self.data == TrainingData.MEDICAL_SOUNDS:
-            from colearn.medical_sounds.dataset import MedicalSound
-
-            self.dataset = MedicalSound
-        elif self.data == TrainingData.FULL_CHEXPERT_XRAY:
-            from colearn.full_chexpert.dataset import FullChexpert
-
-            self.dataset = FullChexpert
         elif self.data == TrainingData.FRAUD:
-            from colearn.fraud.dataset import Fraud
-
+            from examples.fraud.dataset import Fraud
             self.dataset = Fraud
 
         # Load config

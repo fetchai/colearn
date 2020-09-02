@@ -1,8 +1,7 @@
-from colearn_interface.collective_learning_interface import \
-    Learner_Interface, ProposedWeights
+from colearn.ml_interface import MachineLearningInterface, ProposedWeights
 
 
-class PlusOneLearner(Learner_Interface):
+class PlusOneLearner(MachineLearningInterface):
     def __init__(self, start_value):
         self.current_value = start_value
 
@@ -19,7 +18,7 @@ class PlusOneLearner(Learner_Interface):
     def clone(self):
         return PlusOneLearner(self.current_value)
 
-    def test_model(self, weights) -> ProposedWeights:
+    def test_model(self, weights=None) -> ProposedWeights:
         result = ProposedWeights()
         result.weights = weights
         if weights > self.current_value:
