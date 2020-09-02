@@ -17,7 +17,7 @@ pneu_fl = "pneumonia.pickle"
 
 def split_to_folders(
     config: Config, data_dir,
-    output_folder=Path(tempfile.gettempdir()) / "kaggle_xray"
+    output_folder=Path(tempfile.gettempdir()) / "xray"
 ):
     if str(data_dir).startswith("gs://"):
         storage_client = storage.Client()
@@ -60,7 +60,7 @@ def split_to_folders(
 
     if str(output_folder).startswith("gs://"):
         use_cloud = True
-        local_output_dir = Path(tempfile.gettempdir()) / "kaggle_xray"
+        local_output_dir = Path(tempfile.gettempdir()) / "xray"
         outfol_split = output_folder.split("/")
         bucket_name = outfol_split[2]
         remote_output_dir = "/".join(outfol_split[3:])
@@ -119,7 +119,7 @@ def prepare_single_client(config, data_dir):
 
         remote_normal_data, remote_pneumonia_data = data
 
-        local_data_dir = Path(tempfile.gettempdir()) / "kaggle_xray"
+        local_data_dir = Path(tempfile.gettempdir()) / "xray"
         os.makedirs(str(local_data_dir), exist_ok=True)
 
         normal_data = []
