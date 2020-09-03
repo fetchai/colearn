@@ -1,6 +1,6 @@
 from typing import List, Callable
 
-from colearn.config import TrainingMode, ColearnConfig, TrainingData, \
+from config import TrainingMode, ColearnConfig, TrainingData, \
     ModelConfig
 from colearn.ml_interface import ProposedWeights
 from colearn.basic_learner import BasicLearner, LearnerData

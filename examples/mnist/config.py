@@ -1,7 +1,7 @@
 import tensorflow.compat.v1 as tf
 
 from .models import MNISTSuperminiLearner
-from colearn.config import ModelConfig
+from config import ModelConfig
 
 
 tf.disable_v2_behavior()

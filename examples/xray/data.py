@@ -5,7 +5,7 @@ from pathlib import Path
 
 #from google.cloud import storage
 
-from colearn.config import ColearnConfig, ModelConfig
+from config import ColearnConfig, ModelConfig
 from examples.utils.data import shuffle_data, split_by_chunksizes
 from examples.xray_utils.data import estimate_cases, train_generator
 from basic_learner import LearnerData

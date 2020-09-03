@@ -10,7 +10,7 @@ import numpy as np
 
 import tensorflow.keras.datasets.mnist as mnist
 
-from colearn.config import ColearnConfig, ModelConfig
+from config import ColearnConfig, ModelConfig
 from examples.utils.data import shuffle_data
 from examples.utils.data import split_by_chunksizes
 from basic_learner import LearnerData

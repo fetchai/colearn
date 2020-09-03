@@ -3,7 +3,7 @@ import argparse
 import os
 from pathlib import Path
 
-from colearn.config import TrainingData, ColearnConfig
+from config import TrainingData, ColearnConfig
 from training import main
 
 parser = argparse.ArgumentParser(description='Run colearn demo')

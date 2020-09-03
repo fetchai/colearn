@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from numpy import arange, array, max, mean
 
-from colearn.config import TrainingMode, ColearnConfig, ModelConfig
+from config import TrainingMode, ColearnConfig, ModelConfig
 from examples.utils.utils import Results
 
 
