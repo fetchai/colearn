@@ -1,5 +1,4 @@
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface
-from colearn.config import Config
 
 
 class RingBuffer:
@@ -34,11 +33,10 @@ class LearnerData:
 
 
 class BasicLearner(MachineLearningInterface):
-    def __init__(self, config: Config, data: LearnerData, model=None):
+    def __init__(self, data: LearnerData, model=None):
         self.vote_accuracy = 0
 
         self.data = data
-        self.config = config
 
         self._model = model or self._get_model()
         self.print_summary()

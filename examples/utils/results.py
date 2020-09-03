@@ -1,8 +1,4 @@
-import os
 from typing import List
-
-# Uncomment that to disable GPU execution
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 
 class Result:
