@@ -4,12 +4,12 @@ from typing import List
 import numpy as np
 from sklearn.metrics import jaccard_score, confusion_matrix, \
     classification_report, roc_auc_score
-from tensorflow_core._api.v2.compat import v1 as tf
+from tensorflow._api.v2.compat import v1 as tf
 from tqdm import tqdm
 
-from config import Config
-from model import BasicLearner
-from examples.utils.data import LearnerData
+from colearn.config import Config
+from colearn.model import BasicLearner
+from utils.data import LearnerData
 
 
 class KerasWeights:
