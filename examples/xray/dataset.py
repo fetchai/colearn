@@ -1,8 +1,9 @@
-from .data import split_to_folders, prepare_single_client
-from .config import load_config
-from examples.xray_utils.plot import display_statistics, plot_results
+from examples.keras_learner import KerasLearner
 from examples.utils.plot import plot_votes
-from keras_learner import KerasLearner
+from examples.xray_utils.plot import display_statistics, plot_results
+
+from .config import load_config
+from .data import prepare_single_client, split_to_folders
 
 
 class Xray:
