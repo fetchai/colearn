@@ -13,7 +13,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
 from examples.utils.data import shuffle_data, split_by_chunksizes
-from model import LearnerData
+from basic_learner import LearnerData
 
 
 def fraud_preprocessing(data_dir, data_file, labels_file):

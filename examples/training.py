@@ -2,7 +2,7 @@ from typing import List
 
 from colearn.config import Config, TrainingMode
 from colearn.ml_interface import ProposedWeights
-from colearn.model import BasicLearner
+from colearn.basic_learner import BasicLearner
 from colearn.standalone_driver import run_one_epoch
 from examples.utils.utils import Result, Results
 

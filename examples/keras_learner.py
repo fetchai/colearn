@@ -8,7 +8,7 @@ from tensorflow_core._api.v2.compat import v1 as tf
 from tqdm import tqdm
 
 from config import Config
-from model import BasicLearner, LearnerData
+from basic_learner import BasicLearner, LearnerData
 
 
 class KerasWeights:
