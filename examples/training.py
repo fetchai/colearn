@@ -5,7 +5,7 @@ from config import TrainingMode, ColearnConfig, TrainingData, \
 from colearn.ml_interface import ProposedWeights
 from colearn.basic_learner import BasicLearner, LearnerData
 from colearn.standalone_driver import run_one_epoch
-from examples.utils.utils import Result, Results
+from examples.utils.results import Result, Results
 
 
 def setup_models(config: ModelConfig, client_data_folders_list: List[str],

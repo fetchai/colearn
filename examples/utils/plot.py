@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from numpy import arange, array, max, mean
 
 from config import TrainingMode, ColearnConfig, ModelConfig
-from examples.utils.utils import Results
+from examples.utils.results import Results
 
 
 def process_statistics(results: Results, colearn_config: ColearnConfig):
