@@ -5,7 +5,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
 from tqdm import tqdm
 
-from config import Config
+from config import ModelConfig
 from basic_learner import BasicLearner, LearnerData
 
 
@@ -15,8 +15,9 @@ class SKLearnWeights:
 
 
 class SKLearnLearner(BasicLearner, ABC):
-    def __init__(self, config: Config, data: LearnerData, model=None):
-        BasicLearner.__init__(self, config, data=data, model=model)
+    def __init__(self, config: ModelConfig, data: LearnerData, model=None):
+        self.config = config
+        BasicLearner.__init__(self, data=data, model=model)
 
     def _train_model(self):
         steps_per_epoch = (
@@ -31,7 +32,7 @@ class SKLearnLearner(BasicLearner, ABC):
         if self.config.n_classes == 1:
             class_labels = range(2)
         else:
-            class_labels = self.class_labels
+            class_labels = self.config.class_labels
 
         for _ in tqdm(range(steps_per_epoch)):
             data, labels = self.data.train_gen.__next__()

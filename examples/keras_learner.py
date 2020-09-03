@@ -7,7 +7,7 @@ from sklearn.metrics import jaccard_score, confusion_matrix, \
 from tensorflow_core._api.v2.compat import v1 as tf
 from tqdm import tqdm
 
-from config import Config
+from config import ModelConfig
 from basic_learner import BasicLearner, LearnerData
 
 
@@ -27,8 +27,9 @@ class EarlyStoppingWhenSignaled(tf.keras.callbacks.Callback):
 
 
 class KerasLearner(BasicLearner, ABC):
-    def __init__(self, config: Config, data: LearnerData, model: tf.keras.Model = None):
-        BasicLearner.__init__(self, config, data=data, model=model)
+    def __init__(self, config: ModelConfig, data: LearnerData, model: tf.keras.Model = None):
+        self.config = config
+        BasicLearner.__init__(self, data=data, model=model)
         self._stop_training = False
 
         self.x_hat = list()

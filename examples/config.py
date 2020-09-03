@@ -12,7 +12,7 @@ class TrainingData(Enum):
     FRAUD = 3
 
 
-class Config:
+class ColearnConfig:
     def __init__(
         self,
         main_data_dir=None,
@@ -42,28 +42,38 @@ class Config:
         if total_ds > 1:
             self.data_split = [x / total_ds for x in self.data_split]
 
-        # pylint: disable=import-outside-toplevel
-        if self.data == TrainingData.XRAY:
-            from examples.xray.dataset import Xray
-            self.dataset = Xray
-        elif self.data == TrainingData.MNIST:
-            from examples.mnist.dataset import Mnist
-            self.dataset = Mnist
+        # None means random seed
+        self.shuffle_seed = seed
 
-        elif self.data == TrainingData.FRAUD:
-            from examples.fraud.dataset import Fraud
-            self.dataset = Fraud
+        self.plot_results = True
 
-        # Load config
-        self.dataset.load_config(self)
 
+class ModelConfig:
+    def __init__(self, seed=None):
+        # Training params
+        self.optimizer = None
+        self.l_rate = 0.001
+        self.l_rate_decay = 1e-5
+        self.batch_size = 64
+
+        # Model params
+        self.model_type = None
+
+        self.width = 28
+        self.height = 28
+        self.loss = "sparse_categorical_crossentropy"
+        self.n_classes = 10
+        self.multi_hot = False
         self.class_labels = range(self.n_classes)
 
-        # None means random seed
-        self.generator_seed = seed
-        self.shuffle_seed = seed
+        # Data params
+        self.steps_per_epoch = None
+
+        self.train_ratio = 0.8
+        self.val_batches = 2  # number of batches used for voting
+        self.test_ratio = 1 - self.train_ratio
 
         self.train_augment = False
         self.test_augment = False
 
-        self.plot_results = True
+        self.generator_seed = seed
