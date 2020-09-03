@@ -1,5 +1,6 @@
 import tensorflow.compat.v1 as tf
 
+from config import ModelConfig
 from .models import XraySuperminiLearner
 
 
@@ -29,3 +30,9 @@ def load_config(config):
     config.train_ratio = 0.92
     config.val_batches = 13  # number of batches used for voting
     config.test_ratio = 1 - config.train_ratio
+
+
+class XrayConfig(ModelConfig):
+    def __init__(self):
+        super().__init__()
+        load_config(self)

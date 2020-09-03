@@ -1,6 +1,7 @@
 import tensorflow.compat.v1 as tf
 
 from .models import MNISTSuperminiLearner
+from colearn.config import ModelConfig
 
 
 tf.disable_v2_behavior()
@@ -29,3 +30,9 @@ def load_config(config):
     config.train_ratio = 0.8
     config.val_batches = 2  # number of batches used for voting
     config.test_ratio = 1 - config.train_ratio
+
+
+class MNISTConfig(ModelConfig):
+    def __init__(self):
+        super().__init__()
+        load_config(self)

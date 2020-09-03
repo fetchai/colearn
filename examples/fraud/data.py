@@ -14,6 +14,7 @@ from sklearn.preprocessing import scale
 
 from examples.utils.data import shuffle_data, split_by_chunksizes
 from basic_learner import LearnerData
+from fraud.config import FraudConfig
 
 
 def fraud_preprocessing(data_dir, data_file, labels_file):
@@ -192,7 +193,7 @@ def split_to_folders(config, data_dir, output_folder=Path(os.getcwd()) / "fraud"
     return dir_names
 
 
-def prepare_single_client(config, data_dir):
+def prepare_single_client(config: FraudConfig, data_dir):
     data = LearnerData()
     data.train_batch_size = config.batch_size
 

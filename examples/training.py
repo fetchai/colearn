@@ -1,24 +1,26 @@
-from typing import List
+from typing import List, Callable
 
-from colearn.config import Config, TrainingMode
+from colearn.config import TrainingMode, ColearnConfig, TrainingData, \
+    ModelConfig
 from colearn.ml_interface import ProposedWeights
-from colearn.basic_learner import BasicLearner
+from colearn.basic_learner import BasicLearner, LearnerData
 from colearn.standalone_driver import run_one_epoch
 from examples.utils.utils import Result, Results
 
 
-def setup_models(config: Config, client_data_folders_list: List[str]):
+def setup_models(config: ModelConfig, client_data_folders_list: List[str],
+                 data_loading_func: Callable[[ModelConfig, str], LearnerData]):
     learner_datasets = []
-    for i in range(config.n_learners):
+    n_learners = len(client_data_folders_list)
+    for i in range(n_learners):
         learner_datasets.append(
-            config.dataset.prepare_single_client(config,
-                                                 client_data_folders_list[i])
+            data_loading_func(config, client_data_folders_list[i])
         )
 
     all_learner_models = []
     clone_model = config.model_type(config, data=learner_datasets[0])
 
-    for i in range(config.n_learners):
+    for i in range(n_learners):
         model = clone_model.clone(data=learner_datasets[i])
 
         all_learner_models.append(model)
@@ -74,42 +76,57 @@ def individual_training_pass(learners):
     return result
 
 
-def main(config: Config):
+def main(colearn_config: ColearnConfig):
     results = Results()
 
+    if colearn_config.data == TrainingData.XRAY:
+        from examples.xray.dataset import split_to_folders, display_statistics, plot_results, plot_votes, prepare_single_client
+        from examples.xray.config import XrayConfig
+        model_config = XrayConfig()
+    elif colearn_config.data == TrainingData.MNIST:
+        from examples.mnist.dataset import split_to_folders, display_statistics, plot_results, plot_votes, prepare_single_client
+        from examples.mnist.config import MNISTConfig
+        model_config = MNISTConfig()
+    elif colearn_config.data == TrainingData.FRAUD:
+        from examples.fraud.dataset import split_to_folders, display_statistics, plot_results, plot_votes, prepare_single_client
+        from examples.fraud.config import FraudConfig
+        model_config = FraudConfig()
+    else:
+        raise Exception("Unknown task: %s" % colearn_config.data)
+
     # load, shuffle, clean, and split the data into n_learners
-    client_data_folders_list = config.dataset.split_to_folders(
-        config, config.main_data_dir
+    client_data_folders_list = split_to_folders(
+        colearn_config, colearn_config.main_data_dir
     )
 
     # setup n_learners duplicate models before training
     all_learner_models = setup_models(
-        config, client_data_folders_list
+        model_config, client_data_folders_list, prepare_single_client
     )  # type: List[BasicLearner]
 
     # Get initial accuracy
     results.data.append(initial_result(all_learner_models))
 
-    for i in range(config.n_epochs):
-        if config.mode == TrainingMode.COLLABORATIVE:
+    for i in range(colearn_config.n_epochs):
+        if colearn_config.mode == TrainingMode.COLLABORATIVE:
             results.data.append(
                 collaborative_training_pass(all_learner_models,
-                                            config.vote_threshold, i)
+                                            colearn_config.vote_threshold, i)
             )
-        elif config.mode == TrainingMode.INDIVIDUAL:
+        elif colearn_config.mode == TrainingMode.INDIVIDUAL:
             results.data.append(individual_training_pass(all_learner_models))
         else:
             raise Exception("Unknown training mode")
 
-        config.dataset.display_statistics(results, config, i + 1)
+        display_statistics(results, colearn_config, model_config, i + 1)
 
-        if config.plot_results:
+        if colearn_config.plot_results:
             # then make an updating graph
-            config.dataset.plot_results(results, config, block=False)
-            if config.mode == TrainingMode.COLLABORATIVE:
-                config.dataset.plot_votes(results, block=False)
+            plot_results(results, colearn_config, block=False)
+            if colearn_config.mode == TrainingMode.COLLABORATIVE:
+                plot_votes(results, block=False)
 
-    if config.plot_results:
-        config.dataset.plot_results(results, config, block=False)
-        if config.mode == TrainingMode.COLLABORATIVE:
-            config.dataset.plot_votes(results, block=True)
+    if colearn_config.plot_results:
+        plot_results(results, colearn_config, block=False)
+        if colearn_config.mode == TrainingMode.COLLABORATIVE:
+            plot_votes(results, block=True)

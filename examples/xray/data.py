@@ -5,7 +5,7 @@ from pathlib import Path
 
 #from google.cloud import storage
 
-from colearn.config import Config
+from colearn.config import ColearnConfig, ModelConfig
 from examples.utils.data import shuffle_data, split_by_chunksizes
 from examples.xray_utils.data import estimate_cases, train_generator
 from basic_learner import LearnerData
@@ -15,7 +15,7 @@ pneu_fl = "pneumonia.pickle"
 
 
 def split_to_folders(
-    config: Config, data_dir,
+    config: ColearnConfig, data_dir,
     output_folder=Path(tempfile.gettempdir()) / "xray"
 ):
     if str(data_dir).startswith("gs://"):
@@ -96,7 +96,7 @@ def split_to_folders(
     return dir_names
 
 
-def prepare_single_client(config, data_dir):
+def prepare_single_client(config: ModelConfig, data_dir):
     data = LearnerData()
 
     if str(data_dir).startswith("gs://"):
@@ -150,12 +150,16 @@ def prepare_single_client(config, data_dir):
     data.train_batch_size = config.batch_size
 
     data.train_gen = train_generator(
-        train_normal, train_pneumonia, config.batch_size, config,
-        config.train_augment
+        train_normal, train_pneumonia, config.batch_size, config.width,
+        config.height,
+        augmentation=config.train_augment,
+        seed=config.generator_seed
     )
     data.val_gen = train_generator(
-        train_normal, train_pneumonia, config.batch_size, config,
-        config.train_augment
+        train_normal, train_pneumonia, config.batch_size, config.width,
+        config.height,
+        augmentation=config.train_augment,
+        seed=config.generator_seed
     )
 
     data.train_data_size = estimate_cases(len(train_normal),
@@ -167,8 +171,10 @@ def prepare_single_client(config, data_dir):
         test_normal,
         test_pneumonia,
         config.batch_size,
-        config,
-        config.test_augment,
+        config.width,
+        config.height,
+        augmentation=config.train_augment,
+        seed=config.generator_seed,
         shuffle=False,
     )
 

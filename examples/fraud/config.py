@@ -1,5 +1,6 @@
 import tensorflow.compat.v1 as tf
 
+from config import ModelConfig
 from .models import FraudSVMLearner
 
 
@@ -30,3 +31,10 @@ def load_config(config):
     config.train_ratio = 0.8
     config.val_batches = 1  # number of batches used for voting
     config.test_ratio = 1 - config.train_ratio
+
+
+class FraudConfig(ModelConfig):
+    def __init__(self):
+        super().__init__()
+        self.input_classes = 431
+        load_config(self)

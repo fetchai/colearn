@@ -3,10 +3,9 @@ import imgaug.augmenters as iaa
 import numpy as np
 
 from examples.utils.data import normalize_image
-from colearn.config import Config
 
-
-# this line is a fix for np.version 1.18 making a change that imgaug hasn't tracked yet
+# this line is a fix for np.version 1.18 making a change that imgaug hasn't
+# tracked yet
 if float(np.version.version[2:4]) == 18:
     np.random.bit_generator = np.random._bit_generator
 
@@ -32,9 +31,11 @@ def train_generator(
     normal_data,
     pneumonia_data,
     batch_size,
-    config: Config,
+    width,
+    height,
     augmentation=True,
     shuffle=True,
+    seed=None
 ):
     # Get total number of samples in the data
     n_normal = len(normal_data)
@@ -42,7 +43,7 @@ def train_generator(
 
     # Define two numpy arrays for containing batch data and labels
     batch_data = np.zeros(
-        (batch_size, config.width, config.height, 1), dtype=np.float32
+        (batch_size, width, height, 1), dtype=np.float32
     )
     batch_labels = np.zeros((batch_size, 1), dtype=np.float32)
 
@@ -51,8 +52,8 @@ def train_generator(
     indices_pneumonia = np.arange(n_pneumonia)
 
     if shuffle:
-        if config.generator_seed is not None:
-            np.random.seed(config.generator_seed)
+        if seed is not None:
+            np.random.seed(seed)
         np.random.shuffle(indices_normal)
         np.random.shuffle(indices_pneumonia)
 
@@ -65,15 +66,15 @@ def train_generator(
     while True:
         if batch_counter % 2 == 0:
             img_data, img_label = normalize_image(
-                normal_data[indices_normal[it_normal]], 0, config.width, config.height
+                normal_data[indices_normal[it_normal]], 0, width, height
             )
             it_normal += 1
         else:
             img_data, img_label = normalize_image(
                 pneumonia_data[indices_pneumonia[it_pneumonia]],
                 1,
-                config.width,
-                config.height,
+                width,
+                height,
             )
             it_pneumonia += 1
 
@@ -89,16 +90,16 @@ def train_generator(
             it_normal = 0
 
             if shuffle:
-                if config.generator_seed is not None:
-                    np.random.seed(config.generator_seed)
+                if seed is not None:
+                    np.random.seed(seed)
                 np.random.shuffle(indices_normal)
 
         if it_pneumonia >= n_pneumonia:
             it_pneumonia = 0
 
             if shuffle:
-                if config.generator_seed is not None:
-                    np.random.seed(config.generator_seed)
+                if seed is not None:
+                    np.random.seed(seed)
                 np.random.shuffle(indices_pneumonia)
 
         if batch_counter == batch_size:

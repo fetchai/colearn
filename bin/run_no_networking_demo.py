@@ -3,7 +3,7 @@ import argparse
 import os
 from pathlib import Path
 
-from colearn.config import Config, TrainingData
+from colearn.config import TrainingData, ColearnConfig
 from training import main
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
@@ -21,5 +21,5 @@ try:
 except KeyError:
     raise Exception("task %s not part of the TrainingData enum" % args.task)
 
-config = Config(Path(data_dir), task, seed=args.seed)
+config = ColearnConfig(Path(data_dir), task, seed=args.seed)
 main(config)
