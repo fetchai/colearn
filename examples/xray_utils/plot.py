@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # pylint: disable=W0622
 from numpy import arange, array, max, mean
 
-from config import TrainingMode, ModelConfig, ColearnConfig
+from examples.config import TrainingMode, ModelConfig, ColearnConfig
 
 
 def process_statistics(results, colearn_config: ColearnConfig):

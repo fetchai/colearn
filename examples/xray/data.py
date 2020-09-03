@@ -3,7 +3,8 @@ import pickle
 import tempfile
 from pathlib import Path
 
-from config import ColearnConfig, ModelConfig
+from colearn.basic_learner import LearnerData
+from examples.config import ColearnConfig, ModelConfig
 from examples.utils.data import shuffle_data, split_by_chunksizes
 from examples.xray_utils.data import estimate_cases, train_generator
 
