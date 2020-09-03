@@ -1,8 +1,36 @@
-from typing import List
-
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface
 from colearn.config import Config
-from examples.utils.data import LearnerData
+
+
+class RingBuffer:
+    def __init__(self, size_limit):
+        self._max_size = size_limit
+        self._keys_list = []
+        self._data_dict = {}
+
+    def add(self, key, value):
+        if len(self._keys_list) >= self._max_size:
+            oldest_key = self._keys_list.pop(0)
+            self._data_dict.pop(oldest_key, None)
+        h = hash(key)
+        self._data_dict[h] = value
+        self._keys_list.append(h)
+
+    def get(self, key):
+        h = hash(key)
+        return self._data_dict.get(h)
+
+
+class LearnerData:
+    train_gen = ()
+    val_gen = ()  # this is a copy of train gen
+    test_gen = ()
+
+    train_data_size = 0  # this includes augmentation
+    test_data_size = 0  # this includes augmentation
+
+    train_batch_size = 0
+    test_batch_size = 0
 
 
 class BasicLearner(MachineLearningInterface):
@@ -15,6 +43,8 @@ class BasicLearner(MachineLearningInterface):
         self._model = model or self._get_model()
         self.print_summary()
 
+        self.vote_score_cache = RingBuffer(10)
+
     def print_summary(self):
         raise NotImplementedError
 
@@ -25,22 +55,24 @@ class BasicLearner(MachineLearningInterface):
         raise NotImplementedError
 
     def accept_weights(self, proposed_weights: ProposedWeights):
-        # overwrite model weights with accepted weights from across the network
+        # overwrite model weights with new weights
         self._set_weights(proposed_weights.weights)
 
-        # update stored performance metrics with metrics computed based on
-        # those weights
-        self.vote_accuracy = proposed_weights.validation_accuracy
+        # update stored performance metrics
+        try:
+            self.vote_accuracy = self.vote_score_cache.get(
+                proposed_weights.weights)
+        except KeyError:
+            self.vote_accuracy = self._test_model(proposed_weights.weights,
+                                                  validate=True)
 
     def train_model(self):
         old_weights = self.get_weights()
 
-        train_accuracy = self._train_model()
+        self._train_model()
 
         new_weights = self.get_weights()
         self._set_weights(old_weights)
-
-        print("Train accuracy: ", train_accuracy)
 
         return new_weights
 
@@ -59,6 +91,10 @@ class BasicLearner(MachineLearningInterface):
         proposed_weights.weights = weights
         proposed_weights.validation_accuracy = self._test_model(weights,
                                                                 validate=True)
+        # store this in the cache
+        self.vote_score_cache.add(proposed_weights.weights,
+                                  proposed_weights.validation_accuracy)
+
         proposed_weights.test_accuracy = self._test_model(weights,
                                                           validate=False)
         proposed_weights.vote = (
@@ -78,20 +114,3 @@ class BasicLearner(MachineLearningInterface):
 
     def clone(self, data=None):
         raise NotImplementedError
-
-
-def setup_models(config: Config, learner_datasets: List[LearnerData]):
-    all_learner_models = []
-    clone_model = None
-    if config.clone_model:
-        clone_model = config.model_type(config, data=learner_datasets[0])
-
-    for i in range(config.n_learners):
-        if not config.clone_model:
-            model = config.model_type(config, data=learner_datasets[i])
-        else:
-            model = clone_model.clone(data=learner_datasets[i])
-
-        all_learner_models.append(model)
-
-    return all_learner_models

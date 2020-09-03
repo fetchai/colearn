@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from colearn.config import Config, TrainingData
-from colearn.training import main
+from training import main
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
 parser.add_argument("-d", "--data_dir", required=True)

@@ -30,9 +30,6 @@ class Config:
         self.vote_threshold = 0.5  # 0.66666
         self.mode = TrainingMode.COLLABORATIVE
 
-        # Model params
-        self.clone_model = True
-
         # Data params
         self.main_data_dir = main_data_dir
         self.data = task if task in TrainingData else TrainingData[task]
@@ -45,10 +42,10 @@ class Config:
         if total_ds > 1:
             self.data_split = [x / total_ds for x in self.data_split]
 
+        # pylint: disable=import-outside-toplevel
         if self.data == TrainingData.XRAY:
             from examples.xray.dataset import Xray
             self.dataset = Xray
-
         elif self.data == TrainingData.MNIST:
             from examples.mnist.dataset import Mnist
             self.dataset = Mnist
@@ -69,13 +66,4 @@ class Config:
         self.train_augment = False
         self.test_augment = False
 
-        # Generators will be used in manual mode
-        self.random_proposer = True
-
         self.plot_results = True
-
-
-class LearnerConfig:
-    def __init__(self, name, data_dir):
-        self.name = name
-        self.data_dir = data_dir

@@ -7,9 +7,8 @@ from sklearn.metrics import jaccard_score, confusion_matrix, \
 from tensorflow._api.v2.compat import v1 as tf
 from tqdm import tqdm
 
-from colearn.config import Config
-from colearn.model import BasicLearner
-from utils.data import LearnerData
+from config import Config
+from basic_learner import BasicLearner, LearnerData
 
 
 class KerasWeights:

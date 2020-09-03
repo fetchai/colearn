@@ -5,18 +5,6 @@ import cv2
 import numpy as np
 
 
-class LearnerData:
-    train_gen = ()
-    val_gen = ()  # this is a copy of train gen
-    test_gen = ()
-
-    train_data_size = 0  # this includes augmentation
-    test_data_size = 0  # this includes augmentation
-
-    train_batch_size = 0
-    test_batch_size = 0
-
-
 def shuffle_data(data_lists, seed=None):
     for i in range(len(data_lists) - 1):
         assert len(data_lists[i]) == len(data_lists[i + 1])
