@@ -18,10 +18,7 @@ pip install colearn
 
 ## Quick Overview
 
-The main components of yada yada yada
-* ml_interface
-* standalone_driver
-* basic learner
+We will give a short description of the minimum interface a learner has to implement and then give a quick overview of the general architecture. 
 
 *** The Interface
 
@@ -122,8 +119,10 @@ so it is implemented by the KerasLearner
         return KerasWeights(self._model.get_weights())
 ```
 
+Bu using and extending the learners provided it is simple to setup your own models. 
+
 ### Running the experiment
 
-For experiments using the standalone....
+For experiments using the standalone driver
 
 
