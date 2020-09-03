@@ -8,8 +8,7 @@ from pathlib import Path
 from colearn.config import Config
 from examples.utils.data import shuffle_data, split_by_chunksizes
 from examples.xray_utils.data import estimate_cases, train_generator
-from colearn.model import LearnerData
-
+from model import LearnerData
 
 normal_fl = "normal.pickle"
 pneu_fl = "pneumonia.pickle"

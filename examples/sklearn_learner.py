@@ -6,8 +6,7 @@ from sklearn.utils.validation import check_is_fitted
 from tqdm import tqdm
 
 from config import Config
-from model import BasicLearner
-from examples.utils.data import LearnerData
+from model import BasicLearner, LearnerData
 
 
 class SKLearnWeights:

@@ -30,9 +30,6 @@ class Config:
         self.vote_threshold = 0.5  # 0.66666
         self.mode = TrainingMode.COLLABORATIVE
 
-        # Model params
-        self.clone_model = True
-
         # Data params
         self.main_data_dir = main_data_dir
         self.data = task if task in TrainingData else TrainingData[task]
@@ -69,13 +66,4 @@ class Config:
         self.train_augment = False
         self.test_augment = False
 
-        # Generators will be used in manual mode
-        self.random_proposer = True
-
         self.plot_results = True
-
-
-class LearnerConfig:
-    def __init__(self, name, data_dir):
-        self.name = name
-        self.data_dir = data_dir
