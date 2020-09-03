@@ -45,10 +45,10 @@ class Config:
         if total_ds > 1:
             self.data_split = [x / total_ds for x in self.data_split]
 
+        # pylint: disable=import-outside-toplevel
         if self.data == TrainingData.XRAY:
             from examples.xray.dataset import Xray
             self.dataset = Xray
-
         elif self.data == TrainingData.MNIST:
             from examples.mnist.dataset import Mnist
             self.dataset = Mnist
