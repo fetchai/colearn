@@ -80,16 +80,16 @@ def main(colearn_config: ColearnConfig):
     results = Results()
 
     if colearn_config.data == TrainingData.XRAY:
-        from examples.xray.dataset import split_to_folders, display_statistics, plot_results, plot_votes, prepare_single_client
-        from examples.xray.config import XrayConfig
+        from examples.xray import split_to_folders, display_statistics, \
+            plot_results, plot_votes, prepare_single_client, XrayConfig
         model_config = XrayConfig()
     elif colearn_config.data == TrainingData.MNIST:
-        from examples.mnist.dataset import split_to_folders, display_statistics, plot_results, plot_votes, prepare_single_client
-        from examples.mnist.config import MNISTConfig
+        from examples.mnist import split_to_folders, display_statistics, \
+            plot_results, plot_votes, prepare_single_client, MNISTConfig
         model_config = MNISTConfig()
     elif colearn_config.data == TrainingData.FRAUD:
-        from examples.fraud.dataset import split_to_folders, display_statistics, plot_results, plot_votes, prepare_single_client
-        from examples.fraud.config import FraudConfig
+        from examples.fraud import split_to_folders, display_statistics, \
+            plot_results, plot_votes, prepare_single_client, FraudConfig
         model_config = FraudConfig()
     else:
         raise Exception("Unknown task: %s" % colearn_config.data)
