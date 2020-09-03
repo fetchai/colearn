@@ -1,6 +1,8 @@
 # Welcome to the Fetch.ai Colearn Documentation
 
-This blockchain-mediated collective learning system enables multiple stakeholders to build a shared machine learning model without needing to rely on a central authority. There are, however, many potential avenues for future improvements. We’re currently working on some important questions such as; “How are participants incentivized to behave well?”, or “Who pays for the on-chain data storage?”, or “What about the validators with data that is inconsistent with the others?”. Along with these issues we’ve also been improving the stability and efficiency of collective learning that we’ll be describing in future articles and source code releases.
+Colearn is a library that enables privacy preserving decentralized machine learning tasks on the FET network.
+
+This blockchain-mediated collective learning system enables multiple stakeholders to build a shared machine learning model without needing to rely on a central authority. This library is currently in development. 
 
 ### Current Version
 
@@ -30,10 +32,22 @@ The ML Interface is the minimal functionality a learner needs to expose to be ab
 * Accept Weights
 See https://github.com/fetchai/colearn/blob/master/colearn/ml_interface.py for more details. 
 
+*** Overview
+
+We identify four components of a learning task:
+* The Model: Which defines the architecture and current weights(state?) of the model
+* The Learners: Holds a private data set and implements the Machine Learning Interface. It can train its local model on its private data and evaluate and vote on other weights proposed by other learners
+* The Backend: Runs the learning task. In the current version this simply a standalone driver that runs a simple training loop. In later versions the backend will be a fully decentralized distributed ledger process. This will also enable the discovery of afine models and more complex learning and consensus strategies, for a more complete vision see [here](https://medium.com/fetch-ai/democratising-machine-learning-with-blockchain-technology-10b56ceda41e).
+* The Training Loop: The backend runs the training loop which consists of three main steps. 
+  1. The backend selects a learner and the learner proposes a new sets of weights for the model.
+  2. Every learner votes on the proposed weights.
+  3. If the vote passes then the model is adopted by all the learners if not its rejected.  Then the loop restarts.  
+
+
 In the following section we show how to train a handwritten digit recognizing machine learning model using the Mnist database. 
 In it we also present several useful classes that can be used to develop your own models. 
 
-## MNIST Tutorial
+## MNIST Example
 
 This tutorial trains a neural network model to classify handwritten digits in the [MNIST](http://yann.lecun.com/exdb/mnist/) database.
 The tutorial will use Tensorflow for the model framework and to obtain the data. We wont go into the details of the model or tensorflow and will focus on the steps needed to run a collective learning task. TODO Needs more references... 
