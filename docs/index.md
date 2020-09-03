@@ -30,15 +30,16 @@ The ML Interface is the minimal functionality a learner needs to expose to be ab
 * Stop Training
 * Test Model
 * Accept Weights
-See https://github.com/fetchai/colearn/blob/master/colearn/ml_interface.py for more details. 
+
+See [the code](https://github.com/fetchai/colearn/blob/master/colearn/ml_interface.py) for more details. 
 
 *** Overview
 
 We identify four components of a learning task:
-* The Model: Which defines the architecture and current weights(state?) of the model
-* The Learners: Holds a private data set and implements the Machine Learning Interface. It can train its local model on its private data and evaluate and vote on other weights proposed by other learners
-* The Backend: Runs the learning task. In the current version this simply a standalone driver that runs a simple training loop. In later versions the backend will be a fully decentralized distributed ledger process. This will also enable the discovery of afine models and more complex learning and consensus strategies, for a more complete vision see [here](https://medium.com/fetch-ai/democratising-machine-learning-with-blockchain-technology-10b56ceda41e).
-* The Training Loop: The backend runs the training loop which consists of three main steps. 
+* **The Model**: Which defines the architecture and current weights(state?) of the model
+* **The Learners**: Holds a private data set and implements the Machine Learning Interface. It can train its local model on its private data and evaluate and vote on other weights proposed by other learners
+* **The Backend**: Runs the learning task. In the current version this simply a standalone driver that runs a simple training loop. In later versions the backend will be a fully decentralized distributed ledger process. This will also enable the discovery of afine models and more complex learning and consensus strategies, for a more complete vision see [here](https://medium.com/fetch-ai/democratising-machine-learning-with-blockchain-technology-10b56ceda41e).
+* **The Training Loop**: The backend runs the training loop which consists of three main steps. 
   1. The backend selects a learner and the learner proposes a new sets of weights for the model.
   2. Every learner votes on the proposed weights.
   3. If the vote passes then the model is adopted by all the learners if not its rejected.  Then the loop restarts.  
@@ -89,9 +90,6 @@ class MNISTConvLearner(KerasLearner):
 ```
 
 As can be seen the model inherits from the (KerasLearner)[https://github.com/fetchai/colearn/blob/master/examples/keras_learner.py] which inherits from the [BasicLearner](https://github.com/fetchai/colearn/blob/66f50b446533d0bea67aea3f6bfa1990a0925d14/colearn/model.py) which implements the interface. Each of these intermediate classes are customization points the library provides to simplify the deployment of your own models. For any Keras based model we recommend starting with the KerasLearner. In the Example folder there is also a [SKLearnLearner](https://github.com/fetchai/colearn/blob/master/examples/sklearn_learner.py) for Sk learn based models (TODO add link). 
-
-TODO Maybe add an image?
-
 
 The BasicLearner handles some of the logic required by the interface and hands what is model specific to the subclass. For example BasicLearner implements test_model
 
