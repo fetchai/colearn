@@ -1,9 +1,11 @@
 # Welcome to the Fetch.ai Colearn Documentation
 
+This blockchain-mediated collective learning system enables multiple stakeholders to build a shared machine learning model without needing to rely on a central authority. There are, however, many potential avenues for future improvements. We’re currently working on some important questions such as; “How are participants incentivized to behave well?”, or “Who pays for the on-chain data storage?”, or “What about the validators with data that is inconsistent with the others?”. Along with these issues we’ve also been improving the stability and efficiency of collective learning that we’ll be describing in future articles and source code releases.
+
 ### Current Version
 
 We have released *v.0.1* of Colearn Machine Learning Interface, the first version of an interface that will allow developers to prepare for future releases. 
-Together with the interface we provide a simple backend for local experiments. This is the first backend with upcoming distributed ledger based backends to follow.  
+Together with the interface we provide a simple backend for local experiments. This is the first backend with upcoming blockchain ledger based backends to follow.  
 Future releases will use similar interfaces so that learners built with the current system will work on a different backend.
 The current framework will then be used mainly for model development and debugging.
 We invite all users to experiment with the framework, develop their own models, and provide feedback!
