@@ -5,9 +5,10 @@ from pathlib import Path
 import matplotlib.axes._axes as mpl_ax
 import matplotlib.pyplot as plt
 
+# pylint: disable=W0622
 from numpy import arange, array, max, mean
 
-from config import TrainingMode, ModelConfig, ColearnConfig
+from examples.config import TrainingMode, ModelConfig, ColearnConfig
 
 
 def process_statistics(results, colearn_config: ColearnConfig):
@@ -119,7 +120,6 @@ def plot_results(results,
         plt.pause(0.01)
     else:
         plt.show(block=True)
-    return
 
 
 def display_statistics(

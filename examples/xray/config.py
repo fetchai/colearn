@@ -1,6 +1,7 @@
 import tensorflow.compat.v1 as tf
 
-from config import ModelConfig
+from examples.config import ModelConfig
+
 from .models import XraySuperminiLearner
 
 
