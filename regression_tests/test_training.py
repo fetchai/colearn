@@ -1,4 +1,4 @@
-from .context import Config
+from .context import ColearnConfig
 from basic_learner import BasicLearner
 from ml_interface import MachineLearningInterface
 from pathlib import Path
@@ -6,7 +6,7 @@ from examples.mnist.models import MNISTSuperminiLearner
 from .utils import learner_provider, data_provider
 from examples.keras_learner import KerasLearner
 from training import *
-from examples.utils.utils import Result, Results
+from examples.utils.results import Result, Results
 from .pickle_tester import FileTester
 import copy
 import pickle
@@ -15,7 +15,7 @@ import pytest
 
 @pytest.mark.dependency
 def test_individual_training_pass(learner_provider, tmpdir):
-    config = Config(Path(tmpdir), "MNIST", seed=55, n_learners=2)
+    config = ColearnConfig(Path(tmpdir), "MNIST", seed=55, n_learners=2)
     config._test_id = "split55"
 
     all_learner_models = learner_provider(config)
@@ -43,7 +43,7 @@ def test_individual_training_pass(learner_provider, tmpdir):
 
 @pytest.mark.dependency(depends=['test_individual_training_pass'])
 def test_collaborative_training_pass(learner_provider, tmpdir):
-    config = Config(Path(tmpdir), "MNIST", seed=55, n_learners=2)
+    config = ColearnConfig(Path(tmpdir), "MNIST", seed=55, n_learners=2)
     config._test_id = "split55"
     config.vote_threshold = 0.3
     learners = learner_provider(config)

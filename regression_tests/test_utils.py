@@ -1,4 +1,4 @@
-from .context import Config
+from .context import ColearnConfig
 from examples.utils.data import *
 import random
 import pickle
