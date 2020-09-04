@@ -2,7 +2,7 @@ import os
 import pickle
 from pathlib import Path
 
-from basic_learner import LearnerData
+from colearn.basic_learner import LearnerData
 
 import numpy as np
 
