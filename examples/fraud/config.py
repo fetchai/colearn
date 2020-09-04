@@ -1,8 +1,8 @@
 import tensorflow.compat.v1 as tf
 
-from config import ModelConfig
-from .models import FraudSVMLearner
+from ..config import ModelConfig
 
+from .models import FraudSVMLearner
 
 tf.disable_v2_behavior()
 

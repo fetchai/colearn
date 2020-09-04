@@ -1,9 +1,8 @@
 import os
 import pickle
-import tempfile
 from pathlib import Path
 
-#from google.cloud import storage
+from basic_learner import LearnerData
 
 import numpy as np
 
@@ -13,8 +12,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
 from examples.utils.data import shuffle_data, split_by_chunksizes
-from basic_learner import LearnerData
-from fraud.config import FraudConfig
+
+from .config import FraudConfig
 
 
 def fraud_preprocessing(data_dir, data_file, labels_file):
@@ -117,55 +116,23 @@ LABEL_FL = "labels.pickle"
 
 
 def split_to_folders(config, data_dir, output_folder=Path(os.getcwd()) / "fraud"):
-    if str(data_dir).startswith("gs://"):
-        storage_client = storage.Client()
-        dd_split = data_dir.split("/")
-        bucket_name = dd_split[2]
-        bucket = storage_client.bucket(bucket_name)
-        remote_data_dir = "/".join(dd_split[3:])
+    data_file = data_dir + "/data.npy"
+    labels_file = data_dir + "/labels.npy"
 
-        data_and_labels = []
-        for fl in ["data.npy", "labels.npy"]:
-            with tempfile.TemporaryFile("rb+") as tmpfl:
-                blob = bucket.blob(remote_data_dir + "/" + fl)
-                blob.download_to_file(tmpfl)
-                tmpfl.seek(0)
-                data_and_labels.append(np.load(tmpfl))
-
-        data, labels = data_and_labels
-
+    if not os.path.isfile(data_file) or not os.path.isfile(labels_file):
+        data, labels = fraud_preprocessing(data_dir, data_file, labels_file)
     else:
-        data_file = data_dir + "/data.npy"
-        labels_file = data_dir + "/labels.npy"
-
-        if not os.path.isfile(data_file) or not os.path.isfile(labels_file):
-            data, labels = fraud_preprocessing(data_dir, data_file, labels_file)
-        else:
-            data = np.load(data_file)
-            labels = np.load(labels_file)
+        data = np.load(data_file)
+        labels = np.load(labels_file)
 
     [data, labels] = shuffle_data([data, labels], config.shuffle_seed)
 
     [data_lists, labels_lists] = split_by_chunksizes([data, labels], config.data_split)
 
-    if str(output_folder).startswith("gs://"):
-        use_cloud = True
-        print(
-            "google account details",
-            os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "no account details set"),
-        )
-        local_output_dir = Path(tempfile.gettempdir()) / "mnist"
-        outfol_split = output_folder.split("/")
-        bucket_name = outfol_split[2]
-        remote_output_dir = "/".join(outfol_split[3:])
-
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-    else:
-        use_cloud = False
-        local_output_dir = Path(output_folder)
-        bucket = None
-        remote_output_dir = None
+    use_cloud = False
+    local_output_dir = Path(output_folder)
+    bucket = None
+    remote_output_dir = None
 
     dir_names = []
     for i in range(config.n_learners):
@@ -182,11 +149,10 @@ def split_to_folders(config, data_dir, output_folder=Path(os.getcwd()) / "fraud"
             for fl in [DATA_FL, LABEL_FL]:
                 remote_image = os.path.join(remote_dir, fl)
                 file_blob = bucket.blob(str(remote_image))
-                file_blob.chunk_size = (
-                    5 * 1024 * 1024
-                )  # Set 5MB chunk size otherwise upload times out
-                file_blob.upload_from_filename(str(dir_name / fl))
 
+                # Set 5MB chunk size otherwise upload times out
+                file_blob.chunk_size = (5 * 1024 * 1024)
+                file_blob.upload_from_filename(str(dir_name / fl))
             dir_names.append("gs://" + bucket.name + "/" + remote_dir)
         else:
             dir_names.append(dir_name)
@@ -197,31 +163,8 @@ def prepare_single_client(config: FraudConfig, data_dir):
     data = LearnerData()
     data.train_batch_size = config.batch_size
 
-    if str(data_dir).startswith("gs://"):
-        print(
-            "google account details:",
-            os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "no account details set"),
-        )
-        data_dir = str(data_dir)
-        outfol_split = data_dir.split("/")
-        bucket_name = outfol_split[2]
-        remote_dir = "/".join(outfol_split[3:])
-
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-
-        data_list = []
-        for fl in [DATA_FL, LABEL_FL]:
-            with tempfile.TemporaryFile("rb+") as tmpfl:
-                blob = bucket.blob(remote_dir + "/" + fl)
-                blob.download_to_file(tmpfl)
-                tmpfl.seek(0)
-                data_list.append(pickle.load(tmpfl))
-
-        data, labels = data_list
-    else:
-        data = pickle.load(open(Path(data_dir) / DATA_FL, "rb"))
-        labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
+    data = pickle.load(open(Path(data_dir) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
 
     [[train_data, test_data], [train_labels, test_labels]] = split_by_chunksizes(
         [data, labels], [config.train_ratio, config.test_ratio]
