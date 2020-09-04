@@ -15,7 +15,7 @@ from basic_learner import BasicLearner, LearnerData
 
 
 class KerasWeights:
-    __slots__ = 'data'
+    __slots__ = ('data',)
 
     def __init__(self, data: List[np.array]):
         self.data = data
