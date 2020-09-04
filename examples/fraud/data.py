@@ -129,10 +129,7 @@ def split_to_folders(config, data_dir, output_folder=Path(os.getcwd()) / "fraud"
 
     [data_lists, labels_lists] = split_by_chunksizes([data, labels], config.data_split)
 
-    use_cloud = False
     local_output_dir = Path(output_folder)
-    bucket = None
-    remote_output_dir = None
 
     dir_names = []
     for i in range(config.n_learners):
@@ -143,19 +140,7 @@ def split_to_folders(config, data_dir, output_folder=Path(os.getcwd()) / "fraud"
         pickle.dump(data_lists[i], open(dir_name / DATA_FL, "wb"))
         pickle.dump(labels_lists[i], open(dir_name / LABEL_FL, "wb"))
 
-        if use_cloud:
-            # upload files to gcloud
-            remote_dir = os.path.join(remote_output_dir, str(i))
-            for fl in [DATA_FL, LABEL_FL]:
-                remote_image = os.path.join(remote_dir, fl)
-                file_blob = bucket.blob(str(remote_image))
-
-                # Set 5MB chunk size otherwise upload times out
-                file_blob.chunk_size = (5 * 1024 * 1024)
-                file_blob.upload_from_filename(str(dir_name / fl))
-            dir_names.append("gs://" + bucket.name + "/" + remote_dir)
-        else:
-            dir_names.append(dir_name)
+        dir_names.append(dir_name)
     return dir_names
 
 
