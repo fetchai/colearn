@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from examples.config import ModelConfig
 
-from basic_learner import BasicLearner, LearnerData
+from colearn.basic_learner import BasicLearner, LearnerData
 
 
 class KerasWeights:

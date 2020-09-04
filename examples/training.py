@@ -84,15 +84,15 @@ def main(colearn_config: ColearnConfig):
     if colearn_config.data == TrainingData.XRAY:
         from examples.xray import split_to_folders, display_statistics, \
             plot_results, plot_votes, prepare_single_client, XrayConfig
-        model_config = XrayConfig()
+        model_config = XrayConfig(colearn_config.shuffle_seed)
     elif colearn_config.data == TrainingData.MNIST:
         from examples.mnist import split_to_folders, display_statistics, \
             plot_results, plot_votes, prepare_single_client, MNISTConfig
-        model_config = MNISTConfig()
+        model_config = MNISTConfig(colearn_config.shuffle_seed)
     elif colearn_config.data == TrainingData.FRAUD:
         from examples.fraud import split_to_folders, display_statistics, \
             plot_results, plot_votes, prepare_single_client, FraudConfig
-        model_config = FraudConfig()
+        model_config = FraudConfig(colearn_config.shuffle_seed)
     else:
         raise Exception("Unknown task: %s" % colearn_config.data)
 

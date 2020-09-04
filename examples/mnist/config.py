@@ -1,15 +1,15 @@
 import tensorflow.compat.v1 as tf
 
 from .models import MNISTSuperminiLearner
-from config import ModelConfig
+from examples.config import ModelConfig
 
 
 tf.disable_v2_behavior()
 
 
 class MNISTConfig(ModelConfig):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, seed=None):
+        super().__init__(seed)
 
         # Training params
         self.optimizer = tf.keras.optimizers.Adam
