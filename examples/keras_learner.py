@@ -2,16 +2,21 @@ from abc import ABC
 from typing import List
 
 import numpy as np
-from sklearn.metrics import jaccard_score, confusion_matrix, \
-    classification_report, roc_auc_score
+
+from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
+
 from tensorflow._api.v2.compat import v1 as tf
+
 from tqdm import tqdm
 
 from examples.config import ModelConfig
+
 from colearn.basic_learner import BasicLearner, LearnerData
 
 
 class KerasWeights:
+    __slots__ = ('data',)
+
     def __init__(self, data: List[np.array]):
         self.data = data
 
@@ -32,16 +37,10 @@ class KerasLearner(BasicLearner, ABC):
         BasicLearner.__init__(self, data=data, model=model)
         self._stop_training = False
 
-        self.x_hat = list()
-        self.s_list = []
-
     def _train_model(self):
         self._stop_training = False
 
-        steps_per_epoch = (
-            self.config.steps_per_epoch
-            or self.data.train_data_size // self.data.train_batch_size
-        )
+        steps_per_epoch = self.config.steps_per_epoch or (self.data.train_data_size // self.data.train_batch_size)
 
         history = self._model.fit(
             self.data.train_gen,
@@ -82,16 +81,15 @@ class KerasLearner(BasicLearner, ABC):
             generator = self.data.test_gen
             n_steps = max(1, int(self.data.test_data_size // self.data.test_batch_size))
 
-        all_labels = []
-        all_preds = []
+        all_labels = []  # type: ignore
+        all_preds = []  # type: ignore
 
         for _ in tqdm(range(n_steps)):
             data, labels = generator.__next__()
             pred = self._model.predict(data)
 
             if self.config.multi_hot:
-                labels = labels
-                pred = pred
+                pass  # all done
             else:
                 if self.config.n_classes > 1:
                     # Multiple classes
@@ -151,7 +149,7 @@ class KerasLearner(BasicLearner, ABC):
                     print("AUC score:", accuracy)
                     print("Confusion martrix:\n", conf_matrix)
                     print("Classification report:\n", class_report)
-                except:
+                except ValueError:
                     accuracy = 0
                     print("AUC score:", accuracy)
 
