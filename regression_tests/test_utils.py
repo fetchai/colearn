@@ -50,7 +50,7 @@ def _gen():
 
 def test_shuffle_data():
     ft = FileTester()
-    data = ft.get_pickle("./tests/data/utils.pickle")
+    data = ft.get_pickle("./regression_tests/data/utils.pickle")
 
     shuffled = []
     for a in data["lists"]:
@@ -61,7 +61,7 @@ def test_shuffle_data():
 
 def test_split_by_chunksizes():
     ft = FileTester()
-    data = ft.get_pickle("./tests/data/utils.pickle")
+    data = ft.get_pickle("./regression_tests/data/utils.pickle")
     chunk_sizes = []
     chunks = []
 
@@ -76,7 +76,7 @@ def test_split_by_chunksizes():
 
 def test_normal_split():
     ft = FileTester()
-    data = ft.get_pickle("./tests/data/utils.pickle")
+    data = ft.get_pickle("./regression_tests/data/utils.pickle")
 
     chunk_sizes = []
     normal = []

@@ -1,5 +1,5 @@
 import pytest
-from colearn.model import setup_models
+from training import setup_models
 
 
 @pytest.fixture
@@ -28,11 +28,14 @@ def learner_provider(request, data_provider):
             client_data_folders_list = data_provider(config)
             all_learner_data = []
             for i in range(config.n_learners):
+                print(type(client_data_folders_list[i]), client_data_folders_list[i])
                 all_learner_data.append(
                     config.dataset.prepare_single_client(config, client_data_folders_list[i])
                 )
-            val = setup_models(
-                config, all_learner_data
-            )
+            val = []
+            clone_model = config.model_type(config, data=all_learner_data[0])
+            for i in range(config.n_learners):
+                model = clone_model.clone(data=all_learner_data[i])
+                val.append(model)
         return val
     return wrapper

@@ -7,8 +7,8 @@ import numpy as np
 
 
 _DATA_PATHS = {
-    "mnist": "tests/data/mnist/",
-    "cifar10": "tests/data/cifar10/"
+    "mnist": "regression_tests/data/mnist/",
+    "cifar10": "regression_tests/data/cifar10/"
 }
 
 

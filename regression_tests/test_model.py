@@ -1,6 +1,6 @@
 from .context import Config
-from colearn.model import setup_models, BasicLearner
-from colearn.ml_interface import MachineLearningInterface
+from basic_learner import  BasicLearner
+from ml_interface import MachineLearningInterface
 from pathlib import Path
 from examples.mnist.models import MNISTSuperminiLearner
 from .utils import learner_provider, data_provider
@@ -17,4 +17,3 @@ def test_model_setup(learner_provider, tmpdir):
     assert len(all_learner_models) == 4
     for l in all_learner_models:
         assert isinstance(l, BasicLearner)
-        assert isinstance(l, MachineLearningInterface)
