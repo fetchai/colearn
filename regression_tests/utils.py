@@ -1,6 +1,6 @@
 import pytest
 from training import setup_models
-from config import TrainingData
+from examples.config import TrainingData
 
 
 @pytest.fixture
