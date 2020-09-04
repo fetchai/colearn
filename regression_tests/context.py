@@ -4,4 +4,4 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'colearn')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', "examples")))
 
-from config import ColearnConfig
+from examples.config import ColearnConfig

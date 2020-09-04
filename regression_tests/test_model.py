@@ -1,5 +1,5 @@
 from .context import ColearnConfig
-from basic_learner import  BasicLearner
+from colearn.basic_learner import  BasicLearner
 from ml_interface import MachineLearningInterface
 from pathlib import Path
 from examples.mnist.models import MNISTSuperminiLearner

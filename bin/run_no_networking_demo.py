@@ -3,8 +3,8 @@ import argparse
 import os
 from pathlib import Path
 
-from config import TrainingData, ColearnConfig
-from training import main
+from examples.config import TrainingData, ColearnConfig
+from examples.training import main
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
 parser.add_argument("-d", "--data_dir", required=True)

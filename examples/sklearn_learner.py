@@ -5,8 +5,8 @@ from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
 from tqdm import tqdm
 
-from config import ModelConfig
-from basic_learner import BasicLearner, LearnerData
+from examples.config import ModelConfig
+from colearn.basic_learner import BasicLearner, LearnerData
 
 
 class SKLearnWeights:
