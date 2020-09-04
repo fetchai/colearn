@@ -8,8 +8,8 @@ tf.disable_v2_behavior()
 
 
 class MNISTConfig(ModelConfig):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, seed=None):
+        super().__init__(seed)
 
         # Training params
         self.optimizer = tf.keras.optimizers.Adam
