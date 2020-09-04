@@ -24,6 +24,7 @@ class EmptyGenerator:
     def __next__(self):
         pass
 
+
 class LearnerData:
     train_gen = EmptyGenerator()
     val_gen = EmptyGenerator()  # this is a copy of train gen

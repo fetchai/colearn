@@ -32,7 +32,7 @@ class ColearnConfig:
 
         # Data params
         self.main_data_dir = main_data_dir
-        self.data = task if task in TrainingData else TrainingData[task]
+        self.data = task if isinstance(task, TrainingData) == TrainingData else TrainingData[str(task)]
         self.total_data_fraction = 1.0
         self.data_split = (
             data_split or [self.total_data_fraction / n_learners] * n_learners
