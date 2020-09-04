@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Sequence
 
 from colearn.ml_interface import MachineLearningInterface
 
@@ -8,7 +8,7 @@ def run(n_epochs: int, learners: List[MachineLearningInterface]):
         run_one_epoch(i, learners)
 
 
-def run_one_epoch(epoch_index: int, learners: List[MachineLearningInterface],
+def run_one_epoch(epoch_index: int, learners: Sequence[MachineLearningInterface],
                   vote_threshold=0.5):
     proposer = epoch_index % len(learners)
     new_weights = learners[proposer].train_model()
