@@ -89,7 +89,7 @@ def split_normal(parts, std_dev, seed=None):
         np.random.seed(seed)
 
     chunk_sizes = []
-    for i in range(parts):
+    for _ in range(parts):
         chunk_sizes.append(np.round(np.random.normal(data_mean, std_dev)))
     chunk_sizes = chunk_sizes / sum(chunk_sizes)
 
@@ -101,7 +101,7 @@ def split_lrg(parts, ratio):
     rest_ratio = (1.0 - ratio) / (parts - 1)
 
     chunk_sizes = [ratio]
-    for i in range(parts - 1):
+    for _ in range(parts - 1):
         chunk_sizes.append(rest_ratio)
 
     return chunk_sizes

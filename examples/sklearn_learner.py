@@ -1,5 +1,7 @@
 import copy
 from abc import ABC
+from typing import List
+import numpy as np
 
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
@@ -10,6 +12,8 @@ from colearn.basic_learner import BasicLearner, LearnerData
 
 
 class SKLearnWeights:
+    __slots__ = ('data',)
+
     def __init__(self, data):
         self.data = data
 
@@ -55,10 +59,10 @@ class SKLearnLearner(BasicLearner, ABC):
     def _test_model(self, weights: SKLearnWeights = None, validate=False):
         try:
             check_is_fitted(self._model)
-        except:
+        except (ValueError, TypeError, AttributeError):
             return 0
 
-        temp_weights = []
+        temp_weights = None
         if weights and weights.data:
             # store current weights in temporary variables
             temp_weights = self.get_weights()
@@ -73,8 +77,8 @@ class SKLearnLearner(BasicLearner, ABC):
             generator = self.data.test_gen
             n_steps = max(1, int(self.data.test_data_size // self.data.test_batch_size))
 
-        all_labels = []
-        all_preds = []
+        all_labels: List[np.array] = []
+        all_preds: List[np.array] = []
 
         for _ in tqdm(range(n_steps)):
             data, labels = generator.__next__()

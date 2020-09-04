@@ -20,10 +20,14 @@ class RingBuffer:
         return self._data_dict.get(h)
 
 
+class EmptyGenerator:
+    def __next__(self):
+        pass
+
 class LearnerData:
-    train_gen = ()
-    val_gen = ()  # this is a copy of train gen
-    test_gen = ()
+    train_gen = EmptyGenerator()
+    val_gen = EmptyGenerator()  # this is a copy of train gen
+    test_gen = EmptyGenerator()
 
     train_data_size = 0  # this includes augmentation
     test_data_size = 0  # this includes augmentation
