@@ -5,7 +5,7 @@ import numpy as np
 
 from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
 
-from tensorflow_core._api.v2.compat import v1 as tf
+from tensorflow._api.v2.compat import v1 as tf
 
 from tqdm import tqdm
 
