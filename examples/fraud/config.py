@@ -8,8 +8,8 @@ tf.disable_v2_behavior()
 
 
 class FraudConfig(ModelConfig):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, seed=None):
+        super().__init__(seed)
 
         # Training params
         self.batch_size = 10000
