@@ -1,11 +1,12 @@
-from typing import List, Callable
+# type: ignore [no-redef]
+from typing import Callable, List
 
-from config import TrainingMode, ColearnConfig, TrainingData, \
-    ModelConfig
-from colearn.ml_interface import ProposedWeights
-from colearn.basic_learner import BasicLearner, LearnerData
-from colearn.standalone_driver import run_one_epoch
+from examples.config import ColearnConfig, ModelConfig, TrainingData, TrainingMode
 from examples.utils.results import Result, Results
+
+from colearn.basic_learner import BasicLearner, LearnerData
+from colearn.ml_interface import ProposedWeights
+from colearn.standalone_driver import run_one_epoch
 
 
 def setup_models(config: ModelConfig, client_data_folders_list: List[str],
@@ -79,6 +80,7 @@ def individual_training_pass(learners):
 def main(colearn_config: ColearnConfig):
     results = Results()
 
+    # pylint: disable=C0415
     if colearn_config.data == TrainingData.XRAY:
         from examples.xray import split_to_folders, display_statistics, \
             plot_results, plot_votes, prepare_single_client, XrayConfig
