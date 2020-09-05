@@ -5,18 +5,6 @@ import cv2
 import numpy as np
 
 
-class LearnerData:
-    train_gen = ()
-    val_gen = ()  # this is a copy of train gen
-    test_gen = ()
-
-    train_data_size = 0  # this includes augmentation
-    test_data_size = 0  # this includes augmentation
-
-    train_batch_size = 0
-    test_batch_size = 0
-
-
 def shuffle_data(data_lists, seed=None):
     for i in range(len(data_lists) - 1):
         assert len(data_lists[i]) == len(data_lists[i + 1])
@@ -101,7 +89,7 @@ def split_normal(parts, std_dev, seed=None):
         np.random.seed(seed)
 
     chunk_sizes = []
-    for i in range(parts):
+    for _ in range(parts):
         chunk_sizes.append(np.round(np.random.normal(data_mean, std_dev)))
     chunk_sizes = chunk_sizes / sum(chunk_sizes)
 
@@ -113,7 +101,7 @@ def split_lrg(parts, ratio):
     rest_ratio = (1.0 - ratio) / (parts - 1)
 
     chunk_sizes = [ratio]
-    for i in range(parts - 1):
+    for _ in range(parts - 1):
         chunk_sizes.append(rest_ratio)
 
     return chunk_sizes

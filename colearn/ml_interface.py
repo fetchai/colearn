@@ -2,11 +2,15 @@ import abc
 
 
 class Weights:
+    __slots__ = ('weights', )
+
     def __init__(self, weights):
         self.weights = weights
 
 
 class ProposedWeights:
+    __slots__ = ('weights', 'validation_accuracy', 'test_accuracy', 'vote')
+
     def __init__(self):
         self.weights = None
         self.validation_accuracy = 0

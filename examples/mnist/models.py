@@ -65,7 +65,7 @@ class MNISTSuperminiLearner(KerasLearner):
             26, (3, 3), depth_multiplier=1, padding="same", activation="relu"
         )
 
-        for n in range(3):
+        for _ in range(3):
             x = dw_block(sh_l, x)
 
         x = tf.keras.layers.GlobalAveragePooling2D()(x)
