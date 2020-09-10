@@ -20,7 +20,7 @@ def data_provider(request):
             else:
                 raise Exception("Unknown task: %s" % config.data)
             val = split_to_folders(
-                config, config.main_data_dir
+                config, config.data_dir
             )
             request.config.cache.set(path, val)
         return val

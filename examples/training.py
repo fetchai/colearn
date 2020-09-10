@@ -98,7 +98,7 @@ def main(colearn_config: ColearnConfig):
 
     # load, shuffle, clean, and split the data into n_learners
     client_data_folders_list = split_to_folders(
-        colearn_config, colearn_config.main_data_dir
+        colearn_config, colearn_config.data_dir
     )
 
     # setup n_learners duplicate models before training
