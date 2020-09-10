@@ -5,9 +5,9 @@ from pathlib import Path
 
 from colearn.basic_learner import LearnerData
 
-from examples.config import ColearnConfig, ModelConfig
-from examples.utils.data import shuffle_data, split_by_chunksizes
-from examples.xray_utils.data import estimate_cases, train_generator
+from colearn_examples.config import ColearnConfig, ModelConfig
+from colearn_examples.utils.data import shuffle_data, split_by_chunksizes
+from colearn_examples.xray_utils.data import estimate_cases, train_generator
 
 
 normal_fl = "normal.pickle"

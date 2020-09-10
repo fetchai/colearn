@@ -1,5 +1,5 @@
 from .context import ColearnConfig
-from examples.utils.data import *
+from colearn_examples.utils.data import *
 import random
 import pickle
 from .pickle_tester import FileTester

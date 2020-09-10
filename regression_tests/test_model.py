@@ -2,9 +2,9 @@ from .context import ColearnConfig
 from colearn.basic_learner import  BasicLearner
 from ml_interface import MachineLearningInterface
 from pathlib import Path
-from examples.mnist.models import MNISTSuperminiLearner
+from colearn_examples.mnist.models import MNISTSuperminiLearner
 from .utils import learner_provider, data_provider
-from examples.keras_learner import KerasLearner
+from colearn_examples.keras_learner import KerasLearner
 
 
 def test_model_setup(learner_provider, tmpdir):

@@ -9,9 +9,9 @@ import numpy as np
 
 import tensorflow.keras.datasets.mnist as mnist
 
-from examples.config import ColearnConfig, ModelConfig
-from examples.utils.data import shuffle_data
-from examples.utils.data import split_by_chunksizes
+from colearn_examples.config import ColearnConfig, ModelConfig
+from colearn_examples.utils.data import shuffle_data
+from colearn_examples.utils.data import split_by_chunksizes
 from colearn.basic_learner import LearnerData
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't

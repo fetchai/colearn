@@ -9,7 +9,7 @@ from tensorflow._api.v2.compat import v1 as tf
 
 from tqdm import tqdm
 
-from examples.config import ModelConfig
+from colearn_examples.config import ModelConfig
 
 from colearn.basic_learner import BasicLearner, LearnerData
 

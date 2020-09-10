@@ -1,6 +1,6 @@
 from tensorflow.compat import v1 as tf
 
-from examples.keras_learner import KerasLearner
+from colearn_examples.keras_learner import KerasLearner
 
 
 tf.disable_v2_behavior()

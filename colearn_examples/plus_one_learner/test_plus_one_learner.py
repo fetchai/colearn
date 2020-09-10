@@ -1,4 +1,4 @@
-from examples.plus_one_learner.plus_one_learner import PlusOneLearner
+from colearn_examples.plus_one_learner.plus_one_learner import PlusOneLearner
 
 
 def test_init():

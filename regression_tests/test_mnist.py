@@ -1,5 +1,5 @@
 from .context import ColearnConfig
-from examples.mnist.data import split_to_folders
+from colearn_examples.mnist.data import split_to_folders
 from .pickle_tester import FileTester
 from pathlib import Path
 from .utils import data_provider

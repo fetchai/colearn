@@ -2,7 +2,7 @@ import imgaug.augmenters as iaa
 
 import numpy as np
 
-from examples.utils.data import normalize_image
+from colearn_examples.utils.data import normalize_image
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't
 # tracked yet

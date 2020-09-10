@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
-from examples.utils.data import shuffle_data, split_by_chunksizes
+from colearn_examples.utils.data import shuffle_data, split_by_chunksizes
 
 from .config import FraudConfig
 

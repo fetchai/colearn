@@ -2,8 +2,8 @@
 import argparse
 import os
 
-from examples.config import TrainingData, ColearnConfig
-from examples.training import main
+from colearn_examples.config import TrainingData, ColearnConfig
+from colearn_examples.training import main
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
 parser.add_argument("-d", "--data_dir", help="Directory for training data")
