@@ -1,8 +1,8 @@
 # type: ignore [no-redef]
 from typing import Callable, List
 
-from examples.config import ColearnConfig, ModelConfig, TrainingData, TrainingMode
-from examples.utils.results import Result, Results
+from colearn_examples.config import ColearnConfig, ModelConfig, TrainingData, TrainingMode
+from colearn_examples.utils.results import Result, Results
 
 from colearn.basic_learner import BasicLearner, LearnerData
 from colearn.ml_interface import ProposedWeights
@@ -82,15 +82,15 @@ def main(colearn_config: ColearnConfig):
 
     # pylint: disable=C0415
     if colearn_config.data == TrainingData.XRAY:
-        from examples.xray import split_to_folders, display_statistics, \
+        from colearn_examples.xray import split_to_folders, display_statistics, \
             plot_results, plot_votes, prepare_single_client, XrayConfig
         model_config = XrayConfig(colearn_config.shuffle_seed)
     elif colearn_config.data == TrainingData.MNIST:
-        from examples.mnist import split_to_folders, display_statistics, \
+        from colearn_examples.mnist import split_to_folders, display_statistics, \
             plot_results, plot_votes, prepare_single_client, MNISTConfig
         model_config = MNISTConfig(colearn_config.shuffle_seed)
     elif colearn_config.data == TrainingData.FRAUD:
-        from examples.fraud import split_to_folders, display_statistics, \
+        from colearn_examples.fraud import split_to_folders, display_statistics, \
             plot_results, plot_votes, prepare_single_client, FraudConfig
         model_config = FraudConfig(colearn_config.shuffle_seed)
     else:
@@ -98,7 +98,7 @@ def main(colearn_config: ColearnConfig):
 
     # load, shuffle, clean, and split the data into n_learners
     client_data_folders_list = split_to_folders(
-        colearn_config, colearn_config.main_data_dir
+        colearn_config, colearn_config.data_dir
     )
 
     # setup n_learners duplicate models before training

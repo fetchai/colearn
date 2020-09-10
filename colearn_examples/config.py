@@ -15,7 +15,7 @@ class TrainingData(Enum):
 class ColearnConfig:
     def __init__(
         self,
-        main_data_dir=None,
+        data_dir=None,
         task: TrainingData = TrainingData.XRAY,
         n_learners=5,
         data_split=None,
@@ -31,8 +31,8 @@ class ColearnConfig:
         self.mode = TrainingMode.COLLABORATIVE
 
         # Data params
-        self.main_data_dir = main_data_dir
-        self.data = task if isinstance(task, TrainingData) == TrainingData else TrainingData[str(task)]
+        self.data_dir = data_dir
+        self.data = task if isinstance(task, TrainingData) else TrainingData[str(task)]
         self.total_data_fraction = 1.0
         self.data_split = (
             data_split or [self.total_data_fraction / n_learners] * n_learners

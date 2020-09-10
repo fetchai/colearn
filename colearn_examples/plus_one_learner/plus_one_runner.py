@@ -1,6 +1,6 @@
 from standalone_driver import run
 
-from examples.plus_one_learner.plus_one_learner import PlusOneLearner
+from colearn_examples.plus_one_learner.plus_one_learner import PlusOneLearner
 
 
 def run_experiment(n_learners):
