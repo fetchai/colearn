@@ -1,3 +1,6 @@
+import hashlib
+import pickle
+
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface, \
     Weights
 
@@ -9,26 +12,27 @@ class RingBuffer:
         self._data_dict = {}
 
     def add(self, key, value):
-        print("current keys", self._keys_list)
-        h = hash(key)
-        print("key", h)
+        h = self.hash(key)
         if h in self._data_dict:
-            print("Key in dict")
+            pass
         else:
-            print("Adding new key")
             # add new key
             if len(self._keys_list) >= self._max_size:
                 oldest_key = self._keys_list.pop(0)
                 self._data_dict.pop(oldest_key, None)
-                print("Removing", oldest_key)
-            h = hash(key)
             self._data_dict[h] = value
             self._keys_list.append(h)
 
     def get(self, key):
-        h = hash(key)
-        print("get key", h)
+        h = self.hash(key)
         return self._data_dict[h]
+
+    @staticmethod
+    def hash(key):
+        bstr = pickle.dumps(key)
+        m = hashlib.sha256()
+        m.update(bstr)
+        return m.digest()
 
 
 class EmptyGenerator:
@@ -81,7 +85,7 @@ class BasicLearner(MachineLearningInterface):
             self.vote_accuracy = self.vote_score_cache.get(
                 weights)
         except KeyError:
-            print("Weights not in cache")
+            print("Warning: weights not in cache")
             self.vote_accuracy = self._test_model(weights,
                                                   validate=True)
 

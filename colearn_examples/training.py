@@ -33,9 +33,6 @@ def initial_result(learners: List[BasicLearner]):
     result = Result()
     for learner in learners:
         proposed_weights = learner.test_model()  # type: ProposedWeights
-        learner.accept_weights(proposed_weights.weights)
-        test_accuracy = proposed_weights.test_accuracy
-        vote_accuracy = proposed_weights.vote_accuracy
         result.test_accuracies.append(proposed_weights.test_accuracy)
         result.vote_accuracies.append(proposed_weights.vote_accuracy)
         result.votes.append(True)

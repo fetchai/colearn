@@ -100,7 +100,6 @@ def prepare_single_client(config: ModelConfig, data_dir):
         config.height,
         config.generator_seed,
         config.train_augment,
-        shuffle=False,
     )
 
     data.test_batch_size = config.batch_size
