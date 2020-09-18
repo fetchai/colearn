@@ -1,4 +1,5 @@
-from colearn.ml_interface import ProposedWeights, MachineLearningInterface
+from colearn.ml_interface import ProposedWeights, MachineLearningInterface, \
+    Weights
 
 
 class RingBuffer:
@@ -8,16 +9,26 @@ class RingBuffer:
         self._data_dict = {}
 
     def add(self, key, value):
-        if len(self._keys_list) >= self._max_size:
-            oldest_key = self._keys_list.pop(0)
-            self._data_dict.pop(oldest_key, None)
+        print("current keys", self._keys_list)
         h = hash(key)
-        self._data_dict[h] = value
-        self._keys_list.append(h)
+        print("key", h)
+        if h in self._data_dict:
+            print("Key in dict")
+        else:
+            print("Adding new key")
+            # add new key
+            if len(self._keys_list) >= self._max_size:
+                oldest_key = self._keys_list.pop(0)
+                self._data_dict.pop(oldest_key, None)
+                print("Removing", oldest_key)
+            h = hash(key)
+            self._data_dict[h] = value
+            self._keys_list.append(h)
 
     def get(self, key):
         h = hash(key)
-        return self._data_dict.get(h)
+        print("get key", h)
+        return self._data_dict[h]
 
 
 class EmptyGenerator:
@@ -39,14 +50,18 @@ class LearnerData:
 
 class BasicLearner(MachineLearningInterface):
     def __init__(self, data: LearnerData, model=None):
-        self.vote_accuracy = 0
-
         self.data = data
 
         self._model = model or self._get_model()
         self.print_summary()
 
         self.vote_score_cache = RingBuffer(10)
+
+        self.vote_accuracy = self._test_model(validate=True)
+
+        # store this in the cache
+        self.vote_score_cache.add(self.get_weights(),
+                                  self.vote_accuracy)
 
     def print_summary(self):
         raise NotImplementedError
@@ -57,17 +72,22 @@ class BasicLearner(MachineLearningInterface):
     def _get_model(self):
         raise NotImplementedError
 
-    def accept_weights(self, proposed_weights: ProposedWeights):
+    def accept_weights(self, weights: Weights):
         # overwrite model weights with new weights
-        self._set_weights(proposed_weights.weights)
+        self._set_weights(weights)
 
         # update stored performance metrics
         try:
             self.vote_accuracy = self.vote_score_cache.get(
-                proposed_weights.weights)
+                weights)
         except KeyError:
-            self.vote_accuracy = self._test_model(proposed_weights.weights,
+            print("Weights not in cache")
+            self.vote_accuracy = self._test_model(weights,
                                                   validate=True)
+
+            # store this in the cache
+            self.vote_score_cache.add(weights,
+                                      self.vote_accuracy)
 
     def train_model(self):
         old_weights = self.get_weights()
@@ -92,16 +112,22 @@ class BasicLearner(MachineLearningInterface):
 
         proposed_weights = ProposedWeights()
         proposed_weights.weights = weights
-        proposed_weights.validation_accuracy = self._test_model(weights,
-                                                                validate=True)
-        # store this in the cache
-        self.vote_score_cache.add(proposed_weights.weights,
-                                  proposed_weights.validation_accuracy)
+        try:
+            proposed_weights.vote_accuracy = self.vote_score_cache.get(
+                proposed_weights.weights)
+        except KeyError:
+            proposed_weights.vote_accuracy = self._test_model(
+                proposed_weights.weights,
+                validate=True)
+
+            # store this in the cache
+            self.vote_score_cache.add(proposed_weights.weights,
+                                      proposed_weights.vote_accuracy)
 
         proposed_weights.test_accuracy = self._test_model(weights,
                                                           validate=False)
         proposed_weights.vote = (
-            proposed_weights.validation_accuracy >= self.vote_accuracy
+            proposed_weights.vote_accuracy >= self.vote_accuracy
         )
 
         return proposed_weights
