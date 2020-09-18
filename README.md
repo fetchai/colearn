@@ -1,6 +1,6 @@
-# colearn-interface
+# Collective Learning Interface
 
-An interface for collective learning
+An interface for collective learning. Collective learning enables privacy preserving decentralized machine learning tasks on the FET network.
 
 ## Get Started
 
@@ -10,6 +10,10 @@ Setup an environment
 
 Install the package
 
-`pip install xxxxxxx`
+`pip install -e ./`
 
 Run the example
+
+`bin/run_no_networking_demo.py -t MNIST`
+
+See the full documentation [here](docs/index.md)
