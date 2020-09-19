@@ -1,15 +1,20 @@
+import tempfile
+
 import imgaug.augmenters as iaa
 import tensorflow.keras.datasets.cifar10 as cifar10
 import numpy as np
-
-from colearn.data import shuffle_data
-from colearn.data import split_by_chunksizes
-from colearn.model import LearnerData
 from pathlib import Path
 import os, pickle, shutil
 
+from colearn_examples.config import ColearnConfig, ModelConfig
+from colearn_examples.utils.data import shuffle_data
+from colearn_examples.utils.data import split_by_chunksizes
+from colearn.basic_learner import LearnerData
 
-def split_to_folders(config, data_dir="", output_folder=Path(os.getcwd()) / "cifar"):
+
+def split_to_folders(config: ColearnConfig,
+                     data_dir="",
+                     output_folder=Path(tempfile.gettempdir()) / "cifar"):
     # Load CIFAR
     (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
     all_images = np.concatenate([train_images, test_images], axis=0)
@@ -43,24 +48,33 @@ def split_to_folders(config, data_dir="", output_folder=Path(os.getcwd()) / "cif
     return dir_names
 
 
-def prepare_single_client(config, data_dir):
+def prepare_single_client(config: ModelConfig, data_dir):
     data = LearnerData()
     data.train_batch_size = config.batch_size
 
     images = pickle.load(open(Path(data_dir) / "images.pickle", "rb"))
     labels = pickle.load(open(Path(data_dir) / "labels.pickle", "rb"))
 
-    [[train_images, test_images], [train_labels, test_labels]] = split_by_chunksizes(
+    [[train_images, test_images], [train_labels, test_labels]] = \
+        split_by_chunksizes(
         [images, labels], [config.train_ratio, config.test_ratio]
     )
 
     data.train_data_size = len(train_images)
 
     data.train_gen = train_generator(
-        train_images, train_labels, config.batch_size, config, config.train_augment
+        train_images, train_labels, config.batch_size,
+        config.width,
+        config.height,
+        config.generator_seed,
+        config.train_augment
     )
     data.val_gen = train_generator(
-        train_images, train_labels, config.batch_size, config, config.train_augment
+        train_images, train_labels, config.batch_size,
+        config.width,
+        config.height,
+        config.generator_seed,
+        config.train_augment
     )
 
     data.test_data_size = len(test_images)
@@ -69,7 +83,9 @@ def prepare_single_client(config, data_dir):
         test_images,
         test_labels,
         config.batch_size,
-        config,
+        config.width,
+        config.height,
+        config.generator_seed,
         config.train_augment,
         shuffle=False,
     )
@@ -82,13 +98,14 @@ def prepare_single_client(config, data_dir):
 seq_cifar = iaa.Sequential([iaa.Affine(rotate=(-15, 15))])  # rotation
 
 
-def train_generator(data, labels, batch_size, config, augmentation=True, shuffle=True):
+def train_generator(data, labels, batch_size, width, height, seed,
+                    augmentation=True, shuffle=True):
     # Get total number of samples in the data
     n_data = len(data)
 
     # Define two numpy arrays for containing batch data and labels
     batch_data = np.zeros(
-        (batch_size, config.width, config.height, 3), dtype=np.float32
+        (batch_size, width, height, 3), dtype=np.float32
     )
     batch_labels = np.zeros((batch_size, 1), dtype=np.uint8)
 
@@ -96,8 +113,8 @@ def train_generator(data, labels, batch_size, config, augmentation=True, shuffle
     indices = np.arange(n_data)
 
     if shuffle:
-        if config.generator_seed is not None:
-            np.random.seed(config.generator_seed)
+        if seed is not None:
+            np.random.seed(seed)
 
         np.random.shuffle(indices)
     it = 0
@@ -120,8 +137,8 @@ def train_generator(data, labels, batch_size, config, augmentation=True, shuffle
             it = 0
 
             if shuffle:
-                if config.generator_seed is not None:
-                    np.random.seed(config.generator_seed)
+                if seed is not None:
+                    np.random.seed(seed)
                 np.random.shuffle(indices)
 
         if batch_counter == batch_size:
