@@ -1,15 +1,17 @@
+import os
+import pickle
+import shutil
 import tempfile
+from pathlib import Path
 
 import imgaug.augmenters as iaa
-import tensorflow.keras.datasets.cifar10 as cifar10
 import numpy as np
-from pathlib import Path
-import os, pickle, shutil
+import tensorflow.keras.datasets.cifar10 as cifar10
 
+from colearn.basic_learner import LearnerData
 from colearn_examples.config import ColearnConfig, ModelConfig
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
-from colearn.basic_learner import LearnerData
 
 
 def split_to_folders(config: ColearnConfig,
