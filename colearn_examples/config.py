@@ -10,6 +10,7 @@ class TrainingData(Enum):
     MNIST = 1
     XRAY = 2
     FRAUD = 3
+    CIFAR10 = 4
 
 
 class ColearnConfig:

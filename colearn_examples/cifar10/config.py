@@ -1,7 +1,7 @@
 import tensorflow.compat.v1 as tf
 from colearn_examples.config import ModelConfig
 
-from .models import CIFAR10Conv2Learner
+from .models import CIFAR10Resnet50Learner
 
 tf.disable_v2_behavior()
 
@@ -16,7 +16,7 @@ class CIFAR10Config(ModelConfig):
         self.batch_size = 64
 
         # Model params
-        self.model_type = CIFAR10Conv2Learner
+        self.model_type = CIFAR10Resnet50Learner
         self.width = 32
         self.height = 32
         self.loss = "sparse_categorical_crossentropy"

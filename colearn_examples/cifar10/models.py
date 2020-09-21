@@ -136,3 +136,32 @@ class CIFAR10ConvLearner(KerasLearner):
 
         model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
+
+
+class CIFAR10Resnet50Learner(KerasLearner):
+    def _get_model(self):
+        # Resnet50
+        resnet = tf.keras.applications.ResNet50(
+            include_top=False,
+            weights=None,
+            input_shape=(self.config.width, self.config.height, 1),
+        )
+
+        input_img = tf.keras.Input(
+            shape=(self.config.width, self.config.height, 1), name="Input"
+        )
+        x = resnet(input_img)
+        x = tf.keras.layers.GlobalAvgPool2D()(x)
+        x = tf.keras.layers.Flatten(name="flatten")(x)
+        x = tf.keras.layers.Dense(
+            self.config.n_classes, activation="sigmoid", name="fc1"
+        )(x)
+        model = tf.keras.Model(inputs=input_img, outputs=x)
+
+        # compile model & add optimiser
+        opt = self.config.optimizer(
+            lr=self.config.l_rate, decay=self.config.l_rate_decay
+        )
+
+        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        return model

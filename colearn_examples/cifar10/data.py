@@ -13,6 +13,12 @@ from colearn_examples.config import ColearnConfig, ModelConfig
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
 
+# this line is a fix for np.version 1.18 making a change that imgaug hasn't
+# tracked yet
+if float(np.version.version[2:4]) == 18:
+    # pylint: disable=W0212
+    np.random.bit_generator = np.random._bit_generator
+
 
 def split_to_folders(config: ColearnConfig,
                      data_dir="",
