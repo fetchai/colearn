@@ -144,11 +144,11 @@ class CIFAR10Resnet50Learner(KerasLearner):
         resnet = tf.keras.applications.ResNet50(
             include_top=False,
             weights=None,
-            input_shape=(self.config.width, self.config.height, 1),
+            input_shape=(self.config.width, self.config.height, 3),
         )
 
         input_img = tf.keras.Input(
-            shape=(self.config.width, self.config.height, 1), name="Input"
+            shape=(self.config.width, self.config.height, 3), name="Input"
         )
         x = resnet(input_img)
         x = tf.keras.layers.GlobalAvgPool2D()(x)
