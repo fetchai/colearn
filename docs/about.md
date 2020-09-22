@@ -2,12 +2,12 @@
 
 ## The voting protocol
 The core idea of collective learning is the voting protocol. One learner is selected to train and produce an updated version of the model parameters,
-and then the others vote on the proposed update.
+and then the others vote on the proposed update. The driver implements the voting protocol - see the code below.
 
 ## The driver
 The driver implements the voting protocol, so it handles selecting a learner to train, 
 sending the update out for voting, calculating the vote and accepting or declining the update. 
-Here we have a very minimal driver that doesn't use networking on a blockchain. Eventually the driver will be a smart contract. 
+Here we have a very minimal driver that doesn't use networking or a blockchain. Eventually the driver will be a smart contract. 
 This is the code that implements one round of voting:
 ```python
 def run_one_epoch(epoch_index: int, learners: Sequence[MachineLearningInterface],
