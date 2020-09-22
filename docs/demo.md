@@ -33,4 +33,4 @@ To run the X-ray dataset:
 ```bash
 bin/run_no_networking_demo.py -t XRAY -n 5 -e 15 -d ./data/xray
 ```
-To find out how to try your own datasets, see the next tutorial in the 
+To find out how to try your own datasets, see the next tutorial in the series [here](docs/customisation.md)
