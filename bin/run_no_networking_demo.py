@@ -16,9 +16,10 @@ parser.add_argument("-s", "--seed", type=int, default=None)
 args = parser.parse_args()
 
 # check data dir
-if args.task == "MNIST":  # mnist data is downloaded
-    assert args.data_dir is None, "Mnist data is downloaded so" \
-                                  " data_dir should not be given"
+if args.task == "MNIST" or args.task == "CIFAR10":  # these data are downloaded
+    assert args.data_dir is None, \
+        "MNIST and CIFAR10 datasets are downloaded so " \
+        "data_dir should not be given"
     args.data_dir = ""
 else:
     data_dir = os.path.abspath(args.data_dir)

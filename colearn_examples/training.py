@@ -90,6 +90,10 @@ def main(colearn_config: ColearnConfig):
         from colearn_examples.fraud import split_to_folders, display_statistics, \
             plot_results, plot_votes, prepare_single_client, FraudConfig
         model_config = FraudConfig(colearn_config.shuffle_seed)
+    elif colearn_config.data == TrainingData.CIFAR10:
+        from colearn_examples.cifar10 import split_to_folders, display_statistics, \
+            plot_results, plot_votes, prepare_single_client, CIFAR10Config
+        model_config = CIFAR10Config(colearn_config.shuffle_seed)
     else:
         raise Exception("Unknown task: %s" % colearn_config.data)
 
