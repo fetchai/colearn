@@ -33,11 +33,8 @@ def initial_result(learners: List[BasicLearner]):
     result = Result()
     for learner in learners:
         proposed_weights = learner.test_model()  # type: ProposedWeights
-        learner.accept_weights(proposed_weights)
-        test_accuracy = proposed_weights.test_accuracy
-        vote_accuracy = proposed_weights.validation_accuracy
-        result.test_accuracies.append(test_accuracy)
-        result.vote_accuracies.append(vote_accuracy)
+        result.test_accuracies.append(proposed_weights.test_accuracy)
+        result.vote_accuracies.append(proposed_weights.vote_accuracy)
         result.votes.append(True)
     return result
 
@@ -51,7 +48,7 @@ def collaborative_training_pass(learners: List[BasicLearner], vote_threshold,
                                                 vote_threshold)
     result.vote = vote
     result.votes = [pw.vote for pw in proposed_weights_list]
-    result.vote_accuracies = [pw.validation_accuracy for pw in
+    result.vote_accuracies = [pw.vote_accuracy for pw in
                               proposed_weights_list]
     result.test_accuracies = [pw.test_accuracy for pw in proposed_weights_list]
     result.block_proposer = epoch % len(learners)
@@ -68,10 +65,10 @@ def individual_training_pass(learners):
         print("Training learner #", i)
         weights = learner.train_model()
         proposed_weights = learner.test_model(weights)
-        learner.accept_weights(proposed_weights)
+        learner.accept_weights(weights)
 
         result.votes.append(True)
-        result.vote_accuracies.append(proposed_weights.validation_accuracy)
+        result.vote_accuracies.append(proposed_weights.vote_accuracy)
         result.test_accuracies.append(proposed_weights.test_accuracy)
 
     return result

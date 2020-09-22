@@ -84,7 +84,7 @@ class KerasLearner(BasicLearner, ABC):
         all_labels = []  # type: ignore
         all_preds = []  # type: ignore
 
-        for _ in tqdm(range(n_steps)):
+        for _ in tqdm(range(n_steps)):  # tqdm provides progress bar
             data, labels = generator.__next__()
             pred = self._model.predict(data)
 

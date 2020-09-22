@@ -9,11 +9,11 @@ class Weights:
 
 
 class ProposedWeights:
-    __slots__ = ('weights', 'validation_accuracy', 'test_accuracy', 'vote')
+    __slots__ = ('weights', 'vote_accuracy', 'test_accuracy', 'vote')
 
     def __init__(self):
         self.weights = None
-        self.validation_accuracy = 0
+        self.vote_accuracy = 0
         self.test_accuracy = 0
         self.vote = False
 
@@ -54,9 +54,9 @@ class MachineLearningInterface(abc.ABC):
         """
 
     @abc.abstractmethod
-    def accept_weights(self, proposed_weights: ProposedWeights):
+    def accept_weights(self, weights: Weights):
         """
         Updates the model with the proposed set of weights
-        :param proposed_weights: The new weights
+        :param weights: The new weights
         """
         pass
