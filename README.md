@@ -10,6 +10,6 @@ Setup an environment
 
 Install the package
 
-`pip install xxxxxxx`
+`pip install -e ./`
 
 Run the example

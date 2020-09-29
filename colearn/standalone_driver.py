@@ -20,6 +20,6 @@ def run_one_epoch(epoch_index: int, learners: Sequence[MachineLearningInterface]
     if approves >= len(learners) * vote_threshold:
         vote = True
         for j, learner in enumerate(learners):
-            learner.accept_weights(prop_weights_list[j])
+            learner.accept_weights(prop_weights_list[j].weights)
 
     return prop_weights_list, vote
