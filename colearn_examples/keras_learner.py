@@ -1,9 +1,9 @@
 from abc import ABC
-from typing import List
 
 import numpy as np
 
 from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
+
 
 from tensorflow._api.v2.compat import v1 as tf
 
@@ -11,14 +11,7 @@ from tqdm import tqdm
 
 from colearn_examples.config import ModelConfig
 
-from colearn.basic_learner import BasicLearner, LearnerData
-
-
-class KerasWeights:
-    __slots__ = ('data',)
-
-    def __init__(self, data: List[np.array]):
-        self.data = data
+from colearn.basic_learner import BasicLearner, LearnerData, Weights
 
 
 class EarlyStoppingWhenSignaled(tf.keras.callbacks.Callback):
@@ -65,12 +58,12 @@ class KerasLearner(BasicLearner, ABC):
             grad_list.append(nw - ow)
         return grad_list
 
-    def _test_model(self, weights: KerasWeights = None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False):
         temp_weights = []
-        if weights and weights.data:
+        if weights and weights.weights:
             # store current weights in temporary variables
             temp_weights = self._model.get_weights()
-            self._model.set_weights(weights.data)
+            self._model.set_weights(weights.weights)
 
         if validate:
             print("Getting vote accuracy:")
@@ -174,7 +167,7 @@ class KerasLearner(BasicLearner, ABC):
         return KerasLearner(self.config, data=data, model=cloned_model)
 
     def get_weights(self):
-        return KerasWeights(self._model.get_weights())
+        return Weights(self._model.get_weights())
 
-    def _set_weights(self, weights: KerasWeights):
-        self._model.set_weights(weights.data)
+    def _set_weights(self, weights: Weights):
+        self._model.set_weights(weights.weights)

@@ -8,14 +8,7 @@ from sklearn.utils.validation import check_is_fitted
 from tqdm import tqdm
 
 from colearn_examples.config import ModelConfig
-from colearn.basic_learner import BasicLearner, LearnerData
-
-
-class SKLearnWeights:
-    __slots__ = ('data',)
-
-    def __init__(self, data):
-        self.data = data
+from colearn.basic_learner import BasicLearner, LearnerData, Weights
 
 
 class SKLearnLearner(BasicLearner, ABC):
@@ -56,14 +49,14 @@ class SKLearnLearner(BasicLearner, ABC):
     def stop_training(self):
         raise NotImplementedError
 
-    def _test_model(self, weights: SKLearnWeights = None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False):
         try:
             check_is_fitted(self._model)
         except (ValueError, TypeError, AttributeError):
             return 0
 
         temp_weights = None
-        if weights and weights.data:
+        if weights and weights.weights:
             # store current weights in temporary variables
             temp_weights = self.get_weights()
             self._set_weights(weights)
@@ -106,7 +99,7 @@ class SKLearnLearner(BasicLearner, ABC):
         return SKLearnLearner(self.config, data=data, model=cloned_model)
 
     def get_weights(self):
-        return SKLearnWeights(copy.deepcopy(self._model))
+        return Weights(copy.deepcopy(self._model))
 
-    def _set_weights(self, weights: SKLearnWeights):
-        self._model = weights.data
+    def _set_weights(self, weights: Weights):
+        self._model = weights.weights

@@ -103,13 +103,13 @@ class BasicLearner(MachineLearningInterface):
 
         return new_weights
 
-    def _set_weights(self, weights):
+    def _set_weights(self, weights: Weights):
         raise NotImplementedError
 
-    def get_weights(self):
+    def get_weights(self) -> Weights:
         raise NotImplementedError
 
-    def test_model(self, weights=None) -> ProposedWeights:
+    def test_model(self, weights: Weights = None) -> ProposedWeights:
         """Tests the proposed weights and fills in the rest of the fields"""
         if weights is None:
             weights = self.get_weights()
@@ -136,7 +136,7 @@ class BasicLearner(MachineLearningInterface):
 
         return proposed_weights
 
-    def _test_model(self, weights=None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False):
         raise NotImplementedError
 
     def _train_model(self):
