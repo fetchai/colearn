@@ -8,9 +8,7 @@ from sklearn.utils.validation import check_is_fitted
 from tqdm import tqdm
 
 from colearn_examples.config import ModelConfig
-from colearn.basic_learner import BasicLearner, LearnerData
-
-
+from colearn.basic_learner import BasicLearner, LearnerData, Weights
 
 
 class SKLearnLearner(BasicLearner, ABC):

@@ -3,7 +3,7 @@ import pickle
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface, \
     Weights
-import numpy as np
+
 
 class RingBuffer:
     def __init__(self, size_limit):

@@ -1,9 +1,9 @@
 from abc import ABC
-from typing import List
 
 import numpy as np
 
 from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
+
 
 from tensorflow._api.v2.compat import v1 as tf
 
@@ -12,7 +12,6 @@ from tqdm import tqdm
 from colearn_examples.config import ModelConfig
 
 from colearn.basic_learner import BasicLearner, LearnerData, Weights
-
 
 
 class EarlyStoppingWhenSignaled(tf.keras.callbacks.Callback):
