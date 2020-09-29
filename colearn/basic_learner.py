@@ -64,7 +64,7 @@ class BasicLearner(MachineLearningInterface):
         self.vote_accuracy = self._test_model(validate=True)
 
         # store this in the cache
-        self.vote_score_cache.add(self.get_weights().weights,
+        self.vote_score_cache.add(self.get_weights(),
                                   self.vote_accuracy)
 
     def print_summary(self):
@@ -82,15 +82,14 @@ class BasicLearner(MachineLearningInterface):
 
         # update stored performance metrics
         try:
-            self.vote_accuracy = self.vote_score_cache.get(
-                weights.weights)
+            self.vote_accuracy = self.vote_score_cache.get(weights)
         except KeyError:
             print("Warning: weights not in cache")
             self.vote_accuracy = self._test_model(weights,
                                                   validate=True)
 
             # store this in the cache
-            self.vote_score_cache.add(weights.weights,
+            self.vote_score_cache.add(weights,
                                       self.vote_accuracy)
 
     def train_model(self):
@@ -117,14 +116,12 @@ class BasicLearner(MachineLearningInterface):
         proposed_weights = ProposedWeights()
         proposed_weights.weights = weights
         try:
-            proposed_weights.vote_accuracy = self.vote_score_cache.get(
-                weights.weights)
+            proposed_weights.vote_accuracy = self.vote_score_cache.get(weights)
         except KeyError:
-            proposed_weights.vote_accuracy = self._test_model(weights,
-                validate=True)
+            proposed_weights.vote_accuracy = self._test_model(weights, validate=True)
 
             # store this in the cache
-            self.vote_score_cache.add(weights.weights,
+            self.vote_score_cache.add(weights,
                                       proposed_weights.vote_accuracy)
 
         proposed_weights.test_accuracy = self._test_model(weights,
