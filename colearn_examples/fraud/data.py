@@ -1,5 +1,6 @@
 import os
 import pickle
+import tempfile
 from pathlib import Path
 
 from colearn.basic_learner import LearnerData
@@ -115,7 +116,8 @@ DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
 
 
-def split_to_folders(config, data_dir, output_folder=Path(os.getcwd()) / "fraud"):
+def split_to_folders(config, data_dir,
+                     output_folder=Path(tempfile.gettempdir()) / "fraud"):
     data_file = data_dir + "/data.npy"
     labels_file = data_dir + "/labels.npy"
 
