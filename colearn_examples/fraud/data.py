@@ -1,5 +1,6 @@
 import os
 import pickle
+import tempfile
 from pathlib import Path
 
 from colearn.basic_learner import LearnerData
@@ -115,7 +116,8 @@ DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
 
 
-def split_to_folders(config, data_dir, output_folder=Path(os.getcwd()) / "fraud"):
+def split_to_folders(config, data_dir,
+                     output_folder=Path(tempfile.gettempdir()) / "fraud"):
     data_file = data_dir + "/data.npy"
     labels_file = data_dir + "/labels.npy"
 
@@ -148,11 +150,11 @@ def prepare_single_client(config: FraudConfig, data_dir):
     data = LearnerData()
     data.train_batch_size = config.batch_size
 
-    data = pickle.load(open(Path(data_dir) / DATA_FL, "rb"))
+    fraud_data = pickle.load(open(Path(data_dir) / DATA_FL, "rb"))
     labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
 
     [[train_data, test_data], [train_labels, test_labels]] = split_by_chunksizes(
-        [data, labels], [config.train_ratio, config.test_ratio]
+        [fraud_data, labels], [config.train_ratio, config.test_ratio]
     )
 
     data.train_data_size = len(train_data)
