@@ -1,22 +1,29 @@
-from colearn.ml_interface import ProposedWeights, MachineLearningInterface
-
+from colearn.ml_interface import ProposedWeights, MachineLearningInterface, Weights
+import numpy as np
 
 class RingBuffer:
     def __init__(self, size_limit):
         self._max_size = size_limit
         self._keys_list = []
         self._data_dict = {}
+    
+    def _hash(self, key):
+        if type(key) == list:
+            if isinstance(key[0], np.ndarray):
+                return hash((x.tobytes('C') for x in key))
+            return hash(tuple(key))
+        return hash(key)
 
     def add(self, key, value):
         if len(self._keys_list) >= self._max_size:
             oldest_key = self._keys_list.pop(0)
             self._data_dict.pop(oldest_key, None)
-        h = hash(key)
+        h = self._hash(key)
         self._data_dict[h] = value
         self._keys_list.append(h)
 
     def get(self, key):
-        h = hash(key)
+        h = self._hash(key)
         return self._data_dict.get(h)
 
 
@@ -79,19 +86,19 @@ class BasicLearner(MachineLearningInterface):
 
         return new_weights
 
-    def _set_weights(self, weights):
+    def _set_weights(self, weights: Weights):
         raise NotImplementedError
 
-    def get_weights(self):
+    def get_weights(self) -> Weights:
         raise NotImplementedError
 
-    def test_model(self, weights=None) -> ProposedWeights:
+    def test_model(self, weights: Weights = None) -> ProposedWeights:
         """Tests the proposed weights and fills in the rest of the fields"""
         if weights is None:
             weights = self.get_weights()
 
         proposed_weights = ProposedWeights()
-        proposed_weights.weights = weights
+        proposed_weights.weights = weights.weights
         proposed_weights.validation_accuracy = self._test_model(weights,
                                                                 validate=True)
         # store this in the cache
@@ -106,7 +113,7 @@ class BasicLearner(MachineLearningInterface):
 
         return proposed_weights
 
-    def _test_model(self, weights=None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False):
         raise NotImplementedError
 
     def _train_model(self):
