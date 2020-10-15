@@ -1,11 +1,8 @@
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 from colearn_examples.config import ModelConfig
 
 from .models import XraySuperminiLearner
-
-
-tf.disable_v2_behavior()
 
 
 class XrayConfig(ModelConfig):

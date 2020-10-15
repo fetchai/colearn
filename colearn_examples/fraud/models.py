@@ -1,11 +1,9 @@
 from sklearn.linear_model import SGDClassifier
 
-from tensorflow.compat import v1 as tf
+import tensorflow as tf
 
 from ..keras_learner import KerasLearner
 from ..sklearn_learner import SKLearnLearner
-
-tf.disable_v2_behavior()
 
 
 class FraudDense1Learner(KerasLearner):

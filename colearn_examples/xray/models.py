@@ -1,9 +1,6 @@
-from tensorflow.compat import v1 as tf
+import tensorflow as tf
 
 from colearn_examples.keras_learner import KerasLearner
-
-
-tf.disable_v2_behavior()
 
 
 class XraySuperminiLearner(KerasLearner):

@@ -4,10 +4,9 @@ import numpy as np
 
 from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
 
+import tensorflow as tf
 
-from tensorflow._api.v2.compat import v1 as tf
-
-from tqdm import tqdm
+from tqdm import tqdm, trange
 
 from colearn_examples.config import ModelConfig
 
@@ -34,19 +33,25 @@ class KerasLearner(BasicLearner, ABC):
         self._stop_training = False
 
         steps_per_epoch = self.config.steps_per_epoch or (self.data.train_data_size // self.data.train_batch_size)
+        progress_bar = trange(steps_per_epoch, desc='Training: ', leave=True)
 
-        history = self._model.fit(
-            self.data.train_gen,
-            steps_per_epoch=steps_per_epoch,
-            use_multiprocessing=False,
-            callbacks=[EarlyStoppingWhenSignaled(lambda: self._stop_training)],
-        )
-        if "accuracy" in history.history:
-            train_accuracy = np.mean(history.history["accuracy"])
-        else:
-            train_accuracy = np.mean(history.history["acc"])
+        train_accuracy = 0
+        for i in progress_bar:  # tqdm provides progress bar
+            if self._stop_training:
+                break
 
-        return train_accuracy
+            data, labels = self.data.train_gen.__next__()
+            history = self._model.fit(data, labels, verbose=0)
+
+            if "accuracy" in history.history:
+                train_accuracy += np.mean(history.history["accuracy"])
+            else:
+                train_accuracy += np.mean(history.history["acc"])
+
+            progress_bar.set_description("Accuracy %f" % (train_accuracy / (i + 1)))
+            progress_bar.refresh()  # to show immediately the update
+
+        return train_accuracy / (i + 1)
 
     def stop_training(self):
         self._stop_training = True
@@ -65,19 +70,22 @@ class KerasLearner(BasicLearner, ABC):
             temp_weights = self._model.get_weights()
             self._model.set_weights(weights.weights)
 
+        progress_bar = None
         if validate:
             print("Getting vote accuracy:")
             n_steps = self.config.val_batches
             generator = self.data.val_gen
+            progress_bar = trange(n_steps, desc='Validating: ', leave=True)
         else:
             print("Getting test accuracy:")
             generator = self.data.test_gen
             n_steps = max(1, int(self.data.test_data_size // self.data.test_batch_size))
+            progress_bar = trange(n_steps, desc='Testing: ', leave=True)
 
         all_labels = []  # type: ignore
         all_preds = []  # type: ignore
 
-        for _ in tqdm(range(n_steps)):  # tqdm provides progress bar
+        for _ in progress_bar:  # tqdm provides progress bar
             data, labels = generator.__next__()
             pred = self._model.predict(data)
 

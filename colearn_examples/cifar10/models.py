@@ -1,8 +1,6 @@
-from tensorflow.compat import v1 as tf
+import tensorflow as tf
 
 from ..keras_learner import KerasLearner
-
-tf.disable_v2_behavior()
 
 
 class CIFAR10Conv2Learner(KerasLearner):
