@@ -6,7 +6,7 @@ from sklearn.metrics import jaccard_score, confusion_matrix, classification_repo
 
 import tensorflow as tf
 
-from tqdm import tqdm, trange
+from tqdm import trange
 
 from colearn_examples.config import ModelConfig
 
@@ -36,6 +36,7 @@ class KerasLearner(BasicLearner, ABC):
         progress_bar = trange(steps_per_epoch, desc='Training: ', leave=True)
 
         train_accuracy = 0
+        i = 0
         for i in progress_bar:  # tqdm provides progress bar
             if self._stop_training:
                 break
