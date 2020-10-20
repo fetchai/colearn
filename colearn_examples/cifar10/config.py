@@ -1,9 +1,7 @@
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 from colearn_examples.config import ModelConfig
 
 from .models import CIFAR10Resnet50Learner
-
-tf.disable_v2_behavior()
 
 
 class CIFAR10Config(ModelConfig):
