@@ -5,17 +5,19 @@ from pathlib import Path
 
 from colearn.basic_learner import LearnerData
 
-from colearn_examples.config import ColearnConfig, ModelConfig
-from colearn_examples.utils.data import shuffle_data, split_by_chunksizes
+from colearn_examples.config import ModelConfig
+from colearn_examples.utils.data import split_by_chunksizes, shuffle_data
 from colearn_examples.xray_utils.data import estimate_cases, train_generator
-
 
 normal_fl = "normal.pickle"
 pneu_fl = "pneumonia.pickle"
 
 
 def split_to_folders(
-    config: ColearnConfig, data_dir,
+    data_dir,
+    shuffle_seed,
+    data_split,
+    n_learners,
     output_folder=Path(tempfile.gettempdir()) / "xray"
 ):
     if not os.path.isdir(data_dir):
@@ -37,17 +39,17 @@ def split_to_folders(
         else:
             print(case, " - has invalid category")
 
-    [normal_data] = shuffle_data([normal_data], config.shuffle_seed)
-    [pneumonia_data] = shuffle_data([pneumonia_data], config.shuffle_seed)
+    [normal_data] = shuffle_data([normal_data], shuffle_seed)
+    [pneumonia_data] = shuffle_data([pneumonia_data], shuffle_seed)
 
-    [normal_data_list] = split_by_chunksizes([normal_data], config.data_split)
+    [normal_data_list] = split_by_chunksizes([normal_data], data_split)
     [pneumonia_data_list] = split_by_chunksizes([pneumonia_data],
-                                                config.data_split)
+                                                data_split)
 
     local_output_dir = Path(output_folder)
 
     dir_names = []
-    for i in range(config.n_learners):
+    for i in range(n_learners):
 
         dir_name = local_output_dir / str(i)
         os.makedirs(str(dir_name), exist_ok=True)

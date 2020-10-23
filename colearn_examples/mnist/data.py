@@ -9,7 +9,7 @@ import numpy as np
 
 import tensorflow.keras.datasets.mnist as mnist
 
-from colearn_examples.config import ColearnConfig, ModelConfig
+from colearn_examples.config import ModelConfig
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
 from colearn.basic_learner import LearnerData
@@ -24,10 +24,11 @@ IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
 
 
-def split_to_folders(
-        config: ColearnConfig,
-        data_dir,
-        output_folder=Path(tempfile.gettempdir()) / "mnist"):
+def split_to_folders(data_dir,
+                     shuffle_seed,
+                     data_split,
+                     n_learners,
+                     output_folder=Path(tempfile.gettempdir()) / "mnist"):
     # Load MNIST
     (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
     all_images = np.concatenate([train_images, test_images], axis=0)
@@ -40,17 +41,17 @@ def split_to_folders(
     all_images = np.expand_dims(all_images, axis=-1)
 
     [all_images, all_labels] = shuffle_data(
-        [all_images, all_labels], seed=config.shuffle_seed
+        [all_images, all_labels], seed=shuffle_seed
     )
 
     [all_images_lists, all_labels_lists] = split_by_chunksizes(
-        [all_images, all_labels], config.data_split
+        [all_images, all_labels], data_split
     )
 
     local_output_dir = Path(output_folder)
 
     dir_names = []
-    for i in range(config.n_learners):
+    for i in range(n_learners):
         dir_name = local_output_dir / str(i)
         os.makedirs(str(dir_name), exist_ok=True)
 
