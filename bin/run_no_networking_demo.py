@@ -31,8 +31,7 @@ try:
 except KeyError:
     raise Exception("task %s not part of the TrainingData enum" % args.task)
 
-config = ColearnConfig(data_dir=args.data_dir,
-                       task=task,
+config = ColearnConfig(task=task,
                        n_learners=args.n_learners,
                        n_epochs=args.epochs, seed=args.seed)
-main(config)
+main(config, args.data_dir)

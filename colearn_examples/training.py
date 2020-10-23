@@ -74,7 +74,7 @@ def individual_training_pass(learners):
     return result
 
 
-def main(colearn_config: ColearnConfig):
+def main(colearn_config: ColearnConfig, data_dir):
     results = Results()
 
     # pylint: disable=C0415
@@ -98,8 +98,9 @@ def main(colearn_config: ColearnConfig):
         raise Exception("Unknown task: %s" % colearn_config.data)
 
     # load, shuffle, clean, and split the data into n_learners
+    data_split = [1 / colearn_config.n_learners for x in range(colearn_config.n_learners)]
     client_data_folders_list = split_to_folders(
-        colearn_config, colearn_config.data_dir
+        data_dir, colearn_config.shuffle_seed, data_split, colearn_config.n_learners
     )
 
     # setup n_learners duplicate models before training

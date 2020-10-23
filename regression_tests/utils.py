@@ -1,14 +1,15 @@
 import pytest
-from training import setup_models
-from colearn_examples.config import TrainingData
+from colearn_examples.training import setup_models
+from colearn_examples.config import TrainingData, ColearnConfig
 
 
 @pytest.fixture
 def data_provider(request):
-    def wrapper(config):
+    def wrapper(config: ColearnConfig, data_dir, data_split):
         name = str(config.n_learners)+getattr(config, "_test_id", "")
-        path = "data/{}/{}".format(config.data, name)
-        val = request.config.cache.get(path, None)
+        path = "/tmp/{}/{}".format(config.data, name)
+        # val = request.config.cache.get(path, None)
+        val = None  # todo: find out why line above causes test failure
         print("************* PATH ", path, " cache? ", val is None)
         if val is None:
             if config.data == TrainingData.XRAY:
@@ -20,7 +21,7 @@ def data_provider(request):
             else:
                 raise Exception("Unknown task: %s" % config.data)
             val = split_to_folders(
-                config, config.data_dir
+                data_dir, config.shuffle_seed, data_split, config.n_learners
             )
             request.config.cache.set(path, val)
         return val
@@ -29,7 +30,7 @@ def data_provider(request):
 
 @pytest.fixture
 def learner_provider(request, data_provider):
-    def wrapper(config):
+    def wrapper(config, data_dir, data_split):
         name = str(config.n_learners)+getattr(config, "_test_id", "")
         path = "learners/{}/{}".format(config.data, name)
         val = request.config.cache.get(path, None)
@@ -45,7 +46,7 @@ def learner_provider(request, data_provider):
                 model_config = FraudConfig()
             else:
                 raise Exception("Unknown task: %s" % config.data)
-            client_data_folders_list = data_provider(config)
+            client_data_folders_list = data_provider(config, data_dir, data_split)
             val = setup_models(model_config, client_data_folders_list, prepare_single_client)
         return val
     return wrapper
