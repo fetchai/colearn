@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow.keras.datasets.cifar10 as cifar10
 
 from colearn.basic_learner import LearnerData
-from colearn_examples.config import ColearnConfig, ModelConfig
+from colearn_examples.config import ModelConfig
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
 
@@ -20,8 +20,10 @@ if float(np.version.version[2:4]) == 18:
     np.random.bit_generator = np.random._bit_generator
 
 
-def split_to_folders(config: ColearnConfig,
-                     data_dir="",
+def split_to_folders(data_dir,
+                     shuffle_seed,
+                     data_split,
+                     n_learners,
                      output_folder=Path(tempfile.gettempdir()) / "cifar"):
     # Load CIFAR
     (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
@@ -32,15 +34,15 @@ def split_to_folders(config: ColearnConfig,
     all_images = all_images.astype("float32") / 255.0
 
     [all_images, all_labels] = shuffle_data(
-        [all_images, all_labels], config.shuffle_seed
+        [all_images, all_labels], shuffle_seed
     )
 
     [all_images_lists, all_labels_lists] = split_by_chunksizes(
-        [all_images, all_labels], config.data_split
+        [all_images, all_labels], data_split
     )
 
     dir_names = []
-    for i in range(config.n_learners):
+    for i in range(n_learners):
 
         dir_name = output_folder / str(i)
         dir_names.append(dir_name)

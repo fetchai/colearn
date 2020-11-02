@@ -116,7 +116,10 @@ DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
 
 
-def split_to_folders(config, data_dir,
+def split_to_folders(data_dir,
+                     shuffle_seed,
+                     data_split,
+                     n_learners,
                      output_folder=Path(tempfile.gettempdir()) / "fraud"):
     data_file = data_dir + "/data.npy"
     labels_file = data_dir + "/labels.npy"
@@ -127,14 +130,14 @@ def split_to_folders(config, data_dir,
         data = np.load(data_file)
         labels = np.load(labels_file)
 
-    [data, labels] = shuffle_data([data, labels], config.shuffle_seed)
+    [data, labels] = shuffle_data([data, labels], shuffle_seed)
 
-    [data_lists, labels_lists] = split_by_chunksizes([data, labels], config.data_split)
+    [data_lists, labels_lists] = split_by_chunksizes([data, labels], data_split)
 
     local_output_dir = Path(output_folder)
 
     dir_names = []
-    for i in range(config.n_learners):
+    for i in range(n_learners):
 
         dir_name = local_output_dir / str(i)
         os.makedirs(str(dir_name), exist_ok=True)
