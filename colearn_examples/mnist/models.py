@@ -1,8 +1,10 @@
 import numpy as np
-
 import tensorflow as tf
+import torch.nn as nn
+import torch.nn.functional as nn_func
 
 from ..keras_learner import KerasLearner
+from ..pytorch_learner import PytorchLearner
 
 
 class MNISTConvLearner(KerasLearner):
@@ -79,4 +81,28 @@ class MNISTSuperminiLearner(KerasLearner):
         )
 
         model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        return model
+
+
+class MNISTPytorchLearner(PytorchLearner):
+    def _get_model(self):
+        class Net(nn.Module):
+            def __init__(self):
+                super(Net, self).__init__()
+                self.conv1 = nn.Conv2d(1, 20, 5, 1)
+                self.conv2 = nn.Conv2d(20, 50, 5, 1)
+                self.fc1 = nn.Linear(4 * 4 * 50, 500)
+                self.fc2 = nn.Linear(500, 10)
+
+            def forward(self, x):
+                x = nn_func.relu(self.conv1(x))
+                x = nn_func.max_pool2d(x, 2, 2)
+                x = nn_func.relu(self.conv2(x))
+                x = nn_func.max_pool2d(x, 2, 2)
+                x = x.view(-1, 4 * 4 * 50)
+                x = nn_func.relu(self.fc1(x))
+                x = self.fc2(x)
+                return nn_func.log_softmax(x, dim=1)
+
+        model = Net()
         return model
