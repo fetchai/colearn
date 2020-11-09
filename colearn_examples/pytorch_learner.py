@@ -2,7 +2,7 @@ from abc import ABC
 from tqdm import trange
 import torch
 from torchsummary import summary
-from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
+from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score
 import numpy as np
 from opacus import PrivacyEngine
 
@@ -12,22 +12,22 @@ from colearn_examples.config import ModelConfig
 
 
 class PytorchLearner(BasicLearner, ABC):
-    def __init__(self, config: ModelConfig, data: LearnerData, model=None):
-        self.config = config
+    def __init__(self, config: ModelConfig, data: LearnerData):
         self._stop_training = False
-        BasicLearner.__init__(self, data=data, model=model)
+        BasicLearner.__init__(self, config=config, data=data)
         self._optimizer = self.config.optimizer(
             self._model.parameters(),
             lr=self.config.l_rate
         )
 
-        privacy_engine = PrivacyEngine(self._model,
-                                       batch_size=self.config.batch_size,
-                                       sample_size=self.config.sample_size,
-                                       alphas=list(range(2, 32)),
-                                       noise_multiplier=1.2,
-                                       max_grad_norm=1.0)
-        privacy_engine.attach(self._optimizer)
+        if config.use_dp:
+            privacy_engine = PrivacyEngine(self._model,
+                                           batch_size=self.config.batch_size,
+                                           sample_size=self.config.sample_size,
+                                           alphas=self.config.alphas,
+                                           noise_multiplier=self.config.noise_multiplier,
+                                           max_grad_norm=config.max_grad_norm)
+            privacy_engine.attach(self._optimizer)
         self._criterion = self.config.loss
 
     def _train_model(self):
@@ -36,7 +36,7 @@ class PytorchLearner(BasicLearner, ABC):
         progress_bar = trange(steps_per_epoch, desc='Training: ', leave=True)
 
         self._model.train()  # sets model to "training" mode. Does not perform training
-        for i in progress_bar:  # tqdm provides progress bar
+        for _ in progress_bar:
             if self._stop_training:
                 break
             data, labels = self.data.train_gen.__next__()
@@ -107,10 +107,7 @@ class PytorchLearner(BasicLearner, ABC):
 
         # Multihot = Jaccard index
         if self.config.multi_hot:
-            all_preds = all_preds > 0.5
-            accuracy = jaccard_score(all_labels, all_preds, average="weighted")
-            print("Jaccard index:", accuracy)
-
+            raise Exception("Multi-hot not supported")
         # One-hot
         else:
             # Multiple classes one-hot = balanced accuracy
@@ -162,10 +159,3 @@ class PytorchLearner(BasicLearner, ABC):
 
     def stop_training(self):
         self._stop_training = True
-
-    def clone(self, data=None):
-        data = data or self.data
-
-        ptl = type(self)(self.config, data=data)
-        ptl._set_weights(self.get_weights())
-        return ptl

@@ -4,8 +4,6 @@ import numpy as np
 
 from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
 
-import tensorflow as tf
-
 from tqdm import trange
 
 from colearn_examples.config import ModelConfig
@@ -13,20 +11,9 @@ from colearn_examples.config import ModelConfig
 from colearn.basic_learner import BasicLearner, LearnerData, Weights
 
 
-class EarlyStoppingWhenSignaled(tf.keras.callbacks.Callback):
-    def __init__(self, check_fn):
-        super(EarlyStoppingWhenSignaled, self).__init__()
-        self._check_fn = check_fn
-
-    def on_train_batch_end(self, batch, logs=None):
-        if self._check_fn():
-            self.model.stop_training = True
-
-
 class KerasLearner(BasicLearner, ABC):
-    def __init__(self, config: ModelConfig, data: LearnerData, model: tf.keras.Model = None):
-        self.config = config
-        BasicLearner.__init__(self, data=data, model=model)
+    def __init__(self, config: ModelConfig, data: LearnerData):
+        BasicLearner.__init__(self, config=config, data=data)
         self._stop_training = False
 
     def _train_model(self):
@@ -163,17 +150,6 @@ class KerasLearner(BasicLearner, ABC):
 
     def print_summary(self):
         self._model.summary()
-
-    def clone(self, data=None):
-        cloned_model = tf.keras.models.clone_model(self._model)
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        cloned_model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
-        data = data or self.data
-        return KerasLearner(self.config, data=data, model=cloned_model)
 
     def get_weights(self):
         return Weights(self._model.get_weights())

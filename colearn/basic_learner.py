@@ -53,10 +53,11 @@ class LearnerData:
 
 
 class BasicLearner(MachineLearningInterface):
-    def __init__(self, data: LearnerData, model=None):
+    def __init__(self, config, data: LearnerData):
+        self.config = config
         self.data = data
 
-        self._model = model or self._get_model()
+        self._model = self._get_model()
         self.print_summary()
 
         self.vote_score_cache = RingBuffer(10)
@@ -142,4 +143,9 @@ class BasicLearner(MachineLearningInterface):
         raise NotImplementedError
 
     def clone(self, data=None):
-        raise NotImplementedError
+        data = data or self.data
+
+        new_learner = type(self)(self.config, data=data)
+        # pylint: disable=W0212
+        new_learner._set_weights(self.get_weights())
+        return new_learner

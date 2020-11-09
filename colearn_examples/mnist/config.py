@@ -1,10 +1,11 @@
-import tensorflow as tf
+# import tensorflow as tf
 import torch
 import torch.nn.functional as nn_func
 
 from colearn_examples.config import ModelConfig
 
-from .models import MNISTSuperminiLearner, MNISTPytorchLearner
+# from .models import MNISTSuperminiLearner
+from .models import MNISTPytorchLearner
 
 
 class MNISTConfig(ModelConfig):
@@ -34,4 +35,9 @@ class MNISTConfig(ModelConfig):
         self.val_batches = 2  # number of batches used for voting
         self.test_ratio = 1 - self.train_ratio
 
+        # DP params
+        self.use_dp = True
         self.sample_size = 3300
+        self.alphas = list(range(2, 32))
+        self.noise_multiplier = 1.2
+        self.max_grad_norm = 1.0
