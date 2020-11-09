@@ -166,6 +166,6 @@ class PytorchLearner(BasicLearner, ABC):
     def clone(self, data=None):
         data = data or self.data
 
-        ptl = self.__class__(self.config, data=data)
+        ptl = type(self)(self.config, data=data)
         ptl._set_weights(self.get_weights())
         return ptl
