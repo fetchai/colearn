@@ -50,14 +50,23 @@ def split_to_folders(
 
     dir_names = []
     for i in range(n_learners):
-
         dir_name = local_output_dir / str(i)
-        os.makedirs(str(dir_name), exist_ok=True)
+        os.system(f"rm -r {dir_name}")
+        os.makedirs(str(dir_name))
+        dir_names.append(dir_name)
+
+        # make symlinks to required files in directory
+        for fl in normal_data_list[i] + pneumonia_data_list[i]:
+            link_name = dir_name / os.path.basename(fl)
+            print(link_name)
+            os.symlink(fl, link_name)
+
+        normal_data_list[i] = [os.path.basename(fl) for fl in normal_data_list[i]]
+        pneumonia_data_list[i] = [os.path.basename(fl) for fl in pneumonia_data_list[i]]
 
         pickle.dump(normal_data_list[i], open(dir_name / normal_fl, "wb"))
         pickle.dump(pneumonia_data_list[i], open(dir_name / pneu_fl, "wb"))
 
-        dir_names.append(dir_name)
     print(dir_names)
     return dir_names
 
@@ -67,6 +76,9 @@ def prepare_single_client(config: ModelConfig, data_dir):
 
     normal_data = pickle.load(open(Path(data_dir) / "normal.pickle", "rb"))
     pneumonia_data = pickle.load(open(Path(data_dir) / "pneumonia.pickle", "rb"))
+
+    normal_data = [Path(data_dir) / os.path.basename(fl) for fl in normal_data]
+    pneumonia_data = [Path(data_dir) / os.path.basename(fl) for fl in pneumonia_data]
 
     [[train_normal, test_normal]] = split_by_chunksizes(
         [normal_data], [config.train_ratio, config.test_ratio]
