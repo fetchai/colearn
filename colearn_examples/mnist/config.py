@@ -15,6 +15,8 @@ class MNISTConfig(ModelConfig):
         self.l_rate_decay = 1e-5
         self.batch_size = 64
 
+        self.metrics = ["accuracy"]
+
         # Model params
         self.model_type = MNISTSuperminiLearner
         self.width = 28

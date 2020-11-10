@@ -19,6 +19,8 @@ class FraudConfig(ModelConfig):
         self.n_classes = 1
         self.multi_hot = False
 
+        self.metrics = ["accuracy"]
+
         # Keras only params
         self.loss = "sparse_categorical_crossentropy"
         self.optimizer = tf.keras.optimizers.Adam

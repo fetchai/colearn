@@ -44,10 +44,10 @@ class KerasLearner(BasicLearner, ABC):
             data, labels = self.data.train_gen.__next__()
             history = self._model.fit(data, labels, verbose=0)
 
-            if "accuracy" in history.history:
-                train_accuracy += np.mean(history.history["accuracy"])
+            if self.config.metrics[0] in history.history:
+                train_accuracy += np.mean(history.history[self.config.metrics[0]])
             else:
-                train_accuracy += np.mean(history.history["acc"])
+                print("Something is wrong, metric ", self.config.metrics[0], " not found in history")
 
             progress_bar.set_description("Accuracy %f" % (train_accuracy / (i + 1)))
             progress_bar.refresh()  # to show immediately the update

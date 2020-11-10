@@ -28,7 +28,7 @@ class FraudDense1Learner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 

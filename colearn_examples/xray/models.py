@@ -30,7 +30,7 @@ class XraySuperminiLearner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -59,7 +59,7 @@ class XrayResnet50Learner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -86,7 +86,7 @@ class XrayPretrainedResnet50Learner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -150,7 +150,7 @@ class XrayDropout2Learner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -190,7 +190,7 @@ class XrayDropoutLearner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -222,7 +222,7 @@ class XrayMiniLearner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -283,7 +283,7 @@ class XrayOneMBLeaner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -316,7 +316,7 @@ class XrayPretrainedResNet50Learner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss,metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -348,5 +348,5 @@ class XrayVGG16Learner(KerasLearner):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
