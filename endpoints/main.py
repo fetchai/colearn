@@ -11,13 +11,22 @@ class Status(BaseModel):  # Dynamic stuff
     round: int
 
 
-class AccuracyDP(BaseModel):
-    round: int
-    accuracy: float
+class Performance(BaseModel):
+    epoch: int
+    performance: float
 
 
-class AccuracySamples(BaseModel):
-    data: List[AccuracyDP]
+class PerformanceHistory(BaseModel):
+    data: List[Performance]
+
+
+class PrivacyLeakage(BaseModel):
+    epoch: int
+    epsilon: float
+
+
+class PrivacyLeakageHistory(BaseModel):
+    data: List[PrivacyLeakage]
 
 
 class Info(BaseModel):  # stuff that won't change
@@ -33,17 +42,18 @@ class DataInfo(BaseModel):
 
 
 class Vote(BaseModel):
-    round: int
+    epoch: int
     vote: bool
-    am_proposer: bool
+    i_am_proposer: bool
+    identity: str
 
 
-class VoteRecord(BaseModel):
+class VoteHistory(BaseModel):
     votes: List[Vote]
 
 
 class Stats(BaseModel):
-    average_round_time: float
+    average_epoch_time: float
     average_train_time: float
     average_evaluate_time: float
 
@@ -54,7 +64,7 @@ def read_root():
 
 
 @app.get("/colearn/info/", response_model=Info)
-async def create_item():
+def create_item():
     return {}
 
 
@@ -63,14 +73,15 @@ def read_root():
     return {}
 
 
-@app.get("/colearn/accuracy/{dataset}", response_model=AccuracySamples)
+@app.get("/colearn/accuracy/{dataset}", response_model=PerformanceHistory)
 def read_root(dataset: str, start: Optional[int] = None, end: Optional[int] = None,
               limit: Optional[int] = None):
     return {}
 
 
-@app.get("/colearn/votes/", response_model=VoteRecord)
-def read_root(start: Optional[int] = None, end: Optional[int] = None, limit: Optional[int] = None):
+@app.get("/colearn/votes/", response_model=VoteHistory)
+def read_root(start: Optional[int] = None, end: Optional[int] = None,
+              limit: Optional[int] = None, learner_id: Optional[str] = None):
     return {}
 
 
@@ -85,7 +96,7 @@ def read_root():
 
 
 @app.post('/colearn/start')
-def start(starting_info: Dict[Any, Any]):
+def start_colearn(starting_info: Dict[Any, Any]):
     return {}
 
 
