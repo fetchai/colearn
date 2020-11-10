@@ -28,12 +28,6 @@ class MNISTConvLearner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 
@@ -75,12 +69,6 @@ class MNISTSuperminiLearner(KerasLearner):
         x = tf.keras.layers.Dense(self.config.n_classes, activation="softmax")(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 

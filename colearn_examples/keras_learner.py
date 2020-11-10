@@ -6,6 +6,9 @@ from sklearn.metrics import jaccard_score, confusion_matrix, classification_repo
 
 from tqdm import trange
 
+from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasSGDOptimizer
+import tensorflow as tf
+
 from colearn_examples.config import ModelConfig
 
 from colearn.basic_learner import BasicLearner, LearnerData, Weights
@@ -15,6 +18,23 @@ class KerasLearner(BasicLearner, ABC):
     def __init__(self, config: ModelConfig, data: LearnerData):
         BasicLearner.__init__(self, config=config, data=data)
         self._stop_training = False
+
+        if config.use_dp:
+            opt = DPKerasSGDOptimizer(
+                l2_norm_clip=self.config.l2_norm_clip,
+                noise_multiplier=self.config.noise_multiplier,
+                num_microbatches=self.config.microbatches,
+                learning_rate=self.config.l_rate)
+            loss = tf.keras.losses.SparseCategoricalCrossentropy(
+                from_logits=True, reduction=tf.losses.Reduction.NONE)
+        else:
+            # compile model & add optimiser
+            opt = self.config.optimizer(
+                lr=self.config.l_rate, decay=self.config.l_rate_decay
+            )
+            loss = self.config.loss
+
+        self._model.compile(loss=loss, metrics=["accuracy"], optimizer=opt)
 
     def _train_model(self):
         self._stop_training = False
