@@ -16,7 +16,7 @@ The common collaborative learning API is used for both monitoring and controllin
 # SCHEMAS
 # ----------------------------------------------------------------------------------------------------------------------
 
-class PagedModel(BaseModel):
+class BaseListModel(BaseModel):
     current_page: int
     total_pages: int
     is_start: bool
@@ -59,7 +59,7 @@ class Dataset(BaseModel):
     test_size: float
 
 
-class DatasetPage(PagedModel):
+class DatasetList(BaseListModel):
     """
     A paged list of datasets
 
@@ -96,13 +96,14 @@ class TrainedModel(Model):
     Attributes:
 
     * `name` - The name of the model
+    * `model` - The type of the model to be used
     * `parameters` - The dictionary of parameters which configure the model
     * `weights` - A dictionary of weights corresponding to the model
     """
     weights: Dict[str, Any]
 
 
-class ModelPage(PagedModel):
+class ModelList(BaseListModel):
     """
     A paged list of models
 
@@ -148,7 +149,7 @@ class Info(BaseModel):
     version: str
 
 
-class QueuePage(PagedModel):
+class QueueList(BaseListModel):
     """
     A paged list of queued experiments
 
@@ -225,7 +226,7 @@ class Experiment(BaseModel):
     is_owner: bool = False
 
 
-class ExperimentPage(PagedModel):
+class ExperimentList(BaseListModel):
     """
     A paged list of experiments
 
@@ -280,7 +281,7 @@ class Performance(BaseModel):
     performance: float
 
 
-class PerformancePage(PagedModel):
+class PerformanceList(BaseListModel):
     """
     A paged list of performance data points
 
@@ -310,7 +311,7 @@ class Vote(BaseModel):
     is_proposer: bool
 
 
-class VotePage(PagedModel):
+class VoteList(BaseListModel):
     """
     A paged list of votes
 
@@ -376,7 +377,7 @@ def index():
     return {'state': 'alive and kicking!'}
 
 
-@app.get('/datasets/', response_model=DatasetPage, tags=['datasets'])
+@app.get('/datasets/', response_model=DatasetList, tags=['datasets'])
 def get_list_datasets(page: Optional[int] = None, page_size: Optional[int] = None):
     """
     Get the list of datasets that are present on this learner.
@@ -404,19 +405,6 @@ def get_specific_dataset_information(name: str):
     return {}
 
 
-@app.post('/datasets/{name}/', response_model=Dataset, tags=['datasets'])
-def update_specific_dataset_information(name: str, dataset: Dataset):
-    """
-    Update a specific named dataset with updated information
-
-    Route Parameters:
-
-    * `name` - The name of the dataset to be queried
-
-    """
-    return {}
-
-
 @app.post('/datasets/', tags=['datasets'])
 def create_new_dataset(dataset: Dataset):
     """
@@ -437,7 +425,7 @@ def delete_dataset(name: str):
     return {}
 
 
-@app.get('/models/', response_model=ModelPage, tags=['models'])
+@app.get('/models/', response_model=ModelList, tags=['models'])
 def get_list_of_models(page: Optional[int] = None, page_size: Optional[int] = None):
     """
     Get a list of the models that are present on the system
@@ -526,7 +514,7 @@ def get_learner_information():
     return {}
 
 
-@app.get('/node/queue/active/', response_model=QueuePage, tags=['node'])
+@app.get('/node/queue/active/', response_model=QueueList, tags=['node'])
 def get_learner_active_queue(model: Optional[str] = None, dataset: Optional[str] = None, page: Optional[int] = None,
                              page_size: Optional[int] = None):
     """
@@ -543,7 +531,7 @@ def get_learner_active_queue(model: Optional[str] = None, dataset: Optional[str]
     return {}
 
 
-@app.get('/node/queue/pending/', response_model=QueuePage, tags=['node'])
+@app.get('/node/queue/pending/', response_model=QueueList, tags=['node'])
 def get_learner_pending_queue(model: Optional[str] = None, dataset: Optional[str] = None, page: Optional[int] = None,
                               page_size: Optional[int] = None):
     """
@@ -560,7 +548,7 @@ def get_learner_pending_queue(model: Optional[str] = None, dataset: Optional[str
     return {}
 
 
-@app.get('/experiments/', response_model=ExperimentPage, tags=['experiments'])
+@app.get('/experiments/', response_model=ExperimentList, tags=['experiments'])
 def get_the_list_of_experiments(model: Optional[str] = None, dataset: Optional[str] = None, page: Optional[int] = None,
                                 page_size: Optional[int] = None):
     """
@@ -636,7 +624,7 @@ def get_learner_status(name: str):
     return {}
 
 
-@app.get('/experiments/{name}/performance/{mode}/', response_model=PerformancePage, tags=['experiments'])
+@app.get('/experiments/{name}/performance/{mode}/', response_model=PerformanceList, tags=['experiments'])
 def get_performance(name: str, mode: str = Path(..., regex=r'(?:validation|test)'), start: Optional[int] = None,
                     end: Optional[int] = None, page: Optional[int] = None,
                     page_size: Optional[int] = None):
@@ -664,7 +652,7 @@ def get_performance(name: str, mode: str = Path(..., regex=r'(?:validation|test)
     return {}
 
 
-@app.get('/experiments/{name}/votes/', response_model=VotePage, tags=['experiments'])
+@app.get('/experiments/{name}/votes/', response_model=VoteList, tags=['experiments'])
 def get_vote_information(name: str, start: Optional[int] = None, end: Optional[int] = None, page: Optional[int] = None,
                          page_size: Optional[int] = None):
     """
