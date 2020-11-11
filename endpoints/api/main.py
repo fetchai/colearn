@@ -69,7 +69,7 @@ class DatasetList(BaseListModel):
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
     * `is_start` - Flag to signal this is the first page of the results
-    * `is_end` - Flag to signal this is the last page of the results
+    * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Dataset]
 
@@ -113,12 +113,12 @@ class ModelList(BaseListModel):
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
     * `is_start` - Flag to signal this is the first page of the results
-    * `is_end` - Flag to signal this is the last page of the results
+    * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Model]
 
 
-class Checkpoint(BaseModel):
+class CopyParams(BaseModel):
     """
     The parameters for the new checkpoint / duplicate model
 
@@ -159,7 +159,7 @@ class QueueList(BaseListModel):
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
     * `is_start` - Flag to signal this is the first page of the results
-    * `is_end` - Flag to signal this is the last page of the results
+    * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[str]
 
@@ -236,7 +236,7 @@ class ExperimentList(BaseListModel):
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
     * `is_start` - Flag to signal this is the first page of the results
-    * `is_end` - Flag to signal this is the last page of the results
+    * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Experiment]
 
@@ -291,7 +291,7 @@ class PerformanceList(BaseListModel):
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
     * `is_start` - Flag to signal this is the first page of the results
-    * `is_end` - Flag to signal this is the last page of the results
+    * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Performance]
 
@@ -321,7 +321,7 @@ class VoteList(BaseListModel):
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
     * `is_start` - Flag to signal this is the first page of the results
-    * `is_end` - Flag to signal this is the last page of the results
+    * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Vote]
 
@@ -496,8 +496,8 @@ def export_model(name: str):
     return {}
 
 
-@app.post('/models/{name}/checkpoint/', tags=['models'])
-def duplicate_model(name: str, checkpoint: Checkpoint):
+@app.post('/models/{name}/copy/', tags=['models'])
+def duplicate_model(name: str, params: CopyParams):
     """
     Create a copy of the specified model
 
