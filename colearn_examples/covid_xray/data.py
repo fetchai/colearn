@@ -115,8 +115,8 @@ def prepare_single_client(config: ModelConfig, data_dir):
     [[train_images, test_images], [train_labels, test_labels]] = \
         split_by_chunksizes([images, labels], [config.train_ratio, config.test_ratio])
 
-    [[train_images, val_images], [train_labels, val_labels]] = \
-        split_by_chunksizes([train_images, train_labels], [config.train_ratio, config.valid_ratio])
+    #[[train_images, val_images], [train_labels, val_labels]] = \
+    #    split_by_chunksizes([train_images, train_labels], [config.train_ratio, config.valid_ratio])
 
     data.train_data_size = len(train_images)
 
@@ -126,7 +126,7 @@ def prepare_single_client(config: ModelConfig, data_dir):
         config.generator_seed,
     )
     data.val_gen = train_generator(
-        val_images, val_labels, config.batch_size,
+        train_images, train_labels, config.batch_size,
         config.feature_size,
         config.generator_seed,
     )
