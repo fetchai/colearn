@@ -55,6 +55,9 @@ class ModelConfig:
         self.multi_hot = False
         self.class_labels = range(self.n_classes)
 
+        self.evaluation_config = {}
+        self.transform_metrics_for_grafana = None
+
         # Data params
         self.steps_per_epoch = None
 

@@ -63,6 +63,28 @@ class KerasLearner(BasicLearner, ABC):
         for nw, ow in zip(new_weights, old_weights):
             grad_list.append(nw - ow)
         return grad_list
+    
+    def _evaluate_model(self, eval_config: dict) -> dict:
+        """
+            eval_config = {
+                "f-score": lambda y_true, y_pred
+            }
+        """
+        generator = self.data.test_gen
+        n_steps = max(1, int(self.data.test_data_size // self.data.test_batch_size))
+        all_labels = []  # type: ignore
+        all_preds = [] # type: ignore
+        for _ in range(n_steps):
+            data, labels = generator.__next__()
+            pred = self._model.predict(data)
+            all_labels.extend(labels)
+            all_preds.extend(pred)
+        y_true = np.concatenate(all_labels, axis=0)
+        y_pred = np.concatenate(all_preds, axis=0)
+        res = {}
+        for key, fn in eval_config.items():
+            res[key] = fn(y_true, y_pred)
+        return res
 
     def _test_model(self, weights: Weights = None, validate=False):
         temp_weights = []

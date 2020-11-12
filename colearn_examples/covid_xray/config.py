@@ -3,6 +3,7 @@ import tensorflow as tf
 from colearn_examples.config import ModelConfig
 
 from .models import CovidXrayLearner
+from .evaluation import *
 
 
 class CovidXrayConfig(ModelConfig):
@@ -31,3 +32,12 @@ class CovidXrayConfig(ModelConfig):
         self.test_ratio = 0.2
         self.valid_ratio = 0.2
         self.val_batches = 2  # number of batches used for voting
+
+        self.evaluation_config = {
+            "auc_covid": auc_score(1),
+            "auc_normal": auc_score(0),
+            "auc_pneumonia": auc_score(2),
+            "full_classification_report": full_classification_report(["normal", "covid", "pneumonia"])
+        }
+
+        self.transform_metrics_for_grafana = transform_to_grafana("globaldemo_covid")

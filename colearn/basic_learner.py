@@ -132,7 +132,19 @@ class BasicLearner(MachineLearningInterface):
 
         return proposed_weights
 
+    def evaluate_model(self, eval_config: dict) -> dict:
+        """
+            Evaluate the model on testset, using the metrics specified in eval_config.
+            eval_config = {
+                "name": lambda y_true, y_pred
+            }
+        """
+        return self._evaluate_model(eval_config)
+
     def _test_model(self, weights: Weights = None, validate=False):
+        raise NotImplementedError
+
+    def _evaluate_model(self, eval_config: dict) -> dict:
         raise NotImplementedError
 
     def _train_model(self):

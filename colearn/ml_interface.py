@@ -60,3 +60,13 @@ class MachineLearningInterface(abc.ABC):
         :param weights: The new weights
         """
         pass
+
+    @abc.abstractmethod
+    def evaluate_model(self, eval_config: dict) -> dict:
+        """
+            Evaluate the model on testset, using the metrics specified in eval_config.
+            eval_config = {
+                "name": lambda y_true, y_pred
+            }
+        """
+        pass
