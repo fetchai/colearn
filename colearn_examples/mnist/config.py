@@ -1,11 +1,8 @@
 import tensorflow as tf
-import torch
-import torch.nn.functional as nn_func
 
 from colearn_examples.config import ModelConfig
 
 from .models import MNISTSuperminiLearner
-from .models import MNISTPytorchLearner
 
 
 class MNISTConfig(ModelConfig):
@@ -14,18 +11,15 @@ class MNISTConfig(ModelConfig):
 
         # Training params
         self.optimizer = tf.keras.optimizers.Adam
-        # self.optimizer = torch.optim.Adam
         self.l_rate = 0.001
         self.l_rate_decay = 1e-5
         self.batch_size = 64
 
         # Model params
         self.model_type = MNISTSuperminiLearner
-        # self.model_type = MNISTPytorchLearner
         self.width = 28
         self.height = 28
         self.loss = "sparse_categorical_crossentropy"
-        # self.loss = nn_func.nll_loss
         self.n_classes = 10
         self.multi_hot = False
 
