@@ -7,8 +7,8 @@ Differential privacy is a system for publicly sharing information about a datase
 
 # How to use differential privacy with colearn
 Differential privacy is available for the PyTorchLearner and KerasLearner models. 
-To enable DP, ensure that in the model config you have selected a models that is derived from PyTorch or KerasLearner, 
-and that use_dp is set to True.
+To enable DP, ensure that in the model config you have selected a model that is derived from PyTorch or KerasLearner, 
+and that `use_dp = True`.
 An example ModelConfig for MNIST is shown below:
 
 ```python3
