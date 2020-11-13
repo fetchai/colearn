@@ -25,12 +25,6 @@ class XraySuperminiLearner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 
@@ -54,12 +48,6 @@ class XrayResnet50Learner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 
@@ -81,12 +69,6 @@ class XrayPretrainedResnet50Learner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 
@@ -145,12 +127,6 @@ class XrayDropout2Learner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 
@@ -185,12 +161,6 @@ class XrayDropoutLearner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 
@@ -217,12 +187,6 @@ class XrayMiniLearner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 
@@ -278,12 +242,6 @@ class XrayOneMBLeaner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 
@@ -311,12 +269,6 @@ class XrayPretrainedResNet50Learner(KerasLearner):
 
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 
 
@@ -343,10 +295,4 @@ class XrayVGG16Learner(KerasLearner):
 
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model

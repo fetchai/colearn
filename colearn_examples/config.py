@@ -65,3 +65,10 @@ class ModelConfig:
         self.test_augment = False
 
         self.generator_seed = seed
+
+        # DP params
+        self.use_dp = True
+        self.sample_size = 3300
+        self.alphas = list(range(2, 32))
+        self.noise_multiplier = 1.2
+        self.max_grad_norm = 1.0

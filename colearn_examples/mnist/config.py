@@ -28,3 +28,12 @@ class MNISTConfig(ModelConfig):
         self.train_ratio = 0.8
         self.val_batches = 2  # number of batches used for voting
         self.test_ratio = 1 - self.train_ratio
+
+        # DP params
+        self.use_dp = True
+        self.sample_size = 3300
+        self.alphas = list(range(2, 32))
+        self.noise_multiplier = 1.2
+        self.max_grad_norm = 1.0
+        self.l2_norm_clip = 1.0
+        self.microbatches = self.batch_size

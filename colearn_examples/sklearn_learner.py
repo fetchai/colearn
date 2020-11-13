@@ -12,9 +12,8 @@ from colearn.basic_learner import BasicLearner, LearnerData, Weights
 
 
 class SKLearnLearner(BasicLearner, ABC):
-    def __init__(self, config: ModelConfig, data: LearnerData, model=None):
-        self.config = config
-        BasicLearner.__init__(self, data=data, model=model)
+    def __init__(self, config: ModelConfig, data: LearnerData):
+        BasicLearner.__init__(self, config=config, data=data)
 
     def _train_model(self):
         steps_per_epoch = (
@@ -92,11 +91,6 @@ class SKLearnLearner(BasicLearner, ABC):
 
     def print_summary(self):
         print(self._model)
-
-    def clone(self, data=None):
-        cloned_model = copy.deepcopy(self._model)
-        data = data or self.data
-        return SKLearnLearner(self.config, data=data, model=cloned_model)
 
     def get_weights(self):
         return Weights(copy.deepcopy(self._model))
