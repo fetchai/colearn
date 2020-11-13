@@ -1,5 +1,5 @@
 from sklearn.metrics import roc_curve, auc, classification_report
-
+import numpy as np
 
 def auc_score(pos_label):
     def ev(y_true, y_pred):
@@ -8,10 +8,12 @@ def auc_score(pos_label):
         return roc_auc
     return ev
 
-def full_classification_report(target_names):
+def full_classification_report(target_names, labels):
     def ev(y_true, y_pred):
-        return classification_report(y_true, y_pred, target_names=target_names, output_dict=True)
+        pred=np.argmax(y_pred, axis=1)
+        return classification_report(y_true, pred, labels=labels, target_names=target_names, output_dict=True)
     return ev
+
 
 def _transform_to_report(prefix, data):
     transformed = {}

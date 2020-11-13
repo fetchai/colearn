@@ -37,7 +37,7 @@ class CovidXrayConfig(ModelConfig):
             "auc_covid": auc_score(1),
             "auc_normal": auc_score(0),
             "auc_pneumonia": auc_score(2),
-            "full_classification_report": full_classification_report(["normal", "covid", "pneumonia"])
+            "full_classification_report": full_classification_report(["normal", "covid", "pneumonia"], [0, 1, 2])
         }
 
         self.transform_metrics_for_grafana = transform_to_grafana("globaldemo_covid")

@@ -77,8 +77,8 @@ class KerasLearner(BasicLearner, ABC):
         for _ in range(n_steps):
             data, labels = generator.__next__()
             pred = self._model.predict(data)
-            all_labels.extend(labels)
-            all_preds.extend(pred)
+            all_labels.append(labels)
+            all_preds.append(pred)
         y_true = np.concatenate(all_labels, axis=0)
         y_pred = np.concatenate(all_preds, axis=0)
         res = {}
@@ -193,7 +193,7 @@ class KerasLearner(BasicLearner, ABC):
             lr=self.config.l_rate, decay=self.config.l_rate_decay
         )
 
-        cloned_model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
+        cloned_model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         data = data or self.data
         return KerasLearner(self.config, data=data, model=cloned_model)
 
