@@ -1,12 +1,15 @@
+import json
 from typing import Optional, List, Dict, Any, Union
 
 from fastapi import FastAPI, Path
 from pydantic import BaseModel, validator
 
+from .database import DBModel, DBDataset, DBExperiment
+
 app = FastAPI(
-    title='Collaborative Learning API',
+    title='Collective Learning API',
     description="""
-The common collaborative learning API is used for both monitoring and controlling of models, datasets and experiments  
+The common collective learning API is used for both monitoring and controlling of models, datasets and experiments  
     """,
     version='0.1.0'
 )
@@ -191,7 +194,7 @@ class Experiment(BaseModel):
 
     * `name` - The name of the experiment
     * `training_mode` - The training mode for the experiment. Should be one of the following values:
-        - `'collaborative'` (Default)
+        - `'collective'` (Default)
     * `model` - The name of the model to be used
     * `dataset` - The name of the dataset to be used
     * `seed` - The seed value to initialise the experiment
@@ -213,7 +216,7 @@ class Experiment(BaseModel):
 
     """
     name: str
-    training_mode: str = 'collaborative'
+    training_mode: str = 'collective'
     model: str
     dataset: str
     seed: Optional[int]  # if not present then pick one [1, 100]?
@@ -377,6 +380,18 @@ def index():
     return {'state': 'alive and kicking!'}
 
 
+def _dbdataset_to_dataset(rec: DBDataset) -> Dataset:
+    ds = Dataset(name=rec.name,
+                 loader=Loader(name=rec.loader_name, params=json.loads(rec.loader_params)),
+                 location=rec.location,
+                 seed=rec.seed,
+                 train_size=rec.train_size,
+                 validation_size=rec.validation_size,
+                 test_size=rec.test_size
+                 )
+    return ds
+
+
 @app.get('/datasets/', response_model=DatasetList, tags=['datasets'])
 def get_list_datasets(page: Optional[int] = None, page_size: Optional[int] = None):
     """
@@ -389,7 +404,11 @@ def get_list_datasets(page: Optional[int] = None, page_size: Optional[int] = Non
       specified, however, it might response with fewer.
 
     """
-    return {}
+    dataset_list = [_dbdataset_to_dataset(rec) for rec in DBDataset.select()]
+
+    pdl = DatasetList(items=dataset_list, current_page=0, total_pages=1, is_start=True,
+                      is_last=True)
+    return pdl
 
 
 @app.get('/datasets/{name}/', response_model=Dataset, tags=['datasets'])
@@ -402,7 +421,9 @@ def get_specific_dataset_information(name: str):
     * `name` - The name of the dataset to be looked up
 
     """
-    return {}
+    rec = DBDataset.get(DBDataset.name == name)
+
+    return _dbdataset_to_dataset(rec)
 
 
 @app.post('/datasets/', tags=['datasets'])
@@ -410,6 +431,16 @@ def create_new_dataset(dataset: Dataset):
     """
     Create / register a new dataset with the learner
     """
+    d1 = DBDataset.create(name=dataset.name, loader_name=dataset.loader.name,
+                          loader_params=json.dumps(dataset.loader.params),
+                          location=dataset.location,
+                          seed=dataset.seed,
+                          train_size=dataset.train_size,
+                          validation_size=dataset.validation_size,
+                          test_size=dataset.test_size
+                          )
+    print(d1)
+
     return {}
 
 
@@ -422,6 +453,9 @@ def delete_dataset(name: str):
 
     * `name` - The name of the dataset to be deleted
     """
+    rec = DBDataset.get(DBDataset.name == name)
+    rec.delete_instance()
+
     return {}
 
 

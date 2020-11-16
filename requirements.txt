@@ -12,3 +12,6 @@ torch~=1.6.0
 opencv-python~=4.4.0.44
 torchsummary~=1.5.1
 opacus~=0.9.1
+fastapi~=0.61.2
+pydantic~=1.7.2
+peewee~=3.14.0
