@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from api.database import DBDataset, DBModel, DBExperiment
 from api.main import app
-from api.schemas import ExperimentParameters
+from api.schemas import ExperimentParameters, Statistics, Statistic
 from api.utils import BasicEndpointTest, default
 
 
@@ -288,7 +288,7 @@ class ExperimentEndpointTests(BasicEndpointTest):
         self.assertEqual(resp.status_code, 404)
         self.assertEqual(resp.json(), {'detail': 'Experiment and/or Model and/or Dataset not found'})
 
-    def test_get_learner_status(self):
+    def test_get_experiment_status(self):
         experiment = self.create_sample_experiment()
         experiment.epoch = 5
         experiment.state = 'training'
@@ -302,7 +302,38 @@ class ExperimentEndpointTests(BasicEndpointTest):
             'state': 'training',
         })
 
-    def test_get_learner_status_failure(self):
+    def test_get_experiment_status_failure(self):
         resp = self.client.get('/experiments/foo/status/')
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.json(), {'detail': 'Experiment not found'})
+
+    def test_get_experiment_stats(self):
+        experiment = self.create_sample_experiment()
+        experiment.mean_epoch_time = 1.2
+        experiment.mean_train_time = 1.3
+        experiment.mean_evaluation_time = 1.4
+        experiment.save()
+
+        resp = self.client.get(f'/experiments/{experiment.name}/stats/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json(), Statistics(
+            epoch_time=Statistic(mean=1.2),
+            train_time=Statistic(mean=1.3),
+            evaluate_time=Statistic(mean=1.4),
+        ).dict())
+
+    def test_get_experiment_stats_not_present(self):
+        experiment = self.create_sample_experiment()
+
+        resp = self.client.get(f'/experiments/{experiment.name}/stats/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json(), Statistics(
+            epoch_time=Statistic(mean=0.0),
+            train_time=Statistic(mean=0.0),
+            evaluate_time=Statistic(mean=0.0),
+        ).dict())
+
+    def test_get_experiment_stats_failure(self):
+        resp = self.client.get('/experiments/foo/stats/')
         self.assertEqual(resp.status_code, 404)
         self.assertEqual(resp.json(), {'detail': 'Experiment not found'})

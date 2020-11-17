@@ -6,7 +6,7 @@ from fastapi import APIRouter, Path, HTTPException
 
 from api.database import DBExperiment, DBModel, DBDataset
 from api.schemas import ExperimentList, Experiment, Status, PerformanceList, VoteList, Statistics, Empty, \
-    ExperimentParameters, ErrorResponse, CreateExperiment, UpdateExperiment
+    ExperimentParameters, ErrorResponse, CreateExperiment, UpdateExperiment, Statistic
 from api.settings import DEFAULT_PAGE_SIZE
 from api.utils import default, compute_total_pages
 
@@ -304,7 +304,17 @@ def get_learner_statistics(name: str):
 
     * `name` - The name of the experiment to be queried (`current` is an alias for the most recently started experiment)
     """
-    return {}
+    try:
+        exp: DBExperiment = DBExperiment.get(DBExperiment.name == name)
+
+        return Statistics(
+            epoch_time=Statistic(mean=exp.mean_epoch_time or 0.0),
+            train_time=Statistic(mean=exp.mean_train_time or 0.0),
+            evaluate_time=Statistic(mean=exp.mean_evaluation_time or 0.0),
+        )
+
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Experiment not found")
 
 
 @router.post('/experiments/{name}/start/', response_model=Empty, tags=['experiments'])

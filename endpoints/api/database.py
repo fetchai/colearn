@@ -63,6 +63,11 @@ class DBExperiment(Model):
     state = CharField(default='')
     epoch = IntegerField(default=-1)
 
+    # statistics information
+    mean_epoch_time = DoubleField(null=True)
+    mean_train_time = DoubleField(null=True)
+    mean_evaluation_time = DoubleField(null=True)
+
     class Meta:
         database = db  # This model uses the "people.db" database.
 
