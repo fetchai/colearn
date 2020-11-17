@@ -1,10 +1,27 @@
+import json
 from typing import Optional, Union
 
 from fastapi import APIRouter
 
 from api.schemas import ModelList, TrainedModel, Model, CopyParams
+from api.database import DBModel
 
 router = APIRouter()
+
+
+def _dbmodel_to_model(rec: DBModel) -> Union[TrainedModel, Model]:
+    if hasattr(rec, "weights") and rec.weights is not None:
+        ds = TrainedModel(name=rec.name,
+                          model=rec.model,
+                          parameters=json.loads(rec.parameters),
+                          weights=json.loads(rec.weights)
+                          )
+    else:
+        ds = Model(name=rec.name,
+                   model=rec.model,
+                   parameters=json.loads(rec.parameters),
+                   )
+    return ds
 
 
 @router.get('/models/', response_model=ModelList, tags=['models'])
@@ -18,7 +35,11 @@ def get_list_of_models(page: Optional[int] = None, page_size: Optional[int] = No
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
       specified, however, it might response with fewer.
     """
-    return {}
+    model_list = [_dbmodel_to_model(rec) for rec in DBModel.select()]
+
+    pdl = ModelList(items=model_list, current_page=0, total_pages=1, is_start=True,
+                    is_last=True)
+    return pdl
 
 
 @router.post('/models/', tags=['models'])
@@ -26,6 +47,17 @@ def create_new_model(model: Union[TrainedModel, Model]):
     """
     Create a new model
     """
+    if hasattr(model, "weights") and model.weights is not None:
+        new_model = DBModel.create(name=model.name,
+                                   model=model.model,
+                                   parameters=json.dumps(model.parameters),
+                                   weights=json.dumps(model.weights))
+    else:
+        new_model = DBModel.create(name=model.name,
+                                   model=model.model,
+                                   parameters=json.dumps(model.parameters),
+                                   )
+    print(new_model)
     return {}
 
 
@@ -38,7 +70,8 @@ def get_specific_model_information(name: str):
 
     * `name` - The name of the model to be queried
     """
-    return {}
+    rec = DBModel.get(DBModel.name == name)
+    return _dbmodel_to_model(rec)
 
 
 @router.post('/models/{name}/', response_model=Model, tags=['models'])
@@ -50,6 +83,7 @@ def update_specific_model_information(name: str, model: Union[TrainedModel, Mode
 
     * `name` - The name of the model to be updated
     """
+
     return {}
 
 
@@ -62,6 +96,9 @@ def delete_specific_model(name: str):
 
     * `name` - The name of the model to be deleted
     """
+    rec = DBModel.get(DBModel.name == name)
+    rec.delete_instance()
+
     return {}
 
 
