@@ -1,7 +1,8 @@
 from fastapi.testclient import TestClient
 import unittest
-from .main import app
-from .database import DBDataset, DBModel, DBExperiment
+
+from api.database import DBDataset, DBModel, DBExperiment
+from api.main import app
 
 
 class APITest(unittest.TestCase):
