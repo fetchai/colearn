@@ -27,7 +27,7 @@ def queue_head() -> Optional[QueueElement]:
 def queue_update(experiment: str, active: bool, model: str, dataset: str) -> bool:
     global _queue, _index
 
-    if experiment not in _index:
+    if experiment not in _index:  # pragma: no cover
         return False
 
     # update the queue element

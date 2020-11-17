@@ -1,7 +1,7 @@
 import unittest
 from typing import Optional
 
-from api.commands import EventRequest, EventResponse, trigger_event_handler, set_event_handler
+from api.commands import EventRequest, EventResponse, trigger_event_handler, set_event_handler, clear_event_handler
 
 
 class CommandTests(unittest.TestCase):
@@ -28,3 +28,11 @@ class CommandTests(unittest.TestCase):
 
         resp = trigger_event_handler('foo', *self.expected_request.args, **self.expected_request.kwargs)
         self.assertEqual(self.response, resp)
+
+    def test_default_command_handling(self):
+        clear_event_handler()
+        resp = trigger_event_handler('foo')
+        self.assertEqual(resp, EventResponse(
+            success=False,
+            error_message='No callback registered'
+        ))

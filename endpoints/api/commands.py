@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Callable, List, Any, Dict, Tuple
+from typing import Optional, Callable, Any, Dict, Tuple
 
 
 @dataclass
@@ -16,6 +16,11 @@ class EventResponse:
 
 
 _event_callback: Optional[Callable[[EventRequest], EventResponse]] = None
+
+
+def clear_event_handler():
+    global _event_callback
+    _event_callback = None
 
 
 def set_event_handler(handler: Callable[[EventRequest], EventResponse]):
