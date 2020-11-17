@@ -49,3 +49,4 @@ coverage.xml
 */.DS_Store
 .idea/
 .*.swp
+*.db
