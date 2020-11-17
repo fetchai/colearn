@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from api.main import app
 from api.queue import queue_clear, queue_push
 from api.settings import node_info
+from api.utils import BasicEndpointTest
 
 
 class NodeEndpointTests(unittest.TestCase):
@@ -18,16 +19,10 @@ class NodeEndpointTests(unittest.TestCase):
         self.assertEqual(resp.json(), node_info.dict())
 
 
-class NodeQueueEndpointTests(unittest.TestCase):
+class NodeQueueEndpointTests(BasicEndpointTest):
     def setUp(self):
         self.client = TestClient(app)
         queue_clear()
-
-    def assertIsPage(self, resp, page: int, total_pages: int):
-        self.assertEqual(resp['current_page'], page)
-        self.assertEqual(resp['total_pages'], total_pages)
-        self.assertEqual(resp['is_start'], page == 0)
-        self.assertEqual(resp['is_last'], (page + 1) == total_pages)
 
     def test_empry_active_queue(self):
         resp = self.client.get('/node/queue/active/')

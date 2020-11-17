@@ -10,6 +10,10 @@ class BaseListModel(BaseModel):
     is_last: bool
 
 
+class ErrorResponse(BaseModel):
+    detail: str
+
+
 class Loader(BaseModel):
     """
     The loader configuration
@@ -170,7 +174,46 @@ class ExperimentParameters(BaseModel):
     vote_threshold: float = 0.5
 
 
-class Experiment(BaseModel):
+class BaseExperiment(BaseModel):
+    name: str
+    training_mode: str = 'collective'
+    model: str
+    dataset: str
+    seed: Optional[int]  # if not present then pick one [1, 100]?
+
+
+class CreateExperiment(BaseExperiment):
+    mode: str
+    contract_address: Optional[str]
+    parameters: ExperimentParameters
+
+    @validator('mode')
+    def mode_is_correct(cls, v):
+        valid_states = ('owner', 'follower')
+        if v not in valid_states:
+            raise ValueError(f'state must be one of {",".join(valid_states)}')
+        return v
+
+    @validator('contract_address')
+    def contract_address_is_present(cls, v, values):
+        if values['mode'] == 'owner' and v is not None:
+            raise ValueError('contract_address should not be provided in owner mode')
+        if values['mode'] == 'follower' and v is None:
+            raise ValueError('contract_address should be provided when trying to join')
+
+        return v
+
+
+class UpdateExperiment(BaseModel):
+    training_mode: Optional[str]
+    model: Optional[str]
+    dataset: Optional[str]
+    seed: Optional[int]
+    contract_address: Optional[str]
+    parameters: Optional[ExperimentParameters]
+
+
+class Experiment(BaseExperiment):
     """
     An experiment definition
 
@@ -199,12 +242,6 @@ class Experiment(BaseModel):
     from information downloaded by the contract
 
     """
-    name: str
-    training_mode: str = 'collective'
-    model: str
-    dataset: str
-    seed: Optional[int]  # if not present then pick one [1, 100]?
-
     # smart contract information
     contract_address: Optional[str]
     parameters: Optional[ExperimentParameters]

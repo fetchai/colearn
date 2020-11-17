@@ -1,10 +1,37 @@
-from typing import Optional
+import json
+from typing import Optional, Union
 
-from fastapi import APIRouter, Path
+import peewee
+from fastapi import APIRouter, Path, HTTPException
 
-from api.schemas import ExperimentList, Experiment, Status, PerformanceList, VoteList, Statistics, Empty
+from api.database import DBExperiment, DBModel, DBDataset
+from api.schemas import ExperimentList, Experiment, Status, PerformanceList, VoteList, Statistics, Empty, \
+    ExperimentParameters, ErrorResponse, CreateExperiment, UpdateExperiment
+from api.settings import DEFAULT_PAGE_SIZE
+from api.utils import default, compute_total_pages
 
 router = APIRouter()
+
+
+def _aggregate_conditions(conditions):
+    agg = conditions[0]
+    for condition in conditions[1:]:
+        agg &= condition
+    return agg
+
+
+def _convert(record: DBExperiment) -> Experiment:
+    return Experiment(
+        name=record.name,
+        model=record.model.name,
+        dataset=record.dataset.name,
+        seed=record.seed,
+        contract_address=record.contract_address,
+        parameters=ExperimentParameters(
+            **json.loads(record.parameters)
+        ),
+        is_owner=record.is_owner,
+    )
 
 
 @router.get('/experiments/', response_model=ExperimentList, tags=['experiments'])
@@ -21,10 +48,42 @@ def get_the_list_of_experiments(model: Optional[str] = None, dataset: Optional[s
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
       specified, however, it might response with fewer.
     """
-    return {}
+
+    # build up the database query
+    query = DBExperiment.select()
+
+    conditions = []
+    if model is not None:
+        conditions.append(DBExperiment.model == model)
+    if dataset is not None:
+        conditions.append(DBExperiment.dataset == dataset)
+
+    if len(conditions) > 0:
+        query = query.where(_aggregate_conditions(conditions))
+
+    page_index = default(page, 0)
+    page_size = default(page_size, DEFAULT_PAGE_SIZE)
+    total_pages = compute_total_pages(query.count(), page_size)
+
+    resp = ExperimentList(
+        items=list(map(_convert, query.paginate(page_index, page_size))),
+        current_page=page_index,
+        total_pages=total_pages,
+        is_start=page_index == 0,
+        is_last=(page_index + 1) == total_pages,
+    )
+
+    return resp
 
 
-@router.get('/experiments/{name}/', response_model=Experiment, tags=['experiments'])
+@router.get(
+    '/experiments/{name}/',
+    response_model=Experiment,
+    tags=['experiments'],
+    responses={
+        404: {"description": "Experiment not found", 'model': ErrorResponse},
+    }
+)
 def get_specific_experiment(name: str):
     """
     Lookup information about a specific experiment
@@ -33,11 +92,23 @@ def get_specific_experiment(name: str):
 
     * `name` - The name of the experiment to be queried (`current` is an alias for the most recently started experiment)
     """
-    return {}
+
+    try:
+        return _convert(DBExperiment.get(DBExperiment.name == name))
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Experiment not found")
 
 
-@router.post('/experiments/{name}/', response_model=Experiment, tags=['experiments'])
-def update_specific_experiment(name: str, experiment: Experiment):
+@router.post(
+    '/experiments/{name}/',
+    response_model=Experiment,
+    tags=['experiments'],
+    responses={
+        404: {"description": "Experiment not found", 'model': ErrorResponse},
+        409: {"description": "Experiment state conflict", 'model': ErrorResponse},
+    }
+)
+def update_specific_experiment(name: str, experiment: UpdateExperiment):
     """
     Update the specified experiment
 
@@ -45,10 +116,41 @@ def update_specific_experiment(name: str, experiment: Experiment):
 
     * `name` - The name of the experiment to be updated (`current` is an alias for the most recently started experiment)
     """
-    return {}
+
+    try:
+        exp: DBExperiment = DBExperiment.get(DBExperiment.name == name)
+
+        if experiment.training_mode is not None:
+            exp.training_mode = experiment.training_mode
+        if experiment.model is not None:
+            exp.model = DBModel.get(DBModel.name == experiment.model)
+        if experiment.dataset is not None:
+            exp.dataset = DBDataset.get(DBDataset.name == experiment.dataset)
+        if experiment.seed is not None:
+            exp.seed = experiment.seed
+        if experiment.contract_address is not None:
+            if exp.is_owner:
+                raise HTTPException(status_code=409, detail="Unable to update joining contract address")
+            exp.contract_address = experiment.contract_address
+        if experiment.parameters is not None:
+            exp.parameters = experiment.parameters.json()
+
+        exp.save()
+
+        return _convert(exp)
+
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Experiment and/or Model and/or Dataset not found")
 
 
-@router.delete('/experiments/{name}/', tags=['experiments'])
+@router.delete(
+    '/experiments/{name}/',
+    response_model=Empty,
+    tags=['experiments'],
+    responses={
+        404: {"description": "Experiment not found", 'model': ErrorResponse},
+    }
+)
 def delete_specific_experiment(name: str):
     """
     Delete the specified experiment
@@ -57,15 +159,59 @@ def delete_specific_experiment(name: str):
 
     * `name` - The name of the experiment to be updated (`current` is an alias for the most recently started experiment)
     """
+    try:
+        experiment = DBExperiment.get(DBExperiment.name == name)
+        experiment.delete_instance()
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Experiment not found")
+
     return {}
 
 
-@router.post('/experiments/', response_model=Experiment, tags=['experiments'])
-def create_a_new_experiment():
+@router.post(
+    '/experiments/',
+    tags=['experiments'],
+    status_code=201,
+    responses={
+        201: {"description": 'Experiment created', 'model': Experiment},
+        404: {"description": "Experiment not found", 'model': ErrorResponse},
+    }
+)
+def create_a_new_experiment(experiment: CreateExperiment):
     """
     Create a new experiment
     """
-    return {}
+    try:
+        params = dict(
+            name=experiment.name,
+            training_mode=experiment.training_mode,
+            model=DBModel.get(DBModel.name == experiment.model),
+            dataset=DBDataset.get(DBDataset.name == experiment.dataset),
+            seed=experiment.seed,
+        )
+
+        if experiment.mode == 'owner':
+            params.update(dict(
+                contract_address=None,
+                parameters=experiment.parameters.json(),
+                is_owner=True,
+            ))
+        elif experiment.mode == 'follower':
+            params.update(dict(
+                contract_address=experiment.contract_address,
+                parameters=experiment.parameters.json(),
+                is_owner=False,
+            ))
+        else:
+            raise HTTPException(status_code=500, detail="Logical error") # pragma: no cover
+
+        # create the new database entry
+        record = DBExperiment.create(**params)
+
+        return _convert(record)
+
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Experiment and/or Model and/or Dataset not found")
 
 
 @router.get('/experiments/{name}/status/', response_model=Status, tags=['experiments'])
@@ -80,6 +226,7 @@ def get_learner_status(name: str):
 
     * `name` - The name of the experiment to be queried (`current` is an alias for the most recently started experiment)
     """
+
     return {}
 
 
