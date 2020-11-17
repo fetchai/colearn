@@ -287,3 +287,22 @@ class ExperimentEndpointTests(BasicEndpointTest):
         })
         self.assertEqual(resp.status_code, 404)
         self.assertEqual(resp.json(), {'detail': 'Experiment and/or Model and/or Dataset not found'})
+
+    def test_get_learner_status(self):
+        experiment = self.create_sample_experiment()
+        experiment.epoch = 5
+        experiment.state = 'training'
+        experiment.save()
+
+        resp = self.client.get(f'/experiments/{experiment.name}/status/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json(), {
+            'experiment': experiment.name,
+            'epoch': 5,
+            'state': 'training',
+        })
+
+    def test_get_learner_status_failure(self):
+        resp = self.client.get('/experiments/foo/status/')
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.json(), {'detail': 'Experiment not found'})

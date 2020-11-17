@@ -60,6 +60,8 @@ class DBExperiment(Model):
 
     # status information
     is_owner = BooleanField(default=False)
+    state = CharField(default='')
+    epoch = IntegerField(default=-1)
 
     class Meta:
         database = db  # This model uses the "people.db" database.

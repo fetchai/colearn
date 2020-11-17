@@ -173,7 +173,6 @@ def delete_specific_experiment(name: str):
     tags=['experiments'],
     status_code=201,
     responses={
-        201: {"description": 'Experiment created', 'model': Experiment},
         404: {"description": "Experiment not found", 'model': ErrorResponse},
     }
 )
@@ -214,7 +213,14 @@ def create_a_new_experiment(experiment: CreateExperiment):
         raise HTTPException(status_code=404, detail="Experiment and/or Model and/or Dataset not found")
 
 
-@router.get('/experiments/{name}/status/', response_model=Status, tags=['experiments'])
+@router.get(
+    '/experiments/{name}/status/',
+    response_model=Status,
+    tags=['experiments'],
+    responses={
+        404: {"description": "Experiment not found", 'model': ErrorResponse},
+    }
+)
 def get_learner_status(name: str):
     """
     Get the status of the current experiment (if there is one). This information is expected to be updated frequently
@@ -226,8 +232,17 @@ def get_learner_status(name: str):
 
     * `name` - The name of the experiment to be queried (`current` is an alias for the most recently started experiment)
     """
+    try:
+        exp: DBExperiment = DBExperiment.get(DBExperiment.name == name)
 
-    return {}
+        return Status(
+            experiment=exp.name,
+            state=exp.state,
+            epoch=exp.epoch,
+        )
+
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Experiment not found")
 
 
 @router.get('/experiments/{name}/performance/{mode}/', response_model=PerformanceList, tags=['experiments'])
