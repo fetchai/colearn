@@ -62,7 +62,7 @@ def get_learner_pending_queue(model: Optional[str] = None, dataset: Optional[str
         QueueList,
         map(
             lambda x: x.experiment,
-            queue_get(dataset=dataset, model=model, active=True)
+            queue_get(dataset=dataset, model=model, active=False)
         ),
         page,
         page_size

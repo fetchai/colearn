@@ -15,7 +15,10 @@ def paginate(model_type: Any, values: Iterable[Any], page: Optional[int], page_s
 
     page = default(page, 0)
     page_size = default(page_size, DEFAULT_PAGE_SIZE)
-    total_pages = (len(value_list) + (page_size - 1)) // page_size
+    if len(value_list) == 0:
+        total_pages = 1
+    else:
+        total_pages = ((len(value_list) + (page_size - 1)) // page_size)
 
     start_index = page * page_size
     last_index = start_index + page_size
