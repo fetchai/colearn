@@ -1,10 +1,11 @@
 import json
-from typing import Any, Optional
+import random
+from typing import Any, Optional, List
 
 import peewee
 from fastapi.testclient import TestClient
 
-from api.database import DBDataset, DBModel, DBExperiment
+from api.database import DBDataset, DBModel, DBExperiment, DBVote, DBPerformance
 from api.main import app
 from api.schemas import ExperimentParameters, Statistics, Statistic
 from api.utils import BasicEndpointTest, default
@@ -15,12 +16,24 @@ class ExperimentEndpointTests(BasicEndpointTest):
         self.client = TestClient(app)
 
         # clear the existing databases
-        for model in [DBDataset, DBModel, DBExperiment]:
+        for model in [DBModel, DBDataset, DBExperiment, DBVote, DBPerformance]:
             model.delete().execute()
 
     def assertIsExperiment(self, experiment: Any, ref: DBExperiment):
         self.assertIsNot(experiment, None)
         self.assertEqual(experiment['name'], ref.name)
+        # TODO!!!
+
+    def assertIsVote(self, vote: Any, ref: DBVote):
+        self.assertIsNot(vote, None)
+        self.assertEqual(vote['epoch'], ref.epoch)
+        self.assertEqual(vote['vote'], ref.vote)
+        self.assertEqual(vote['is_proposer'], ref.is_proposer)
+
+    def assertIsPerf(self, perf: Any, ref: DBPerformance):
+        self.assertIsNot(perf, None)
+        self.assertEqual(perf['epoch'], ref.epoch)
+        self.assertEqual(perf['performance'], ref.performance)
 
     @staticmethod
     def create_sample_experiment(index: Optional[int] = None, is_owner: Optional[bool] = None):
@@ -60,6 +73,35 @@ class ExperimentEndpointTests(BasicEndpointTest):
         )
 
         return experiment
+
+    @staticmethod
+    def create_sample_votes(num_votes: int, experiment: DBExperiment) -> List[DBVote]:
+        votes = []
+        for n in range(num_votes):
+            votes.append(
+                DBVote.create(
+                    experiment=experiment,
+                    epoch=n,
+                    vote=True if random.randint(0, 1) == 1 else False,
+                    is_proposer=True if random.randint(0, 8) == 0 else False,
+                )
+            )
+
+        return votes
+
+    @staticmethod
+    def create_sample_perf(num_samples: int, mode: str, experiment: DBExperiment) -> List[DBPerformance]:
+        perfs = []
+        for n in range(num_samples):
+            perfs.append(
+                DBPerformance.create(
+                    experiment=experiment,
+                    epoch=n,
+                    mode=mode,
+                    performance=random.random(),
+                )
+            )
+        return perfs
 
     def test_list_experiments(self):
         experiment = self.create_sample_experiment()
@@ -337,3 +379,168 @@ class ExperimentEndpointTests(BasicEndpointTest):
         resp = self.client.get('/experiments/foo/stats/')
         self.assertEqual(resp.status_code, 404)
         self.assertEqual(resp.json(), {'detail': 'Experiment not found'})
+
+    def test_get_vote_information(self):
+        e = self.create_sample_experiment()
+        votes = self.create_sample_votes(1, e)
+
+        resp = self.client.get(f'/experiments/{e.name}/votes/')
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 1)
+        self.assertIsVote(resp['items'][0], votes[0])
+        self.assertIsPage(resp, 0, 1)
+
+    def test_get_vote_information_pagination(self):
+        e = self.create_sample_experiment()
+        votes = self.create_sample_votes(2, e)
+
+        resp = self.client.get(f'/experiments/{e.name}/votes/', params={'page': 0, 'page_size': 1})
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 1)
+        self.assertIsVote(resp['items'][0], votes[0])
+        self.assertIsPage(resp, 0, 2)
+
+        resp = self.client.get(f'/experiments/{e.name}/votes/', params={'page': 1, 'page_size': 1})
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 1)
+        self.assertIsVote(resp['items'][0], votes[1])
+        self.assertIsPage(resp, 1, 2)
+
+    def test_get_vote_information_range(self):
+        e = self.create_sample_experiment()
+        votes = self.create_sample_votes(10, e)
+
+        resp = self.client.get(f'/experiments/{e.name}/votes/', params={'start': votes[2].epoch, 'end': votes[5].epoch})
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 4)
+        self.assertIsVote(resp['items'][0], votes[2])
+        self.assertIsVote(resp['items'][1], votes[3])
+        self.assertIsVote(resp['items'][2], votes[4])
+        self.assertIsVote(resp['items'][3], votes[5])
+        self.assertIsPage(resp, 0, 1)
+
+    def test_get_vote_information_empty(self):
+        resp = self.client.get(f'/experiments/foo/votes/')
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 0)
+        self.assertIsPage(resp, 0, 1)
+
+    def test_get_perf_validation_information(self):
+        e = self.create_sample_experiment()
+        perfs = self.create_sample_perf(1, 'validation', e)
+
+        resp = self.client.get(f'/experiments/{e.name}/performance/validation/')
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 1)
+        self.assertIsPerf(resp['items'][0], perfs[0])
+        self.assertIsPage(resp, 0, 1)
+
+    def test_get_perf_validation_information_paginated(self):
+        e = self.create_sample_experiment()
+        perfs = self.create_sample_perf(2, 'validation', e)
+
+        resp = self.client.get(f'/experiments/{e.name}/performance/validation/', params={'page': 0, 'page_size': 1})
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 1)
+        self.assertIsPerf(resp['items'][0], perfs[0])
+        self.assertIsPage(resp, 0, 2)
+
+        resp = self.client.get(f'/experiments/{e.name}/performance/validation/', params={'page': 1, 'page_size': 1})
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 1)
+        self.assertIsPerf(resp['items'][0], perfs[1])
+        self.assertIsPage(resp, 1, 2)
+
+    def test_get_perf_validation_information_range(self):
+        e = self.create_sample_experiment()
+        perfs = self.create_sample_perf(3, 'validation', e)
+
+        resp = self.client.get(f'/experiments/{e.name}/performance/validation/', params={'start': perfs[1].epoch, 'end': perfs[2].epoch})
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 2)
+        self.assertIsPerf(resp['items'][0], perfs[1])
+        self.assertIsPerf(resp['items'][1], perfs[2])
+        self.assertIsPage(resp, 0, 1)
+
+    def test_get_perf_validation_information_empty(self):
+        resp = self.client.get(f'/experiments/foo/performance/validation/')
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 0)
+        self.assertIsPage(resp, 0, 1)
+
+    def test_get_perf_test_information(self):
+        e = self.create_sample_experiment()
+        perfs = self.create_sample_perf(1, 'test', e)
+
+        resp = self.client.get(f'/experiments/{e.name}/performance/test/')
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 1)
+        self.assertIsPerf(resp['items'][0], perfs[0])
+        self.assertIsPage(resp, 0, 1)
+
+    def test_get_perf_test_information_paginated(self):
+        e = self.create_sample_experiment()
+        perfs = self.create_sample_perf(2, 'test', e)
+
+        resp = self.client.get(f'/experiments/{e.name}/performance/test/', params={'page': 0, 'page_size': 1})
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 1)
+        self.assertIsPerf(resp['items'][0], perfs[0])
+        self.assertIsPage(resp, 0, 2)
+
+        resp = self.client.get(f'/experiments/{e.name}/performance/test/', params={'page': 1, 'page_size': 1})
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 1)
+        self.assertIsPerf(resp['items'][0], perfs[1])
+        self.assertIsPage(resp, 1, 2)
+
+    def test_get_perf_test_information_range(self):
+        e = self.create_sample_experiment()
+        perfs = self.create_sample_perf(3, 'test', e)
+
+        resp = self.client.get(f'/experiments/{e.name}/performance/test/', params={'start': perfs[1].epoch, 'end': perfs[2].epoch})
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 2)
+        self.assertIsPerf(resp['items'][0], perfs[1])
+        self.assertIsPerf(resp['items'][1], perfs[2])
+        self.assertIsPage(resp, 0, 1)
+
+    def test_get_perf_test_information_empty(self):
+        resp = self.client.get(f'/experiments/foo/performance/test/')
+        self.assertEqual(resp.status_code, 200)
+        resp = resp.json()
+
+        self.assertEqual(len(resp['items']), 0)
+        self.assertIsPage(resp, 0, 1)
+
+    def test_get_perf_invalid_information(self):
+        resp = self.client.get(f'/experiments/foo/performance/not-actually-a-mode/')
+        self.assertEqual(resp.status_code, 422)
