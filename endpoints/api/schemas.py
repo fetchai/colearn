@@ -11,6 +11,13 @@ class BaseListModel(BaseModel):
 
 
 class ErrorResponse(BaseModel):
+    """
+    A simple error response with a descriptive message
+
+    Attributes:
+
+    * `detail` - The error message
+    """
     detail: str
 
 
@@ -183,6 +190,24 @@ class BaseExperiment(BaseModel):
 
 
 class CreateExperiment(BaseExperiment):
+    """
+    A create experiment definition sent to the API initially for building up an experiment object
+
+    Attributes:
+
+    * `name` - The name of the experiment
+    * `training_mode` - The training mode for the experiment. Should be one of the following values:
+        - `'collective'` (Default)
+    * `model` - The name of the model to be used
+    * `dataset` - The name of the dataset to be used
+    * `seed` - The seed value to initialise the experiment
+    * `mode` - The mode for creating the experiment. This must be one of the following
+        - `owner` - This is the mode where the experiment we be created with owner permissions
+        - `follower` - This is the mode where the user wants to join an existing experiment
+    * `contract_address` - If the user is joining an existing experiment then this field should contain the contract
+      address to connect to, otherwise it should be null
+    * `parameters` - The experiment parameters
+    """
     mode: str
     contract_address: Optional[str]
     parameters: ExperimentParameters
@@ -205,6 +230,18 @@ class CreateExperiment(BaseExperiment):
 
 
 class UpdateExperiment(BaseModel):
+    """
+    A definition for the attributes that are editable by the user
+
+    Attributes:
+
+    * `training_mode` - If present the experiments training mode will be updated to this value
+    * `model` - If present the experiments model will be updated to this value
+    * `dataset` - If present the experiments dataset will be updated to this value
+    * `seed` - If present the experiments seed will be updated to this value
+    * `contract_address` - If present the experiments contract address will be updated to this value
+    * `parameters` - If present the experiments parameters will be updated to these values
+    """
     training_mode: Optional[str]
     model: Optional[str]
     dataset: Optional[str]
@@ -228,18 +265,6 @@ class Experiment(BaseExperiment):
     * `contract_address` - The contract address for the experiment
     * `parameters` - The experiment parameters
     * `is_owner` - Status field indicating if the current node is the owner of the experiment
-
-    Starting an experiment
-
-    When wishing to start an new experiment the user must populate the `parameters` field and leave empty the
-    `contract_address` field. After the experiment has been successfully started the `contract_address` will be
-    populated
-
-    Joining an experiment
-
-    When wishing to join an existing experiment the user must populate the `contract_address` field and leave empty the
-    `parameters` field. After a successful join of the experiment the parameters field will be automatically populated
-    from information downloaded by the contract
 
     """
     # smart contract information
