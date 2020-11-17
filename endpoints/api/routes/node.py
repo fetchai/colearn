@@ -2,7 +2,10 @@ from typing import Optional
 
 from fastapi import APIRouter
 
+from api.queue import queue_get
 from api.schemas import Info, QueueList
+from api.settings import node_info
+from api.utils import paginate
 
 router = APIRouter()
 
@@ -13,7 +16,7 @@ def get_learner_information():
     Get the static learner information. This is information that is not expected to change for the lifetime of the
     learner.
     """
-    return {}
+    return node_info
 
 
 @router.get('/node/queue/active/', response_model=QueueList, tags=['node'])
@@ -30,7 +33,15 @@ def get_learner_active_queue(model: Optional[str] = None, dataset: Optional[str]
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
       specified, however, it might response with fewer.
     """
-    return {}
+    return paginate(
+        QueueList,
+        map(
+            lambda x: x.experiment,
+            queue_get(dataset=dataset, model=model, active=True)
+        ),
+        page,
+        page_size
+    )
 
 
 @router.get('/node/queue/pending/', response_model=QueueList, tags=['node'])
@@ -47,4 +58,12 @@ def get_learner_pending_queue(model: Optional[str] = None, dataset: Optional[str
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
       specified, however, it might response with fewer.
     """
-    return {}
+    return paginate(
+        QueueList,
+        map(
+            lambda x: x.experiment,
+            queue_get(dataset=dataset, model=model, active=True)
+        ),
+        page,
+        page_size
+    )
