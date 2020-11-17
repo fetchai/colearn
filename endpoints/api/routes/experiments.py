@@ -9,6 +9,7 @@ from api.schemas import ExperimentList, Experiment, Status, PerformanceList, Vot
     ExperimentParameters, ErrorResponse, CreateExperiment, UpdateExperiment, Statistic, Performance, Vote
 from api.settings import DEFAULT_PAGE_SIZE
 from api.utils import default, compute_total_pages
+from api.commands import trigger_event_handler
 
 router = APIRouter()
 
@@ -349,7 +350,14 @@ def get_vote_information(name: str, start: Optional[int] = None, end: Optional[i
     )
 
 
-@router.get('/experiments/{name}/stats/', response_model=Statistics, tags=['experiments'])
+@router.get(
+    '/experiments/{name}/stats/',
+    response_model=Statistics,
+    tags=['experiments'],
+    responses={
+        404: {"description": "Experiment not found", 'model': ErrorResponse},
+    }
+)
 def get_learner_statistics(name: str):
     """
     Query basic statistics about the current experiment
@@ -371,7 +379,14 @@ def get_learner_statistics(name: str):
         raise HTTPException(status_code=404, detail="Experiment not found")
 
 
-@router.post('/experiments/{name}/start/', response_model=Empty, tags=['experiments'])
+@router.post(
+    '/experiments/{name}/start/',
+    response_model=Empty,
+    tags=['experiments'],
+    responses={
+        409: {"description": "Operation not valid", 'model': ErrorResponse},
+    }
+)
 def start_an_experiment(name: str):
     """
     Starts the named experiment
@@ -380,10 +395,21 @@ def start_an_experiment(name: str):
 
     * `name` - The name of the experiment to be started
     """
+    response = trigger_event_handler('start-experiment')
+    if not response.success:
+        raise HTTPException(status_code=409, detail=response.error_message)
+
     return {}
 
 
-@router.post('/experiments/{name}/join/', response_model=Empty, tags=['experiments'])
+@router.post(
+    '/experiments/{name}/join/',
+    response_model=Empty,
+    tags=['experiments'],
+    responses={
+        409: {"description": "Operation not valid", 'model': ErrorResponse},
+    }
+)
 def join_an_experiment(name: str):
     """
     Starts the named experiment
@@ -392,10 +418,21 @@ def join_an_experiment(name: str):
 
     * `name` - The name of the experiment to be started
     """
+    response = trigger_event_handler('join-experiment')
+    if not response.success:
+        raise HTTPException(status_code=409, detail=response.error_message)
+
     return {}
 
 
-@router.post('/experiments/{name}/leave/', response_model=Empty, tags=['experiments'])
+@router.post(
+    '/experiments/{name}/leave/',
+    response_model=Empty,
+    tags=['experiments'],
+    responses={
+        409: {"description": "Operation not valid", 'model': ErrorResponse},
+    }
+)
 def leave_the_current_experiment(name: str):
     """
     Leave the current experiment
@@ -404,10 +441,21 @@ def leave_the_current_experiment(name: str):
 
     * `name` - The name of the experiment to leave
     """
+    response = trigger_event_handler('leave-experiment')
+    if not response.success:
+        raise HTTPException(status_code=409, detail=response.error_message)
+
     return {}
 
 
-@router.post('/experiments/{name}/stop/', response_model=Empty, tags=['experiments'])
+@router.post(
+    '/experiments/{name}/stop/',
+    response_model=Empty,
+    tags=['experiments'],
+    responses={
+        409: {"description": "Operation not valid", 'model': ErrorResponse},
+    }
+)
 def stop_the_current_experiment(name: str):
     """
     Stop the current experiment. This also prohibts other users from participating in the experiment
@@ -416,4 +464,8 @@ def stop_the_current_experiment(name: str):
 
     * `name` - The name of the experiment to stop
     """
+    response = trigger_event_handler('stop-experiment')
+    if not response.success:
+        raise HTTPException(status_code=409, detail=response.error_message)
+
     return {}
