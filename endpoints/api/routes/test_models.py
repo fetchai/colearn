@@ -132,6 +132,6 @@ class APITest(unittest.TestCase):
         assert response.status_code == 200
         assert response.json() == {'current_page': 0,
                                    'total_pages': 1,
-                                   'is_start': True,
+                                   'is_first': True,
                                    'is_last': True,
                                    'items': [test_mod, test_mod2]}
