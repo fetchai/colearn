@@ -20,3 +20,22 @@ node_info = Info(
     driver='none',
     version='v0',
 )
+
+
+def configure_node_info(name: str, identity: str, driver: str, version: str) -> None:
+    """
+    Called by the parent library to configure the APIs node information
+
+    :param name: The name of the node
+    :param identity: The public key identity of the
+    :param driver: The type of the driver this API is attached to
+    :param version: The version of the driver this API is attached to
+    :return: None
+    """
+    global node_info
+    node_info = Info(
+        name=name,
+        identity=identity,
+        driver=driver,
+        version=version,
+    )

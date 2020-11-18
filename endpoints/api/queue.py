@@ -16,6 +16,11 @@ _index: Dict[str, int] = {}
 
 
 def queue_head() -> Optional[QueueElement]:
+    """
+    Query the head of the queue
+
+    :return: A queue element if one is present, otherwise None
+    """
     global _queue
 
     if len(_queue) > 0:
@@ -25,6 +30,15 @@ def queue_head() -> Optional[QueueElement]:
 
 
 def queue_update(experiment: str, active: bool, model: str, dataset: str) -> bool:
+    """
+    Update an experiment state in the queue
+
+    :param experiment: The experiment name
+    :param active: The state of the experiment, i.e. running or not
+    :param model: The model of the experiment
+    :param dataset: The dataset of the experiment
+    :return: True if successful, otherwise False
+    """
     global _queue, _index
 
     if experiment not in _index:  # pragma: no cover
@@ -38,7 +52,15 @@ def queue_update(experiment: str, active: bool, model: str, dataset: str) -> boo
     return True
 
 
-def queue_get(active: Optional[bool] = None, model: Optional[str] = None, dataset: Optional[str] = None):
+def queue_get(active: Optional[bool] = None, model: Optional[str] = None, dataset: Optional[str] = None) -> List[QueueElement]:
+    """
+    Get element from the queue
+
+    :param active: Optionally filter the queue by active or inactive experiments
+    :param model: Optionally filter the queue by model name
+    :param dataset: Optionally filter the queue by dataset name
+    :return:
+    """
     global _queue
 
     def select_from_args(element: QueueElement):
@@ -54,7 +76,16 @@ def queue_get(active: Optional[bool] = None, model: Optional[str] = None, datase
     return list(filter(select_from_args, _queue))
 
 
-def queue_push(experiment: str, active: bool, model: str, dataset: str):
+def queue_push(experiment: str, active: bool, model: str, dataset: str) -> None:
+    """
+    Push a element into the queue
+
+    :param experiment: The experiment name
+    :param active: The active state of the experiment
+    :param model: The model of the experiment
+    :param dataset: The dataset of the experiment
+    :return: None
+    """
     global _queue, _index
 
     def sort_priority(e: QueueElement):
@@ -69,6 +100,11 @@ def queue_push(experiment: str, active: bool, model: str, dataset: str):
 
 
 def queue_clear():
+    """
+    Clear the queue
+
+    :return: None
+    """
     global _queue, _index
     _queue = []
     _index = {}
