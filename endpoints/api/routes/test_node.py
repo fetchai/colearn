@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 from api.main import app
 from api.queue import queue_clear, queue_push
-from api.settings import node_info
+from api.settings import get_node_info
 from api.utils import BasicEndpointTest
 
 
@@ -16,7 +16,7 @@ class NodeEndpointTests(unittest.TestCase):
         resp = self.client.get('/node/info/')
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json(), node_info.dict())
+        self.assertEqual(resp.json(), get_node_info().dict())
 
 
 class NodeQueueEndpointTests(BasicEndpointTest):

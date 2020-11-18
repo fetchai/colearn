@@ -14,12 +14,17 @@ DATABASE_PATH = _build_database_path()
 DEFAULT_PAGE_SIZE = 50
 
 # this file will hold the static information about the node
-node_info = Info(
+_node_info = Info(
     name='node-name',
     identity='',
     driver='none',
     version='v0',
 )
+
+
+def get_node_info() -> Info:
+    global _node_info
+    return _node_info
 
 
 def configure_node_info(name: str, identity: str, driver: str, version: str) -> None:
@@ -32,8 +37,8 @@ def configure_node_info(name: str, identity: str, driver: str, version: str) -> 
     :param version: The version of the driver this API is attached to
     :return: None
     """
-    global node_info
-    node_info = Info(
+    global _node_info
+    _node_info = Info(
         name=name,
         identity=identity,
         driver=driver,
