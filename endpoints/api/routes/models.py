@@ -71,10 +71,11 @@ def get_specific_model_information(name: str):
     * `name` - The name of the model to be queried
     """
     rec = DBModel.get(DBModel.name == name)
+    rec.weights = None
     return _dbmodel_to_model(rec)
 
 
-@router.post('/models/{name}/', response_model=Model, tags=['models'])
+@router.post('/models/{name}/', tags=['models'])
 def update_specific_model_information(name: str, model: Union[TrainedModel, Model]):
     """
     Update a specific model
@@ -83,7 +84,12 @@ def update_specific_model_information(name: str, model: Union[TrainedModel, Mode
 
     * `name` - The name of the model to be updated
     """
-
+    print("update", model)
+    DBModel.update({DBModel.model: model.model,
+                    DBModel.parameters: json.dumps(model.parameters),
+                    DBModel.weights: json.dumps(model.weights) if hasattr(model, "weights") else None
+                    }
+                   ).where(DBModel.name == name).execute()
     return {}
 
 
@@ -102,7 +108,7 @@ def delete_specific_model(name: str):
     return {}
 
 
-@router.post('/models/{name}/export/', response_model=TrainedModel, tags=['models'])
+@router.get('/models/{name}/export/', response_model=TrainedModel, tags=['models'])
 def export_model(name: str):
     """
     Export a trained model with the parameters and trained weights. This can be then consumed by a default machine
@@ -112,7 +118,8 @@ def export_model(name: str):
 
     * `name` - The name of the model to be exported
     """
-    return {}
+    rec = DBModel.get(DBModel.name == name)
+    return _dbmodel_to_model(rec)
 
 
 @router.post('/models/{name}/copy/', tags=['models'])
@@ -121,4 +128,17 @@ def duplicate_model(name: str, params: CopyParams):
     Create a copy of the specified model
 
     """
+    rec = DBModel.get(DBModel.name == name)
+    print("copy", params.name)
+    if params.keep_weights and hasattr(rec, "weights") and rec.weights is not None:
+        new_model = DBModel.create(name=params.name,
+                                   model=rec.model,
+                                   parameters=rec.parameters,
+                                   weights=rec.weights)
+    else:
+        new_model = DBModel.create(name=params.name,
+                                   model=rec.model,
+                                   parameters=rec.parameters,
+                                   )
+    print("Duplicate model", new_model)
     return {}
