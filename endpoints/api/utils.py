@@ -1,5 +1,5 @@
-from unittest import TestCase
 from typing import Optional, Any, Iterable
+from unittest import TestCase
 
 from api.settings import DEFAULT_PAGE_SIZE
 

@@ -4,15 +4,13 @@ from typing import Optional
 import peewee
 from fastapi import APIRouter, Path, HTTPException
 
+from api.commands import trigger_event_handler
 from api.database import DBExperiment, DBModel, DBDataset, DBPerformance, DBVote
 from api.schemas import ExperimentList, Experiment, Status, PerformanceList, VoteList, Statistics, Empty, \
     ExperimentParameters, ErrorResponse, CreateExperiment, UpdateExperiment, Statistic, Performance, Vote
-from api.settings import DEFAULT_PAGE_SIZE
-from api.utils import default, compute_total_pages, paginate_db, aggregate_conditions
-from api.commands import trigger_event_handler
+from api.utils import paginate_db, aggregate_conditions
 
 router = APIRouter()
-
 
 
 def _convert_vote(record: DBVote) -> Vote:
