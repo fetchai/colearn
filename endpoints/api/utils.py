@@ -39,6 +39,27 @@ def paginate(model_type: Any, values: Iterable[Any], page: Optional[int], page_s
     return model_type(**page_info)
 
 
+def paginate_db(query, model, converter, page: Optional[int], page_size: Optional[int]):
+    page_index = default(page, 0)
+    page_size = default(page_size, DEFAULT_PAGE_SIZE)
+    total_pages = compute_total_pages(query.count(), page_size)
+
+    return model(
+        items=list(map(converter, query.paginate(page_index + 1, page_size))),
+        current_page=page_index,
+        total_pages=total_pages,
+        is_start=page_index == 0,
+        is_last=(page_index + 1) == total_pages,
+    )
+
+
+def aggregate_conditions(conditions):
+    agg = conditions[0]
+    for condition in conditions[1:]:
+        agg &= condition
+    return agg
+
+
 class BasicEndpointTest(TestCase):
     def assertIsPage(self, resp, page: int, total_pages: int):
         self.assertEqual(resp['current_page'], page)
