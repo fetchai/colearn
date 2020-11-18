@@ -6,7 +6,7 @@ from pydantic import BaseModel, validator
 class BaseListModel(BaseModel):
     current_page: int
     total_pages: int
-    is_start: bool
+    is_first: bool
     is_last: bool
 
 
@@ -66,7 +66,7 @@ class DatasetList(BaseListModel):
     * `items` - The list of datasets for this page
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
-    * `is_start` - Flag to signal this is the first page of the results
+    * `is_first` - Flag to signal this is the first page of the results
     * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Dataset]
@@ -121,7 +121,7 @@ class ModelList(BaseListModel):
     * `items` - The list of models for this page
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
-    * `is_start` - Flag to signal this is the first page of the results
+    * `is_first` - Flag to signal this is the first page of the results
     * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Model]
@@ -167,7 +167,7 @@ class QueueList(BaseListModel):
     * `items` - The list of experiment names
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
-    * `is_start` - Flag to signal this is the first page of the results
+    * `is_first` - Flag to signal this is the first page of the results
     * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[str]
@@ -295,7 +295,7 @@ class ExperimentList(BaseListModel):
     * `items` - The list of experiments
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
-    * `is_start` - Flag to signal this is the first page of the results
+    * `is_first` - Flag to signal this is the first page of the results
     * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Experiment]
@@ -309,7 +309,7 @@ class Status(BaseModel):
 
     * `experiment` - The name of the experiment being run
     * `state` - The current state. It will be one of the following values:
-      - `"unstarted"`
+      - `"idle"`
       - `"voting"`
       - `"training"`
       - `"waiting"`
@@ -322,7 +322,7 @@ class Status(BaseModel):
 
     @validator('state')
     def state_value_is_correct(cls, v):
-        valid_states = ('unstarted', 'voting', 'training', 'waiting')
+        valid_states = ('idle', 'voting', 'training', 'waiting')
         if v not in valid_states:
             raise ValueError(f'state must be one of {",".join(valid_states)}')
         return v
@@ -350,7 +350,7 @@ class PerformanceList(BaseListModel):
     * `items` - The list of data points
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
-    * `is_start` - Flag to signal this is the first page of the results
+    * `is_first` - Flag to signal this is the first page of the results
     * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Performance]
@@ -380,7 +380,7 @@ class VoteList(BaseListModel):
     * `items` - The list of votes
     * `current_page` - The current page index of the results
     * `total_pages` - The total number of pages for this query
-    * `is_start` - Flag to signal this is the first page of the results
+    * `is_first` - Flag to signal this is the first page of the results
     * `is_last` - Flag to signal this is the last page of the results
     """
     items: List[Vote]

@@ -14,6 +14,15 @@ class SchemaTestse(unittest.TestCase):
                 epoch=20,
             )
 
+    def test_status_state_valid_status(self):
+        for state in ('idle', 'voting', 'training', 'waiting'):
+            s = Status(
+                experiment='exp',
+                state=state,
+                epoch=20,
+            )
+            self.assertIsNotNone(s)
+
     def test_create_experiment_mode(self):
         with self.assertRaises(pydantic.ValidationError):
             CreateExperiment(
@@ -57,3 +66,4 @@ class SchemaTestse(unittest.TestCase):
                     num_epochs=3,
                 )
             )
+
