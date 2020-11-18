@@ -10,6 +10,17 @@ class BaseListModel(BaseModel):
     is_last: bool
 
 
+class ErrorResponse(BaseModel):
+    """
+    A simple error response with a descriptive message
+
+    Attributes:
+
+    * `detail` - The error message
+    """
+    detail: str
+
+
 class Loader(BaseModel):
     """
     The loader configuration
@@ -170,7 +181,76 @@ class ExperimentParameters(BaseModel):
     vote_threshold: float = 0.5
 
 
-class Experiment(BaseModel):
+class BaseExperiment(BaseModel):
+    name: str
+    training_mode: str = 'collective'
+    model: str
+    dataset: str
+    seed: Optional[int]  # if not present then pick one [1, 100]?
+
+
+class CreateExperiment(BaseExperiment):
+    """
+    A create experiment definition sent to the API initially for building up an experiment object
+
+    Attributes:
+
+    * `name` - The name of the experiment
+    * `training_mode` - The training mode for the experiment. Should be one of the following values:
+        - `'collective'` (Default)
+    * `model` - The name of the model to be used
+    * `dataset` - The name of the dataset to be used
+    * `seed` - The seed value to initialise the experiment
+    * `mode` - The mode for creating the experiment. This must be one of the following
+        - `owner` - This is the mode where the experiment we be created with owner permissions
+        - `follower` - This is the mode where the user wants to join an existing experiment
+    * `contract_address` - If the user is joining an existing experiment then this field should contain the contract
+      address to connect to, otherwise it should be null
+    * `parameters` - The experiment parameters
+    """
+    mode: str
+    contract_address: Optional[str]
+    parameters: ExperimentParameters
+
+    @validator('mode')
+    def mode_is_correct(cls, v):
+        valid_states = ('owner', 'follower')
+        if v not in valid_states:
+            raise ValueError(f'state must be one of {",".join(valid_states)}')
+        return v
+
+    @validator('contract_address')
+    def contract_address_is_present(cls, v, values):
+        if values['mode'] == 'owner' and v is not None:
+            raise ValueError('contract_address should not be provided in owner mode')
+        if values['mode'] == 'follower' and v is None:
+            raise ValueError('contract_address should be provided when trying to join')
+
+        return v
+
+
+class UpdateExperiment(BaseModel):
+    """
+    A definition for the attributes that are editable by the user
+
+    Attributes:
+
+    * `training_mode` - If present the experiments training mode will be updated to this value
+    * `model` - If present the experiments model will be updated to this value
+    * `dataset` - If present the experiments dataset will be updated to this value
+    * `seed` - If present the experiments seed will be updated to this value
+    * `contract_address` - If present the experiments contract address will be updated to this value
+    * `parameters` - If present the experiments parameters will be updated to these values
+    """
+    training_mode: Optional[str]
+    model: Optional[str]
+    dataset: Optional[str]
+    seed: Optional[int]
+    contract_address: Optional[str]
+    parameters: Optional[ExperimentParameters]
+
+
+class Experiment(BaseExperiment):
     """
     An experiment definition
 
@@ -186,25 +266,7 @@ class Experiment(BaseModel):
     * `parameters` - The experiment parameters
     * `is_owner` - Status field indicating if the current node is the owner of the experiment
 
-    Starting an experiment
-
-    When wishing to start an new experiment the user must populate the `parameters` field and leave empty the
-    `contract_address` field. After the experiment has been successfully started the `contract_address` will be
-    populated
-
-    Joining an experiment
-
-    When wishing to join an existing experiment the user must populate the `contract_address` field and leave empty the
-    `parameters` field. After a successful join of the experiment the parameters field will be automatically populated
-    from information downloaded by the contract
-
     """
-    name: str
-    training_mode: str = 'collective'
-    model: str
-    dataset: str
-    seed: Optional[int]  # if not present then pick one [1, 100]?
-
     # smart contract information
     contract_address: Optional[str]
     parameters: Optional[ExperimentParameters]
