@@ -3,6 +3,8 @@ from contextvars import ContextVar
 from peewee import CharField, TextField, IntegerField, DoubleField, Model, BlobField, ForeignKeyField, BooleanField, \
     SqliteDatabase, _ConnectionState, BigIntegerField
 
+from api.settings import DATABASE_PATH
+
 db_state_default = {"closed": None, "conn": None, "ctx": None, "transactions": None}
 db_state = ContextVar("db_state", default=db_state_default.copy())
 
@@ -19,7 +21,7 @@ class PeeweeConnectionState(_ConnectionState):
         return self._state.get()[name]
 
 
-db = SqliteDatabase('colearn.db', check_same_thread=False)
+db = SqliteDatabase(DATABASE_PATH, check_same_thread=False)
 db._state = PeeweeConnectionState()
 
 
