@@ -15,3 +15,4 @@ opacus~=0.9.1
 fastapi~=0.61.2
 pydantic~=1.7.2
 peewee~=3.14.0
+dataclasses~=0.6

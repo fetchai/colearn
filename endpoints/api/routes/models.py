@@ -5,12 +5,12 @@ from fastapi import APIRouter
 
 from api.database import DBModel
 from api.schemas import ModelList, TrainedModel, Model, CopyParams
-from api.utils import paginate
+from api.utils import paginate_db
 
 router = APIRouter()
 
 
-def _dbmodel_to_model(rec: DBModel) -> Union[TrainedModel, Model]:
+def _convert_model(rec: DBModel) -> Union[TrainedModel, Model]:
     if hasattr(rec, "weights") and rec.weights is not None:
         ds = TrainedModel(name=rec.name,
                           model=rec.model,
@@ -36,9 +36,7 @@ def get_list_of_models(page: Optional[int] = None, page_size: Optional[int] = No
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
       specified, however, it might response with fewer.
     """
-    model_list = [_dbmodel_to_model(rec) for rec in DBModel.select()]
-
-    return paginate(ModelList, model_list, page, page_size)
+    return paginate_db(DBModel.select(), ModelList, _convert_model, page, page_size)
 
 
 @router.post('/models/', tags=['models'])
@@ -70,7 +68,7 @@ def get_specific_model_information(name: str):
     """
     rec = DBModel.get(DBModel.name == name)
     rec.weights = None
-    return _dbmodel_to_model(rec)
+    return _convert_model(rec)
 
 
 @router.post('/models/{name}/', tags=['models'])
@@ -116,7 +114,7 @@ def export_model(name: str):
     * `name` - The name of the model to be exported
     """
     rec = DBModel.get(DBModel.name == name)
-    return _dbmodel_to_model(rec)
+    return _convert_model(rec)
 
 
 @router.post('/models/{name}/copy/', tags=['models'])

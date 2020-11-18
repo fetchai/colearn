@@ -5,12 +5,12 @@ from fastapi import APIRouter
 
 from api.database import DBDataset
 from api.schemas import Dataset, Loader, DatasetList
-from api.utils import paginate
+from api.utils import paginate_db
 
 router = APIRouter()
 
 
-def _dbdataset_to_dataset(rec: DBDataset) -> Dataset:
+def _convert_dataset(rec: DBDataset) -> Dataset:
     ds = Dataset(name=rec.name,
                  loader=Loader(name=rec.loader_name, params=json.loads(rec.loader_params)),
                  location=rec.location,
@@ -34,9 +34,7 @@ def get_list_datasets(page: Optional[int] = None, page_size: Optional[int] = Non
       specified, however, it might response with fewer.
 
     """
-    dataset_list = [_dbdataset_to_dataset(rec) for rec in DBDataset.select()]
-
-    return paginate(DatasetList, dataset_list, page, page_size)
+    return paginate_db(DBDataset.select(), DatasetList, _convert_dataset, page, page_size)
 
 
 @router.get('/datasets/{name}/', response_model=Dataset, tags=['datasets'])
@@ -51,7 +49,7 @@ def get_specific_dataset_information(name: str):
     """
     rec = DBDataset.get(DBDataset.name == name)
 
-    return _dbdataset_to_dataset(rec)
+    return _convert_dataset(rec)
 
 
 @router.post('/datasets/', tags=['datasets'])
