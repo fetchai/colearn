@@ -471,7 +471,8 @@ class ExperimentEndpointTests(BasicEndpointTest):
         e = self.create_sample_experiment()
         perfs = self.create_sample_perf(3, 'validation', e)
 
-        resp = self.client.get(f'/experiments/{e.name}/performance/validation/', params={'start': perfs[1].epoch, 'end': perfs[2].epoch})
+        resp = self.client.get(f'/experiments/{e.name}/performance/validation/',
+                               params={'start': perfs[1].epoch, 'end': perfs[2].epoch})
         self.assertEqual(resp.status_code, 200)
         resp = resp.json()
 
@@ -524,7 +525,8 @@ class ExperimentEndpointTests(BasicEndpointTest):
         e = self.create_sample_experiment()
         perfs = self.create_sample_perf(3, 'test', e)
 
-        resp = self.client.get(f'/experiments/{e.name}/performance/test/', params={'start': perfs[1].epoch, 'end': perfs[2].epoch})
+        resp = self.client.get(f'/experiments/{e.name}/performance/test/',
+                               params={'start': perfs[1].epoch, 'end': perfs[2].epoch})
         self.assertEqual(resp.status_code, 200)
         resp = resp.json()
 

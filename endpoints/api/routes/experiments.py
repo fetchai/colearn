@@ -4,21 +4,13 @@ from typing import Optional
 import peewee
 from fastapi import APIRouter, Path, HTTPException
 
+from api.commands import trigger_event_handler
 from api.database import DBExperiment, DBModel, DBDataset, DBPerformance, DBVote
 from api.schemas import ExperimentList, Experiment, Status, PerformanceList, VoteList, Statistics, Empty, \
     ExperimentParameters, ErrorResponse, CreateExperiment, UpdateExperiment, Statistic, Performance, Vote
-from api.settings import DEFAULT_PAGE_SIZE
-from api.utils import default, compute_total_pages
-from api.commands import trigger_event_handler
+from api.utils import paginate_db, aggregate_conditions
 
 router = APIRouter()
-
-
-def _aggregate_conditions(conditions):
-    agg = conditions[0]
-    for condition in conditions[1:]:
-        agg &= condition
-    return agg
 
 
 def _convert_vote(record: DBVote) -> Vote:
@@ -75,19 +67,9 @@ def get_the_list_of_experiments(model: Optional[str] = None, dataset: Optional[s
         conditions.append(DBExperiment.dataset == dataset)
 
     if len(conditions) > 0:
-        query = query.where(_aggregate_conditions(conditions))
+        query = query.where(aggregate_conditions(conditions))
 
-    page_index = default(page, 0)
-    page_size = default(page_size, DEFAULT_PAGE_SIZE)
-    total_pages = compute_total_pages(query.count(), page_size)
-
-    return ExperimentList(
-        items=list(map(_convert, query.paginate(page_index + 1, page_size))),
-        current_page=page_index,
-        total_pages=total_pages,
-        is_start=page_index == 0,
-        is_last=(page_index + 1) == total_pages,
-    )
+    return paginate_db(query, ExperimentList, _convert, page, page_size)
 
 
 @router.get(
@@ -292,19 +274,9 @@ def get_performance(name: str, mode: str = Path(..., regex=r'(?:validation|test)
     if end is not None:
         conditions.append(DBPerformance.epoch <= end)
 
-    query = DBPerformance.select().where(_aggregate_conditions(conditions))
+    query = DBPerformance.select().where(aggregate_conditions(conditions))
 
-    page_index = default(page, 0)
-    page_size = default(page_size, DEFAULT_PAGE_SIZE)
-    total_pages = compute_total_pages(query.count(), page_size)
-
-    return PerformanceList(
-        items=list(map(_convert_perf, query.paginate(page_index + 1, page_size))),
-        current_page=page_index,
-        total_pages=total_pages,
-        is_start=page_index == 0,
-        is_last=(page_index + 1) == total_pages,
-    )
+    return paginate_db(query, PerformanceList, _convert_perf, page, page_size)
 
 
 @router.get('/experiments/{name}/votes/', response_model=VoteList, tags=['experiments'])
@@ -335,19 +307,9 @@ def get_vote_information(name: str, start: Optional[int] = None, end: Optional[i
         conditions.append(DBVote.epoch <= end)
 
     # build the final query
-    query = DBVote.select().where(_aggregate_conditions(conditions)).order_by(DBVote.epoch)
+    query = DBVote.select().where(aggregate_conditions(conditions)).order_by(DBVote.epoch)
 
-    page_index = default(page, 0)
-    page_size = default(page_size, DEFAULT_PAGE_SIZE)
-    total_pages = compute_total_pages(query.count(), page_size)
-
-    return VoteList(
-        items=list(map(_convert_vote, query.paginate(page_index + 1, page_size))),
-        current_page=page_index,
-        total_pages=total_pages,
-        is_start=page_index == 0,
-        is_last=(page_index + 1) == total_pages,
-    )
+    return paginate_db(query, VoteList, _convert_vote, page, page_size)
 
 
 @router.get(

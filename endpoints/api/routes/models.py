@@ -3,8 +3,8 @@ from typing import Optional, Union
 
 from fastapi import APIRouter
 
-from api.schemas import ModelList, TrainedModel, Model, CopyParams
 from api.database import DBModel
+from api.schemas import ModelList, TrainedModel, Model, CopyParams
 from api.utils import paginate
 
 router = APIRouter()

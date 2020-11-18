@@ -1,5 +1,5 @@
 import unittest
-from typing import Optional, Any
+from typing import Optional
 
 from .queue import queue_clear, queue_get, queue_push, queue_head, queue_update, QueueElement
 from .utils import default
