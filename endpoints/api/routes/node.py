@@ -4,7 +4,7 @@ from fastapi import APIRouter
 
 from api.queue import queue_get
 from api.schemas import Info, QueueList
-from api.settings import node_info
+from api.settings import get_node_info
 from api.utils import paginate
 
 router = APIRouter()
@@ -16,7 +16,7 @@ def get_learner_information():
     Get the static learner information. This is information that is not expected to change for the lifetime of the
     learner.
     """
-    return node_info
+    return get_node_info()
 
 
 @router.get('/node/queue/active/', response_model=QueueList, tags=['node'])
