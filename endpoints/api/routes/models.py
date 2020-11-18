@@ -26,7 +26,11 @@ def _convert_model(rec: DBModel) -> Union[TrainedModel, Model]:
     return ds
 
 
-@router.get('/models/', response_model=ModelList, tags=['models'])
+@router.get(
+    '/models/',
+    response_model=ModelList,
+    tags=['models']
+)
 def get_list_of_models(page: Optional[int] = None, page_size: Optional[int] = None):
     """
     Get a list of the models that are present on the system
@@ -35,34 +39,46 @@ def get_list_of_models(page: Optional[int] = None, page_size: Optional[int] = No
 
     * `page` - The page index to be retrieved
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
-      specified, however, it might response with fewer.
+      specified, however, it might respond with fewer.
     """
     return paginate_db(DBModel.select(), ModelList, _convert_model, page, page_size)
 
 
-@router.post('/models/', tags=['models'])
+@router.post(
+    '/models/',
+    response_model=Empty,
+    tags=['models'],
+    responses={
+        409: {"description": "Duplicate model name", 'model': ErrorResponse},
+    }
+)
 def create_new_model(model: Union[TrainedModel, Model]):
     """
     Create a new model
     """
-    if hasattr(model, "weights") and model.weights is not None:
-        DBModel.create(name=model.name,
-                       model=model.model,
-                       parameters=json.dumps(model.parameters),
-                       weights=json.dumps(model.weights))
-    else:
-        DBModel.create(name=model.name,
-                       model=model.model,
-                       parameters=json.dumps(model.parameters),
-                       )
+    try:
+        if hasattr(model, "weights") and model.weights is not None:
+            DBModel.create(name=model.name,
+                           model=model.model,
+                           parameters=json.dumps(model.parameters),
+                           weights=json.dumps(model.weights))
+        else:
+            DBModel.create(name=model.name,
+                           model=model.model,
+                           parameters=json.dumps(model.parameters),
+                           )
+    except peewee.IntegrityError:
+        raise HTTPException(status_code=409, detail="Duplicate model name")
     return {}
 
 
-@router.get('/models/{name}/',
-            tags=['models'],
-            responses={
-                404: {"description": "Model not found", 'model': ErrorResponse},
-            })
+@router.get(
+    '/models/{name}/',
+    response_model=Model,
+    tags=['models'],
+    responses={
+        404: {"description": "Model not found", 'model': ErrorResponse},
+    })
 def get_specific_model_information(name: str):
     """
     Lookup model information about a specific model
@@ -80,12 +96,13 @@ def get_specific_model_information(name: str):
     return _convert_model(rec)
 
 
-@router.post('/models/{name}/',
-             tags=['models'],
-             response_model=Model,
-             responses={
-                 404: {"description": "Experiment not found", 'model': ErrorResponse}}
-             )
+@router.post(
+    '/models/{name}/',
+    tags=['models'],
+    response_model=Model,
+    responses={
+        404: {"description": "Experiment not found", 'model': ErrorResponse}}
+)
 def update_specific_model_information(name: str, update_model: UpdateModel):
     """
     Update a specific model
@@ -107,12 +124,13 @@ def update_specific_model_information(name: str, update_model: UpdateModel):
     return _convert_model(mod)
 
 
-@router.delete('/models/{name}/',
-               response_model=Empty,
-               tags=['models'],
-               responses={
-                   404: {"description": "Experiment not found", 'model': ErrorResponse},
-               })
+@router.delete(
+    '/models/{name}/',
+    response_model=Empty,
+    tags=['models'],
+    responses={
+        404: {"description": "Model not found", 'model': ErrorResponse},
+    })
 def delete_specific_model(name: str):
     """
     Delete a specific model
@@ -136,8 +154,8 @@ def delete_specific_model(name: str):
     response_model=TrainedModel,
     tags=['models'],
     responses={
-        404: {"description": "Experiment not found", 'model': ErrorResponse},
-               }
+        404: {"description": "Model not found", 'model': ErrorResponse},
+    }
 )
 def export_model(name: str):
     """
@@ -156,21 +174,35 @@ def export_model(name: str):
     return _convert_model(rec)
 
 
-@router.post('/models/{name}/copy/', tags=['models'])
+@router.post(
+    '/models/{name}/copy/',
+    response_model=Empty,
+    tags=['models'],
+    responses={
+        404: {"description": "Model not found", 'model': ErrorResponse},
+        409: {"description": "Duplicate model name", 'model': ErrorResponse},
+    }
+)
 def duplicate_model(name: str, params: CopyParams):
     """
     Create a copy of the specified model
 
     """
-    rec = DBModel.get(DBModel.name == name)
-    if params.keep_weights and hasattr(rec, "weights") and rec.weights is not None:
-        DBModel.create(name=params.name,
-                       model=rec.model,
-                       parameters=rec.parameters,
-                       weights=rec.weights)
-    else:
-        DBModel.create(name=params.name,
-                       model=rec.model,
-                       parameters=rec.parameters,
-                       )
+    try:
+        rec = DBModel.get(DBModel.name == name)
+        if params.keep_weights and hasattr(rec, "weights") and rec.weights is not None:
+            DBModel.create(name=params.name,
+                           model=rec.model,
+                           parameters=rec.parameters,
+                           weights=rec.weights)
+        else:
+            DBModel.create(name=params.name,
+                           model=rec.model,
+                           parameters=rec.parameters,
+                           )
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Model not found")
+    except peewee.IntegrityError:
+        raise HTTPException(status_code=409, detail="Duplicate model name")
+
     return {}

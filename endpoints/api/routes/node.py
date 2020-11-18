@@ -31,7 +31,7 @@ def get_learner_active_queue(model: Optional[str] = None, dataset: Optional[str]
     * `dataset` - Filter the results by the specified dataset
     * `page` - The page index to be retrieved
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
-      specified, however, it might response with fewer.
+      specified, however, it might respond with fewer.
     """
     return paginate(
         QueueList,
@@ -56,7 +56,7 @@ def get_learner_pending_queue(model: Optional[str] = None, dataset: Optional[str
     * `dataset` - Filter the results by the specified dataset
     * `page` - The page index to be retrieved
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
-      specified, however, it might response with fewer.
+      specified, however, it might respond with fewer.
     """
     return paginate(
         QueueList,

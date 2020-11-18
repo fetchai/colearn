@@ -54,7 +54,7 @@ def get_the_list_of_experiments(model: Optional[str] = None, dataset: Optional[s
     * `dataset` - Filter the results by experiments which use the specific dataset
     * `page` - The page index to be retrieved
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
-      specified, however, it might response with fewer.
+      specified, however, it might respond with fewer.
     """
 
     # build up the database query
@@ -170,6 +170,7 @@ def delete_specific_experiment(name: str):
     status_code=201,
     responses={
         404: {"description": "Experiment not found", 'model': ErrorResponse},
+        # fixme: 500 missing?
     }
 )
 def create_a_new_experiment(experiment: CreateExperiment):
@@ -264,7 +265,7 @@ def get_performance(name: str, mode: str = Path(..., regex=r'(?:validation|test)
     * `end` - the last epoch number to return values from
     * `page` - The page index to be retrieved
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
-      specified, however, it might response with fewer.
+      specified, however, it might respond with fewer.
     """
 
     # build up the conditions
@@ -295,7 +296,7 @@ def get_vote_information(name: str, start: Optional[int] = None, end: Optional[i
     * `end` - the last epoch number to return values from
     * `page` - The page index to be retrieved
     * `page_size` - The desired page size for the response. Note the server will never respond with more entries than
-      specified, however, it might response with fewer.
+      specified, however, it might respond with fewer.
 
     """
 
