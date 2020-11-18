@@ -57,7 +57,7 @@ def get_specific_dataset_information(name: str):
     try:
         return _convert_dataset(DBDataset.get(DBDataset.name == name))
     except peewee.DoesNotExist:
-        raise HTTPException(status_code=404, detail="Experiment not found")
+        raise HTTPException(status_code=404, detail="Dataset not found")
 
 
 @router.post(

@@ -37,7 +37,7 @@ class DBDataset(Model):
 
     class Meta:
         table_name = 'datasets'
-        database = db  # This model uses the "people.db" database.
+        database = db
 
 
 class DBModel(Model):
@@ -48,7 +48,7 @@ class DBModel(Model):
 
     class Meta:
         table_name = 'models'
-        database = db  # This model uses the "people.db" database.
+        database = db
 
 
 class DBExperiment(Model):
@@ -74,7 +74,7 @@ class DBExperiment(Model):
 
     class Meta:
         table_name = 'experiments'
-        database = db  # This model uses the "people.db" database.
+        database = db
 
 
 class DBVote(Model):
@@ -85,7 +85,7 @@ class DBVote(Model):
 
     class Meta:
         table_name = 'votes'
-        database = db  # This model uses the "people.db" database.
+        database = db
 
 
 class DBPerformance(Model):
@@ -96,7 +96,7 @@ class DBPerformance(Model):
 
     class Meta:
         table_name = 'performance'
-        database = db  # This model uses the "people.db" database.
+        database = db
 
 
 db.connect()
