@@ -5,6 +5,7 @@ from fastapi import APIRouter
 
 from api.database import DBDataset
 from api.schemas import Dataset, Loader, DatasetList
+from api.utils import paginate
 
 router = APIRouter()
 
@@ -35,9 +36,7 @@ def get_list_datasets(page: Optional[int] = None, page_size: Optional[int] = Non
     """
     dataset_list = [_dbdataset_to_dataset(rec) for rec in DBDataset.select()]
 
-    pdl = DatasetList(items=dataset_list, current_page=0, total_pages=1, is_start=True,
-                      is_last=True)
-    return pdl
+    return paginate(DatasetList, dataset_list, page, page_size)
 
 
 @router.get('/datasets/{name}/', response_model=Dataset, tags=['datasets'])

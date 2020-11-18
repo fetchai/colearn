@@ -5,6 +5,7 @@ from fastapi import APIRouter
 
 from api.schemas import ModelList, TrainedModel, Model, CopyParams
 from api.database import DBModel
+from api.utils import paginate
 
 router = APIRouter()
 
@@ -37,9 +38,7 @@ def get_list_of_models(page: Optional[int] = None, page_size: Optional[int] = No
     """
     model_list = [_dbmodel_to_model(rec) for rec in DBModel.select()]
 
-    pdl = ModelList(items=model_list, current_page=0, total_pages=1, is_start=True,
-                    is_last=True)
-    return pdl
+    return paginate(ModelList, model_list, page, page_size)
 
 
 @router.post('/models/', tags=['models'])
@@ -48,16 +47,15 @@ def create_new_model(model: Union[TrainedModel, Model]):
     Create a new model
     """
     if hasattr(model, "weights") and model.weights is not None:
-        new_model = DBModel.create(name=model.name,
-                                   model=model.model,
-                                   parameters=json.dumps(model.parameters),
-                                   weights=json.dumps(model.weights))
+        DBModel.create(name=model.name,
+                       model=model.model,
+                       parameters=json.dumps(model.parameters),
+                       weights=json.dumps(model.weights))
     else:
-        new_model = DBModel.create(name=model.name,
-                                   model=model.model,
-                                   parameters=json.dumps(model.parameters),
-                                   )
-    print(new_model)
+        DBModel.create(name=model.name,
+                       model=model.model,
+                       parameters=json.dumps(model.parameters),
+                       )
     return {}
 
 
@@ -84,7 +82,6 @@ def update_specific_model_information(name: str, model: Union[TrainedModel, Mode
 
     * `name` - The name of the model to be updated
     """
-    print("update", model)
     DBModel.update({DBModel.model: model.model,
                     DBModel.parameters: json.dumps(model.parameters),
                     DBModel.weights: json.dumps(model.weights) if hasattr(model, "weights") else None
@@ -129,16 +126,14 @@ def duplicate_model(name: str, params: CopyParams):
 
     """
     rec = DBModel.get(DBModel.name == name)
-    print("copy", params.name)
     if params.keep_weights and hasattr(rec, "weights") and rec.weights is not None:
-        new_model = DBModel.create(name=params.name,
-                                   model=rec.model,
-                                   parameters=rec.parameters,
-                                   weights=rec.weights)
+        DBModel.create(name=params.name,
+                       model=rec.model,
+                       parameters=rec.parameters,
+                       weights=rec.weights)
     else:
-        new_model = DBModel.create(name=params.name,
-                                   model=rec.model,
-                                   parameters=rec.parameters,
-                                   )
-    print("Duplicate model", new_model)
+        DBModel.create(name=params.name,
+                       model=rec.model,
+                       parameters=rec.parameters,
+                       )
     return {}

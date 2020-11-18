@@ -79,7 +79,6 @@ class APITest(unittest.TestCase):
         new_name = "foo10"
         response = self.client.post(f'/models/{name}/copy/',
                                     json=dict(name=new_name, keep_weights=True))
-        print(response.json())
         assert response.status_code == 200
 
         response = self.client.get(f'/models/{new_name}/export')
@@ -111,8 +110,31 @@ class APITest(unittest.TestCase):
         response = self.client.get(f'/models/{name}/export')
         assert response.status_code == 200
         test_mod.update(new_mod)
-        print("response is", response.json())
         assert response.json() == test_mod
 
     def test_list_model(self):
-        pass
+        name = "foo"
+        test_mod = dict(name=name,
+                        model="bar",
+                        parameters=dict(k1="v1")
+                        )
+        self.client.post('/models/',
+                         json=test_mod
+                         )
+        name2 = "foo2"
+        test_mod2 = dict(name=name2,
+                         model="bar",
+                         parameters=dict(k1="v1")
+                         )
+
+        self.client.post('/models/',
+                         json=test_mod2
+                         )
+
+        response = self.client.get('/models/')
+        assert response.status_code == 200
+        assert response.json() == {'current_page': 0,
+                                   'total_pages': 1,
+                                   'is_start': True,
+                                   'is_last': True,
+                                   'items': [test_mod, test_mod2]}
