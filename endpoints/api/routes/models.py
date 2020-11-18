@@ -1,10 +1,11 @@
 import json
 from typing import Optional, Union
 
-from fastapi import APIRouter
+import peewee
+from fastapi import APIRouter, HTTPException
 
 from api.database import DBModel
-from api.schemas import ModelList, TrainedModel, Model, CopyParams
+from api.schemas import ModelList, TrainedModel, Model, CopyParams, ErrorResponse, UpdateModel, Empty
 from api.utils import paginate_db
 
 router = APIRouter()
@@ -57,7 +58,11 @@ def create_new_model(model: Union[TrainedModel, Model]):
     return {}
 
 
-@router.get('/models/{name}/', tags=['models'])
+@router.get('/models/{name}/',
+            tags=['models'],
+            responses={
+                404: {"description": "Model not found", 'model': ErrorResponse},
+            })
 def get_specific_model_information(name: str):
     """
     Lookup model information about a specific model
@@ -66,13 +71,22 @@ def get_specific_model_information(name: str):
 
     * `name` - The name of the model to be queried
     """
-    rec = DBModel.get(DBModel.name == name)
+    try:
+        rec = DBModel.get(DBModel.name == name)
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Experiment not found")
+
     rec.weights = None
     return _convert_model(rec)
 
 
-@router.post('/models/{name}/', tags=['models'])
-def update_specific_model_information(name: str, model: Union[TrainedModel, Model]):
+@router.post('/models/{name}/',
+             tags=['models'],
+             response_model=Model,
+             responses={
+                 404: {"description": "Experiment not found", 'model': ErrorResponse}}
+             )
+def update_specific_model_information(name: str, update_model: UpdateModel):
     """
     Update a specific model
 
@@ -80,15 +94,25 @@ def update_specific_model_information(name: str, model: Union[TrainedModel, Mode
 
     * `name` - The name of the model to be updated
     """
-    DBModel.update({DBModel.model: model.model,
-                    DBModel.parameters: json.dumps(model.parameters),
-                    DBModel.weights: json.dumps(model.weights) if hasattr(model, "weights") else None
-                    }
-                   ).where(DBModel.name == name).execute()
-    return {}
+    try:
+        mod: DBModel = DBModel.get(DBModel.name == name)
+        if update_model.weights is not None:
+            mod.weights = json.dumps(update_model.weights)
+        mod.save()
+
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Model not found")
+
+    mod.weights = None
+    return _convert_model(mod)
 
 
-@router.delete('/models/{name}/', tags=['models'])
+@router.delete('/models/{name}/',
+               response_model=Empty,
+               tags=['models'],
+               responses={
+                   404: {"description": "Experiment not found", 'model': ErrorResponse},
+               })
 def delete_specific_model(name: str):
     """
     Delete a specific model
@@ -97,13 +121,24 @@ def delete_specific_model(name: str):
 
     * `name` - The name of the model to be deleted
     """
-    rec = DBModel.get(DBModel.name == name)
-    rec.delete_instance()
+    try:
+        rec = DBModel.get(DBModel.name == name)
+        rec.delete_instance()
+
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Model not found")
 
     return {}
 
 
-@router.get('/models/{name}/export/', response_model=TrainedModel, tags=['models'])
+@router.get(
+    '/models/{name}/export/',
+    response_model=TrainedModel,
+    tags=['models'],
+    responses={
+        404: {"description": "Experiment not found", 'model': ErrorResponse},
+               }
+)
 def export_model(name: str):
     """
     Export a trained model with the parameters and trained weights. This can be then consumed by a default machine
@@ -113,7 +148,11 @@ def export_model(name: str):
 
     * `name` - The name of the model to be exported
     """
-    rec = DBModel.get(DBModel.name == name)
+    try:
+        rec = DBModel.get(DBModel.name == name)
+    except peewee.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Model not found")
+
     return _convert_model(rec)
 
 

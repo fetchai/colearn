@@ -101,6 +101,17 @@ class TrainedModel(Model):
     weights: Dict[str, Any]
 
 
+class UpdateModel(BaseModel):
+    """
+    A definition for the attributes that are editable by the user
+
+    Attributes:
+
+    * `weights` - If present the model weights will be updated to this value
+    """
+    weights: Dict[str, Any]
+
+
 class ModelList(BaseListModel):
     """
     A paged list of models

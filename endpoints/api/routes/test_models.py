@@ -101,10 +101,7 @@ class APITest(unittest.TestCase):
                          json=test_mod
                          )
 
-        new_mod = dict(name=name, model="bar2",
-                       parameters=dict(k1="v12"),
-                       weights=dict(k2="v22")
-                       )
+        new_mod = dict(weights=dict(k2="v22"))
         self.client.post(f'/models/{name}/', json=new_mod)
 
         response = self.client.get(f'/models/{name}/export')
