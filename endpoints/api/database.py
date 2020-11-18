@@ -1,7 +1,7 @@
 from contextvars import ContextVar
 
 from peewee import CharField, TextField, IntegerField, DoubleField, Model, BlobField, ForeignKeyField, BooleanField, \
-    SqliteDatabase, _ConnectionState
+    SqliteDatabase, _ConnectionState, BigIntegerField
 
 db_state_default = {"closed": None, "conn": None, "ctx": None, "transactions": None}
 db_state = ContextVar("db_state", default=db_state_default.copy())
@@ -34,6 +34,7 @@ class DBDataset(Model):
     test_size = DoubleField()
 
     class Meta:
+        table_name = 'datasets'
         database = db  # This model uses the "people.db" database.
 
 
@@ -44,6 +45,7 @@ class DBModel(Model):
     weights = BlobField(null=True)
 
     class Meta:
+        table_name = 'models'
         database = db  # This model uses the "people.db" database.
 
 
@@ -60,14 +62,41 @@ class DBExperiment(Model):
 
     # status information
     is_owner = BooleanField(default=False)
+    state = CharField(default='')
+    epoch = IntegerField(default=-1)
+
+    # statistics information
+    mean_epoch_time = DoubleField(null=True)
+    mean_train_time = DoubleField(null=True)
+    mean_evaluation_time = DoubleField(null=True)
 
     class Meta:
+        table_name = 'experiments'
         database = db  # This model uses the "people.db" database.
 
 
-# votes and performance should be separate tables
+class DBVote(Model):
+    experiment = ForeignKeyField(DBExperiment)
+    epoch = BigIntegerField(index=True)
+    vote = BooleanField()
+    is_proposer = BooleanField()
+
+    class Meta:
+        table_name = 'votes'
+        database = db  # This model uses the "people.db" database.
+
+
+class DBPerformance(Model):
+    experiment = ForeignKeyField(DBExperiment)
+    epoch = BigIntegerField(index=True)
+    mode = CharField(index=True)
+    performance = DoubleField()
+
+    class Meta:
+        table_name = 'performance'
+        database = db  # This model uses the "people.db" database.
 
 
 db.connect()
-db.create_tables([DBModel, DBDataset, DBExperiment])
+db.create_tables([DBModel, DBDataset, DBExperiment, DBVote, DBPerformance])
 db.close()
