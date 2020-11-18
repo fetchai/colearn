@@ -2,8 +2,15 @@ import os
 
 from api.schemas import Info
 
-DEVELOPMENT_DATABASE_PATH = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), 'colearn.db')
-DATABASE_PATH = DEVELOPMENT_DATABASE_PATH
+
+def _build_database_path():
+    database_root = os.environ.get('DATABASE_PATH', PROJECT_ROOT)
+    return os.path.join(database_root, DATABASE_BASE_NAME)
+
+
+DATABASE_BASE_NAME = 'colearn.db'
+PROJECT_ROOT = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+DATABASE_PATH = _build_database_path()
 DEFAULT_PAGE_SIZE = 50
 
 # this file will hold the static information about the node
