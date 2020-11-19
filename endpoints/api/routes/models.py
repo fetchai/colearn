@@ -90,7 +90,7 @@ def get_specific_model_information(name: str):
     try:
         rec = DBModel.get(DBModel.name == name)
     except peewee.DoesNotExist:
-        raise HTTPException(status_code=404, detail="Experiment not found")
+        raise HTTPException(status_code=404, detail="Model not found")
 
     rec.weights = None
     return _convert_model(rec)
@@ -101,7 +101,7 @@ def get_specific_model_information(name: str):
     tags=['models'],
     response_model=Model,
     responses={
-        404: {"description": "Experiment not found", 'model': ErrorResponse}}
+        404: {"description": "Model not found", 'model': ErrorResponse}}
 )
 def update_specific_model_information(name: str, update_model: UpdateModel):
     """

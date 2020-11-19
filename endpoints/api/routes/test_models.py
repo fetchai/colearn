@@ -12,11 +12,6 @@ class APITest(unittest.TestCase):
             model.delete().execute()
         assert len(DBModel.select()[:]) == 0
 
-    def test_read_main(self):
-        response = self.client.get("/")
-        assert response.status_code == 200
-        assert response.json() == {'state': 'alive and kicking!'}
-
     def test_creation(self):
         tmodel = dict(name="foo",
                       model="bar",

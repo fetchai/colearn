@@ -5,7 +5,7 @@ import pydantic
 from api.schemas import Status, CreateExperiment, ExperimentParameters
 
 
-class SchemaTestse(unittest.TestCase):
+class SchemaTests(unittest.TestCase):
     def test_status_state(self):
         with self.assertRaises(pydantic.ValidationError):
             Status(
