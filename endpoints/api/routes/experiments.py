@@ -170,7 +170,6 @@ def delete_specific_experiment(name: str):
     status_code=201,
     responses={
         404: {"description": "Experiment not found", 'model': ErrorResponse},
-        # fixme: 500 missing?
     }
 )
 def create_a_new_experiment(experiment: CreateExperiment):

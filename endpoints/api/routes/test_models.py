@@ -1,16 +1,40 @@
+import json
+from typing import Any, Optional
+
 from fastapi.testclient import TestClient
-import unittest
 
 from api.database import DBDataset, DBModel, DBExperiment
 from api.main import app
+from api.utils import BasicEndpointTest
 
 
-class APITest(unittest.TestCase):
+class APITest(BasicEndpointTest):
     def setUp(self):
         self.client = TestClient(app)
+
+        # clear the existing databases
         for model in [DBDataset, DBModel, DBExperiment]:
             model.delete().execute()
-        assert len(DBModel.select()[:]) == 0
+
+    def assertIsModel(self, model: Any, ref: DBModel):
+        self.assertIsNot(model, None)
+        self.assertEqual(model['name'], ref.name)
+        self.assertEqual(model['model'], ref.model)
+        self.assertEqual(model['parameters'], json.loads(ref.parameters))
+        try:
+            self.assertEqual(model['weights'], json.loads(ref.weights))
+        except KeyError:
+            pass
+
+    @staticmethod
+    def create_sample_model(index: Optional[int] = 0):
+        model = DBModel.create(
+            name=f'model-{index}',
+            model="foo",
+            parameters=json.dumps(dict(k1="v1")),
+            weights=json.dumps(dict(k2="v2"))
+        )
+        return model
 
     def test_creation(self):
         tmodel = dict(name="foo",
@@ -24,11 +48,19 @@ class APITest(unittest.TestCase):
         assert response.status_code == 200
         assert response.json() == {}
 
-        response = self.client.get('/models/foo/')
-        assert response.status_code == 200
-        assert response.json() == tmodel
+        m1 = DBModel.get(DBModel.name == tmodel['name'])
+        self.assertIsModel(tmodel, m1)
 
-        response = self.client.delete('/models/foo/')
+    def test_get_model(self):
+        model = self.create_sample_model()
+
+        response = self.client.get(f'/models/{model.name}/')
+        assert response.status_code == 200
+        self.assertIsModel(response.json(), model)
+
+    def test_delete_model(self):
+        model = self.create_sample_model()
+        response = self.client.delete(f'/models/{model.name}/')
         assert response.status_code == 200
         assert response.json() == {}
 
