@@ -1,5 +1,5 @@
 import json
-from typing import Optional, Union
+from typing import Optional
 
 import peewee
 from fastapi import APIRouter, HTTPException
@@ -11,19 +11,21 @@ from api.utils import paginate_db
 router = APIRouter()
 
 
-def _convert_model(rec: DBModel) -> Union[TrainedModel, Model]:
-    if hasattr(rec, "weights") and rec.weights is not None:
-        ds = TrainedModel(name=rec.name,
-                          model=rec.model,
-                          parameters=json.loads(rec.parameters),
-                          weights=json.loads(rec.weights)
-                          )
-    else:
-        ds = Model(name=rec.name,
-                   model=rec.model,
-                   parameters=json.loads(rec.parameters),
-                   )
-    return ds
+def _convert_trained_model(rec: DBModel) -> TrainedModel:
+    return TrainedModel(
+        name=rec.name,
+        model=rec.model,
+        parameters=json.loads(rec.parameters),
+        weights=json.loads(rec.weights)
+    )
+
+
+def _convert_model(rec: DBModel) -> Model:
+    return Model(
+        name=rec.name,
+        model=rec.model,
+        parameters=json.loads(rec.parameters),
+    )
 
 
 @router.get(
@@ -52,21 +54,15 @@ def get_list_of_models(page: Optional[int] = None, page_size: Optional[int] = No
         409: {"description": "Duplicate model name", 'model': ErrorResponse},
     }
 )
-def create_new_model(model: Union[TrainedModel, Model]):
+def create_new_model(model: TrainedModel):
     """
     Create a new model
     """
     try:
-        if hasattr(model, "weights") and model.weights is not None:
-            DBModel.create(name=model.name,
-                           model=model.model,
-                           parameters=json.dumps(model.parameters),
-                           weights=json.dumps(model.weights))
-        else:
-            DBModel.create(name=model.name,
-                           model=model.model,
-                           parameters=json.dumps(model.parameters),
-                           )
+        DBModel.create(name=model.name,
+                       model=model.model,
+                       parameters=json.dumps(model.parameters),
+                       weights=json.dumps(model.weights) if model.weights is not None else None)
     except peewee.IntegrityError:
         raise HTTPException(status_code=409, detail="Duplicate model name")
     return {}
@@ -117,11 +113,10 @@ def update_specific_model_information(name: str, update_model: UpdateModel):
             mod.weights = json.dumps(update_model.weights)
         mod.save()
 
+        return _convert_model(mod)
+
     except peewee.DoesNotExist:
         raise HTTPException(status_code=404, detail="Model not found")
-
-    mod.weights = None
-    return _convert_model(mod)
 
 
 @router.delete(
@@ -171,7 +166,7 @@ def export_model(name: str):
     except peewee.DoesNotExist:
         raise HTTPException(status_code=404, detail="Model not found")
 
-    return _convert_model(rec)
+    return _convert_trained_model(rec)
 
 
 @router.post(
@@ -190,16 +185,12 @@ def duplicate_model(name: str, params: CopyParams):
     """
     try:
         rec = DBModel.get(DBModel.name == name)
-        if params.keep_weights and hasattr(rec, "weights") and rec.weights is not None:
-            DBModel.create(name=params.name,
-                           model=rec.model,
-                           parameters=rec.parameters,
-                           weights=rec.weights)
-        else:
-            DBModel.create(name=params.name,
-                           model=rec.model,
-                           parameters=rec.parameters,
-                           )
+
+        DBModel.create(name=params.name,
+                       model=rec.model,
+                       parameters=rec.parameters,
+                       weights=rec.weights if params.keep_weights else None)
+
     except peewee.DoesNotExist:
         raise HTTPException(status_code=404, detail="Model not found")
     except peewee.IntegrityError:

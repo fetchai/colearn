@@ -98,18 +98,20 @@ class TrainedModel(Model):
     * `parameters` - The dictionary of parameters which configure the model
     * `weights` - A dictionary of weights corresponding to the model
     """
-    weights: Dict[str, Any]
+    weights: Optional[Dict[str, Any]]
 
 
 class UpdateModel(BaseModel):
     """
-    A definition for the attributes that are editable by the user
+    A definition for the set of optional attributes for the model which will be updated.
+
+    Note: Expected to have additional fields in the future
 
     Attributes:
 
-    * `weights` - If present the model weights will be updated to this value
+    * `weights` - Optional set of weights to be updated to this value
     """
-    weights: Dict[str, Any]
+    weights: Optional[Dict[str, Any]]
 
 
 class ModelList(BaseListModel):
