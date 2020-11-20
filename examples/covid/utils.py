@@ -22,7 +22,7 @@ import tensorflow as tf
 from tensorflow import keras
 import os
 from sklearn.preprocessing import MinMaxScaler
-from keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.decomposition import KernelPCA
 from tensorflow.keras.utils import plot_model
 from IPython.display import Image
