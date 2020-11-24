@@ -105,15 +105,21 @@ def split_to_folders(data_dir,
     return [str(x) for x in dir_names]
 
 
-def prepare_single_client(config: ModelConfig, data_dir):
+def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=Path("")):
     data = LearnerData()
     data.train_batch_size = config.batch_size
 
     images = pickle.load(open(Path(data_dir) / IMAGE_FL, "rb"))
     labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
 
-    [[train_images, test_images], [train_labels, test_labels]] = \
-        split_by_chunksizes([images, labels], [config.train_ratio, config.test_ratio])
+    if test_data_dir != Path(""):
+        test_images = pickle.load(open(Path(test_data_dir) / IMAGE_FL, "rb"))
+        test_labels = pickle.load(open(Path(test_data_dir) / LABEL_FL, "rb"))
+        train_images = images
+        train_labels = labels
+    else:
+        [[train_images, test_images], [train_labels, test_labels]] = \
+            split_by_chunksizes([images, labels], [config.train_ratio, config.test_ratio])
 
     #[[train_images, val_images], [train_labels, val_labels]] = \
     #    split_by_chunksizes([train_images, train_labels], [config.train_ratio, config.valid_ratio])

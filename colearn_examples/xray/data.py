@@ -97,6 +97,8 @@ def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=Path(""))
             [pneumonia_data], [config.train_ratio, config.test_ratio]
         )
     else:
+        print("ChestXray separate test set provided, number of normal examples ", len(normal_test),
+            ", number of positive examples ", len(pneumonia_test))
         train_normal = normal_data
         train_pneumonia = pneumonia_data
         test_normal = normal_test
