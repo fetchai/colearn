@@ -68,7 +68,7 @@ def split_to_folders(data_dir,
         X, y = data_loader_cohen(data_dir)
     else:
         print("!!!!!!! DATASET ", dataset, " not supported!")
-        return
+        raise Exception("Dataset not supported")
 
     min_max_scaler=MinMaxScaler()
     X = min_max_scaler.fit_transform(X)
@@ -114,9 +114,6 @@ def prepare_single_client(config: ModelConfig, data_dir):
 
     [[train_images, test_images], [train_labels, test_labels]] = \
         split_by_chunksizes([images, labels], [config.train_ratio, config.test_ratio])
-
-    #[[train_images, val_images], [train_labels, val_labels]] = \
-    #    split_by_chunksizes([train_images, train_labels], [config.train_ratio, config.valid_ratio])
 
     data.train_data_size = len(train_images)
 

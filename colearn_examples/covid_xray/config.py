@@ -13,7 +13,7 @@ class CovidXrayConfig(ModelConfig):
         self.optimizer = tf.keras.optimizers.Adam
         self.l_rate = 0.001
         self.l_rate_decay = 1e-5
-        self.batch_size = 8
+        self.batch_size = 16
 
         self.dataset = "420" # or cohen
 
@@ -29,5 +29,4 @@ class CovidXrayConfig(ModelConfig):
         # Data params
         self.steps_per_epoch = None
         self.test_ratio = 0.2
-        self.valid_ratio = 0.2
-        self.val_batches = 2  # number of batches used for voting
+        self.val_batches = 16  # number of batches used for voting
