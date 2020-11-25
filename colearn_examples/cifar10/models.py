@@ -72,12 +72,6 @@ class CIFAR10Conv2Learner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -127,12 +121,6 @@ class CIFAR10ConvLearner(KerasLearner):
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
         return model
 
 
@@ -155,11 +143,5 @@ class CIFAR10Resnet50Learner(KerasLearner):
             self.config.n_classes, activation="sigmoid", name="fc1"
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
-
-        # compile model & add optimiser
-        opt = self.config.optimizer(
-            lr=self.config.l_rate, decay=self.config.l_rate_decay
-        )
-
-        model.compile(loss=self.config.loss, metrics=self.config.metrics, optimizer=opt)
+        
         return model
