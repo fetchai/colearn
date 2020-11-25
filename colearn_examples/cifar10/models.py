@@ -143,5 +143,5 @@ class CIFAR10Resnet50Learner(KerasLearner):
             self.config.n_classes, activation="sigmoid", name="fc1"
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
-        
+
         return model
