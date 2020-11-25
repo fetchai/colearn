@@ -18,7 +18,7 @@ class CovidXrayConfig(ModelConfig):
 
         self.dataset = "420" # or cohen
 
-        self.metrics = ["categorical_accuracy"]
+        self.metrics = ["sparse_categorical_accuracy"]
 
         # Model params
         self.model_type = CovidXrayLearner

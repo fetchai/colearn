@@ -77,6 +77,10 @@ class KerasLearner(BasicLearner, ABC):
         for _ in range(n_steps):
             data, labels = generator.__next__()
             pred = self._model.predict(data)
+            pred = np.argmax(pred, axis=1)
+            labels = [self.config.class_labels[int(j)] for j in labels]
+            pred = [self.config.class_labels[int(j)] for j in pred]
+            
             all_labels.append(labels)
             all_preds.append(pred)
         y_true = np.concatenate(all_labels, axis=0)
