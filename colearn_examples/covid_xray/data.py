@@ -5,17 +5,17 @@ from pathlib import Path
 import torchxrayvision as xrv
 from tqdm import tqdm
 
-
 import numpy as np
+import scipy.io as sio
 
-from colearn_examples.config import ModelConfig
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
 from colearn.basic_learner import LearnerData
 
-import scipy.io as sio
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import KernelPCA
+
+from .config import CovidXrayConfig
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't
 # tracked yet
@@ -38,8 +38,8 @@ def data_loader_420(data_dir):
     pneumonia_features = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))
     pneumonia_features = pneumonia_features['pneumonia']
 
-    X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0)  #inputs
-    y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0)  #target labels
+    X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0)
+    y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0)
 
     return X, y
 

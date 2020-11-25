@@ -1,6 +1,6 @@
-import imgaug.augmenters as iaa
-
 import numpy as np
+
+import imgaug.augmenters as iaa
 
 from colearn_examples.utils.data import normalize_image
 

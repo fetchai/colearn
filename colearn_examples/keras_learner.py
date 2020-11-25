@@ -2,9 +2,9 @@ from abc import ABC
 
 import numpy as np
 
-from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
-
 from tqdm import trange
+
+from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
 
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasSGDOptimizer
 import tensorflow as tf

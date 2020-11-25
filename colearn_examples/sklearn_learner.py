@@ -2,10 +2,10 @@ import copy
 from abc import ABC
 from typing import List
 import numpy as np
+from tqdm import tqdm
 
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_is_fitted
-from tqdm import tqdm
 
 from colearn_examples.config import ModelConfig
 from colearn.basic_learner import BasicLearner, LearnerData, Weights
