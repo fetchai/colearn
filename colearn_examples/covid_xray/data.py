@@ -29,17 +29,17 @@ LABEL_FL = "labels.pickle"
 
 def data_loader_420(data_dir):
     # Load data
-    covid_features=sio.loadmat(os.path.join(data_dir,'covid.mat')) 
-    covid_features=covid_features['covid']
+    covid_features = sio.loadmat(os.path.join(data_dir, 'covid.mat')) 
+    covid_features = covid_features['covid']
 
-    normal_features=sio.loadmat(os.path.join(data_dir,'normal.mat')) 
-    normal_features=normal_features['normal']
+    normal_features = sio.loadmat(os.path.join(data_dir, 'normal.mat')) 
+    normal_features = normal_features['normal']
 
-    pneumonia_features=sio.loadmat(os.path.join(data_dir,'pneumonia.mat')) 
-    pneumonia_features=pneumonia_features['pneumonia']
+    pneumonia_features = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat')) 
+    pneumonia_features = pneumonia_features['pneumonia']
 
-    X=np.concatenate((covid_features[:,:-1],normal_features[:,:-1],pneumonia_features[:,:-1]), axis=0)#inputs
-    y=np.concatenate((covid_features[:,-1],normal_features[:,-1],pneumonia_features[:,-1]), axis=0)#target labels
+    X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0) #inputs
+    y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0) #target labels
 
     return X, y
 
@@ -53,6 +53,7 @@ def data_loader_cohen(data_dir):
     for i in tqdm(range(len(d_covid19))):
         X.append(d_covid19[i]['img'])
         y.append(d_covid19[i]["lab"][3])
+    return X, y
 
 
 def split_to_folders(data_dir,
@@ -70,14 +71,14 @@ def split_to_folders(data_dir,
         print("!!!!!!! DATASET ", dataset, " not supported!")
         raise Exception("Dataset not supported")
 
-    min_max_scaler=MinMaxScaler()
+    min_max_scaler = MinMaxScaler()
     X = min_max_scaler.fit_transform(X)
-    
+
     transformer = KernelPCA(n_components=64, kernel='linear')
     X = transformer.fit_transform(X)
     print("SHAPE X: ", X.shape)
     print("SHAPE Y: ", y.shape)
-    
+
     [X, y] = shuffle_data(
         [X, y], seed=shuffle_seed
     )
