@@ -29,17 +29,17 @@ LABEL_FL = "labels.pickle"
 
 def data_loader_420(data_dir):
     # Load data
-    covid_features = sio.loadmat(os.path.join(data_dir, 'covid.mat')) 
+    covid_features = sio.loadmat(os.path.join(data_dir, 'covid.mat'))
     covid_features = covid_features['covid']
 
-    normal_features = sio.loadmat(os.path.join(data_dir, 'normal.mat')) 
+    normal_features = sio.loadmat(os.path.join(data_dir, 'normal.mat'))
     normal_features = normal_features['normal']
 
-    pneumonia_features = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat')) 
+    pneumonia_features = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))
     pneumonia_features = pneumonia_features['pneumonia']
 
-    X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0) #inputs
-    y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0) #target labels
+    X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0)  #inputs
+    y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0)  #target labels
 
     return X, y
 
@@ -62,8 +62,8 @@ def split_to_folders(data_dir,
                      n_learners,
                      output_folder=Path(tempfile.gettempdir()) / "covid_xray",
                      dataset="420"):
-    
-    if  dataset == "420":
+
+    if dataset == "420":
         X, y = data_loader_420(data_dir)
     elif dataset == "cohen":
         X, y = data_loader_cohen(data_dir)
@@ -106,7 +106,7 @@ def split_to_folders(data_dir,
     return [str(x) for x in dir_names]
 
 
-def prepare_single_client(config: ModelConfig, data_dir):
+def prepare_single_client(config: CovidXrayConfig, data_dir):
     data = LearnerData()
     data.train_batch_size = config.batch_size
 

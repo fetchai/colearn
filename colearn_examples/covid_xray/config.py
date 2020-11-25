@@ -15,7 +15,7 @@ class CovidXrayConfig(ModelConfig):
         self.l_rate_decay = 1e-5
         self.batch_size = 16
 
-        self.dataset = "420" # or cohen
+        self.dataset = "420"  # or cohen
 
         self.metrics = ["categorical_accuracy"]
 
