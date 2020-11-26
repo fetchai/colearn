@@ -70,7 +70,7 @@ class KerasLearner(BasicLearner, ABC):
         for nw, ow in zip(new_weights, old_weights):
             grad_list.append(nw - ow)
         return grad_list
-    
+
     def _evaluate_model(self, eval_config: dict) -> dict:
         """
             eval_config = {
@@ -80,14 +80,14 @@ class KerasLearner(BasicLearner, ABC):
         generator = self.data.test_gen
         n_steps = max(1, int(self.data.test_data_size // self.data.test_batch_size))
         all_labels = []  # type: ignore
-        all_preds = [] # type: ignore
+        all_preds = []  # type: ignore
         for _ in range(n_steps):
             data, labels = generator.__next__()
             pred = self._model.predict(data)
             pred = np.argmax(pred, axis=1)
             labels = [self.config.class_labels[int(j)] for j in labels]
             pred = [self.config.class_labels[int(j)] for j in pred]
-            
+
             all_labels.append(labels)
             all_preds.append(pred)
         y_true = np.concatenate(all_labels, axis=0)

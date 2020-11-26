@@ -38,3 +38,6 @@ class PlusOneLearner(MachineLearningInterface):
 
     def accept_weights(self, weights: Weights):
         self.current_value = weights
+
+    def evaluate_model(self, eval_config: dict) -> dict:
+        return {}

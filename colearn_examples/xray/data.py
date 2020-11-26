@@ -71,7 +71,7 @@ def split_to_folders(
     return dir_names
 
 
-def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=Path("")):
+def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=None):
     data = LearnerData()
 
     normal_data = pickle.load(open(Path(data_dir) / "normal.pickle", "rb"))
@@ -79,7 +79,7 @@ def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=Path(""))
 
     normal_test = []
     pneumonia_test = []
-    if test_data_dir != Path(""):
+    if test_data_dir is not None and test_data_dir != Path(""):
         normal_test = pickle.load(open(Path(test_data_dir) / "normal.pickle", "rb"))
         pneumonia_test = pickle.load(open(Path(test_data_dir) / "pneumonia.pickle", "rb"))
         normal_test = [Path(test_data_dir) / os.path.basename(fl) for fl in normal_test]
@@ -98,12 +98,11 @@ def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=Path(""))
         )
     else:
         print("ChestXray separate test set provided, number of normal examples ", len(normal_test),
-            ", number of positive examples ", len(pneumonia_test))
+              ", number of positive examples ", len(pneumonia_test))
         train_normal = normal_data
         train_pneumonia = pneumonia_data
         test_normal = normal_test
         test_pneumonia = pneumonia_test
-
 
     data.train_batch_size = config.batch_size
 

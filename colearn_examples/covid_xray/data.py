@@ -106,14 +106,14 @@ def split_to_folders(data_dir,
     return [str(x) for x in dir_names]
 
 
-def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=Path("")):
+def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=None):
     data = LearnerData()
     data.train_batch_size = config.batch_size
 
     images = pickle.load(open(Path(data_dir) / IMAGE_FL, "rb"))
     labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
 
-    if test_data_dir != Path(""):
+    if test_data_dir is not None and test_data_dir != Path(""):
         test_images = pickle.load(open(Path(test_data_dir) / IMAGE_FL, "rb"))
         test_labels = pickle.load(open(Path(test_data_dir) / LABEL_FL, "rb"))
         train_images = images

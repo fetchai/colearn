@@ -3,7 +3,7 @@ import tensorflow as tf
 from colearn_examples.config import ModelConfig
 
 from .models import CovidXrayLearner
-from .evaluation import *
+from .evaluation import auc_score, full_classification_report, transform_to_grafana
 
 
 class CovidXrayConfig(ModelConfig):
