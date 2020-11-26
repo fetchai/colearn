@@ -1,10 +1,8 @@
 import os
 import pickle
 import tempfile
+import shutil
 from pathlib import Path
-import torchxrayvision as xrv
-from tqdm import tqdm
-
 import numpy as np
 import scipy.io as sio
 
@@ -27,49 +25,47 @@ IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
 
 
-def data_loader_420(data_dir):
-    # Load data
-    covid_features = sio.loadmat(os.path.join(data_dir, 'covid.mat'))
-    covid_features = covid_features['covid']
-
-    normal_features = sio.loadmat(os.path.join(data_dir, 'normal.mat'))
-    normal_features = normal_features['normal']
-
-    pneumonia_features = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))
-    pneumonia_features = pneumonia_features['pneumonia']
-
-    X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0)
-    y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0)
-
-    return X, y
-
-
-def data_loader_cohen(data_dir):
-    d_covid19 = xrv.datasets.COVID19_Dataset(views=["PA", "AP", "AP Supine"],
-                                             imgpath="{}/images".format(data_dir),
-                                             csvpath="{}/metadata.csv".format(data_dir))
-    X = []
-    y = []
-    for i in tqdm(range(len(d_covid19))):
-        X.append(d_covid19[i]['img'])
-        y.append(d_covid19[i]["lab"][3])
-    return X, y
-
-
 def split_to_folders(data_dir,
                      shuffle_seed,
                      data_split,
                      n_learners,
                      output_folder=Path(tempfile.gettempdir()) / "covid_xray",
-                     dataset="420"):
+                     test_output_folder=Path(tempfile.gettempdir()) / "covid_xray_test",
+                     test_ratio=0.2):
 
-    if dataset == "420":
-        X, y = data_loader_420(data_dir)
-    elif dataset == "cohen":
-        X, y = data_loader_cohen(data_dir)
-    else:
-        print("!!!!!!! DATASET ", dataset, " not supported!")
-        raise Exception("Dataset not supported")
+    np.random.seed(shuffle_seed)
+
+    # Load data
+    covid_features = sio.loadmat(os.path.join(data_dir, 'covid.mat'))
+    covid_features = covid_features['covid']
+
+    if test_ratio > 0:
+        print("Global test splitting: ", test_ratio)
+        test_size = int(covid_features.shape[0]*test_ratio)
+
+        np.random.shuffle(covid_features)
+        covid_test = covid_features[:test_size]
+        covid_features = covid_features[test_size:]
+
+        normal_features = sio.loadmat(os.path.join(data_dir, 'normal.mat'))
+        normal_features = normal_features['normal']
+
+        np.random.shuffle(normal_features)
+        normal_test = normal_features[:test_size]
+        normal_features = normal_features[test_size:]
+
+        pneumonia_features = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))
+        pneumonia_features = pneumonia_features['pneumonia']
+
+        np.random.shuffle(pneumonia_features)
+        pneumonia_test = pneumonia_features[:test_size]
+        pneumonia_features = pneumonia_features[test_size:]
+
+        X_test = np.concatenate((covid_test[:, :-1], normal_test[:, :-1], pneumonia_test[:, :-1]), axis=0)
+        y_test = np.concatenate((covid_test[:, -1], normal_test[:, -1], pneumonia_test[:, -1]), axis=0)
+
+    X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0)
+    y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0)
 
     min_max_scaler = MinMaxScaler()
     X = min_max_scaler.fit_transform(X)
@@ -78,6 +74,9 @@ def split_to_folders(data_dir,
     X = transformer.fit_transform(X)
     print("SHAPE X: ", X.shape)
     print("SHAPE Y: ", y.shape)
+    if test_ratio > 0:
+        X_test = transformer.transform(X_test)
+        print("SHAPE X_test: ", X_test.shape)
 
     [X, y] = shuffle_data(
         [X, y], seed=shuffle_seed
@@ -88,11 +87,15 @@ def split_to_folders(data_dir,
     )
 
     local_output_dir = Path(output_folder)
+    local_test_output_dir = Path(test_output_folder)
     print("Local output dir: ", local_output_dir)
+    print("Local test output dir: ", local_test_output_dir)
 
     dir_names = []
     for i in range(n_learners):
         dir_name = local_output_dir / str(i)
+        if os.path.exists(str(dir_name)):
+            shutil.rmtree(str(dir_name))
         os.makedirs(str(dir_name), exist_ok=True)
         print("Shapes for learner: ", i)
         print("       input: ", len(all_images_lists[i]), "x", all_images_lists[i][0].shape)
@@ -101,6 +104,15 @@ def split_to_folders(data_dir,
         pickle.dump(all_labels_lists[i], open(dir_name / LABEL_FL, "wb"))
 
         dir_names.append(dir_name)
+
+    if test_ratio > 0:
+        if os.path.exists(str(local_test_output_dir)):
+            shutil.rmtree(str(local_test_output_dir))
+        os.makedirs(str(local_test_output_dir), exist_ok=True)
+        pickle.dump(X_test, open(local_test_output_dir / IMAGE_FL, "wb"))
+        pickle.dump(y_test, open(local_test_output_dir / LABEL_FL, "wb"))
+        dir_names.append(local_test_output_dir)
+        print("Global test set created")
 
     print(dir_names)
     return [str(x) for x in dir_names]

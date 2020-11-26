@@ -2,11 +2,12 @@ import os
 import tempfile
 from pathlib import Path
 
+# pylint: disable=W0622
+from numpy import arange, array, max, mean
+
 import matplotlib.axes._axes as mpl_ax
 import matplotlib.pyplot as plt
 
-# pylint: disable=W0622
-from numpy import arange, array, max, mean
 
 from colearn_examples.config import TrainingMode, ModelConfig, ColearnConfig
 
