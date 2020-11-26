@@ -1,9 +1,9 @@
 from abc import ABC
+import numpy as np
 from tqdm import trange
 import torch
 from torchsummary import summary
 from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score
-import numpy as np
 from opacus import PrivacyEngine
 
 from colearn.basic_learner import BasicLearner, LearnerData

@@ -11,6 +11,7 @@ class TrainingData(Enum):
     XRAY = 2
     FRAUD = 3
     CIFAR10 = 4
+    COVID = 5
 
 
 class ColearnConfig:

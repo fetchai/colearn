@@ -15,6 +15,8 @@ class XrayConfig(ModelConfig):
         self.l_rate_decay = 1e-5
         self.batch_size = 8
 
+        self.metrics = ["accuracy"]
+
         # Model params
         self.model_type = XraySuperminiLearner
         self.width = 128

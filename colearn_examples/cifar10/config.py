@@ -13,6 +13,8 @@ class CIFAR10Config(ModelConfig):
         self.l_rate_decay = 1e-5
         self.batch_size = 64
 
+        self.metrics = ["accuracy"]
+
         # Model params
         self.model_type = CIFAR10Resnet50Learner
         self.width = 32

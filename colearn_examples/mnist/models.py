@@ -1,7 +1,7 @@
 import numpy as np
-import tensorflow as tf
 import torch.nn as nn
 import torch.nn.functional as nn_func
+import tensorflow as tf
 
 from ..keras_learner import KerasLearner
 from ..pytorch_learner import PytorchLearner
