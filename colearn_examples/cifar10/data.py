@@ -58,7 +58,7 @@ def split_to_folders(data_dir,
     return dir_names
 
 
-def prepare_single_client(config: ModelConfig, data_dir):
+def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=None):
     data = LearnerData()
     data.train_batch_size = config.batch_size
 
