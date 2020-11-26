@@ -5,17 +5,17 @@ from pathlib import Path
 import torchxrayvision as xrv
 from tqdm import tqdm
 
-
 import numpy as np
+import scipy.io as sio
 
-from colearn_examples.config import ModelConfig
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
 from colearn.basic_learner import LearnerData
 
-import scipy.io as sio
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import KernelPCA
+
+from .config import CovidXrayConfig
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't
 # tracked yet
@@ -29,17 +29,17 @@ LABEL_FL = "labels.pickle"
 
 def data_loader_420(data_dir):
     # Load data
-    covid_features=sio.loadmat(os.path.join(data_dir,'covid.mat')) 
-    covid_features=covid_features['covid']
+    covid_features = sio.loadmat(os.path.join(data_dir, 'covid.mat'))
+    covid_features = covid_features['covid']
 
-    normal_features=sio.loadmat(os.path.join(data_dir,'normal.mat')) 
-    normal_features=normal_features['normal']
+    normal_features = sio.loadmat(os.path.join(data_dir, 'normal.mat'))
+    normal_features = normal_features['normal']
 
-    pneumonia_features=sio.loadmat(os.path.join(data_dir,'pneumonia.mat')) 
-    pneumonia_features=pneumonia_features['pneumonia']
+    pneumonia_features = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))
+    pneumonia_features = pneumonia_features['pneumonia']
 
-    X=np.concatenate((covid_features[:,:-1],normal_features[:,:-1],pneumonia_features[:,:-1]), axis=0)#inputs
-    y=np.concatenate((covid_features[:,-1],normal_features[:,-1],pneumonia_features[:,-1]), axis=0)#target labels
+    X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0)
+    y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0)
 
     return X, y
 
@@ -53,6 +53,7 @@ def data_loader_cohen(data_dir):
     for i in tqdm(range(len(d_covid19))):
         X.append(d_covid19[i]['img'])
         y.append(d_covid19[i]["lab"][3])
+    return X, y
 
 
 def split_to_folders(data_dir,
@@ -61,23 +62,23 @@ def split_to_folders(data_dir,
                      n_learners,
                      output_folder=Path(tempfile.gettempdir()) / "covid_xray",
                      dataset="420"):
-    
-    if  dataset == "420":
+
+    if dataset == "420":
         X, y = data_loader_420(data_dir)
     elif dataset == "cohen":
         X, y = data_loader_cohen(data_dir)
     else:
         print("!!!!!!! DATASET ", dataset, " not supported!")
-        return
+        raise Exception("Dataset not supported")
 
-    min_max_scaler=MinMaxScaler()
+    min_max_scaler = MinMaxScaler()
     X = min_max_scaler.fit_transform(X)
-    
+
     transformer = KernelPCA(n_components=64, kernel='linear')
     X = transformer.fit_transform(X)
     print("SHAPE X: ", X.shape)
     print("SHAPE Y: ", y.shape)
-    
+
     [X, y] = shuffle_data(
         [X, y], seed=shuffle_seed
     )
@@ -105,7 +106,7 @@ def split_to_folders(data_dir,
     return [str(x) for x in dir_names]
 
 
-def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=Path("")):
+def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=Path("")):
     data = LearnerData()
     data.train_batch_size = config.batch_size
 
@@ -120,9 +121,6 @@ def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=Path(""))
     else:
         [[train_images, test_images], [train_labels, test_labels]] = \
             split_by_chunksizes([images, labels], [config.train_ratio, config.test_ratio])
-
-    #[[train_images, val_images], [train_labels, val_labels]] = \
-    #    split_by_chunksizes([train_images, train_labels], [config.train_ratio, config.valid_ratio])
 
     data.train_data_size = len(train_images)
 
