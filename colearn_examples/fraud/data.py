@@ -3,11 +3,10 @@ import pickle
 import tempfile
 from pathlib import Path
 
-from colearn.basic_learner import LearnerData
-
 import numpy as np
-
 import pandas as pd
+
+from colearn.basic_learner import LearnerData
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale

@@ -3,9 +3,9 @@ import pickle
 import tempfile
 from pathlib import Path
 
-import imgaug.augmenters as iaa
-
 import numpy as np
+
+import imgaug.augmenters as iaa
 
 import tensorflow.keras.datasets.mnist as mnist
 
