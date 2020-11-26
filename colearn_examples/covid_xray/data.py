@@ -41,7 +41,7 @@ def split_to_folders(data_dir,
 
     if test_ratio > 0:
         print("Global test splitting: ", test_ratio)
-        test_size = int(covid_features.shape[0]*test_ratio)
+        test_size = int(covid_features.shape[0] * test_ratio)
 
         np.random.shuffle(covid_features)
         covid_test = covid_features[:test_size]
