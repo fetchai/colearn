@@ -58,6 +58,8 @@ class ModelConfig:
         self.evaluation_config = {}
         self.transform_metrics_for_grafana = None
 
+        self.metrics = ["metrics"]
+
         # Data params
         self.steps_per_epoch = None
 

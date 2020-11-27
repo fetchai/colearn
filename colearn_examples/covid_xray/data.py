@@ -39,6 +39,12 @@ def split_to_folders(data_dir,
     covid_features = sio.loadmat(os.path.join(data_dir, 'covid.mat'))
     covid_features = covid_features['covid']
 
+    normal_features = sio.loadmat(os.path.join(data_dir, 'normal.mat'))
+    normal_features = normal_features['normal']
+
+    pneumonia_features = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))
+    pneumonia_features = pneumonia_features['pneumonia']
+
     if test_ratio > 0:
         print("Global test splitting: ", test_ratio)
         test_size = int(covid_features.shape[0] * test_ratio)
@@ -47,15 +53,9 @@ def split_to_folders(data_dir,
         covid_test = covid_features[:test_size]
         covid_features = covid_features[test_size:]
 
-        normal_features = sio.loadmat(os.path.join(data_dir, 'normal.mat'))
-        normal_features = normal_features['normal']
-
         np.random.shuffle(normal_features)
         normal_test = normal_features[:test_size]
         normal_features = normal_features[test_size:]
-
-        pneumonia_features = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))
-        pneumonia_features = pneumonia_features['pneumonia']
 
         np.random.shuffle(pneumonia_features)
         pneumonia_test = pneumonia_features[:test_size]

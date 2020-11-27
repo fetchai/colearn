@@ -34,7 +34,7 @@ class KerasLearner(BasicLearner, ABC):
             )
             loss = self.config.loss
 
-        self._model.compile(loss=loss, metrics=["accuracy"], optimizer=opt)
+        self._model.compile(loss=loss, metrics=config.metrics, optimizer=opt)
 
     def _train_model(self):
         self._stop_training = False
@@ -88,13 +88,13 @@ class KerasLearner(BasicLearner, ABC):
             labels = [self.config.class_labels[int(j)] for j in labels]
             pred = [self.config.class_labels[int(j)] for j in pred]
 
-            all_labels.append(labels)
-            all_preds.append(pred)
-        y_true = np.concatenate(all_labels, axis=0)
-        y_pred = np.concatenate(all_preds, axis=0)
+            all_labels.extend(labels)
+            all_preds.extend(pred)
+        #y_true = np.concatenate(all_labels, axis=0)
+        #y_pred = np.concatenate(all_preds, axis=0)
         res = {}
         for key, fn in eval_config.items():
-            res[key] = fn(y_true, y_pred)
+            res[key] = fn(all_labels, all_preds)
         return res
 
     def _test_model(self, weights: Weights = None, validate=False):
