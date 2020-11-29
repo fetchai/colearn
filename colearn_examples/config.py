@@ -29,6 +29,8 @@ class ColearnConfig:
         self.vote_threshold = 0.5  # 0.66666
         self.mode = TrainingMode.COLLABORATIVE
 
+        self.metrics = ["accuracy"]
+
         self.data = task if isinstance(task, TrainingData) else TrainingData[str(task)]
 
         # None means random seed
