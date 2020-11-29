@@ -14,7 +14,7 @@ class CovidXrayConfig(ModelConfig):
         self.optimizer = tf.keras.optimizers.Adam
         self.l_rate = 0.001
         self.l_rate_decay = 1e-5
-        self.batch_size = 16
+        self.batch_size = 4
 
         self.dataset = "420"  # or cohen
 
@@ -30,15 +30,15 @@ class CovidXrayConfig(ModelConfig):
 
         # Data params
         self.steps_per_epoch = None
-        self.test_ratio = 0.2
+        self.test_ratio = 0.25
         self.use_dp = False
 
         self.val_batches = 2  # number of batches used for voting
 
         self.evaluation_config = {
-            "auc_covid": auc_score(1),
-            "auc_normal": auc_score(0),
-            "auc_pneumonia": auc_score(2),
+            #"auc_covid": auc_score(1),
+            #"auc_normal": auc_score(0),
+            #"auc_pneumonia": auc_score(2),
             "full_classification_report": full_classification_report(["normal", "covid", "pneumonia"], [0, 1, 2]),
             "confusion_matrix": get_confusion_matrix([0, 1, 2])
         }

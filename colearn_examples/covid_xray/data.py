@@ -31,7 +31,7 @@ def split_to_folders(data_dir,
                      n_learners,
                      output_folder=Path(tempfile.gettempdir()) / "covid_xray",
                      test_output_folder=Path(tempfile.gettempdir()) / "covid_xray_test",
-                     test_ratio=0.2):
+                     test_ratio=0):
 
     np.random.seed(shuffle_seed)
 
@@ -63,6 +63,9 @@ def split_to_folders(data_dir,
 
         X_test = np.concatenate((covid_test[:, :-1], normal_test[:, :-1], pneumonia_test[:, :-1]), axis=0)
         y_test = np.concatenate((covid_test[:, -1], normal_test[:, -1], pneumonia_test[:, -1]), axis=0)
+        [X_test, y_test] = shuffle_data(
+            [X_test, y_test], seed=shuffle_seed
+        )
 
     X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0)
     y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0)
@@ -75,6 +78,7 @@ def split_to_folders(data_dir,
     print("SHAPE X: ", X.shape)
     print("SHAPE Y: ", y.shape)
     if test_ratio > 0:
+        X_test = min_max_scaler.transform(X_test)
         X_test = transformer.transform(X_test)
         print("SHAPE X_test: ", X_test.shape)
 
@@ -126,6 +130,7 @@ def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=None)
     labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
 
     if test_data_dir is not None and test_data_dir != Path(""):
+        print("Covid prepare_single_client: using global test set: ", str(test_data_dir))
         test_images = pickle.load(open(Path(test_data_dir) / IMAGE_FL, "rb"))
         test_labels = pickle.load(open(Path(test_data_dir) / LABEL_FL, "rb"))
         train_images = images
@@ -136,13 +141,21 @@ def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=None)
 
     data.train_data_size = len(train_images)
 
+    print("PREPARE TRAIN: ")
+    print("         0 count ", np.count_nonzero(train_labels==0))
+    print("         1 count ", np.count_nonzero(train_labels==1))
+    print("         2 count ", np.count_nonzero(train_labels==2))
     data.train_gen = train_generator(
         train_images, train_labels, config.batch_size,
         config.feature_size,
         config.generator_seed,
     )
+    print("PREPARE TEST: ")
+    print("         0 count ", np.count_nonzero(test_labels==0))
+    print("         1 count ", np.count_nonzero(test_labels==1))
+    print("         2 count ", np.count_nonzero(test_labels==2))
     data.val_gen = train_generator(
-        train_images, train_labels, config.batch_size,
+        train_images, train_labels, 20*config.batch_size,
         config.feature_size,
         config.generator_seed,
     )
