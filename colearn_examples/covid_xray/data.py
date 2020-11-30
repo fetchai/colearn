@@ -155,7 +155,7 @@ def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=None)
     print("         1 count ", np.count_nonzero(test_labels==1))
     print("         2 count ", np.count_nonzero(test_labels==2))
     data.val_gen = train_generator(
-        train_images, train_labels, 20*config.batch_size,
+        train_images, train_labels, config.val_batch_size,
         config.feature_size,
         config.generator_seed,
     )

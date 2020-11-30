@@ -33,7 +33,8 @@ class CovidXrayConfig(ModelConfig):
         self.test_ratio = 0.25
         self.use_dp = False
 
-        self.val_batches = 2  # number of batches used for voting
+        self.val_batches = 10  # number of batches used for voting
+        self.val_batch_size = 8
 
         self.evaluation_config = {
             #"auc_covid": auc_score(1),
