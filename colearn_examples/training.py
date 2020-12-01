@@ -61,13 +61,13 @@ def collaborative_training_pass(learners: List[BasicLearner], vote_threshold,
     return result
 
 
-def individual_training_pass(learners):
+def individual_training_pass(learners, epoch):
     print("Doing individual training pass")
     result = Result()
 
     # train all models
     for i, learner in enumerate(learners):
-        print("Training learner #", i)
+        print(f"Training learner #{i} epoch {epoch}")
         weights = learner.train_model()
         proposed_weights = learner.test_model(weights)
         learner.accept_weights(weights)
@@ -109,7 +109,7 @@ def main(colearn_config: ColearnConfig, data_dir):
         raise Exception("Unknown task: %s" % colearn_config.data)
 
     # load, shuffle, clean, and split the data into n_learners
-    data_split = [1 / colearn_config.n_learners for x in range(colearn_config.n_learners)]
+    data_split = [1 / colearn_config.n_learners for _ in range(colearn_config.n_learners)]
     client_data_folders_list = split_to_folders(
         data_dir, colearn_config.shuffle_seed, data_split, colearn_config.n_learners, **kwargs
     )
@@ -133,7 +133,7 @@ def main(colearn_config: ColearnConfig, data_dir):
                                             colearn_config.vote_threshold, i)
             )
         elif colearn_config.mode == TrainingMode.INDIVIDUAL:
-            results.data.append(individual_training_pass(all_learner_models))
+            results.data.append(individual_training_pass(all_learner_models, i))
         else:
             raise Exception("Unknown training mode")
 
@@ -146,9 +146,11 @@ def main(colearn_config: ColearnConfig, data_dir):
                 plot_votes(results, block=False)
 
     if colearn_config.plot_results:
-        plot_results(results, colearn_config, block=False)
         if colearn_config.mode == TrainingMode.COLLABORATIVE:
+            plot_results(results, colearn_config, block=False)
             plot_votes(results, block=True)
+        else:
+            plot_results(results, colearn_config, block=True)
 
 if __name__ == "__main__":
     config = ColearnConfig(task=TrainingData.COVID, n_learners=5, n_epochs=30)

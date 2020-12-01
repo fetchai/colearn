@@ -2,7 +2,7 @@
 import argparse
 import os
 
-from colearn_examples.config import TrainingData, ColearnConfig
+from colearn_examples.config import TrainingData, ColearnConfig, TrainingMode
 from colearn_examples.training import main
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
@@ -13,6 +13,10 @@ parser.add_argument("-t", "--task", default="XRAY",
 parser.add_argument("-n", "--n_learners", default=5, type=int)
 parser.add_argument("-e", "--epochs", default=15, type=int)
 parser.add_argument("-s", "--seed", type=int, default=None)
+parser.add_argument("-m", "--mode", default="COLLABORATIVE",
+                    help="Options are " + " ".join(str(x.name)
+                                                   for x in TrainingMode)
+                    )
 args = parser.parse_args()
 
 # check data dir
@@ -34,4 +38,6 @@ except KeyError:
 config = ColearnConfig(task=task,
                        n_learners=args.n_learners,
                        n_epochs=args.epochs, seed=args.seed)
+
+config.mode = TrainingMode[args.mode]
 main(config, args.data_dir)

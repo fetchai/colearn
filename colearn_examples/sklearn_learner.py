@@ -14,6 +14,7 @@ from colearn.basic_learner import BasicLearner, LearnerData, Weights
 class SKLearnLearner(BasicLearner, ABC):
     def __init__(self, config: ModelConfig, data: LearnerData):
         BasicLearner.__init__(self, config=config, data=data)
+        assert self.config.n_classes == len(self.config.class_labels)
 
     def _train_model(self):
         steps_per_epoch = (

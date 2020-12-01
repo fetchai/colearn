@@ -34,7 +34,9 @@ class KerasLearner(BasicLearner, ABC):
             )
             loss = self.config.loss
 
-        self._model.compile(loss=loss, metrics=config.metrics, optimizer=opt)
+        self._model.compile(loss=loss, metrics=self.config.metrics, optimizer=opt)
+
+        assert self.config.n_classes == len(self.config.class_labels)
 
     def _train_model(self):
         self._stop_training = False
@@ -157,8 +159,9 @@ class KerasLearner(BasicLearner, ABC):
                 )
 
                 # Calculate balanced accuracy
+                accuracy_for_absent_classes = 1.0/self.config.n_classes
                 per_class = np.nan_to_num(
-                    np.diag(conf_matrix) / conf_matrix.sum(axis=1), nan=1.0
+                    np.diag(conf_matrix) / conf_matrix.sum(axis=1), nan=accuracy_for_absent_classes
                 )
                 accuracy = np.mean(per_class)
 
