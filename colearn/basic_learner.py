@@ -109,8 +109,14 @@ class BasicLearner(MachineLearningInterface):
     def get_weights(self) -> Weights:
         raise NotImplementedError
 
-    def test_model(self, weights: Weights = None) -> ProposedWeights:
-        """Tests the proposed weights and fills in the rest of the fields"""
+    def test_model(self, weights: Weights = None, eval_config: dict = None) -> ProposedWeights:
+        """
+            Tests the proposed weights and fills in the rest of the fields
+            Also evaluates the model using the metrics specified in eval_config.
+                eval_config = {
+                    "name": lambda y_true, y_pred
+                }
+        """
         if weights is None:
             weights = self.get_weights()
 
@@ -119,30 +125,25 @@ class BasicLearner(MachineLearningInterface):
         try:
             proposed_weights.vote_accuracy = self.vote_score_cache.get(weights)
         except KeyError:
-            proposed_weights.vote_accuracy = self._test_model(weights, validate=True)
+            proposed_weights.vote_accuracy, _ = self._test_model(weights, validate=True)
 
             # store this in the cache
             self.vote_score_cache.add(weights,
                                       proposed_weights.vote_accuracy)
 
-        proposed_weights.test_accuracy = self._test_model(weights,
-                                                          validate=False)
+        acc, eval_result = self._test_model(weights,
+                                            validate=False,
+                                            eval_config=eval_config)
+        proposed_weights.test_accuracy = acc
+        proposed_weights.evaluation_results = eval_result
+
         proposed_weights.vote = (
             proposed_weights.vote_accuracy >= self.vote_accuracy
         )
 
         return proposed_weights
 
-    def evaluate_model(self, eval_config: dict) -> dict:
-        """
-            Evaluate the model on testset, using the metrics specified in eval_config.
-            eval_config = {
-                "name": lambda y_true, y_pred
-            }
-        """
-        return self._evaluate_model(eval_config)
-
-    def _test_model(self, weights: Weights = None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: dict = None):
         raise NotImplementedError
 
     def _evaluate_model(self, eval_config: dict) -> dict:

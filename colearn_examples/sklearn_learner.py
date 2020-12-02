@@ -48,7 +48,7 @@ class SKLearnLearner(BasicLearner, ABC):
     def stop_training(self):
         raise NotImplementedError
 
-    def _test_model(self, weights: Weights = None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: dict = None):
         try:
             check_is_fitted(self._model)
         except (ValueError, TypeError, AttributeError):

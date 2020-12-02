@@ -62,7 +62,7 @@ class PytorchLearner(BasicLearner, ABC):
         w = Weights([x.clone() for x in self._model.parameters()])
         return w
 
-    def _test_model(self, weights: Weights = None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False, eval_conf: dict = None):
         temp_weights = None
         if weights is not None:
             # store current weights in temporary variables

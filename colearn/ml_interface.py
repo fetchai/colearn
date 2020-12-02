@@ -9,13 +9,14 @@ class Weights:
 
 
 class ProposedWeights:
-    __slots__ = ('weights', 'vote_accuracy', 'test_accuracy', 'vote')
+    __slots__ = ('weights', 'vote_accuracy', 'test_accuracy', 'vote', 'evaluation_results')
 
     def __init__(self):
         self.weights = None
         self.vote_accuracy = 0
         self.test_accuracy = 0
         self.vote = False
+        self.evaluation_results = {}
 
 
 class MachineLearningInterface(abc.ABC):
@@ -48,9 +49,13 @@ class MachineLearningInterface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def test_model(self, weights: Weights = None) -> ProposedWeights:
+    def test_model(self, weights: Weights = None, eval_config: dict = None) -> ProposedWeights:
         """
         Tests the proposed weights and fills in the rest of the fields
+        Also evaluate the model using the metrics specified in eval_config:
+            eval_config = {
+                    "name": lambda y_true, y_pred
+                }
         """
 
     @abc.abstractmethod
@@ -58,15 +63,5 @@ class MachineLearningInterface(abc.ABC):
         """
         Updates the model with the proposed set of weights
         :param weights: The new weights
-        """
-        pass
-
-    @abc.abstractmethod
-    def evaluate_model(self, eval_config: dict) -> dict:
-        """
-            Evaluate the model on testset, using the metrics specified in eval_config.
-            eval_config = {
-                "name": lambda y_true, y_pred
-            }
         """
         pass

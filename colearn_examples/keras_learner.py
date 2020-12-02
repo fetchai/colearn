@@ -71,31 +71,7 @@ class KerasLearner(BasicLearner, ABC):
             grad_list.append(nw - ow)
         return grad_list
 
-    def _evaluate_model(self, eval_config: dict) -> dict:
-        """
-            eval_config = {
-                "f-score": lambda y_true, y_pred
-            }
-        """
-        generator = self.data.test_gen
-        n_steps = max(1, int(self.data.test_data_size // self.data.test_batch_size))
-        all_labels = []  # type: ignore
-        all_preds = []  # type: ignore
-        for _ in range(n_steps):
-            data, labels = generator.__next__()
-            pred = self._model.predict(data)
-            pred = np.argmax(pred, axis=1)
-            labels = [self.config.class_labels[int(j)] for j in labels]
-            pred = [self.config.class_labels[int(j)] for j in pred]
-
-            all_labels.extend(labels)
-            all_preds.extend(pred)
-        res = {}
-        for key, fn in eval_config.items():
-            res[key] = fn(all_labels, all_preds)
-        return res
-
-    def _test_model(self, weights: Weights = None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: dict = None):
         temp_weights = []
         if weights and weights.weights:
             # store current weights in temporary variables
@@ -113,6 +89,8 @@ class KerasLearner(BasicLearner, ABC):
             generator = self.data.test_gen
             n_steps = max(1, int(self.data.test_data_size // self.data.test_batch_size))
             progress_bar = trange(n_steps, desc='Testing: ', leave=True)
+
+        eval_result = {}
 
         all_labels = []  # type: ignore
         all_preds = []  # type: ignore
@@ -164,6 +142,12 @@ class KerasLearner(BasicLearner, ABC):
                 print("Confusion martrix:\n", conf_matrix)
                 print("Classification report:\n", class_report)
 
+                if eval_config:
+                    for key, fn in eval_config.items():
+                        eval_result[key] = fn(all_labels, all_preds)
+                eval_result["conf_matrix"] = conf_matrix
+                eval_result["class_report"] = class_report
+
             # One class binary = AUC score
             else:
                 try:
@@ -190,7 +174,7 @@ class KerasLearner(BasicLearner, ABC):
             # Restore original weights
             self._model.set_weights(temp_weights)
 
-        return accuracy
+        return accuracy, eval_result
 
     def print_summary(self):
         self._model.summary()
