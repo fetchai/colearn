@@ -90,8 +90,6 @@ class KerasLearner(BasicLearner, ABC):
 
             all_labels.extend(labels)
             all_preds.extend(pred)
-        #y_true = np.concatenate(all_labels, axis=0)
-        #y_pred = np.concatenate(all_preds, axis=0)
         res = {}
         for key, fn in eval_config.items():
             res[key] = fn(all_labels, all_preds)

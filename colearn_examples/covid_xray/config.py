@@ -3,7 +3,7 @@ import tensorflow as tf
 from colearn_examples.config import ModelConfig
 
 from .models import CovidXrayLearner
-from .evaluation import auc_score, full_classification_report, transform_to_grafana, get_confusion_matrix
+from .evaluation import full_classification_report, transform_to_grafana, get_confusion_matrix
 
 
 class CovidXrayConfig(ModelConfig):
@@ -37,9 +37,6 @@ class CovidXrayConfig(ModelConfig):
         self.val_batch_size = 8
 
         self.evaluation_config = {
-            #"auc_covid": auc_score(1),
-            #"auc_normal": auc_score(0),
-            #"auc_pneumonia": auc_score(2),
             "full_classification_report": full_classification_report(["normal", "covid", "pneumonia"], [0, 1, 2]),
             "confusion_matrix": get_confusion_matrix([0, 1, 2])
         }
