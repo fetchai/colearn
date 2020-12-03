@@ -1,24 +1,17 @@
-from .context import ColearnConfig
-from colearn.basic_learner import BasicLearner
-from ml_interface import MachineLearningInterface
-from pathlib import Path
-from examples.mnist.models import MNISTSuperminiLearner
+from .context import ColearnConfig, TrainingData
 from .utils import learner_provider, data_provider
-from examples.keras_learner import KerasLearner
-from training import *
-from examples.utils.results import Result, Results
+from colearn_examples.training import collaborative_training_pass, individual_training_pass
+from colearn_examples.utils.results import Result
 from .pickle_tester import FileTester
-import copy
-import pickle
 import pytest
 
 
 @pytest.mark.dependency
-def test_individual_training_pass(learner_provider, tmpdir):
-    config = ColearnConfig(Path(tmpdir), "MNIST", seed=55, n_learners=2)
+def test_individual_training_pass(learner_provider):
+    config = ColearnConfig(TrainingData.MNIST, seed=55, n_learners=2)
     config._test_id = "split55"
 
-    all_learner_models = learner_provider(config)
+    all_learner_models = learner_provider(config, "", [0.5, 0.5])
     result = Result()
     status = False
     msg = ""
@@ -30,7 +23,7 @@ def test_individual_training_pass(learner_provider, tmpdir):
     assert status, msg
     weights = []
     for l in all_learner_models:
-        weights.append(l.get_weights().data)
+        weights.append(l.get_weights().weights)
     res = {
         "weights": weights,
         "vote_accuracies": result.vote_accuracies,
@@ -42,11 +35,11 @@ def test_individual_training_pass(learner_provider, tmpdir):
 
 
 @pytest.mark.dependency(depends=['test_individual_training_pass'])
-def test_collaborative_training_pass(learner_provider, tmpdir):
-    config = ColearnConfig(Path(tmpdir), "MNIST", seed=55, n_learners=2)
+def test_collaborative_training_pass(learner_provider):
+    config = ColearnConfig(TrainingData.MNIST, seed=55, n_learners=2)
     config._test_id = "split55"
     config.vote_threshold = 0.3
-    learners = learner_provider(config)
+    learners = learner_provider(config, "", [0.5, 0.5])
     result = collaborative_training_pass(learners, 0.3, 1)
     res = {
         "vote_accuracies": result.vote_accuracies,
