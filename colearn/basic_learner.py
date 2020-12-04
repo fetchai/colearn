@@ -147,9 +147,6 @@ class BasicLearner(MachineLearningInterface):
     def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         raise NotImplementedError
 
-    def _evaluate_model(self, eval_config: dict) -> dict:
-        raise NotImplementedError
-
     def _train_model(self):
         raise NotImplementedError
 
