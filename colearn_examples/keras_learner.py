@@ -1,5 +1,5 @@
 from abc import ABC
-
+from typing import Optional
 import numpy as np
 
 from tqdm import trange
@@ -71,7 +71,7 @@ class KerasLearner(BasicLearner, ABC):
             grad_list.append(nw - ow)
         return grad_list
 
-    def _test_model(self, weights: Weights = None, validate=False, eval_config: dict = None):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         temp_weights = []
         if weights and weights.weights:
             # store current weights in temporary variables

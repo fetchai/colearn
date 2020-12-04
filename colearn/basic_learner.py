@@ -1,5 +1,6 @@
 import hashlib
 import pickle
+from typing import Optional
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface, \
     Weights
@@ -62,7 +63,7 @@ class BasicLearner(MachineLearningInterface):
 
         self.vote_score_cache = RingBuffer(10)
 
-        self.vote_accuracy = self._test_model(validate=True)
+        self.vote_accuracy, _ = self._test_model(validate=True)
 
         # store this in the cache
         self.vote_score_cache.add(self.get_weights(),
@@ -86,8 +87,8 @@ class BasicLearner(MachineLearningInterface):
             self.vote_accuracy = self.vote_score_cache.get(weights)
         except KeyError:
             print("Warning: weights not in cache")
-            self.vote_accuracy = self._test_model(weights,
-                                                  validate=True)
+            self.vote_accuracy, _ = self._test_model(weights,
+                                                     validate=True)
 
             # store this in the cache
             self.vote_score_cache.add(weights,
@@ -143,7 +144,7 @@ class BasicLearner(MachineLearningInterface):
 
         return proposed_weights
 
-    def _test_model(self, weights: Weights = None, validate=False, eval_config: dict = None):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         raise NotImplementedError
 
     def _evaluate_model(self, eval_config: dict) -> dict:

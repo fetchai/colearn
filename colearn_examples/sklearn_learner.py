@@ -1,6 +1,6 @@
 import copy
 from abc import ABC
-from typing import List
+from typing import List, Optional
 import numpy as np
 from tqdm import tqdm
 
@@ -48,11 +48,14 @@ class SKLearnLearner(BasicLearner, ABC):
     def stop_training(self):
         raise NotImplementedError
 
-    def _test_model(self, weights: Weights = None, validate=False, eval_config: dict = None):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         try:
             check_is_fitted(self._model)
         except (ValueError, TypeError, AttributeError):
-            return 0
+            return 0, None
+
+        if eval_config is not None:
+            print("SKLEARN WARNING: eval config not supported")
 
         temp_weights = None
         if weights and weights.weights:
@@ -87,7 +90,7 @@ class SKLearnLearner(BasicLearner, ABC):
 
         print("AUC score: ", accuracy)
 
-        return accuracy
+        return accuracy, None
 
     def print_summary(self):
         print(self._model)

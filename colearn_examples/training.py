@@ -55,8 +55,8 @@ def collaborative_training_pass(learners: List[BasicLearner], vote_threshold,
 
     idx = 0
     for l in learners:
-        if len(l.config.evaluation_config) > 0:
-            print("Eval config for node ", idx, ": ", l.evaluate_model(l.config.evaluation_config))
+        if l.config.evaluation_config and len(l.config.evaluation_config) > 0:
+            print("Eval config for node ", idx, ": ", l.test_model(None, l.config.evaluation_config))
         idx += 1
 
     return result
