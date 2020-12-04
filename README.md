@@ -26,7 +26,7 @@ tox
 ```
 
 ## Quick Overview
-The collective learning protocol allows learnrs to collaborate on training a model without requiring trust between the participants. Learners vote on updates to the model, and only updates which pass the quality threshold are accepted. This makes the system robust to attempts to interfere with the model by providing bad updates. For more details on the collective learning system see [here](docs/about.md)
+The collective learning protocol allows learners to collaborate on training a model without requiring trust between the participants. Learners vote on updates to the model, and only updates which pass the quality threshold are accepted. This makes the system robust to attempts to interfere with the model by providing bad updates. For more details on the collective learning system see [here](docs/about.md)
 
 ## Running the demo
 ```bash
