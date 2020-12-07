@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 
 from numpy import arange, array, max, mean
 
-from colearn_examples.config import TrainingMode, ColearnConfig, ModelConfig
+from colearn_examples.config import TrainingMode, ModelConfig
 from colearn_examples.utils.results import Results
 
 
-def process_statistics(results: Results, colearn_config: ColearnConfig):
+def process_statistics(results: Results, n_learners: int):
     results.h_test_accuracies = []
     results.h_vote_accuracies = []
 
@@ -32,7 +32,7 @@ def process_statistics(results: Results, colearn_config: ColearnConfig):
         results.max_vote_accuracies.append(max(array(results.data[r].vote_accuracies)))
 
     # gather individual scores
-    for i in range(colearn_config.n_learners):
+    for i in range(n_learners):
         results.h_test_accuracies.append([])
         results.h_vote_accuracies.append([])
 
@@ -57,16 +57,18 @@ def process_statistics(results: Results, colearn_config: ColearnConfig):
 
 
 def display_statistics(
-    results: Results,
-    colearn_config: ColearnConfig,
-    model_config: ModelConfig,
-    current_epoch,
-    filename=Path(tempfile.gettempdir()) / "stats_mnist.tsv",
+        results: Results,
+        n_learners: int,
+        mode: TrainingMode,
+        vote_threshold: float,
+        model_config: ModelConfig,
+        current_epoch,
+        filename=Path(tempfile.gettempdir()) / "stats_mnist.tsv",
 ):
     print("Statistics")
 
     # Prepare data for statistics
-    process_statistics(results, colearn_config)
+    process_statistics(results, n_learners)
 
     header_str = (
         "MODEL_TYPE\tHOSPITALS\tEPOCHS\tL_RATE\tCOLLAB\tVOTE_THRESHOLD"
@@ -81,11 +83,11 @@ def display_statistics(
 
     data_str = "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t" "%s\n" % (
         model_config.model_type,
-        colearn_config.n_learners,
+        n_learners,
         current_epoch,
         model_config.l_rate,
-        colearn_config.mode,
-        colearn_config.vote_threshold,
+        mode,
+        vote_threshold,
         model_config.train_ratio,
         model_config.val_batches,
         model_config.test_ratio,
@@ -120,9 +122,12 @@ def display_statistics(
     f.close()
 
 
-def plot_results(results, colearn_config: ColearnConfig, block=False):
+def plot_results(results,
+                 n_learners: int,
+                 mode: TrainingMode,
+                 block=False):
     # Prepare data for plotting
-    process_statistics(results, colearn_config)
+    process_statistics(results, n_learners)
 
     plt.ion()
     plt.show(block=False)
@@ -138,7 +143,7 @@ def plot_results(results, colearn_config: ColearnConfig, block=False):
 
     epochs = range(len(results.mean_test_accuracies))
 
-    for i in range(colearn_config.n_learners):
+    for i in range(n_learners):
         (line_test_acc,) = axes.plot(
             epochs,
             results.h_test_accuracies[i],
@@ -154,7 +159,7 @@ def plot_results(results, colearn_config: ColearnConfig, block=False):
             label="vote accuracy",
         )
 
-    if colearn_config.mode == TrainingMode.COLLABORATIVE:
+    if mode == TrainingMode.COLLABORATIVE:
         (line_mean_test_acc,) = axes.plot(
             epochs,
             results.mean_test_accuracies,
