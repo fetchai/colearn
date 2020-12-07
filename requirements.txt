@@ -11,5 +11,5 @@ setuptools~=50.3.2
 torch~=1.6.0
 opencv-python~=4.4.0.44
 torchsummary~=1.5.1
-opacus~=0.9.1
+opacus
 torchxrayvision
