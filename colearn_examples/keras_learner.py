@@ -1,5 +1,5 @@
 from abc import ABC
-
+from typing import Optional
 import numpy as np
 
 from tqdm import trange
@@ -34,7 +34,7 @@ class KerasLearner(BasicLearner, ABC):
             )
             loss = self.config.loss
 
-        self._model.compile(loss=loss, metrics=["accuracy"], optimizer=opt)
+        self._model.compile(loss=loss, metrics=config.metrics, optimizer=opt)
 
     def _train_model(self):
         self._stop_training = False
@@ -71,7 +71,7 @@ class KerasLearner(BasicLearner, ABC):
             grad_list.append(nw - ow)
         return grad_list
 
-    def _test_model(self, weights: Weights = None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         temp_weights = []
         if weights and weights.weights:
             # store current weights in temporary variables
@@ -89,6 +89,8 @@ class KerasLearner(BasicLearner, ABC):
             generator = self.data.test_gen
             n_steps = max(1, int(self.data.test_data_size // self.data.test_batch_size))
             progress_bar = trange(n_steps, desc='Testing: ', leave=True)
+
+        eval_result = {}
 
         all_labels = []  # type: ignore
         all_preds = []  # type: ignore
@@ -140,6 +142,12 @@ class KerasLearner(BasicLearner, ABC):
                 print("Confusion martrix:\n", conf_matrix)
                 print("Classification report:\n", class_report)
 
+                if eval_config:
+                    for key, fn in eval_config.items():
+                        eval_result[key] = fn(all_labels, all_preds)
+                eval_result["conf_matrix"] = conf_matrix
+                eval_result["class_report"] = class_report
+
             # One class binary = AUC score
             else:
                 try:
@@ -166,7 +174,7 @@ class KerasLearner(BasicLearner, ABC):
             # Restore original weights
             self._model.set_weights(temp_weights)
 
-        return accuracy
+        return accuracy, eval_result
 
     def print_summary(self):
         self._model.summary()

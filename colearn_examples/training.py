@@ -10,12 +10,12 @@ from colearn.standalone_driver import run_one_epoch
 
 
 def setup_models(config: ModelConfig, client_data_folders_list: List[str],
-                 data_loading_func: Callable[[ModelConfig, str], LearnerData]):
+                 data_loading_func: Callable[[ModelConfig, str], LearnerData], test_data_dir=None):
     learner_datasets = []
     n_learners = len(client_data_folders_list)
     for i in range(n_learners):
         learner_datasets.append(
-            data_loading_func(config, client_data_folders_list[i])
+            data_loading_func(config, client_data_folders_list[i], test_data_dir=test_data_dir)
         )
 
     all_learner_models = []
@@ -53,6 +53,12 @@ def collaborative_training_pass(learners: List[BasicLearner], vote_threshold,
     result.test_accuracies = [pw.test_accuracy for pw in proposed_weights_list]
     result.block_proposer = epoch % len(learners)
 
+    idx = 0
+    for l in learners:
+        if l.config.evaluation_config and len(l.config.evaluation_config) > 0:
+            print("Eval config for node ", idx, ": ", l.test_model(None, l.config.evaluation_config))
+        idx += 1
+
     return result
 
 
@@ -76,6 +82,7 @@ def individual_training_pass(learners):
 
 def main(colearn_config: ColearnConfig, data_dir):
     results = Results()
+    kwargs = {}
 
     # pylint: disable=C0415
     if colearn_config.data == TrainingData.XRAY:
@@ -94,18 +101,27 @@ def main(colearn_config: ColearnConfig, data_dir):
         from colearn_examples.cifar10 import split_to_folders, display_statistics, \
             plot_results, plot_votes, prepare_single_client, CIFAR10Config
         model_config = CIFAR10Config(colearn_config.shuffle_seed)
+    elif colearn_config.data == TrainingData.COVID:
+        from colearn_examples.covid_xray import split_to_folders, display_statistics, \
+            plot_results, plot_votes, prepare_single_client, CovidXrayConfig
+        model_config = CovidXrayConfig(colearn_config.shuffle_seed)
+        kwargs["test_ratio"] = 0.2
     else:
         raise Exception("Unknown task: %s" % colearn_config.data)
 
     # load, shuffle, clean, and split the data into n_learners
     data_split = [1 / colearn_config.n_learners for x in range(colearn_config.n_learners)]
     client_data_folders_list = split_to_folders(
-        data_dir, colearn_config.shuffle_seed, data_split, colearn_config.n_learners
+        data_dir, colearn_config.shuffle_seed, data_split, colearn_config.n_learners, **kwargs
     )
+    test_data_dir = None
+    if colearn_config.data == TrainingData.COVID:
+        test_data_dir = client_data_folders_list[-1]
+        del client_data_folders_list[-1]
 
     # setup n_learners duplicate models before training
     all_learner_models = setup_models(
-        model_config, client_data_folders_list, prepare_single_client
+        model_config, client_data_folders_list, prepare_single_client, test_data_dir
     )  # type: List[BasicLearner]
 
     # Get initial accuracy

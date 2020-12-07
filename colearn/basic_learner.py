@@ -1,5 +1,6 @@
 import hashlib
 import pickle
+from typing import Optional
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface, \
     Weights
@@ -62,7 +63,7 @@ class BasicLearner(MachineLearningInterface):
 
         self.vote_score_cache = RingBuffer(10)
 
-        self.vote_accuracy = self._test_model(validate=True)
+        self.vote_accuracy, _ = self._test_model(validate=True)
 
         # store this in the cache
         self.vote_score_cache.add(self.get_weights(),
@@ -86,8 +87,8 @@ class BasicLearner(MachineLearningInterface):
             self.vote_accuracy = self.vote_score_cache.get(weights)
         except KeyError:
             print("Warning: weights not in cache")
-            self.vote_accuracy = self._test_model(weights,
-                                                  validate=True)
+            self.vote_accuracy, _ = self._test_model(weights,
+                                                     validate=True)
 
             # store this in the cache
             self.vote_score_cache.add(weights,
@@ -109,8 +110,14 @@ class BasicLearner(MachineLearningInterface):
     def get_weights(self) -> Weights:
         raise NotImplementedError
 
-    def test_model(self, weights: Weights = None) -> ProposedWeights:
-        """Tests the proposed weights and fills in the rest of the fields"""
+    def test_model(self, weights: Weights = None, eval_config: dict = None) -> ProposedWeights:
+        """
+            Tests the proposed weights and fills in the rest of the fields
+            Also evaluates the model using the metrics specified in eval_config.
+                eval_config = {
+                    "name": lambda y_true, y_pred
+                }
+        """
         if weights is None:
             weights = self.get_weights()
 
@@ -119,21 +126,25 @@ class BasicLearner(MachineLearningInterface):
         try:
             proposed_weights.vote_accuracy = self.vote_score_cache.get(weights)
         except KeyError:
-            proposed_weights.vote_accuracy = self._test_model(weights, validate=True)
+            proposed_weights.vote_accuracy, _ = self._test_model(weights, validate=True)
 
             # store this in the cache
             self.vote_score_cache.add(weights,
                                       proposed_weights.vote_accuracy)
 
-        proposed_weights.test_accuracy = self._test_model(weights,
-                                                          validate=False)
+        acc, eval_result = self._test_model(weights,
+                                            validate=False,
+                                            eval_config=eval_config)
+        proposed_weights.test_accuracy = acc
+        proposed_weights.evaluation_results = eval_result
+
         proposed_weights.vote = (
             proposed_weights.vote_accuracy >= self.vote_accuracy
         )
 
         return proposed_weights
 
-    def _test_model(self, weights: Weights = None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         raise NotImplementedError
 
     def _train_model(self):

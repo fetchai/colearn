@@ -22,7 +22,7 @@ import tensorflow as tf
 from tensorflow import keras
 import os
 from sklearn.preprocessing import MinMaxScaler
-from keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.decomposition import KernelPCA
 from tensorflow.keras.utils import plot_model
 from IPython.display import Image
@@ -127,11 +127,15 @@ def show_model(model):
 def build_model(feature_size, n_classes):
     """ Build a small model for multi-label classification """
     inp = kl.Input((feature_size,))
-    x = kl.Dense(128, activation='sigmoid')(inp)
+    x = kl.Dense(256, activation='sigmoid')(inp)
     x=kl.Dropout(0.2)(x)
-    x = kl.Dense(16, activation='sigmoid')(x)
+    x = kl.Dense(128, activation='sigmoid')(x)
     x=kl.Dropout(0.2)(x)
-    out = kl.Dense(n_classes, activation='sigmoid')(x)
+    x = kl.Dense(64, activation='sigmoid')(x)
+    x = kl.Dropout(0.2)(x)
+    x = kl.Dense(32, activation='sigmoid')(x)
+    x = kl.Dropout(0.2)(x)
+    out = kl.Dense(n_classes, activation='softmax')(x)
     model = keras.Model(inputs=inp, outputs=out)
     model.summary()
     return model

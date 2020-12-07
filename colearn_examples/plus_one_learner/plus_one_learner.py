@@ -19,7 +19,7 @@ class PlusOneLearner(MachineLearningInterface):
     def clone(self):
         return PlusOneLearner(self.current_value)
 
-    def test_model(self, weights=None) -> ProposedWeights:
+    def test_model(self, weights=None, eval_config=None) -> ProposedWeights:
         result = ProposedWeights()
         result.weights = weights
         if weights > self.current_value:
@@ -36,5 +36,5 @@ class PlusOneLearner(MachineLearningInterface):
             result.vote = False
         return result
 
-    def accept_weights(self, weights: Weights):
+    def accept_weights(self, weights: Weights, eval_config: dict = None):
         self.current_value = weights
