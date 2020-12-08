@@ -13,3 +13,4 @@ opencv-python~=4.4.0.44
 torchsummary~=1.5.1
 opacus
 torchxrayvision
+scipy~=1.5.2
