@@ -14,14 +14,14 @@ from utils import*
 # source dir and output file name
 # =============================================================================
 class_name='pneumonia'#'covid' or 'normal' or 'pneumonia'
-source_dir='./covid_big_dset/'+class_name
-output_file_name=class_name
+source_dir='./covid_big_dset2/'+class_name
+output_file_name="./covid_big_dset2/"+class_name
 # =============================================================================
 # set labels
 # =============================================================================
-if output_file_name=='normal':
+if class_name=='normal':
     label=0
-elif output_file_name=='covid':
+elif class_name=='covid':
     label=1
 else:
     label=2
@@ -29,7 +29,7 @@ else:
 # start
 # =============================================================================
 image_list=os.listdir(source_dir)#list of images
-
+print("Num of images: ", len(image_list))
 feature_pool=np.empty([1,252])#feature pool
 for idx,img_name in enumerate(image_list):
     print(idx)
@@ -70,4 +70,4 @@ for idx,img_name in enumerate(image_list):
 
 feature_pool=np.delete(feature_pool, 0, 0)
 feature_pool=np.concatenate((feature_pool,label*np.ones(len(feature_pool)).reshape(len(feature_pool),1)), axis=1)#add label to the last column   
-sio.savemat(output_file_name+'.mat', {output_file_name: feature_pool})#save the created feature pool as a mat file  
+sio.savemat(output_file_name+'.mat', {class_name: feature_pool})#save the created feature pool as a mat file  

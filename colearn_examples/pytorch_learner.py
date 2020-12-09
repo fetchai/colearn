@@ -30,6 +30,8 @@ class PytorchLearner(BasicLearner, ABC):
             privacy_engine.attach(self._optimizer)
         self._criterion = self.config.loss
 
+        assert self.config.n_classes == len(self.config.class_labels)
+
     def _train_model(self):
         self._stop_training = False
         steps_per_epoch = self.config.steps_per_epoch or (self.data.train_data_size // self.data.train_batch_size)
@@ -62,7 +64,7 @@ class PytorchLearner(BasicLearner, ABC):
         w = Weights([x.clone() for x in self._model.parameters()])
         return w
 
-    def _test_model(self, weights: Weights = None, validate=False):
+    def _test_model(self, weights: Weights = None, validate=False, eval_conf: dict = None):
         temp_weights = None
         if weights is not None:
             # store current weights in temporary variables
@@ -120,8 +122,9 @@ class PytorchLearner(BasicLearner, ABC):
                 )
 
                 # Calculate balanced accuracy
+                accuracy_for_absent_classes = 1.0/self.config.n_classes
                 per_class = np.nan_to_num(
-                    np.diag(conf_matrix) / conf_matrix.sum(axis=1), nan=1.0
+                    np.diag(conf_matrix) / conf_matrix.sum(axis=1), nan=accuracy_for_absent_classes
                 )
                 accuracy = np.mean(per_class)
 
