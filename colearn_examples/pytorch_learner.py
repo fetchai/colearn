@@ -32,9 +32,6 @@ class PytorchLearner(BasicLearner, ABC):
             privacy_engine.attach(self._optimizer)
         self._criterion = self.config.loss
 
-        if self.config.n_classes > 1:
-            assert self.config.n_classes == len(self.config.class_labels)
-
     def _train_model(self):
         self._stop_training = False
         steps_per_epoch = self.config.steps_per_epoch or (self.data.train_data_size // self.data.train_batch_size)
@@ -102,8 +99,8 @@ class PytorchLearner(BasicLearner, ABC):
                     pred = np.argmax(pred.detach().numpy(), axis=1)
 
                     # Convert label IDs to names - accuracy
-                    labels = [self.config.class_labels[int(j)] for j in labels]
-                    pred = [self.config.class_labels[int(j)] for j in pred]
+                    labels = [int(j) for j in labels]
+                    pred = [int(j) for j in pred]
 
             # else: Binary class - AOC metrics
 
@@ -118,10 +115,10 @@ class PytorchLearner(BasicLearner, ABC):
             # Multiple classes one-hot = balanced accuracy
             if self.config.n_classes > 1:
                 conf_matrix = confusion_matrix(
-                    all_labels, all_preds, labels=self.config.class_labels
+                    all_labels, all_preds, labels=list(range(self.config.n_classes))
                 )
                 class_report = classification_report(
-                    all_labels, all_preds, labels=self.config.class_labels
+                    all_labels, all_preds, labels=list(range(self.config.n_classes))
                 )
 
                 # Calculate balanced accuracy

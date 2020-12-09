@@ -53,9 +53,8 @@ class ModelConfig:
         self.loss = "sparse_categorical_crossentropy"
         self.n_classes = 10
         self.multi_hot = False
-        self.class_labels = range(self.n_classes)
 
-        self.evaluation_config = None
+        self.evaluation_config = {}
         self.transform_metrics_for_grafana = None
 
         self.metrics = ["metrics"]

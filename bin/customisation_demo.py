@@ -130,7 +130,6 @@ class ModelConfig:
         self.train_ratio = 0.8
         self.val_batches = 2  # number of batches used for voting
         self.test_ratio = 1 - self.train_ratio
-        self.class_labels = [str(j) for j in range(self.n_classes)]
 
         # Differential Privacy params
         self.use_dp = False
