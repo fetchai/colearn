@@ -24,6 +24,8 @@ As you can see, there are five learners, and intially they perform poorly.
 In round one, learner 0 is selected to propose a new set of weights.
 
 ## Other datasets
+All available models and datasets are listed here: https://docs.google.com/document/d/1CDmmYZywRtKUqKuQOfYPx6Ipaixme9h7Obnv9Ib9QiE
+
 The Fraud and X-ray datasets need to be downloaded from kaggle (this requires a kaggle account).
 To run the fraud dataset:
 ```bash
