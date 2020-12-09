@@ -42,7 +42,7 @@ class PytorchLearner(BasicLearner, ABC):
             if self._stop_training:
                 break
             data, labels = self.data.train_gen.__next__()
-            data = torch.Tensor(data).reshape((self.config.batch_size, 1, self.config.height, self.config.width))  # todo: fix model so channels is not required
+            data = torch.Tensor(data)
             labels = torch.LongTensor(labels).squeeze()
 
             self._optimizer.zero_grad()
@@ -52,7 +52,7 @@ class PytorchLearner(BasicLearner, ABC):
             self._optimizer.step()
 
     def print_summary(self):
-        summary(self._model, (1, self.config.width, self.config.height))
+        summary(self._model, (self.config.width, self.config.height))
 
     def _set_weights(self, weights: Weights):
         with torch.no_grad():
@@ -88,7 +88,6 @@ class PytorchLearner(BasicLearner, ABC):
         for _ in progress_bar:  # tqdm provides progress bar
             data, labels = generator.__next__()
             data = torch.Tensor(data)
-            data = torch.reshape(data, (self.config.batch_size, 1, self.config.height, self.config.width))
             pred = self._model(data)
 
             if self.config.multi_hot:
