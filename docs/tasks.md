@@ -9,7 +9,7 @@
 
 * Code folder: [here](colearn_examples/cifar10)
 * Invoke parameter: -t CIFAR10
-###1.1.2. Requirements
+### 1.1.2. Requirements
 * Cifar dataset is loaded from tensorflow.keras.datasets.cifar10 and no stored data are required
 
 ## 1.2. Models
@@ -49,7 +49,7 @@ Non-trainable params: 2,304
 _________________________________________________________________
 ```
 
-###1.2.2. CIFAR10Conv2 Keras model
+### 1.2.2. CIFAR10Conv2 Keras model
 ```
 _________________________________________________________
 Layer (type)                Output Shape        Param #   
@@ -77,7 +77,7 @@ Trainable params: 550,570
 Non-trainable params: 0
 _________________________________________________________
 ```
-###1.2.3. CIFAR10Resnet50 Keras model
+### 1.2.3. CIFAR10Resnet50 Keras model
 ```
 ________________________________________________________
 Layer (type)                 Output Shape     Param #   
@@ -95,9 +95,9 @@ Trainable params: 23,555,082
 Non-trainable params: 53,120
 ________________________________________________________
 ```
-#2. Covid X-RAY dataset
-##2.1. Information and installation
-###2.1.1. Information about the dataset
+# 2. Covid X-RAY dataset
+## 2.1. Information and installation
+### 2.1.1. Information about the dataset
 * The Covid X-Ray dataset consists of grayscale images, there are 478 covid images and 203 normal images. 
 * To increase the number of images normal/pneumonia dataset is added
 * Final dataset, which is a combination of two previously mentioned datasets, contains 1434 images, 478 images for each class.
@@ -106,12 +106,12 @@ ________________________________________________________
 * NN output is distribution of probabilities for each class i.e. 3 values
 * Code folder: [here](colearn_examples/covid_xray)
 * Invoke parameter: -t COVID
-###2.1.2 Requirements
+### 2.1.2 Requirements
 * Download Covid dataset: [here](https://github.com/ieee8023/COVID-chestxray-dataset)
 * Download pneumonia dataset: [here](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
 
-##2.2. Models
-###2.2.1. Covid XRAY Keras model
+## 2.2. Models
+### 2.2.1. Covid XRAY Keras model
 ```
 _________________________________________________________
 Layer (type)              Output Shape        Param #   
@@ -131,9 +131,9 @@ Trainable params: 10,435
 Non-trainable params: 0
 _________________________________________________________
 ```
-#3. FRAUD dataset
-##3.1. Information and installation
-###3.1.1. Information about the dataset
+# 3. FRAUD dataset
+## 3.1. Information and installation
+### 3.1.1. Information about the dataset
 * EEE-CIS Fraud Detection, contains multiple files with credit card transactions
 * Raw dataset files are automatically merged and pre-processed and input files for neural network are created
    -  X.csv with data - has 431 values for each transaction
@@ -143,10 +143,10 @@ _________________________________________________________
 
 * Code folder: [here](colearn_examples/fraud)
 * Invoke parameter: -t FRAUD
-###3.1.2 Requirements
+### 3.1.2. Requirements
 * Download dataset: [here](https://www.kaggle.com/c/ieee-fraud-detection)
-##3.2. Models
-###3.2.1. FraudDense1 Keras model
+## 3.2. Models
+### 3.2.1. FraudDense1 Keras model
 ```
 _________________________________________________________
 Layer (type)             Output Shape          Param #   
@@ -169,14 +169,14 @@ Trainable params: 750,081
 Non-trainable params: 3,072
 _________________________________________________________
 ```
-###3.2.2. FraudSVM Scikit-learn model
+### 3.2.2. FraudSVM Scikit-learn model
 
 
 * Model is defined as SGDClassifier(max_iter=1, verbose=0, loss="modified_huber")
   - Which is support vector machine linear classifier
-#4. MNIST
-##4.1. Information and installation
-###4.1.1. Information about the dataset
+# 4. MNIST
+## 4.1. Information and installation
+### 4.1.1. Information about the dataset
 * This is a dataset of 70,000 28x28x1 grayscale images of the 10 digits
 * Input for NN are raw 28x28 1 channel images
 * NN output is distribution of probabilities for each class i.e. 10 values that sums up to 1
@@ -184,12 +184,12 @@ _________________________________________________________
 
 * Code folder: [here](colearn_examples/mnist)
 * Invoke parameter: -t MNIST
-###4.1.2 Requirements
+### 4.1.2 Requirements
 * MNIST dataset is loaded from tensorflow.keras.datasets.cifar10 and no stored data are required
 
 
-##4.2. Models
-###4.2.1. MNISTConv Keras model
+## 4.2. Models
+### 4.2.1. MNISTConv Keras model
 ```
 _________________________________________________________
 Layer (type)                   Output Shape       Param #   
@@ -212,7 +212,7 @@ Trainable params: 137,610
 Non-trainable params: 384
 _________________________________________________________
 ```
-###4.2.2. MNIST Pytorch model
+### 4.2.2. MNIST Pytorch model
 ```
 ---------------------------------------------------------
 Layer (type)           Output Shape             Param #
@@ -228,7 +228,7 @@ Trainable params: 431,080
 Non-trainable params: 0
 ---------------------------------------------------------
 ```
-###4.2.3. MNISTSupermini Keras model
+### 4.2.3. MNISTSupermini Keras model
 ```
 ________________________________________________________________________________________
 Layer (type)                Output Shape    Param #      Connected to                         
@@ -269,9 +269,9 @@ Non-trainable params: 256
 ________________________________________________________________________________________
 ```
 
-#5. Pneumonia XRAY
-##5.1. Information and installation
-###5.1.1. Information about the dataset
+# 5. Pneumonia XRAY
+## 5.1. Information and installation
+### 5.1.1. Information about the dataset
    * The Chest X-Ray Images (Pneumonia) dataset consists of 5856 grayscale images of various sizes in 2 classes (normal/pneumonia). 
    * Labels are determined by folder name - NORMAL or PNEUMONIA
    * Input for NN are raw resized 128x128 1 channel images
@@ -280,10 +280,10 @@ ________________________________________________________________________________
 
    * Code folder: [here](colearn_examples/xray)
    * Invoke parameter: -t XRAY
-###5.1.2 Requirements
+### 5.1.2 Requirements
    * Download dataset: [here](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
-##5.2. Models
-###5.2.1. XraySupermini Keras model#
+## 5.2. Models
+### 5.2.1. XraySupermini Keras model#
 ```
 _________________________________________________________________
 Layer (type)                     Output Shape            Param #   
@@ -309,7 +309,7 @@ Trainable params: 19,073
 Non-trainable params: 192
 _________________________________________________________________
 ```
-###5.2.2. XrayResnet50 Keras model
+### 5.2.2. XrayResnet50 Keras model
 ```
 _________________________________________________________________
 Layer (type)                     Output Shape            Param #   
@@ -329,7 +329,7 @@ Trainable params: 23,530,369
 Non-trainable params: 53,120
 _________________________________________________________________
 ```
-###5.2.3. XrayPretrainedResnet50 Keras model
+### 5.2.3. XrayPretrainedResnet50 Keras model
 ```
 _____________________________________________________________________________________
 Layer (type)                Output Shape    Param #   Connected to                
@@ -354,7 +354,7 @@ Trainable params: 23,536,641
 Non-trainable params: 53,120
 _____________________________________________________________________________________
 ```
-###5.2.4. XrayDropout Keras model
+### 5.2.4. XrayDropout Keras model
 ```
 _________________________________________________________________
 Layer (type)                     Output Shape            Param #   
@@ -386,7 +386,7 @@ Non-trainable params: 1,152
 _________________________________________________________________
 ```
 
-###5.2.5. XrayDropout2 Keras model
+### 5.2.5. XrayDropout2 Keras model
 ```
 _________________________________________________________________
 Layer (type)                     Output Shape            Param #   
@@ -434,7 +434,7 @@ Non-trainable params: 3,840
 _________________________________________________________________
 ```
 
-###5.2.6. XrayVGG16 Keras model
+### 5.2.6. XrayVGG16 Keras model
 ```
 _____________________________________________________________________________________
 Layer (type)                 Output Shape     Param #    Connected to                
@@ -460,7 +460,7 @@ Non-trainable params: 0
 _____________________________________________________________________________________
 ```
 
-###5.2.7. XrayMini Keras model
+### 5.2.7. XrayMini Keras model
 ```
 _________________________________________________________________
 Layer (type)                     Output Shape        Param #   
@@ -484,7 +484,7 @@ Non-trainable params: 768
 _________________________________________________________________
 ```
 
-###5.2.7. XrayOneMB Keras model
+### 5.2.7. XrayOneMB Keras model
 ```
 _________________________________________________________________
 Layer (type)                   Output Shape            Param #   
