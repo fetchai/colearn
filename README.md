@@ -4,6 +4,21 @@ Colearn is a library that enables privacy preserving decentralized machine learn
 
 This blockchain-mediated collective learning system enables multiple stakeholders to build a shared machine learning model without needing to rely on a central authority. This library is currently in development. 
 
+A Colearn experiment begins when a group of entities, a group of *learners*, decide on a model architecture and begin learning. Together they will train a single global model. The goal is to train a model that performs better than any of the learners can produce by training on their private data set. 
+
+### How Training Works
+
+Training occurs in rounds, during each round the learners attempt to improve the performance of the global shared model. To do so each round an **update** of the global model (for example new set of weights in a neural network) is proposed. Each of the other learners evaluate the update and decides if the new model is better than the current global model.  If enough learners *approve* the update then global model is updated. After an update is approved or rejected a new round begins. 
+
+The detailed steps of a round updating a global model *M* are as follows:
+1. Learner **X** proposes a new updated model *M'*
+2. The rest of the learners **validate** *M'*
+   - If *M'* has better performance than *M* then the learner votes to approve
+   - If not the learner votes to reject
+3. The total votes are tallied
+   - If more than some threshold (typically 50%) approve then *M'* becomes the new global model. If not, *M* continues to be global model
+4. A new round begins. 
+
 ### Current Version
 
 We have released *v.0.1* of Colearn Machine Learning Interface, the first version of an interface that will allow developers to prepare for future releases. 
