@@ -29,8 +29,6 @@ class ColearnConfig:
         self.vote_threshold = 0.5  # 0.66666
         self.mode = TrainingMode.COLLABORATIVE
 
-        self.metrics = ["accuracy"]
-
         self.data = task if isinstance(task, TrainingData) else TrainingData[str(task)]
 
         # None means random seed
@@ -57,7 +55,7 @@ class ModelConfig:
         self.multi_hot = False
         self.class_labels = range(self.n_classes)
 
-        self.evaluation_config = {}
+        self.evaluation_config = None
         self.transform_metrics_for_grafana = None
 
         self.metrics = ["metrics"]

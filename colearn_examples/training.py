@@ -53,10 +53,11 @@ def collaborative_training_pass(learners: List[BasicLearner], vote_threshold,
     result.test_accuracies = [pw.test_accuracy for pw in proposed_weights_list]
     result.block_proposer = epoch % len(learners)
 
-    idx=0
+    idx = 0
     for l in learners:
-        print("Eval config for node ", idx, ": ", l.evaluate_model(l.config.evaluation_config))
-        idx+=1
+        if l.config.evaluation_config and len(l.config.evaluation_config) > 0:
+            print("Eval config for node ", idx, ": ", l.test_model(None, l.config.evaluation_config))
+        idx += 1
 
     return result
 
@@ -81,7 +82,7 @@ def individual_training_pass(learners, epoch):
 
 def main(colearn_config: ColearnConfig, data_dir):
     results = Results()
-    kwargs={}
+    kwargs = {}
 
     # pylint: disable=C0415
     if colearn_config.data == TrainingData.XRAY:
@@ -151,8 +152,3 @@ def main(colearn_config: ColearnConfig, data_dir):
             plot_votes(results, block=True)
         else:
             plot_results(results, colearn_config, block=True)
-
-if __name__ == "__main__":
-    config = ColearnConfig(task=TrainingData.COVID, n_learners=5, n_epochs=30)
-    config.vote_threshold=0.5
-    main(config, "/Users/qati/code/colearn/examples/covid/covid_big_dset2")
