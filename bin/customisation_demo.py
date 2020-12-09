@@ -10,7 +10,7 @@ from colearn_examples.pytorch_learner import PytorchLearner
 import torch.nn as nn
 import torch.nn.functional as nn_func
 
-from colearn_examples.training import collaborative_training_pass, initial_result
+from colearn_examples.training import collective_learning_round, initial_result
 from colearn_examples.utils.data import split_by_chunksizes
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
@@ -150,16 +150,16 @@ results = Results()
 results.data.append(initial_result(learners))
 
 # Now to do collective learning!
-n_epochs = 15
+n_rounds = 15
 vote_threshold = 0.5
-for i in range(n_epochs):
+for i in range(n_rounds):
     results.data.append(
-        collaborative_training_pass(learners,
-                                    vote_threshold, i)
+        collective_learning_round(learners,
+                                  vote_threshold, i)
     )
 
-    plot_results(results, n_learners, TrainingMode.COLLABORATIVE, block=False)
+    plot_results(results, n_learners, TrainingMode.COLLECTIVE, block=False)
     plot_votes(results, block=False)
 
-plot_results(results, n_learners, TrainingMode.COLLABORATIVE, block=False)
+plot_results(results, n_learners, TrainingMode.COLLECTIVE, block=False)
 plot_votes(results, block=True)

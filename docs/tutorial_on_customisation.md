@@ -102,3 +102,81 @@ width, height, train_ratio, test_ratio, generator_seed = 28, 28, 0.8, 0.2, 42
 data_split = [1 / n_learners] * n_learners
 learner_data_folders = split_to_folders("", generator_seed, data_split, n_learners)
 ```
+
+Now we can use the function we defined earlier to make a LearnerData instance for each learner.
+```python
+learner_datasets = []
+for i in range(n_learners):
+    learner_datasets.append(
+        load_learner_data(learner_data_folders[i], batch_size, width, height, train_ratio, test_ratio, generator_seed)
+    )
+```
+
+There are lots of configuration values that are required to specify how the learner will train, e.g. the learning rate.
+The way that the PytorchLearner expects these to be specified is as part of a config object:
+
+```python
+class ModelConfig:
+    def __init__(self):
+        # Training params
+        self.optimizer = torch.optim.Adam
+        self.l_rate = 0.001
+        self.l_rate_decay = 1e-5
+        self.batch_size = batch_size
+
+        self.metrics = ["accuracy"]
+
+        # Model params
+        self.width = width
+        self.height = height
+        self.loss = nn_func.nll_loss
+        self.n_classes = 10
+        self.multi_hot = False
+
+        # Data params
+        self.steps_per_epoch = None  # None means use whole dataset
+        self.train_ratio = 0.8
+        self.val_batches = 2  # number of batches used for voting
+        self.test_ratio = 1 - self.train_ratio
+        self.class_labels = [str(i) for i in range(self.n_classes)]
+
+        # Differential Privacy params
+        self.use_dp = False
+```
+
+Now we can create a list of learners. 
+
+```python
+config = ModelConfig()
+first_learner = MNISTPytorchLearner(config, data=learner_datasets[0])
+learners = [first_learner]
+for i in range(1, n_learners):
+    nth_learner = first_learner.clone(data=learner_datasets[i])
+    learners.append(nth_learner)
+```
+
+The final step is to do collective learning.
+The `Results` object is just a helper here to store the results so that they can be plotted. 
+The real work is done inside `collective_learning_round`. 
+This function takes a list of learners, selects one to train, collects the votes of the other learners and accepts or declines the update.
+
+```python
+# Get initial accuracy
+results = Results()
+results.data.append(initial_result(learners))
+
+# Now to do collective learning!
+n_rounds = 15
+vote_threshold = 0.5
+for i in range(n_rounds):
+    results.data.append(
+        collective_learning_round(learners,
+                                  vote_threshold, i)
+    )
+
+    plot_results(results, n_learners, TrainingMode.COLLECTIVE, block=False)
+    plot_votes(results, block=False)
+
+plot_results(results, n_learners, TrainingMode.COLLECTIVE, block=False)
+plot_votes(results, block=True)
+```

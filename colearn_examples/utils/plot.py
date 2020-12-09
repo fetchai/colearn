@@ -159,7 +159,7 @@ def plot_results(results,
             label="vote accuracy",
         )
 
-    if mode == TrainingMode.COLLABORATIVE:
+    if mode == TrainingMode.COLLECTIVE:
         (line_mean_test_acc,) = axes.plot(
             epochs,
             results.mean_test_accuracies,

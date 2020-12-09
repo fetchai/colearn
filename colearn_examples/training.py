@@ -39,9 +39,9 @@ def initial_result(learners: List[BasicLearner]):
     return result
 
 
-def collaborative_training_pass(learners: List[BasicLearner], vote_threshold,
-                                epoch):
-    print("Doing collaborative training pass")
+def collective_learning_round(learners: List[BasicLearner], vote_threshold,
+                              epoch):
+    print("Doing collective learning round")
     result = Result()
 
     proposed_weights_list, vote = run_one_epoch(epoch, learners,
@@ -56,7 +56,7 @@ def collaborative_training_pass(learners: List[BasicLearner], vote_threshold,
     return result
 
 
-def individual_training_pass(learners):
+def individual_training_round(learners):
     print("Doing individual training pass")
     result = Result()
 
@@ -98,7 +98,7 @@ def main(colearn_config: ColearnConfig, data_dir):
         raise Exception("Unknown task: %s" % colearn_config.data)
 
     # load, shuffle, clean, and split the data into n_learners
-    data_split = [1 / colearn_config.n_learners for x in range(colearn_config.n_learners)]
+    data_split = [1 / colearn_config.n_learners] * colearn_config.n_learners
     client_data_folders_list = split_to_folders(
         data_dir, colearn_config.shuffle_seed, data_split, colearn_config.n_learners
     )
@@ -112,25 +112,26 @@ def main(colearn_config: ColearnConfig, data_dir):
     results.data.append(initial_result(all_learner_models))
 
     for i in range(colearn_config.n_epochs):
-        if colearn_config.mode == TrainingMode.COLLABORATIVE:
+        if colearn_config.mode == TrainingMode.COLLECTIVE:
             results.data.append(
-                collaborative_training_pass(all_learner_models,
-                                            colearn_config.vote_threshold, i)
+                collective_learning_round(all_learner_models,
+                                          colearn_config.vote_threshold, i)
             )
         elif colearn_config.mode == TrainingMode.INDIVIDUAL:
-            results.data.append(individual_training_pass(all_learner_models))
+            results.data.append(individual_training_round(all_learner_models))
         else:
             raise Exception("Unknown training mode")
 
-        display_statistics(results, colearn_config, model_config, i + 1)
+        display_statistics(results, colearn_config.n_learners, colearn_config.mode,
+                           colearn_config.vote_threshold, model_config, i + 1)
 
         if colearn_config.plot_results:
             # then make an updating graph
-            plot_results(results, colearn_config, block=False)
-            if colearn_config.mode == TrainingMode.COLLABORATIVE:
+            plot_results(results, colearn_config.n_learners, colearn_config.mode, block=False)
+            if colearn_config.mode == TrainingMode.COLLECTIVE:
                 plot_votes(results, block=False)
 
     if colearn_config.plot_results:
-        plot_results(results, colearn_config, block=False)
-        if colearn_config.mode == TrainingMode.COLLABORATIVE:
+        plot_results(results, colearn_config.n_learners, colearn_config.mode, block=False)
+        if colearn_config.mode == TrainingMode.COLLECTIVE:
             plot_votes(results, block=True)
