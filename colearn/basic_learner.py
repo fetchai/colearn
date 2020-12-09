@@ -1,6 +1,6 @@
 import hashlib
 import pickle
-from typing import Optional
+from typing import Optional, Tuple
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface, \
     Weights
@@ -144,7 +144,9 @@ class BasicLearner(MachineLearningInterface):
 
         return proposed_weights
 
-    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None) -> (float, dict):
+    def _test_model(self, weights: Weights = None, validate=False,
+                    eval_config: Optional[dict] = None
+                    ) -> Tuple[float, dict]:
         raise NotImplementedError
 
     def _train_model(self):

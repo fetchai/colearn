@@ -121,7 +121,7 @@ class PytorchLearner(BasicLearner, ABC):
                 )
 
                 # Calculate balanced accuracy
-                accuracy_for_absent_classes = 1.0/self.config.n_classes
+                accuracy_for_absent_classes = 1.0 / self.config.n_classes
                 per_class = np.nan_to_num(
                     np.diag(conf_matrix) / conf_matrix.sum(axis=1), nan=accuracy_for_absent_classes
                 )

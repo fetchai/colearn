@@ -150,7 +150,6 @@ The `Results` object is just a helper here to store the results so that they can
 The real work is done inside `collective_learning_round`. 
 This function takes a list of learners, selects one to train, collects the votes of the other learners and
 accepts or declines the update.
-todo: remove trainingmode, block
 ```python
 # Get initial accuracy
 results = Results()

@@ -77,7 +77,6 @@ class MNISTPytorchLearner(PytorchLearner):
         width = self.config.width
         height = self.config.height
 
-
         class Net(nn.Module):
             def __init__(self):
                 super(Net, self).__init__()
