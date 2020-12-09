@@ -47,11 +47,11 @@ class MNISTPytorchLearner(PytorchLearner):
 def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_ratio, generator_seed):
     data = LearnerData()
     data.train_batch_size = batch_size
-    IMAGE_FL = "images.pickle"
-    LABEL_FL = "labels.pickle"
+    image_fl = "images.pickle"
+    label_fl = "labels.pickle"
 
-    images = pickle.load(open(Path(data_dir) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
+    images = pickle.load(open(Path(data_dir) / image_fl, "rb"))
+    labels = pickle.load(open(Path(data_dir) / label_fl, "rb"))
 
     [[train_images, test_images], [train_labels, test_labels]] = \
         split_by_chunksizes([images, labels], [train_ratio, test_ratio])
@@ -93,18 +93,24 @@ def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_rat
 # First define some config values:
 n_learners = 5
 batch_size = 64
-width, height, train_ratio, test_ratio, generator_seed = 28, 28, 0.8, 0.2, 42
+image_width = 28
+image_height = 28
+train_fraction = 0.8
+test_fraction = 0.2
+seed = 42
+n_rounds = 15
+vote_threshold = 0.5
 
 # This step downloads the MNIST dataset and splits it into folders
 data_split = [1 / n_learners] * n_learners
-learner_data_folders = split_to_folders("", generator_seed, data_split, n_learners)
+learner_data_folders = split_to_folders("", seed, data_split, n_learners)
 
 # Build the learner datasets using the functions defined above
-learner_datasets = []
-for i in range(n_learners):
-    learner_datasets.append(
-        load_learner_data(learner_data_folders[i], batch_size, width, height, train_ratio, test_ratio, generator_seed)
-    )
+learner_datasets = [
+    load_learner_data(learner_data_folders[i], batch_size,
+                      image_width, image_height,
+                      train_fraction, test_fraction, seed)
+    for i in range(n_learners)]
 
 
 # Define the ModelConfig which passes configuration values to the PytorchLearner
@@ -114,22 +120,20 @@ class ModelConfig:
         self.optimizer = torch.optim.Adam
         self.l_rate = 0.001
         self.l_rate_decay = 1e-5
-        self.batch_size = batch_size
-
-        self.metrics = ["accuracy"]
-
-        # Model params
-        self.width = width
-        self.height = height
         self.loss = nn_func.nll_loss
         self.n_classes = 10
         self.multi_hot = False
 
+        # Model params
+        self.width = image_width
+        self.height = image_height
+
         # Data params
         self.steps_per_epoch = None  # None means use whole dataset
-        self.train_ratio = 0.8
+        self.train_ratio = train_fraction
         self.val_batches = 2  # number of batches used for voting
-        self.test_ratio = 1 - self.train_ratio
+        self.test_ratio = test_fraction
+        self.batch_size = batch_size
 
         # Differential Privacy params
         self.use_dp = False
@@ -137,27 +141,22 @@ class ModelConfig:
 
 # Create a config instance and then create a list of learners all with the same weights
 config = ModelConfig()
-first_learner = MNISTPytorchLearner(config, data=learner_datasets[0])
-learners = [first_learner]
-for i in range(1, n_learners):
-    nth_learner = first_learner.clone(data=learner_datasets[i])
-    learners.append(nth_learner)
+learners = [MNISTPytorchLearner(config, data=learner_datasets[i])
+            for i in range(n_learners)]
 
 # Get initial accuracy
 results = Results()
 results.data.append(initial_result(learners))
 
 # Now to do collective learning!
-n_rounds = 15
-vote_threshold = 0.5
 for i in range(n_rounds):
     results.data.append(
         collective_learning_round(learners,
                                   vote_threshold, i)
     )
 
-    plot_results(results, n_learners, block=False)
-    plot_votes(results, block=False)
+    plot_results(results, n_learners)
+    plot_votes(results)
 
-plot_results(results, n_learners, block=False)
+plot_results(results, n_learners)
 plot_votes(results, block=True)
