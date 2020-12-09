@@ -184,9 +184,9 @@ for i in range(n_rounds):
                                   vote_threshold, i)
     )
 
-    plot_results(results, n_learners, TrainingMode.COLLECTIVE, block=False)
+    plot_results(results, n_learners, block=False)
     plot_votes(results, block=False)
 
-plot_results(results, n_learners, TrainingMode.COLLECTIVE, block=False)
+plot_results(results, n_learners, block=False)
 plot_votes(results, block=True)
 ```

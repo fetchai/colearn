@@ -3,7 +3,6 @@ from pathlib import Path
 import torch
 
 from colearn.basic_learner import LearnerData
-from colearn_examples.config import TrainingMode
 from colearn_examples.mnist import split_to_folders
 from colearn_examples.mnist.data import train_generator as data_generator
 from colearn_examples.pytorch_learner import PytorchLearner
@@ -131,7 +130,7 @@ class ModelConfig:
         self.train_ratio = 0.8
         self.val_batches = 2  # number of batches used for voting
         self.test_ratio = 1 - self.train_ratio
-        self.class_labels = [str(i) for i in range(self.n_classes)]
+        self.class_labels = [str(j) for j in range(self.n_classes)]
 
         # Differential Privacy params
         self.use_dp = False
@@ -158,8 +157,8 @@ for i in range(n_rounds):
                                   vote_threshold, i)
     )
 
-    plot_results(results, n_learners, TrainingMode.COLLECTIVE, block=False)
+    plot_results(results, n_learners, block=False)
     plot_votes(results, block=False)
 
-plot_results(results, n_learners, TrainingMode.COLLECTIVE, block=False)
+plot_results(results, n_learners, block=False)
 plot_votes(results, block=True)

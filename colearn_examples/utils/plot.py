@@ -124,7 +124,6 @@ def display_statistics(
 
 def plot_results(results,
                  n_learners: int,
-                 mode: TrainingMode,
                  block=False):
     # Prepare data for plotting
     process_statistics(results, n_learners)
@@ -144,14 +143,14 @@ def plot_results(results,
     epochs = range(len(results.mean_test_accuracies))
 
     for i in range(n_learners):
-        (line_test_acc,) = axes.plot(
+        axes.plot(
             epochs,
             results.h_test_accuracies[i],
             "b--",
             alpha=0.5,
             label="test accuracy",
         )
-        (line_vote_acc,) = axes.plot(
+        axes.plot(
             epochs,
             results.h_vote_accuracies[i],
             "r--",
@@ -159,24 +158,21 @@ def plot_results(results,
             label="vote accuracy",
         )
 
-    if mode == TrainingMode.COLLECTIVE:
-        (line_mean_test_acc,) = axes.plot(
-            epochs,
-            results.mean_test_accuracies,
-            "b",
-            linewidth=3,
-            label="mean test accuracy",
-        )
-        (line_mean_vote_acc,) = axes.plot(
-            epochs,
-            results.mean_vote_accuracies,
-            "r",
-            linewidth=3,
-            label="mean vote accuracy",
-        )
-        axes.legend(handles=[line_mean_test_acc, line_mean_vote_acc])
-    else:
-        axes.legend(handles=[line_test_acc, line_vote_acc])
+    (line_mean_test_acc,) = axes.plot(
+        epochs,
+        results.mean_test_accuracies,
+        "b",
+        linewidth=3,
+        label="mean test accuracy",
+    )
+    (line_mean_vote_acc,) = axes.plot(
+        epochs,
+        results.mean_vote_accuracies,
+        "r",
+        linewidth=3,
+        label="mean vote accuracy",
+    )
+    axes.legend(handles=[line_mean_test_acc, line_mean_vote_acc])
 
     if block is False:
         plt.draw()

@@ -132,7 +132,7 @@ def main(colearn_config: ColearnConfig, data_dir):
                                           colearn_config.vote_threshold, i)
             )
         elif colearn_config.mode == TrainingMode.INDIVIDUAL:
-            results.data.append(individual_training_round(all_learner_models), i)
+            results.data.append(individual_training_round(all_learner_models, i))
         else:
             raise Exception("Unknown training mode")
 
@@ -141,13 +141,13 @@ def main(colearn_config: ColearnConfig, data_dir):
 
         if colearn_config.plot_results:
             # then make an updating graph
-            plot_results(results, colearn_config.n_learners, colearn_config.mode, block=False)
+            plot_results(results, colearn_config.n_learners, block=False)
             if colearn_config.mode == TrainingMode.COLLECTIVE:
                 plot_votes(results, block=False)
 
     if colearn_config.plot_results:
         if colearn_config.mode == TrainingMode.COLLECTIVE:
-            plot_results(results, colearn_config.n_learners, colearn_config.mode, block=False)
+            plot_results(results, colearn_config.n_learners, block=False)
             plot_votes(results, block=True)
         else:
-            plot_results(results, colearn_config.n_learners, colearn_config.mode, block=True)
+            plot_results(results, colearn_config.n_learners, block=True)
