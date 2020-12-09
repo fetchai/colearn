@@ -1,7 +1,7 @@
 # Tutorial
 
 The most flexible way to use the collective learning backends is to make a class that implements
-the collective learning `MachineLearningInterface` defined in [colearn/ml_interface.py](colearn/ml_interface.py). 
+the collective learning `MachineLearningInterface` defined in [colearn/ml_interface.py](../colearn/ml_interface.py). 
 The methods that need to be implemented are `train_model`, `test_model` and `accept_weights`. 
 
 However, the simpler way is to use one of the helper classes that we have provided that implement 
@@ -46,11 +46,16 @@ This function just needs to return a Pytorch Net - the architecture is up to you
 
 ## Loading the data
 The PytorchLearner expects the data to be wrapped by an instance of LearnerData.
-The LearnerData class is defined in `/colearn/basic_learner.py` 
+The LearnerData class is defined in [colearn/basic_learner.py](../colearn/basic_learner.py) 
 and is a simple wrapper around generators for the testing, training and validation data.
 The validation data here means the data that is used for voting.
-Each generator needs to return the next batch of data when `__next__` is called on it. #fixme - talk about mnist data format
-Here's a function that loads the dataset for a single learner:
+Each generator needs to return a numpy array of the next batch of data and labels when `__next__` is called on it. 
+
+
+In this demo the function `split_to_folders` downloads the MNIST dataset from keras
+and splits it into a directory for each learner. 
+Each directory has two pickle files in it, one of which is for the images, and the other is for the labels.
+This function loads the dataset for a single learner:
 ```python
 def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_ratio, generator_seed):
     data = LearnerData()
@@ -96,6 +101,11 @@ def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_rat
     data.test_batch_size = batch_size
     return data
 ```
+You can store and process the data in any way you like 
+as long as it is provided to the learner in a `LearnerData` instance.
+For example, you may want to write your own generator that reads batches from disk so that the whole 
+dataset doesn't need to be stored in memory.
+
 
 Now we can use the function we defined earlier to make a LearnerData instance for each learner.
 ```python
@@ -136,7 +146,7 @@ class ModelConfig:
         self.use_dp = False
 ```
 
-Now we can create a list of learners.
+Using the config and the datsets created above we can create a list of learners:
 
 ```python
 config = ModelConfig()
@@ -168,3 +178,4 @@ for i in range(n_rounds):
 plot_results(results, n_learners)
 plot_votes(results, block=True)
 ```
+You can try more examples of collective learning by using the script [run_demo.py](../bin/run_demo.py).
