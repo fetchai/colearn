@@ -30,7 +30,8 @@ class PytorchLearner(BasicLearner, ABC):
             privacy_engine.attach(self._optimizer)
         self._criterion = self.config.loss
 
-        assert self.config.n_classes == len(self.config.class_labels)
+        if self.config.n_classes > 1:
+            assert self.config.n_classes == len(self.config.class_labels)
 
     def _train_model(self):
         self._stop_training = False
