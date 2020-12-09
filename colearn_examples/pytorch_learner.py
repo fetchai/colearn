@@ -43,7 +43,7 @@ class PytorchLearner(BasicLearner, ABC):
             if self._stop_training:
                 break
             data, labels = self.data.train_gen.__next__()
-            data = torch.Tensor(data).reshape((self.config.batch_size, 1, self.config.height, self.config.width))
+            data = torch.Tensor(data).reshape((self.config.batch_size, 1, self.config.height, self.config.width))  # todo: fix model so channels is not required
             labels = torch.LongTensor(labels).squeeze()
 
             self._optimizer.zero_grad()

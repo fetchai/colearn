@@ -1,16 +1,18 @@
 # Tutorial
 
 The most flexible way to use the collective learning backends is to make a class that implements
-the collective learning interface. The methods that need to be implemented are propose_weights, evaluate_weights and accept_weights. 
+the collective learning interface. The methods that need to be implemented are propose_weights, evaluate_weights and accept_weights. #fixme - correct names, reference class names, mayeb link to ml_interface.
 
-But the simpler way is to use one of the classes that we have provided that implement 
-standard bits of collective learning for common ML libraries. These learners are SKLearnLearner, 
-KerasLearner, and PytorchLearner. These learners implement methods to propose, evaluate and accept weights, 
+But the simpler way is to use one of the helper classes that we have provided that implement 
+most of the collective learning interface for popular ML libraries. These learners are `SKLearnLearner`, 
+`KerasLearner`, and `PytorchLearner`. These learners implement methods to propose, evaluate and accept weights, 
 and the user just needs to implement the _get_model function for the derived class.  
 
-In this tutorial we are going to walk through using the PyTorchLearner.  
+In this tutorial we are going to walk through using the PyTorchLearner.  #fixme - summary of steps here
 
-Define a subclass of PytorchLearner that implements _get_model. Here we're defining a model for MNIST.
+## Defining the model
+What we need to do is define a subclass of PytorchLearner that implements _get_model. 
+Here we're defining a model for MNIST.
 
 ```python
 class MNISTPytorchLearner(PytorchLearner):
@@ -37,12 +39,15 @@ class MNISTPytorchLearner(PytorchLearner):
         return model
 ```
 
-This function just needs to return a Pytorch net - the architecture is up to you!
+This function just needs to return a Pytorch Net - the architecture is up to you!
 
-Next we need to define some functions for loading the dataset. The learner needs to be passed an instance of LearnerData
-on contruction. The LearnerData class is defined in `/colearn/basic_learner.py` 
+## Loading the data
+The PytorchLearner expects the data to be wrapped by an instance of LearnerData.
+The LearnerData class is defined in `/colearn/basic_learner.py` 
 and is a simple wrapper around generators for the testing, training and validation data.
-Each generator need to return the next batch of data when `__next__` is called on it.
+The validation data here means the data that is used for voting.
+Each generator needs to return the next batch of data when `__next__` is called on it.
+#fixme - talk about mnist data format
 Here's a function that loads the dataset for a single learner:
 ```python
 def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_ratio, generator_seed):
@@ -97,8 +102,9 @@ The code below defines some config values and then there is a helper function th
 n_learners = 5
 batch_size = 64
 width, height, train_ratio, test_ratio, generator_seed = 28, 28, 0.8, 0.2, 42
+# fixme: tidy the constants, image_width etc
 
-# This step downloads the MNIST dataset and splits it into folders
+# This step downloads the MNIST dataset and splits it into folders  # fixme: move to before definition
 data_split = [1 / n_learners] * n_learners
 learner_data_folders = split_to_folders("", generator_seed, data_split, n_learners)
 ```
@@ -112,6 +118,7 @@ for i in range(n_learners):
     )
 ```
 
+## Configuring the learner
 There are lots of configuration values that are required to specify how the learner will train, e.g. the learning rate.
 The way that the PytorchLearner expects these to be specified is as part of a config object:
 
@@ -122,13 +129,15 @@ class ModelConfig:
         self.optimizer = torch.optim.Adam
         self.l_rate = 0.001
         self.l_rate_decay = 1e-5
-        self.batch_size = batch_size
+        # self.batch_size = batch_size
 
-        self.metrics = ["accuracy"]
+        # self.metrics = ["accuracy"]
 
         # Model params
         self.width = width
         self.height = height
+        
+        # pytorchlearner
         self.loss = nn_func.nll_loss
         self.n_classes = 10
         self.multi_hot = False
@@ -144,7 +153,7 @@ class ModelConfig:
         self.use_dp = False
 ```
 
-Now we can create a list of learners. 
+Now we can create a list of learners. todo: explain clone
 
 ```python
 config = ModelConfig()
@@ -155,11 +164,12 @@ for i in range(1, n_learners):
     learners.append(nth_learner)
 ```
 
+# Running collective learning
 The final step is to do collective learning.
 The `Results` object is just a helper here to store the results so that they can be plotted. 
 The real work is done inside `collective_learning_round`. 
 This function takes a list of learners, selects one to train, collects the votes of the other learners and accepts or declines the update.
-
+todo: remove trainingmode, block
 ```python
 # Get initial accuracy
 results = Results()
