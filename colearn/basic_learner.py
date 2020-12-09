@@ -144,7 +144,7 @@ class BasicLearner(MachineLearningInterface):
 
         return proposed_weights
 
-    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None) -> (float, dict):
         raise NotImplementedError
 
     def _train_model(self):

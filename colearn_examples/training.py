@@ -53,11 +53,9 @@ def collective_learning_round(learners: List[BasicLearner], vote_threshold,
     result.test_accuracies = [pw.test_accuracy for pw in proposed_weights_list]
     result.block_proposer = epoch % len(learners)
 
-    idx = 0
-    for l in learners:
-        if l.config.evaluation_config and len(l.config.evaluation_config) > 0:
-            print("Eval config for node ", idx, ": ", l.test_model(None, l.config.evaluation_config))
-        idx += 1
+    for i, lnr in enumerate(learners):
+        if hasattr(lnr.config, "evaluation_config") and len(lnr.config.evaluation_config) > 0:
+            print(f"Eval config for node {i}: {lnr.test_model(None, lnr.config.evaluation_config)}")
 
     return result
 

@@ -1,4 +1,6 @@
 from abc import ABC
+from typing import Optional
+
 import numpy as np
 from tqdm import trange
 import torch
@@ -65,7 +67,7 @@ class PytorchLearner(BasicLearner, ABC):
         w = Weights([x.clone() for x in self._model.parameters()])
         return w
 
-    def _test_model(self, weights: Weights = None, validate=False, eval_conf: dict = None):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         temp_weights = None
         if weights is not None:
             # store current weights in temporary variables
@@ -159,7 +161,7 @@ class PytorchLearner(BasicLearner, ABC):
             # Restore original weights
             self._set_weights(temp_weights)
 
-        return accuracy
+        return accuracy, {}
 
     def stop_training(self):
         self._stop_training = True

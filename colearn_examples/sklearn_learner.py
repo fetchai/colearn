@@ -92,7 +92,7 @@ class SKLearnLearner(BasicLearner, ABC):
 
         print("AUC score: ", accuracy)
 
-        return accuracy, None
+        return accuracy, {}
 
     def print_summary(self):
         print(self._model)
