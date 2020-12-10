@@ -9,9 +9,36 @@ most of the interface for popular ML libraries. These learners are `SKLearnLearn
 `KerasLearner`, and `PytorchLearner`. These learners implement methods to propose, evaluate and accept weights, 
 and the user just needs to implement the `_get_model` function for the derived class.  
 
-In this tutorial we are going to walk through using the PyTorchLearner.  #fixme - summary of steps here
+In this tutorial we are going to walk through using the PyTorchLearner. The full code for this tutorial can be accessed [here](../bin/).
+  #fixme - summary of steps here
 First we are going to define the model architecture, then 
 we are going to load the data and configure the model, and then we will run collective learning.
+
+## Package structure
+The above mentioned interfaces and basic classes can be accessed trough after installing CoLearn as described in the [README](../README.md):
+
+```python
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
+from colearn.basic_learner import BasicLearner, LearnerData
+```
+
+The mentioned steps will also install an other package called `colearn_examples`, which provides useful
+classes to speed up the development, such as the `PytorchLearner`:
+
+```python
+from colearn_examples.pytorch_learner import PytorchLearner
+```
+
+This package also provides useful data utility, visualization and training helper methods:
+
+```python
+from colearn_examples.mnist import split_to_folders
+from colearn_examples.mnist.data import train_generator as data_generator
+
+from colearn_examples.training import collective_learning_round, initial_result
+from colearn_examples.utils.data import split_by_chunksizes
+from colearn_examples.utils.plot import plot_results, plot_votes
+```
 
 ## Defining the model
 What we need to do is define a subclass of PytorchLearner that implements `_get_model`. 
