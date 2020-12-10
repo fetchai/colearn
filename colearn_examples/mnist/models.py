@@ -74,6 +74,9 @@ class MNISTSuperminiLearner(KerasLearner):
 
 class MNISTPytorchLearner(PytorchLearner):
     def _get_model(self):
+        width = self.config.width
+        height = self.config.height
+
         class Net(nn.Module):
             def __init__(self):
                 super(Net, self).__init__()
@@ -83,7 +86,7 @@ class MNISTPytorchLearner(PytorchLearner):
                 self.fc2 = nn.Linear(500, 10)
 
             def forward(self, x):
-                x = nn_func.relu(self.conv1(x))
+                x = nn_func.relu(self.conv1(x.view(-1, 1, height, width)))
                 x = nn_func.max_pool2d(x, 2, 2)
                 x = nn_func.relu(self.conv2(x))
                 x = nn_func.max_pool2d(x, 2, 2)

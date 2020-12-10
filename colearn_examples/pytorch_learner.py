@@ -1,4 +1,6 @@
 from abc import ABC
+from typing import Optional
+
 import numpy as np
 from tqdm import trange
 import torch
@@ -30,8 +32,6 @@ class PytorchLearner(BasicLearner, ABC):
             privacy_engine.attach(self._optimizer)
         self._criterion = self.config.loss
 
-        assert self.config.n_classes == len(self.config.class_labels)
-
     def _train_model(self):
         self._stop_training = False
         steps_per_epoch = self.config.steps_per_epoch or (self.data.train_data_size // self.data.train_batch_size)
@@ -42,7 +42,7 @@ class PytorchLearner(BasicLearner, ABC):
             if self._stop_training:
                 break
             data, labels = self.data.train_gen.__next__()
-            data = torch.Tensor(data).reshape((self.config.batch_size, 1, self.config.height, self.config.width))
+            data = torch.Tensor(data)
             labels = torch.LongTensor(labels).squeeze()
 
             self._optimizer.zero_grad()
@@ -52,7 +52,7 @@ class PytorchLearner(BasicLearner, ABC):
             self._optimizer.step()
 
     def print_summary(self):
-        summary(self._model, (1, self.config.width, self.config.height))
+        summary(self._model, (self.config.width, self.config.height))
 
     def _set_weights(self, weights: Weights):
         with torch.no_grad():
@@ -64,7 +64,7 @@ class PytorchLearner(BasicLearner, ABC):
         w = Weights([x.clone() for x in self._model.parameters()])
         return w
 
-    def _test_model(self, weights: Weights = None, validate=False, eval_conf: dict = None):
+    def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         temp_weights = None
         if weights is not None:
             # store current weights in temporary variables
@@ -88,7 +88,6 @@ class PytorchLearner(BasicLearner, ABC):
         for _ in progress_bar:  # tqdm provides progress bar
             data, labels = generator.__next__()
             data = torch.Tensor(data)
-            data = torch.reshape(data, (self.config.batch_size, 1, self.config.height, self.config.width))
             pred = self._model(data)
 
             if self.config.multi_hot:
@@ -99,8 +98,8 @@ class PytorchLearner(BasicLearner, ABC):
                     pred = np.argmax(pred.detach().numpy(), axis=1)
 
                     # Convert label IDs to names - accuracy
-                    labels = [self.config.class_labels[int(j)] for j in labels]
-                    pred = [self.config.class_labels[int(j)] for j in pred]
+                    labels = [int(j) for j in labels]
+                    pred = [int(j) for j in pred]
 
             # else: Binary class - AOC metrics
 
@@ -115,10 +114,10 @@ class PytorchLearner(BasicLearner, ABC):
             # Multiple classes one-hot = balanced accuracy
             if self.config.n_classes > 1:
                 conf_matrix = confusion_matrix(
-                    all_labels, all_preds, labels=self.config.class_labels
+                    all_labels, all_preds, labels=list(range(self.config.n_classes))
                 )
                 class_report = classification_report(
-                    all_labels, all_preds, labels=self.config.class_labels
+                    all_labels, all_preds, labels=list(range(self.config.n_classes))
                 )
 
                 # Calculate balanced accuracy
@@ -158,7 +157,7 @@ class PytorchLearner(BasicLearner, ABC):
             # Restore original weights
             self._set_weights(temp_weights)
 
-        return accuracy
+        return accuracy, {}
 
     def stop_training(self):
         self._stop_training = True

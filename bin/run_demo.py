@@ -13,7 +13,7 @@ parser.add_argument("-t", "--task", default="XRAY",
 parser.add_argument("-n", "--n_learners", default=5, type=int)
 parser.add_argument("-e", "--epochs", default=15, type=int)
 parser.add_argument("-s", "--seed", type=int, default=None)
-parser.add_argument("-m", "--mode", default="COLLABORATIVE",
+parser.add_argument("-m", "--mode", default="COLLECTIVE",
                     help="Options are " + " ".join(str(x.name)
                                                    for x in TrainingMode)
                     )

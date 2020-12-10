@@ -1,6 +1,6 @@
 from .context import ColearnConfig, TrainingData
 from .utils import learner_provider, data_provider
-from colearn_examples.training import collaborative_training_pass, individual_training_pass
+from colearn_examples.training import collective_learning_round, individual_training_round
 from colearn_examples.utils.results import Result
 from .pickle_tester import FileTester
 import pytest
@@ -16,7 +16,7 @@ def test_individual_training_pass(learner_provider):
     status = False
     msg = ""
     try:
-        result = individual_training_pass(all_learner_models)
+        result = individual_training_round(all_learner_models)
         status = True
     except Exception as e:
         msg = str(e)
@@ -35,12 +35,12 @@ def test_individual_training_pass(learner_provider):
 
 
 @pytest.mark.dependency(depends=['test_individual_training_pass'])
-def test_collaborative_training_pass(learner_provider):
+def test_collective_learning_round(learner_provider):
     config = ColearnConfig(TrainingData.MNIST, seed=55, n_learners=2)
     config._test_id = "split55"
     config.vote_threshold = 0.3
     learners = learner_provider(config, "", [0.5, 0.5])
-    result = collaborative_training_pass(learners, 0.3, 1)
+    result = collective_learning_round(learners, 0.3, 1)
     res = {
         "vote_accuracies": result.vote_accuracies,
         "test_accuracies": result.test_accuracies,

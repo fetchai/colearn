@@ -25,7 +25,6 @@ class CovidXrayConfig(ModelConfig):
         self.feature_size = 64
         self.loss = "sparse_categorical_crossentropy"
         self.n_classes = 3
-        self.class_labels = [0, 1, 2]
         self.multi_hot = False
 
         # Data params

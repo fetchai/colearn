@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class TrainingMode(Enum):
-    COLLABORATIVE = 1
+    COLLECTIVE = 1
     INDIVIDUAL = 2
 
 
@@ -27,7 +27,7 @@ class ColearnConfig:
         self.n_epochs = n_epochs
 
         self.vote_threshold = 0.5  # 0.66666
-        self.mode = TrainingMode.COLLABORATIVE
+        self.mode = TrainingMode.COLLECTIVE
 
         self.data = task if isinstance(task, TrainingData) else TrainingData[str(task)]
 
@@ -53,9 +53,8 @@ class ModelConfig:
         self.loss = "sparse_categorical_crossentropy"
         self.n_classes = 10
         self.multi_hot = False
-        self.class_labels = range(self.n_classes)
 
-        self.evaluation_config = None
+        self.evaluation_config = {}
         self.transform_metrics_for_grafana = None
 
         self.metrics = ["metrics"]
@@ -73,7 +72,7 @@ class ModelConfig:
         self.generator_seed = seed
 
         # DP params
-        self.use_dp = True
+        self.use_dp = False
         self.sample_size = 3300
         self.alphas = list(range(2, 32))
         self.noise_multiplier = 1.2
