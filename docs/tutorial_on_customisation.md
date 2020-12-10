@@ -11,7 +11,33 @@ and the user just needs to implement the `_get_model` function for the derived c
 
 In this tutorial we are going to walk through using the PyTorchLearner.
 First we are going to define the model architecture, then 
-we are going to load the data and configure the model, and then we will run collective learning.
+we are going to load the data and configure the model, and then we will run Collective Learning.
+
+## Package structure
+The above mentioned interfaces and basic classes can be accessed after installing Collective Learning as described in the [README](../README.md):
+
+```python
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
+from colearn.basic_learner import BasicLearner, LearnerData
+```
+
+The mentioned steps will also install another package called `colearn_examples`, which provides useful
+classes to speed up the development, such as the `PytorchLearner`:
+
+```python
+from colearn_examples.pytorch_learner import PytorchLearner
+```
+
+This package also provides useful data utility, visualization and training helper methods:
+
+```python
+from colearn_examples.mnist import split_to_folders
+from colearn_examples.mnist.data import train_generator as data_generator
+
+from colearn_examples.training import collective_learning_round, initial_result
+from colearn_examples.utils.data import split_by_chunksizes
+from colearn_examples.utils.plot import plot_results, plot_votes
+```
 
 All the code for this tutorial can be found in [customisation_demo.py](../bin/customisation_demo.py).
 
