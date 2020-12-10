@@ -8,9 +8,9 @@ A Colearn experiment begins when a group of entities, a group of *learners*, dec
 
 ### How Training Works
 
-Training occurs in rounds, during each round the learners attempt to improve the performance of the global shared model. 
+Training occurs in rounds; during each round the learners attempt to improve the performance of the global shared model. 
 To do so each round an **update** of the global model (for example new set of weights in a neural network) is proposed. 
-Each of the other learners evaluate the update and decides if the new model is better than the current global model.  
+The learners then **validate** the update and decide if the new model is better than the current global model.  
 If enough learners *approve* the update then global model is updated. After an update is approved or rejected a new round begins. 
 
 The detailed steps of a round updating a global model *M* are as follows:
