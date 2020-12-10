@@ -1,7 +1,7 @@
 # Tutorial
 
 The most flexible way to use the collective learning backends is to make a class that implements
-the collective learning `MachineLearningInterface` defined in [colearn/ml_interface.py](../colearn/ml_interface.py). 
+the Collective Learning `MachineLearningInterface` defined in [ml_interface.py](../colearn/ml_interface.py). 
 The methods that need to be implemented are `train_model`, `test_model` and `accept_weights`. 
 
 However, the simpler way is to use one of the helper classes that we have provided that implement 
@@ -9,8 +9,7 @@ most of the interface for popular ML libraries. These learners are `SKLearnLearn
 `KerasLearner`, and `PytorchLearner`. These learners implement methods to propose, evaluate and accept weights, 
 and the user just needs to implement the `_get_model` function for the derived class.  
 
-In this tutorial we are going to walk through using the PyTorchLearner. The full code for this tutorial can be accessed [here](../bin/).
-  #fixme - summary of steps here
+In this tutorial we are going to walk through using the PyTorchLearner.
 First we are going to define the model architecture, then 
 we are going to load the data and configure the model, and then we will run collective learning.
 
@@ -40,13 +39,18 @@ from colearn_examples.utils.data import split_by_chunksizes
 from colearn_examples.utils.plot import plot_results, plot_votes
 ```
 
+All the code for this tutorial can be found in [customisation_demo.py](../bin/customisation_demo.py).
+
 ## Defining the model
-What we need to do is define a subclass of PytorchLearner that implements `_get_model`. 
+What we need to do is define a subclass of `PytorchLearner` that implements `_get_model`. 
 Here we're defining a model for MNIST.
 
 ```python
 class MNISTPytorchLearner(PytorchLearner):
     def _get_model(self):
+        width = self.config.width
+        height = self.config.height
+        
         class Net(nn.Module):
             def __init__(self):
                 super(Net, self).__init__()
@@ -56,7 +60,7 @@ class MNISTPytorchLearner(PytorchLearner):
                 self.fc2 = nn.Linear(500, 10)
 
             def forward(self, x):
-                x = nn_func.relu(self.conv1(x))
+                x = nn_func.relu(self.conv1(x.view(-1, 1, height, width)))
                 x = nn_func.max_pool2d(x, 2, 2)
                 x = nn_func.relu(self.conv2(x))
                 x = nn_func.max_pool2d(x, 2, 2)
@@ -72,11 +76,11 @@ class MNISTPytorchLearner(PytorchLearner):
 This function just needs to return a Pytorch Net - the architecture is up to you!
 
 ## Loading the data
-The PytorchLearner expects the data to be wrapped by an instance of LearnerData.
-The LearnerData class is defined in [colearn/basic_learner.py](../colearn/basic_learner.py) 
+The `PytorchLearner` expects the data to be wrapped by an instance of `LearnerData`.
+The `LearnerData` class is defined in [basic_learner.py](../colearn/basic_learner.py) 
 and is a simple wrapper around generators for the testing, training and validation data.
 The validation data here means the data that is used for voting.
-Each generator needs to return a numpy array of the next batch of data and labels when `__next__` is called on it. 
+Each generator needs to return numpy arrays of the next batch of data and labels when `__next__` is called on it. 
 
 
 In this demo the function `split_to_folders` downloads the MNIST dataset from keras
@@ -87,11 +91,11 @@ This function loads the dataset for a single learner:
 def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_ratio, generator_seed):
     data = LearnerData()
     data.train_batch_size = batch_size
-    IMAGE_FL = "images.pickle"
-    LABEL_FL = "labels.pickle"
+    image_fl = "images.pickle"
+    label_fl = "labels.pickle"
 
-    images = pickle.load(open(Path(data_dir) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
+    images = pickle.load(open(Path(data_dir) / image_fl, "rb"))
+    labels = pickle.load(open(Path(data_dir) / label_fl, "rb"))
 
     [[train_images, test_images], [train_labels, test_labels]] = \
         split_by_chunksizes([images, labels], [train_ratio, test_ratio])
@@ -134,18 +138,18 @@ For example, you may want to write your own generator that reads batches from di
 dataset doesn't need to be stored in memory.
 
 
-Now we can use the function we defined earlier to make a LearnerData instance for each learner.
+Now we can use the function we defined earlier to make a `LearnerData` instance for each learner.
 ```python
-learner_datasets = []
-for i in range(n_learners):
-    learner_datasets.append(
-        load_learner_data(learner_data_folders[i], batch_size, width, height, train_ratio, test_ratio, generator_seed)
-    )
+learner_datasets = [
+    load_learner_data(learner_data_folders[i], batch_size,
+                      image_width, image_height,
+                      train_fraction, test_fraction, seed)
+    for i in range(n_learners)]
 ```
 
 ## Configuring the learner
 There are lots of configuration values that are required to specify how the learner will train, e.g. the learning rate.
-The way that the PytorchLearner expects these to be specified is as part of a config object:
+The way that the `PytorchLearner` expects these to be specified is as part of a config object:
 
 ```python
 class ModelConfig:
@@ -164,9 +168,9 @@ class ModelConfig:
         
         # Data params
         self.steps_per_epoch = None  # None means use whole dataset
-        self.train_ratio = 0.8
+        self.train_ratio = train_fraction
         self.val_batches = 2  # number of batches used for voting
-        self.test_ratio = 1 - self.train_ratio
+        self.test_ratio = test_fraction
         self.batch_size = batch_size
 
         # Differential Privacy params
