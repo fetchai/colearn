@@ -7,7 +7,8 @@ The methods that need to be implemented are `train_model`, `test_model` and `acc
 However, the simpler way is to use one of the helper classes that we have provided that implement 
 most of the interface for popular ML libraries. These learners are `SKLearnLearner`, 
 `KerasLearner`, and `PytorchLearner`. These learners implement methods to propose, evaluate and accept weights, 
-and the user just needs to implement the `_get_model` function for the derived class.  
+and the user just needs to implement the `_get_model` function for the derived class 
+and load the data into a specific format.  
 
 In this tutorial we are going to walk through using the PyTorchLearner.
 First we are going to define the model architecture, then 
@@ -75,6 +76,22 @@ class MNISTPytorchLearner(PytorchLearner):
 
 This function just needs to return a Pytorch Net - the architecture is up to you!
 
+## Experiment Setup
+Before starting we need to define some constants for the experiments. 
+Feel free to play around with these and see how it affects the experiment results!
+
+```python
+n_learners = 5  # The number of learners in the experiment.
+batch_size = 64  # How large a batch to use in training
+train_fraction = 0.8  # What fraction of the data of each learner  is used for training and validation
+test_fraction = 0.2  # What fraction of the data of each learner is used for testing
+seed = 42  # Seed for splitting the data
+n_rounds = 15  # How many rounds to run. Each round is... 
+vote_threshold = 0.5  # What fraction of learners have to approve the proposed weights
+image_width = 28  # width of the mnist images in pixels
+image_height = 28  # height of the mnist images in pixels
+ ```
+
 ## Loading the data
 The `PytorchLearner` expects the data to be wrapped by an instance of `LearnerData`.
 The `LearnerData` class is defined in [basic_learner.py](../colearn/basic_learner.py) 
@@ -88,6 +105,8 @@ and splits it into a directory for each learner.
 Each directory has two pickle files in it, one of which is for the images, and the other is for the labels.
 This function loads the dataset for a single learner:
 ```python
+    
+    
 def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_ratio, generator_seed):
     data = LearnerData()
     data.train_batch_size = batch_size
@@ -198,10 +217,9 @@ results.data.append(initial_result(learners))
 
 # Now to do collective learning!
 for i in range(n_rounds):
-    results.data.append(
-        collective_learning_round(learners,
+    res = collective_learning_round(learners,
                                   vote_threshold, i)
-    )
+    results.data.append(res)
 
     plot_results(results, n_learners)
     plot_votes(results)

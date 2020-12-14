@@ -16,7 +16,8 @@ from colearn_examples.utils.results import Results
 
 
 # The purpose of this script is to demonstrate how to write your own models for colearn
-# by writing a subclass of PytorchLearner
+# by writing a subclass of PytorchLearner.
+# More explanation of this code can be found [here](../docs/tutorial_on_customisation.md)
 
 # To write your own pytorch model, just subclass PytorchLearner and implement _get_model
 class MNISTPytorchLearner(PytorchLearner):
