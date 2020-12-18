@@ -6,20 +6,11 @@ class PlusOneLearner(MachineLearningInterface):
     def __init__(self, start_value):
         self.current_value = start_value
 
-    def get_name(self) -> str:
-        return "PlusOneLearner"
-
-    def train_model(self):
+    def propose_weights(self):
         self.current_value += 1
         return self.current_value
 
-    def stop_training(self):
-        pass
-
-    def clone(self):
-        return PlusOneLearner(self.current_value)
-
-    def test_model(self, weights=None, eval_config=None) -> ProposedWeights:
+    def test_weights(self, weights=None, eval_config=None) -> ProposedWeights:
         result = ProposedWeights()
         result.weights = weights
         if weights > self.current_value:
@@ -38,3 +29,6 @@ class PlusOneLearner(MachineLearningInterface):
 
     def accept_weights(self, weights: Weights, eval_config: dict = None):
         self.current_value = weights
+
+    def get_current_weights(self) -> Weights:
+        return self.current_value

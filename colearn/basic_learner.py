@@ -1,6 +1,6 @@
 import hashlib
 import pickle
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Generator
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface, \
     Weights
@@ -36,21 +36,16 @@ class RingBuffer:
         return m.digest()
 
 
-class EmptyGenerator:
-    def __next__(self):
-        pass
-
-
 class LearnerData:
-    train_gen = EmptyGenerator()
-    val_gen = EmptyGenerator()  # this is a copy of train gen
-    test_gen = EmptyGenerator()
+    train_gen: Generator
+    val_gen: Generator  # this is a copy of train gen
+    test_gen: Generator
 
-    train_data_size = 0  # this includes augmentation
-    test_data_size = 0  # this includes augmentation
+    train_data_size: int = 0  # this includes augmentation
+    test_data_size: int = 0  # this includes augmentation
 
-    train_batch_size = 0
-    test_batch_size = 0
+    train_batch_size: int = 0
+    test_batch_size: int = 0
 
 
 class BasicLearner(MachineLearningInterface):
@@ -66,14 +61,11 @@ class BasicLearner(MachineLearningInterface):
         self.vote_accuracy, _ = self._test_model(validate=True)
 
         # store this in the cache
-        self.vote_score_cache.add(self.get_weights(),
+        self.vote_score_cache.add(self.get_current_weights(),
                                   self.vote_accuracy)
 
     def print_summary(self):
         raise NotImplementedError
-
-    def get_name(self) -> str:
-        return "Basic Learner"
 
     def _get_model(self):
         raise NotImplementedError
@@ -94,12 +86,12 @@ class BasicLearner(MachineLearningInterface):
             self.vote_score_cache.add(weights,
                                       self.vote_accuracy)
 
-    def train_model(self):
-        old_weights = self.get_weights()
+    def propose_weights(self):
+        old_weights = self.get_current_weights()
 
         self._train_model()
 
-        new_weights = self.get_weights()
+        new_weights = self.get_current_weights()
         self._set_weights(old_weights)
 
         return new_weights
@@ -107,10 +99,10 @@ class BasicLearner(MachineLearningInterface):
     def _set_weights(self, weights: Weights):
         raise NotImplementedError
 
-    def get_weights(self) -> Weights:
+    def get_current_weights(self) -> Weights:
         raise NotImplementedError
 
-    def test_model(self, weights: Weights = None, eval_config: dict = None) -> ProposedWeights:
+    def test_weights(self, weights: Weights = None, eval_config: dict = None) -> ProposedWeights:
         """
             Tests the proposed weights and fills in the rest of the fields
             Also evaluates the model using the metrics specified in eval_config.
@@ -119,7 +111,7 @@ class BasicLearner(MachineLearningInterface):
                 }
         """
         if weights is None:
-            weights = self.get_weights()
+            weights = self.get_current_weights()
 
         proposed_weights = ProposedWeights()
         proposed_weights.weights = weights
@@ -151,14 +143,3 @@ class BasicLearner(MachineLearningInterface):
 
     def _train_model(self):
         raise NotImplementedError
-
-    def stop_training(self):
-        raise NotImplementedError
-
-    def clone(self, data=None):
-        data = data or self.data
-
-        new_learner = type(self)(self.config, data=data)
-        # pylint: disable=W0212
-        new_learner._set_weights(self.get_weights())
-        return new_learner

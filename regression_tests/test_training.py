@@ -16,14 +16,14 @@ def test_individual_training_pass(learner_provider):
     status = False
     msg = ""
     try:
-        result = individual_training_round(all_learner_models)
+        result = individual_training_round(all_learner_models, 0)
         status = True
     except Exception as e:
         msg = str(e)
     assert status, msg
     weights = []
     for l in all_learner_models:
-        weights.append(l.get_weights().weights)
+        weights.append(l.get_current_weights().weights)
     res = {
         "weights": weights,
         "vote_accuracies": result.vote_accuracies,

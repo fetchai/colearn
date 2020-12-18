@@ -15,7 +15,6 @@ from colearn_examples.config import ModelConfig
 
 class PytorchLearner(BasicLearner, ABC):
     def __init__(self, config: ModelConfig, data: LearnerData):
-        self._stop_training = False
         BasicLearner.__init__(self, config=config, data=data)
         self._optimizer = self.config.optimizer(
             self._model.parameters(),
@@ -33,14 +32,11 @@ class PytorchLearner(BasicLearner, ABC):
         self._criterion = self.config.loss
 
     def _train_model(self):
-        self._stop_training = False
         steps_per_epoch = self.config.steps_per_epoch or (self.data.train_data_size // self.data.train_batch_size)
         progress_bar = trange(steps_per_epoch, desc='Training: ', leave=True)
 
         self._model.train()  # sets model to "training" mode. Does not perform training
         for _ in progress_bar:
-            if self._stop_training:
-                break
             data, labels = self.data.train_gen.__next__()
             data = torch.Tensor(data)
             labels = torch.LongTensor(labels).squeeze()
@@ -60,7 +56,7 @@ class PytorchLearner(BasicLearner, ABC):
                                             self._model.parameters()):
                 old_param.set_(new_param)
 
-    def get_weights(self) -> Weights:
+    def get_current_weights(self) -> Weights:
         w = Weights([x.clone() for x in self._model.parameters()])
         return w
 
@@ -68,7 +64,7 @@ class PytorchLearner(BasicLearner, ABC):
         temp_weights = None
         if weights is not None:
             # store current weights in temporary variables
-            temp_weights = self.get_weights()
+            temp_weights = self.get_current_weights()
             self._set_weights(weights)
 
         if validate:
@@ -158,6 +154,3 @@ class PytorchLearner(BasicLearner, ABC):
             self._set_weights(temp_weights)
 
         return accuracy, {}
-
-    def stop_training(self):
-        self._stop_training = True

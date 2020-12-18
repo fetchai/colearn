@@ -1,5 +1,5 @@
 # type: ignore [no-redef]
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from colearn_examples.config import ColearnConfig, ModelConfig, TrainingData, TrainingMode
 from colearn_examples.utils.results import Result, Results
@@ -10,7 +10,7 @@ from colearn.standalone_driver import run_one_epoch
 
 
 def setup_models(config: ModelConfig, client_data_folders_list: List[str],
-                 data_loading_func: Callable[[ModelConfig, str], LearnerData], test_data_dir=None):
+                 data_loading_func: Callable[[ModelConfig, str, Optional[str]], LearnerData], test_data_dir=None):
     learner_datasets = []
     n_learners = len(client_data_folders_list)
     for i in range(n_learners):
@@ -18,12 +18,12 @@ def setup_models(config: ModelConfig, client_data_folders_list: List[str],
             data_loading_func(config, client_data_folders_list[i], test_data_dir=test_data_dir)
         )
 
-    all_learner_models = []
-    clone_model = config.model_type(config, data=learner_datasets[0])
+    clone_model: BasicLearner = config.model_type(config, data=learner_datasets[0])
+    all_learner_models = [clone_model]
 
-    for i in range(n_learners):
-        model = clone_model.clone(data=learner_datasets[i])
-
+    for i in range(1, n_learners):
+        model = config.model_type(config, data=learner_datasets[i])
+        model.accept_weights(clone_model.get_current_weights())
         all_learner_models.append(model)
 
     return all_learner_models
@@ -32,7 +32,7 @@ def setup_models(config: ModelConfig, client_data_folders_list: List[str],
 def initial_result(learners: List[BasicLearner]):
     result = Result()
     for learner in learners:
-        proposed_weights = learner.test_model()  # type: ProposedWeights
+        proposed_weights = learner.test_weights()  # type: ProposedWeights
         result.test_accuracies.append(proposed_weights.test_accuracy)
         result.vote_accuracies.append(proposed_weights.vote_accuracy)
         result.votes.append(True)
@@ -55,7 +55,7 @@ def collective_learning_round(learners: List[BasicLearner], vote_threshold,
 
     for i, lnr in enumerate(learners):
         if hasattr(lnr.config, "evaluation_config") and len(lnr.config.evaluation_config) > 0:
-            print(f"Eval config for node {i}: {lnr.test_model(None, lnr.config.evaluation_config)}")
+            print(f"Eval config for node {i}: {lnr.test_weights(None, lnr.config.evaluation_config)}")
 
     return result
 
@@ -67,8 +67,8 @@ def individual_training_round(learners, epoch):
     # train all models
     for i, learner in enumerate(learners):
         print(f"Training learner #{i} epoch {epoch}")
-        weights = learner.train_model()
-        proposed_weights = learner.test_model(weights)
+        weights = learner.propose_weights()
+        proposed_weights = learner.test_weights(weights)
         learner.accept_weights(weights)
 
         result.votes.append(True)

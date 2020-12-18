@@ -17,7 +17,6 @@ from colearn.basic_learner import BasicLearner, LearnerData, Weights
 class KerasLearner(BasicLearner, ABC):
     def __init__(self, config: ModelConfig, data: LearnerData):
         BasicLearner.__init__(self, config=config, data=data)
-        self._stop_training = False
 
         if config.use_dp:
             opt = DPKerasSGDOptimizer(
@@ -37,17 +36,12 @@ class KerasLearner(BasicLearner, ABC):
         self._model.compile(loss=loss, metrics=self.config.metrics, optimizer=opt)
 
     def _train_model(self):
-        self._stop_training = False
-
         steps_per_epoch = self.config.steps_per_epoch or (self.data.train_data_size // self.data.train_batch_size)
         progress_bar = trange(steps_per_epoch, desc='Training: ', leave=True)
 
         train_accuracy = 0
         i = 0
         for i in progress_bar:  # tqdm provides progress bar
-            if self._stop_training:
-                break
-
             data, labels = self.data.train_gen.__next__()
             history = self._model.fit(data, labels, verbose=0)
 
@@ -60,9 +54,6 @@ class KerasLearner(BasicLearner, ABC):
             progress_bar.refresh()  # to show immediately the update
 
         return train_accuracy / (i + 1)
-
-    def stop_training(self):
-        self._stop_training = True
 
     @staticmethod
     def calculate_gradients(new_weights: np.array, old_weights: np.array):
@@ -179,7 +170,7 @@ class KerasLearner(BasicLearner, ABC):
     def print_summary(self):
         self._model.summary()
 
-    def get_weights(self):
+    def get_current_weights(self):
         return Weights(self._model.get_weights())
 
     def _set_weights(self, weights: Weights):

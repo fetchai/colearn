@@ -45,9 +45,6 @@ class SKLearnLearner(BasicLearner, ABC):
 
         return roc_auc_score(all_labels, all_preds)
 
-    def stop_training(self):
-        raise NotImplementedError
-
     def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         try:
             check_is_fitted(self._model)
@@ -60,7 +57,7 @@ class SKLearnLearner(BasicLearner, ABC):
         temp_weights = None
         if weights and weights.weights:
             # store current weights in temporary variables
-            temp_weights = self.get_weights()
+            temp_weights = self.get_current_weights()
             self._set_weights(weights)
 
         if validate:
@@ -95,7 +92,7 @@ class SKLearnLearner(BasicLearner, ABC):
     def print_summary(self):
         print(self._model)
 
-    def get_weights(self):
+    def get_current_weights(self):
         return Weights(copy.deepcopy(self._model))
 
     def _set_weights(self, weights: Weights):
