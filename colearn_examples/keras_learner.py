@@ -42,7 +42,7 @@ class KerasLearner(BasicLearner, ABC):
         train_accuracy = 0
         i = 0
         for i in progress_bar:  # tqdm provides progress bar
-            data, labels = self.data.train_gen.__next__()
+            data, labels = next(self.data.train_gen)
             history = self._model.fit(data, labels, verbose=0)
 
             if self.config.metrics[0] in history.history:
@@ -69,7 +69,6 @@ class KerasLearner(BasicLearner, ABC):
             temp_weights = self._model.get_weights()
             self._model.set_weights(weights.weights)
 
-        progress_bar = None
         if validate:
             print("Getting vote accuracy:")
             n_steps = self.config.val_batches
@@ -87,7 +86,7 @@ class KerasLearner(BasicLearner, ABC):
         all_preds = []  # type: ignore
 
         for _ in progress_bar:  # tqdm provides progress bar
-            data, labels = generator.__next__()
+            data, labels = next(generator)
             pred = self._model.predict(data)
 
             if self.config.multi_hot:

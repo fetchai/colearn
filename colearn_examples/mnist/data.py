@@ -65,25 +65,22 @@ def split_to_folders(data_dir,
 
 
 def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=None):
-    data = LearnerData()
-    data.train_batch_size = config.batch_size
-
     images = pickle.load(open(Path(data_dir) / IMAGE_FL, "rb"))
     labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
 
     [[train_images, test_images], [train_labels, test_labels]] = \
         split_by_chunksizes([images, labels], [config.train_ratio, config.test_ratio])
 
-    data.train_data_size = len(train_images)
+    train_data_size = len(train_images)
 
-    data.train_gen = train_generator(
+    train_gen = train_generator(
         train_images, train_labels, config.batch_size,
         config.width,
         config.height,
         config.generator_seed,
         config.train_augment
     )
-    data.val_gen = train_generator(
+    val_gen = train_generator(
         train_images, train_labels, config.batch_size,
         config.width,
         config.height,
@@ -91,9 +88,9 @@ def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=None):
         config.train_augment
     )
 
-    data.test_data_size = len(test_images)
+    test_data_size = len(test_images)
 
-    data.test_gen = train_generator(
+    test_gen = train_generator(
         test_images,
         test_labels,
         config.batch_size,
@@ -103,7 +100,13 @@ def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=None):
         config.train_augment,
     )
 
-    data.test_batch_size = config.batch_size
+    data = LearnerData(train_gen=train_gen,
+                       val_gen=val_gen,
+                       test_gen=test_gen,
+                       train_data_size=train_data_size,
+                       test_data_size=test_data_size,
+                       train_batch_size=config.batch_size,
+                       test_batch_size=config.batch_size)
     return data
 
 

@@ -49,8 +49,6 @@ class MNISTPytorchLearner(PytorchLearner):
 
 # also write a function to load the dataset and return a LearnerData instance
 def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_ratio, generator_seed):
-    data = LearnerData()
-    data.train_batch_size = batch_size
     image_fl = "images.pickle"
     label_fl = "labels.pickle"
 
@@ -60,16 +58,16 @@ def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_rat
     [[train_images, test_images], [train_labels, test_labels]] = \
         split_by_chunksizes([images, labels], [train_ratio, test_ratio])
 
-    data.train_data_size = len(train_images)
+    train_data_size = len(train_images)
 
-    data.train_gen = data_generator(
+    train_gen = data_generator(
         train_images, train_labels, batch_size,
         width,
         height,
         generator_seed,
         augmentation=False
     )
-    data.val_gen = data_generator(
+    val_gen = data_generator(
         train_images, train_labels, batch_size,
         width,
         height,
@@ -77,9 +75,9 @@ def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_rat
         augmentation=False
     )
 
-    data.test_data_size = len(test_images)
+    test_data_size = len(test_images)
 
-    data.test_gen = data_generator(
+    test_gen = data_generator(
         test_images,
         test_labels,
         batch_size,
@@ -89,7 +87,13 @@ def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_rat
         augmentation=False
     )
 
-    data.test_batch_size = batch_size
+    data = LearnerData(train_gen=train_gen,
+                       val_gen=val_gen,
+                       test_gen=test_gen,
+                       train_data_size=train_data_size,
+                       test_data_size=test_data_size,
+                       train_batch_size=batch_size,
+                       test_batch_size=batch_size)
     return data
 
 

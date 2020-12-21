@@ -1,6 +1,8 @@
 import hashlib
 import pickle
-from typing import Optional, Tuple, Generator
+from typing import Optional, Tuple, Iterator
+
+from pydantic import BaseModel
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface, \
     Weights
@@ -36,10 +38,10 @@ class RingBuffer:
         return m.digest()
 
 
-class LearnerData:
-    train_gen: Generator
-    val_gen: Generator  # this is a copy of train gen
-    test_gen: Generator
+class LearnerData(BaseModel):
+    train_gen: Iterator
+    val_gen: Iterator  # this is a copy of train gen
+    test_gen: Iterator
 
     train_data_size: int  # this includes augmentation
     test_data_size: int  # this includes augmentation
@@ -47,11 +49,15 @@ class LearnerData:
     train_batch_size: int
     test_batch_size: int
 
+    class Config:
+        # this is required to use Iterator in pydantic:
+        arbitrary_types_allowed = True
+
 
 class BasicLearner(MachineLearningInterface):
     def __init__(self, config, data: LearnerData):
         self.config = config
-        self.data = data
+        self.data: LearnerData = data
 
         self._model = self._get_model()
         self.print_summary()

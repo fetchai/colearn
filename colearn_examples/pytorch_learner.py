@@ -37,7 +37,7 @@ class PytorchLearner(BasicLearner, ABC):
 
         self._model.train()  # sets model to "training" mode. Does not perform training
         for _ in progress_bar:
-            data, labels = self.data.train_gen.__next__()
+            data, labels = next(self.data.train_gen)
             data = torch.Tensor(data)
             labels = torch.LongTensor(labels).squeeze()
 
@@ -82,7 +82,7 @@ class PytorchLearner(BasicLearner, ABC):
         all_preds = []  # type: ignore
 
         for _ in progress_bar:  # tqdm provides progress bar
-            data, labels = generator.__next__()
+            data, labels = next(generator)
             data = torch.Tensor(data)
             pred = self._model(data)
 

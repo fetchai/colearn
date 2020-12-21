@@ -31,7 +31,7 @@ class SKLearnLearner(BasicLearner, ABC):
             class_labels = list(range(self.config.n_classes))
 
         for _ in tqdm(range(steps_per_epoch)):
-            data, labels = self.data.train_gen.__next__()
+            data, labels = next(self.data.train_gen)
 
             # Convert Keras [n,1] format to scikit-learn [n,]
             labels = labels.ravel()
@@ -73,7 +73,7 @@ class SKLearnLearner(BasicLearner, ABC):
         all_preds: List[np.array] = []
 
         for _ in tqdm(range(n_steps)):
-            data, labels = generator.__next__()
+            data, labels = next(generator)
             pred = self._model.decision_function(data)
 
             all_labels.extend(labels)
