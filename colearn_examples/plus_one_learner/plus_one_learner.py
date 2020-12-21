@@ -8,27 +8,32 @@ class PlusOneLearner(MachineLearningInterface):
 
     def propose_weights(self):
         self.current_value += 1
-        return self.current_value
+        return Weights(weights=self.current_value)
 
     def test_weights(self, weights=None, eval_config=None) -> ProposedWeights:
-        result = ProposedWeights()
-        result.weights = weights
-        if weights > self.current_value:
-            result.test_accuracy = 1.0
-            result.vote_accuracy = 1.0
-            result.vote = True
+        if weights.weights > self.current_value:
+            test_accuracy = 1.0
+            vote_accuracy = 1.0
+            vote = True
         elif weights == self.current_value:
-            result.test_accuracy = 0.5
-            result.vote_accuracy = 0.5
-            result.vote = False
+            test_accuracy = 0.5
+            vote_accuracy = 0.5
+            vote = False
         else:
-            result.test_accuracy = 0.0
-            result.vote_accuracy = 0.0
-            result.vote = False
+            test_accuracy = 0.0
+            vote_accuracy = 0.0
+            vote = False
+
+        result = ProposedWeights(weights=weights,
+                                 vote_accuracy=vote_accuracy,
+                                 test_accuracy=test_accuracy,
+                                 vote=vote
+                                 )
+
         return result
 
     def accept_weights(self, weights: Weights, eval_config: dict = None):
-        self.current_value = weights
+        self.current_value = weights.weights
 
     def get_current_weights(self) -> Weights:
-        return self.current_value
+        return Weights(weights=self.current_value)

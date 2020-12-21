@@ -65,4 +65,8 @@ ENABLED:
 # R0801: similar lines
 
 [IMPORTS]
-ignored-modules=aiohttp,cv2,defusedxml,imgaug,gym,fetch,librosa,matplotlib,memory_profiler,numpy,oef,opacus,openapi_core,pandas,psutil,tensorflow,tensorflow_core,tensorflow_privacy,temper,torch,torchsummary,tqdm,skimage,sklearn,vyper,web3
+ignored-modules=aiohttp,cv2,defusedxml,imgaug,gym,fetch,librosa,matplotlib,
+    memory_profiler,numpy,oef,opacus,
+    openapi_core,pandas,psutil,pydantic,tensorflow,tensorflow_core,
+    tensorflow_privacy,temper,torch,torchsummary,tqdm,
+    skimage,sklearn,vyper,web3

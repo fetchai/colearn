@@ -93,7 +93,7 @@ class SKLearnLearner(BasicLearner, ABC):
         print(self._model)
 
     def get_current_weights(self):
-        return Weights(copy.deepcopy(self._model))
+        return Weights(weights=copy.deepcopy(self._model))
 
     def _set_weights(self, weights: Weights):
         self._model = weights.weights

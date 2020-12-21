@@ -1,23 +1,18 @@
 import abc
-from typing import Optional
+from typing import Optional, Any, Dict
+from pydantic import BaseModel
 
 
-class Weights:
-    __slots__ = ('weights',)
-
-    def __init__(self, weights):
-        self.weights = weights
+class Weights(BaseModel):
+    weights: Any
 
 
-class ProposedWeights:
-    __slots__ = ('weights', 'vote_accuracy', 'test_accuracy', 'vote', 'evaluation_results')
-
-    def __init__(self):
-        self.weights: Weights
-        self.vote_accuracy = 0
-        self.test_accuracy = 0
-        self.vote: bool = False
-        self.evaluation_results = {}
+class ProposedWeights(BaseModel):
+    weights: Weights
+    vote_accuracy: float
+    test_accuracy: float
+    vote: bool
+    evaluation_results: Optional[Dict] = None
 
 
 class MachineLearningInterface(abc.ABC):

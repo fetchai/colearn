@@ -113,27 +113,27 @@ class BasicLearner(MachineLearningInterface):
         if weights is None:
             weights = self.get_current_weights()
 
-        proposed_weights = ProposedWeights()
-        proposed_weights.weights = weights
         try:
-            proposed_weights.vote_accuracy = self.vote_score_cache.get(weights)
+            vote_accuracy = self.vote_score_cache.get(weights)
         except KeyError:
-            proposed_weights.vote_accuracy, _ = self._test_model(weights, validate=True)
+            vote_accuracy, _ = self._test_model(weights, validate=True)
 
             # store this in the cache
             self.vote_score_cache.add(weights,
-                                      proposed_weights.vote_accuracy)
+                                      vote_accuracy)
 
-        acc, eval_result = self._test_model(weights,
-                                            validate=False,
-                                            eval_config=eval_config)
-        proposed_weights.test_accuracy = acc
-        proposed_weights.evaluation_results = eval_result
+        test_acc, eval_result = self._test_model(weights,
+                                                 validate=False,
+                                                 eval_config=eval_config)
 
-        proposed_weights.vote = (
-            proposed_weights.vote_accuracy >= self.vote_accuracy
-        )
+        vote = vote_accuracy >= self.vote_accuracy
 
+        proposed_weights = ProposedWeights(weights=weights,
+                                           vote_accuracy=vote_accuracy,
+                                           test_accuracy=test_acc,
+                                           vote=vote,
+                                           evaluation_results=eval_result,
+                                           )
         return proposed_weights
 
     def _test_model(self, weights: Weights = None, validate=False,

@@ -171,7 +171,7 @@ class KerasLearner(BasicLearner, ABC):
         self._model.summary()
 
     def get_current_weights(self):
-        return Weights(self._model.get_weights())
+        return Weights(weights=self._model.get_weights())
 
     def _set_weights(self, weights: Weights):
         self._model.set_weights(weights.weights)

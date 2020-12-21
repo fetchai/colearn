@@ -57,7 +57,7 @@ class PytorchLearner(BasicLearner, ABC):
                 old_param.set_(new_param)
 
     def get_current_weights(self) -> Weights:
-        w = Weights([x.clone() for x in self._model.parameters()])
+        w = Weights(weights=[x.clone() for x in self._model.parameters()])
         return w
 
     def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
