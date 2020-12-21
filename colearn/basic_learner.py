@@ -41,11 +41,11 @@ class LearnerData:
     val_gen: Generator  # this is a copy of train gen
     test_gen: Generator
 
-    train_data_size: int = 0  # this includes augmentation
-    test_data_size: int = 0  # this includes augmentation
+    train_data_size: int  # this includes augmentation
+    test_data_size: int  # this includes augmentation
 
-    train_batch_size: int = 0
-    test_batch_size: int = 0
+    train_batch_size: int
+    test_batch_size: int
 
 
 class BasicLearner(MachineLearningInterface):
