@@ -6,7 +6,7 @@ from tqdm import trange
 import torch
 from torchsummary import summary
 from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score
-from opacus import PrivacyEngine
+
 
 from colearn.basic_learner import BasicLearner, LearnerData
 from colearn.ml_interface import Weights
@@ -22,6 +22,14 @@ class PytorchLearner(BasicLearner, ABC):
         )
 
         if config.use_dp:
+            try:
+                # pylint: disable=C0415
+                from opacus import PrivacyEngine
+            except ImportError:
+                print("Error: opacus library needs to be installed to use "
+                      "differential privacy with PytorchLearner")
+                raise
+
             privacy_engine = PrivacyEngine(self._model,
                                            batch_size=self.config.batch_size,
                                            sample_size=self.config.sample_size,

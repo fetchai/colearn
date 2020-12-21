@@ -14,6 +14,8 @@ from colearn.basic_learner import BasicLearner, LearnerData, Weights
 class SKLearnLearner(BasicLearner, ABC):
     def __init__(self, config: ModelConfig, data: LearnerData):
         BasicLearner.__init__(self, config=config, data=data)
+        if config.use_dp:
+            print("Warning: Differential privacy is not supported for SKLearnLearner")
 
     def _train_model(self):
         steps_per_epoch = (

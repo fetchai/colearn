@@ -6,7 +6,6 @@ from tqdm import trange
 
 from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
 
-from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasSGDOptimizer
 import tensorflow as tf
 
 from colearn_examples.config import ModelConfig
@@ -19,6 +18,13 @@ class KerasLearner(BasicLearner, ABC):
         BasicLearner.__init__(self, config=config, data=data)
 
         if config.use_dp:
+            try:
+                # pylint: disable=C0415
+                from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasSGDOptimizer
+            except ImportError:
+                print("Error: tensorflow-privacy library needs to be installed to use "
+                      "differential privacy with KerasLearner")
+                raise
             opt = DPKerasSGDOptimizer(
                 l2_norm_clip=self.config.l2_norm_clip,
                 noise_multiplier=self.config.noise_multiplier,
