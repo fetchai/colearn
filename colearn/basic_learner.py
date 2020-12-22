@@ -108,7 +108,7 @@ class BasicLearner(MachineLearningInterface):
     def get_current_weights(self) -> Weights:
         raise NotImplementedError
 
-    def test_weights(self, weights: Weights = None, eval_config: dict = None) -> ProposedWeights:
+    def test_weights(self, weights: Weights, eval_config: dict = None) -> ProposedWeights:
         """
             Tests the proposed weights and fills in the rest of the fields
             Also evaluates the model using the metrics specified in eval_config.
@@ -116,8 +116,6 @@ class BasicLearner(MachineLearningInterface):
                     "name": lambda y_true, y_pred
                 }
         """
-        if weights is None:
-            weights = self.get_current_weights()
 
         try:
             vote_accuracy = self.vote_score_cache.get(weights)

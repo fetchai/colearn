@@ -10,7 +10,7 @@ class PlusOneLearner(MachineLearningInterface):
         self.current_value += 1
         return Weights(weights=self.current_value)
 
-    def test_weights(self, weights=None, eval_config=None) -> ProposedWeights:
+    def test_weights(self, weights, eval_config=None) -> ProposedWeights:
         if weights.weights > self.current_value:
             test_accuracy = 1.0
             vote_accuracy = 1.0
