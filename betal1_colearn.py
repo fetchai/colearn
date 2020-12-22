@@ -13,14 +13,21 @@ from colearn_examples.utils.results import Results
 
 
 class NewPytorchLearner(MachineLearningInterface):
-    def __init__(self, model, optimizer, train_data, test_data, device, criterion=None):
-        self.model = model
-        self.optimizer = optimizer
+    def __init__(self, model: torch.nn.Module,
+                 optimizer: torch.optim.Optimizer,
+                 train_loader: torch.utils.data.DataLoader,
+                 test_loader: Optional[torch.utils.data.DataLoader] = None,
+                 device=torch.device("cpu"),
+                 criterion=None,
+                 minimise_criterion=True):
+        self.model: torch.nn.Module = model
+        self.optimizer: torch.optim.Optimizer = optimizer
         self.criterion = criterion
-        self.train_loader = train_data
-        self.test_loader = test_data
+        self.train_loader: torch.utils.data.DataLoader = train_loader
+        self.test_loader: Optional[torch.utils.data.DataLoader] = test_loader
         self.device = device
         self.vote_score = self.test(self.train_loader)
+        self.minimise_criterion = minimise_criterion
 
     def mli_get_current_weights(self) -> Weights:
         w = Weights(weights=[x.clone() for x in self.model.parameters()])
@@ -57,6 +64,7 @@ class NewPytorchLearner(MachineLearningInterface):
         self.set_weights(weights)
 
         vote_score = self.test(self.train_loader)
+        print(vote_score)
         if self.test_loader:
             test_score = self.test(self.test_loader)
         else:
@@ -70,10 +78,13 @@ class NewPytorchLearner(MachineLearningInterface):
                                vote=vote
                                )
 
-    def vote(self, new_score):
-        return new_score > self.vote_score
+    def vote(self, new_score) -> bool:
+        if self.minimise_criterion:
+            return new_score <= self.vote_score
+        else:
+            return new_score >= self.vote_score
 
-    def test(self, loader):
+    def test(self, loader) -> float:
         if not self.criterion:
             raise Exception("Criterion is unspecified so test method cannot be used")
 
@@ -86,7 +97,7 @@ class NewPytorchLearner(MachineLearningInterface):
                 output = self.model(data)
                 loss = self.criterion(output, labels)
                 total_loss += loss
-        return total_loss
+        return float(total_loss / len(loader))
 
     def mli_accept_weights(self, weights: Weights):
         self.set_weights(weights)
@@ -94,34 +105,16 @@ class NewPytorchLearner(MachineLearningInterface):
 
 
 class BetaL1(NewPytorchLearner):
-    def __init__(self, seed, batch_size, no_cuda=False):
+    def __init__(self, seed, train_loader, test_loader,
+                 device=torch.device("cpu")):
         # HYPERPARAMETERS
         n_warm_up = 100
-        learning_rate = 0.0001  # 1e-4 #(MINE)
+        learning_rate = 0.00001  # 1e-4 #(MINE)
         latent_dim = 20
         calc_shape = 256
 
         torch.manual_seed(seed)
-        cuda = not no_cuda and torch.cuda.is_available()
-        self.device = torch.device("cuda" if cuda else "cpu")
-        kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
-
-        train_root = 'Trainpatches'
-        # val_root = 'Testpatches'
-        val_root = train_root
-        transform = transforms.Compose([
-            transforms.RandomVerticalFlip(p=0.5),
-            transforms.RandomHorizontalFlip(p=0.5),
-            transforms.Pad(16, fill=0, padding_mode='constant'),
-            transforms.ToTensor()])
-
-        # DATA LOADER
-        train_loader = torch.utils.data.DataLoader(
-            datasets.CIFAR10(train_root, transform=transform, download=True),
-            batch_size=batch_size, shuffle=True, **kwargs)
-        test_loader = torch.utils.data.DataLoader(
-            datasets.CIFAR10(val_root, transform=transform, download=True),
-            batch_size=batch_size, shuffle=False, **kwargs)
+        self.device = device
 
         class BetaVAE(nn.Module):
             def __init__(self):
@@ -210,7 +203,8 @@ class BetaL1(NewPytorchLearner):
         super().__init__(model, optimizer, train_loader, test_loader, self.device)
 
     def vote(self, new_score: float):
-        return new_score < self.vote_score
+        # return new_score < self.vote_score
+        return True
 
     def train(self):
         if self.epoch == 1:
@@ -223,7 +217,7 @@ class BetaL1(NewPytorchLearner):
         train_loss = 0
 
         for batch_idx, (data, label) in enumerate(self.train_loader):
-            if batch_idx > 10:  # training is slooooow
+            if batch_idx > 50:  # training is slooooow
                 break
 
             images = data
@@ -250,13 +244,13 @@ class BetaL1(NewPytorchLearner):
     def test(self, loader):
         self.model.eval()
         test_loss = 0
-        num_batches = 0
+        num_samples = 0
         with torch.no_grad():
             for i, (data, label) in enumerate(loader):
-                if i > 10:  # testing is also slooooow
+                if i > 50:  # testing is also slooooow
                     break
 
-                data = data.to(self.device)
+                data: torch.Tensor = data.to(self.device)
                 recon_batch, mu, logvar = self.model(data)
 
                 kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
@@ -264,9 +258,9 @@ class BetaL1(NewPytorchLearner):
                 elbo = likelihood - torch.sum(kld)
                 loss = - elbo / len(data)
                 test_loss += loss.item()
-                num_batches += 1
+                num_samples += data.shape[0]
 
-        test_loss /= len(loader.dataset)
+        test_loss /= num_samples
         print('====> Test set loss: {:.4f}'.format(test_loss))
 
         return test_loss
@@ -279,7 +273,46 @@ if __name__ == "__main__":
     n_epochs = 20
     make_plot = True
     vote_threshold = 0.5
-    all_learner_models = [BetaL1(seed=42, batch_size=batch_size) for _ in range(n_learners)]
+    no_cuda = False
+    train_fraction = 0.9
+
+    cuda = not no_cuda and torch.cuda.is_available()
+    device = torch.device("cuda" if cuda else "cpu")
+
+    # move data setup outside
+    kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+    train_root = 'Trainpatches'
+    transform = transforms.Compose([
+        transforms.RandomVerticalFlip(p=0.5),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.Pad(16, fill=0, padding_mode='constant'),
+        transforms.ToTensor()])
+
+    # DATA LOADER
+    data = datasets.CIFAR10(train_root, transform=transform, download=True)
+    n_train = int(train_fraction * len(data))
+    n_test = len(data) - n_train
+    train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])
+
+    data_split = [len(train_data)//n_learners] * n_learners
+    learner_train_data = torch.utils.data.random_split(train_data, data_split)
+    learner_train_dataloaders = [torch.utils.data.DataLoader(
+        ds,
+        batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
+
+    data_split = [len(test_data)//n_learners] * n_learners
+    learner_test_data = torch.utils.data.random_split(test_data, data_split)
+    learner_test_dataloaders = [torch.utils.data.DataLoader(
+        ds,
+        batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
+
+    all_learner_models = []
+    for i in range(n_learners):
+        all_learner_models.append(BetaL1(seed=42,
+                                         train_loader=learner_train_dataloaders[i],
+                                         test_loader=learner_test_dataloaders[i],
+                                         device=device
+                                         ))
 
     results = Results()
     # Get initial accuracy
