@@ -23,7 +23,7 @@ def test_individual_training_pass(learner_provider):
     assert status, msg
     weights = []
     for l in all_learner_models:
-        weights.append(l.get_current_weights().weights)
+        weights.append(l.mli_get_current_weights().weights)
     res = {
         "weights": weights,
         "vote_accuracies": result.vote_accuracies,

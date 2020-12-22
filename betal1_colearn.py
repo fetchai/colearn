@@ -22,7 +22,7 @@ class NewPytorchLearner(MachineLearningInterface):
         self.device = device
         self.vote_score = self.test(self.train_loader)
 
-    def get_current_weights(self) -> Weights:
+    def mli_get_current_weights(self) -> Weights:
         w = Weights(weights=[x.clone() for x in self.model.parameters()])
         return w
 
@@ -45,15 +45,15 @@ class NewPytorchLearner(MachineLearningInterface):
             loss.backward()
             self.optimizer.step()
 
-    def propose_weights(self) -> Weights:
-        current_weights = self.get_current_weights()
+    def mli_propose_weights(self) -> Weights:
+        current_weights = self.mli_get_current_weights()
         self.train()
-        new_weights = self.get_current_weights()
+        new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)
         return new_weights
 
-    def test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
-        current_weights = self.get_current_weights()
+    def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
+        current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
         vote_score = self.test(self.train_loader)
@@ -88,7 +88,7 @@ class NewPytorchLearner(MachineLearningInterface):
                 total_loss += loss
         return total_loss
 
-    def accept_weights(self, weights: Weights):
+    def mli_accept_weights(self, weights: Weights):
         self.set_weights(weights)
         self.vote_score = self.test(self.train_loader)
 

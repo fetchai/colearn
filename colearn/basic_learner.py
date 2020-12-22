@@ -67,7 +67,7 @@ class BasicLearner(MachineLearningInterface):
         self.vote_accuracy, _ = self._test_model(validate=True)
 
         # store this in the cache
-        self.vote_score_cache.add(self.get_current_weights(),
+        self.vote_score_cache.add(self.mli_get_current_weights(),
                                   self.vote_accuracy)
 
     def print_summary(self):
@@ -76,7 +76,7 @@ class BasicLearner(MachineLearningInterface):
     def _get_model(self):
         raise NotImplementedError
 
-    def accept_weights(self, weights: Weights):
+    def mli_accept_weights(self, weights: Weights):
         # overwrite model weights with new weights
         self._set_weights(weights)
 
@@ -92,12 +92,12 @@ class BasicLearner(MachineLearningInterface):
             self.vote_score_cache.add(weights,
                                       self.vote_accuracy)
 
-    def propose_weights(self):
-        old_weights = self.get_current_weights()
+    def mli_propose_weights(self):
+        old_weights = self.mli_get_current_weights()
 
         self._train_model()
 
-        new_weights = self.get_current_weights()
+        new_weights = self.mli_get_current_weights()
         self._set_weights(old_weights)
 
         return new_weights
@@ -105,10 +105,10 @@ class BasicLearner(MachineLearningInterface):
     def _set_weights(self, weights: Weights):
         raise NotImplementedError
 
-    def get_current_weights(self) -> Weights:
+    def mli_get_current_weights(self) -> Weights:
         raise NotImplementedError
 
-    def test_weights(self, weights: Weights, eval_config: dict = None) -> ProposedWeights:
+    def mli_test_weights(self, weights: Weights, eval_config: dict = None) -> ProposedWeights:
         """
             Tests the proposed weights and fills in the rest of the fields
             Also evaluates the model using the metrics specified in eval_config.

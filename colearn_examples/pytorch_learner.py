@@ -64,7 +64,7 @@ class PytorchLearner(BasicLearner, ABC):
                                             self._model.parameters()):
                 old_param.set_(new_param)
 
-    def get_current_weights(self) -> Weights:
+    def mli_get_current_weights(self) -> Weights:
         w = Weights(weights=[x.clone() for x in self._model.parameters()])
         return w
 
@@ -72,7 +72,7 @@ class PytorchLearner(BasicLearner, ABC):
         temp_weights = None
         if weights is not None:
             # store current weights in temporary variables
-            temp_weights = self.get_current_weights()
+            temp_weights = self.mli_get_current_weights()
             self._set_weights(weights)
 
         if validate:

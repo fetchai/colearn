@@ -23,7 +23,7 @@ def setup_models(config: ModelConfig, client_data_folders_list: List[str],
 
     for i in range(1, n_learners):
         model = config.model_type(config, data=learner_datasets[i])
-        model.accept_weights(clone_model.get_current_weights())
+        model.mli_accept_weights(clone_model.mli_get_current_weights())
         all_learner_models.append(model)
 
     return all_learner_models
@@ -32,7 +32,7 @@ def setup_models(config: ModelConfig, client_data_folders_list: List[str],
 def initial_result(learners: List[MachineLearningInterface]):
     result = Result()
     for learner in learners:
-        proposed_weights = learner.test_weights(learner.get_current_weights())  # type: ProposedWeights
+        proposed_weights = learner.mli_test_weights(learner.mli_get_current_weights())  # type: ProposedWeights
         result.test_accuracies.append(proposed_weights.test_accuracy)
         result.vote_accuracies.append(proposed_weights.vote_accuracy)
         result.votes.append(True)
@@ -58,7 +58,7 @@ def collective_learning_round(learners: List[MachineLearningInterface], vote_thr
                 and hasattr(lnr.config, "evaluation_config")
                 and len(lnr.config.evaluation_config) > 0):
             print(f"Eval config for node {i}: "
-                  f"{lnr.test_weights(lnr.get_current_weights(), lnr.config.evaluation_config)}")
+                  f"{lnr.mli_test_weights(lnr.mli_get_current_weights(), lnr.config.evaluation_config)}")
 
     return result
 
@@ -70,9 +70,9 @@ def individual_training_round(learners, epoch):
     # train all models
     for i, learner in enumerate(learners):
         print(f"Training learner #{i} epoch {epoch}")
-        weights = learner.propose_weights()
-        proposed_weights = learner.test_weights(weights)
-        learner.accept_weights(weights)
+        weights = learner.mli_propose_weights()
+        proposed_weights = learner.mli_test_weights(weights)
+        learner.mli_accept_weights(weights)
 
         result.votes.append(True)
         result.vote_accuracies.append(proposed_weights.vote_accuracy)

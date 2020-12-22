@@ -59,7 +59,7 @@ class SKLearnLearner(BasicLearner, ABC):
         temp_weights = None
         if weights and weights.weights:
             # store current weights in temporary variables
-            temp_weights = self.get_current_weights()
+            temp_weights = self.mli_get_current_weights()
             self._set_weights(weights)
 
         if validate:
@@ -94,7 +94,7 @@ class SKLearnLearner(BasicLearner, ABC):
     def print_summary(self):
         print(self._model)
 
-    def get_current_weights(self):
+    def mli_get_current_weights(self):
         return Weights(weights=copy.deepcopy(self._model))
 
     def _set_weights(self, weights: Weights):
