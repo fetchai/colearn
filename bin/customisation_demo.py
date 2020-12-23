@@ -152,7 +152,7 @@ config = ModelConfig()
 learners = [MNISTPytorchLearner(config, data=learner_datasets[i])
             for i in range(n_learners)]
 
-# Get initial accuracy
+# Get initial score
 results = Results()
 results.data.append(initial_result(learners))
 

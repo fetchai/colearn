@@ -35,24 +35,25 @@ class MNISTConvLearner(KerasLearner):
 As can be seen the model inherits from the [KerasLearner](colearn_examples/keras_learner.py) which inherits from the BasicLearner which implements the interface. Each of these intermediate classes are customization points the library provides to simplify the deployment of your own models. For any Keras based model we recommend starting with the KerasLearner. In the Example folder there is also a [SKLearnLearner](colearn_examples/sklearn_learner.py) for Scikit-learn models .
 
 The BasicLearner handles some of the logic required by the interface and hands what is model specific to the subclass. For example BasicLearner implements test_model
+
 ```python
 
 def test_model(self, weights=None) -> ProposedWeights:
-        """Tests the proposed weights and fills in the rest of the fields"""
-        if weights is None:
-            weights = self.get_weights()
+    """Tests the proposed weights and fills in the rest of the fields"""
+    if weights is None:
+        weights = self.get_weights()
 
-        proposed_weights = ProposedWeights()
-        proposed_weights.weights = weights
-        proposed_weights.validation_accuracy = self._test_model(weights,
-                                                                validate=True)
-        proposed_weights.test_accuracy = self._test_model(weights,
-                                                          validate=False)
-        proposed_weights.vote = (
-            proposed_weights.validation_accuracy >= self.vote_accuracy
-        )
+    proposed_weights = ProposedWeights()
+    proposed_weights.weights = weights
+    proposed_weights.validation_accuracy = self._test_model(weights,
+                                                            validate=True)
+    proposed_weights.test_score = self._test_model(weights,
+                                                   validate=False)
+    proposed_weights.vote = (
+            proposed_weights.validation_accuracy >= self.vote_score
+    )
 
-        return proposed_weights
+    return proposed_weights
 ```
 but get_weights is left unimplemented
 ```python

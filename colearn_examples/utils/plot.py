@@ -23,13 +23,13 @@ def process_statistics(results: Results, n_learners: int):
 
     for r in range(len(results.data)):
         results.mean_test_accuracies.append(
-            mean(array(results.data[r].test_accuracies))
+            mean(array(results.data[r].test_scores))
         )
         results.mean_vote_accuracies.append(
-            mean(array(results.data[r].vote_accuracies))
+            mean(array(results.data[r].vote_scores))
         )
-        results.max_test_accuracies.append(max(array(results.data[r].test_accuracies)))
-        results.max_vote_accuracies.append(max(array(results.data[r].vote_accuracies)))
+        results.max_test_accuracies.append(max(array(results.data[r].test_scores)))
+        results.max_vote_accuracies.append(max(array(results.data[r].vote_scores)))
 
     # gather individual scores
     for i in range(n_learners):
@@ -37,8 +37,8 @@ def process_statistics(results: Results, n_learners: int):
         results.h_vote_accuracies.append([])
 
         for r in range(len(results.data)):
-            results.h_test_accuracies[i].append(results.data[r].test_accuracies[i])
-            results.h_vote_accuracies[i].append(results.data[r].vote_accuracies[i])
+            results.h_test_accuracies[i].append(results.data[r].test_scores[i])
+            results.h_vote_accuracies[i].append(results.data[r].vote_scores[i])
 
     results.highest_test_accuracy = max(array(results.h_test_accuracies))
     results.highest_vote_accuracy = max(array(results.h_vote_accuracies))
@@ -135,7 +135,7 @@ def plot_results(results,
     axes.clear()
 
     axes.set_xlabel("training epoch")
-    axes.set_ylabel("classification accuracy")
+    axes.set_ylabel("user-defined score")
 
     axes.set_xlim(-0.5, len(results.mean_test_accuracies) - 0.5)
     axes.set_xticks(arange(0, len(results.mean_test_accuracies), step=1))

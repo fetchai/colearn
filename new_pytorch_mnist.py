@@ -1,3 +1,4 @@
+from torchsummary import summary
 from torchvision import transforms, datasets
 import torch.utils.data
 
@@ -86,6 +87,8 @@ for i in range(n_learners):
 
     all_learner_models.append(learner)
 
+# print a summary of the model architecture
+summary(all_learner_models[0].model, input_size=(width, height))
 
 # Now we're ready to start collective learning
 # Get initial accuracy

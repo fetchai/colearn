@@ -9,8 +9,8 @@ class Weights(BaseModel):
 
 class ProposedWeights(BaseModel):
     weights: Weights
-    vote_accuracy: float
-    test_accuracy: float
+    vote_score: float
+    test_score: float
     vote: bool
     evaluation_results: Optional[Dict] = None
 

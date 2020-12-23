@@ -133,8 +133,8 @@ class BasicLearner(MachineLearningInterface):
         vote = vote_accuracy >= self.vote_accuracy
 
         proposed_weights = ProposedWeights(weights=weights,
-                                           vote_accuracy=vote_accuracy,
-                                           test_accuracy=test_acc,
+                                           vote_score=vote_accuracy,
+                                           test_score=test_acc,
                                            vote=vote,
                                            evaluation_results=eval_result,
                                            )

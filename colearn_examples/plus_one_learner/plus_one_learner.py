@@ -25,8 +25,8 @@ class PlusOneLearner(MachineLearningInterface):
             vote = False
 
         result = ProposedWeights(weights=weights,
-                                 vote_accuracy=vote_accuracy,
-                                 test_accuracy=test_accuracy,
+                                 vote_score=vote_accuracy,
+                                 test_score=test_accuracy,
                                  vote=vote
                                  )
 

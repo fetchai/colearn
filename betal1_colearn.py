@@ -42,12 +42,12 @@ class NewPytorchLearner(MachineLearningInterface):
     def train(self):
         self.model.train()
 
-        for batch_idx, (data, labels) in enumerate(self.train_loader):
+        for data, labels in self.train_loader:
             self.optimizer.zero_grad()
             data = data.to(self.device)
             labels = labels.to(self.device)
             output = self.model(data)
-            # do something with loss
+
             loss = self.criterion(output, labels)
             loss.backward()
             self.optimizer.step()
@@ -64,7 +64,7 @@ class NewPytorchLearner(MachineLearningInterface):
         self.set_weights(weights)
 
         vote_score = self.test(self.train_loader)
-        print(vote_score)
+
         if self.test_loader:
             test_score = self.test(self.test_loader)
         else:
@@ -73,8 +73,8 @@ class NewPytorchLearner(MachineLearningInterface):
 
         self.set_weights(current_weights)
         return ProposedWeights(weights=weights,
-                               vote_accuracy=vote_score,
-                               test_accuracy=test_score,
+                               vote_score=vote_score,
+                               test_score=test_score,
                                vote=vote
                                )
 
@@ -315,7 +315,7 @@ if __name__ == "__main__":
                                          ))
 
     results = Results()
-    # Get initial accuracy
+    # Get initial score
     results.data.append(initial_result(all_learner_models))
 
     for epoch in range(n_epochs):

@@ -26,8 +26,8 @@ def test_individual_training_pass(learner_provider):
         weights.append(l.mli_get_current_weights().weights)
     res = {
         "weights": weights,
-        "vote_accuracies": result.vote_accuracies,
-        "test_accuracies": result.test_accuracies
+        "vote_scores": result.vote_scores,
+        "test_scores": result.test_scores
     }
     ft = FileTester()
     reference = ft.get_pickle("./regression_tests/data/mnist/ml_all_model_1epoch.pickle")
@@ -42,8 +42,8 @@ def test_collective_learning_round(learner_provider):
     learners = learner_provider(config, "", [0.5, 0.5])
     result = collective_learning_round(learners, 0.3, 1)
     res = {
-        "vote_accuracies": result.vote_accuracies,
-        "test_accuracies": result.test_accuracies,
+        "vote_scores": result.vote_scores,
+        "test_scores": result.test_scores,
         "votes": result.votes,
         "vote": result.vote,
         "block_proposer": result.block_proposer,

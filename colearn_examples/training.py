@@ -33,8 +33,8 @@ def initial_result(learners: List[MachineLearningInterface]):
     result = Result()
     for learner in learners:
         proposed_weights = learner.mli_test_weights(learner.mli_get_current_weights())  # type: ProposedWeights
-        result.test_accuracies.append(proposed_weights.test_accuracy)
-        result.vote_accuracies.append(proposed_weights.vote_accuracy)
+        result.test_scores.append(proposed_weights.test_score)
+        result.vote_scores.append(proposed_weights.vote_score)
         result.votes.append(True)
     return result
 
@@ -48,9 +48,9 @@ def collective_learning_round(learners: List[MachineLearningInterface], vote_thr
                                                 vote_threshold)
     result.vote = vote
     result.votes = [pw.vote for pw in proposed_weights_list]
-    result.vote_accuracies = [pw.vote_accuracy for pw in
-                              proposed_weights_list]
-    result.test_accuracies = [pw.test_accuracy for pw in proposed_weights_list]
+    result.vote_scores = [pw.vote_score for pw in
+                          proposed_weights_list]
+    result.test_scores = [pw.test_score for pw in proposed_weights_list]
     result.block_proposer = epoch % len(learners)
 
     for i, lnr in enumerate(learners):
@@ -75,8 +75,8 @@ def individual_training_round(learners, epoch):
         learner.mli_accept_weights(weights)
 
         result.votes.append(True)
-        result.vote_accuracies.append(proposed_weights.vote_accuracy)
-        result.test_accuracies.append(proposed_weights.test_accuracy)
+        result.vote_scores.append(proposed_weights.vote_score)
+        result.test_scores.append(proposed_weights.test_score)
 
     return result
 

@@ -25,15 +25,15 @@ def process_statistics(results, n_learners: int):
 
     for r in range(len(results.data)):
         results.mean_test_accuracies.append(
-            mean(array(results.data[r].test_accuracies))
+            mean(array(results.data[r].test_scores))
         )
         results.mean_vote_accuracies.append(
-            mean(array(results.data[r].vote_accuracies))
+            mean(array(results.data[r].vote_scores))
         )
         results.max_test_accuracies.append(
-            max(array(results.data[r].test_accuracies)))
+            max(array(results.data[r].test_scores)))
         results.max_vote_accuracies.append(
-            max(array(results.data[r].vote_accuracies)))
+            max(array(results.data[r].vote_scores)))
 
     # gather individual scores
     for i in range(n_learners):
@@ -42,9 +42,9 @@ def process_statistics(results, n_learners: int):
 
         for r in range(len(results.data)):
             results.h_test_accuracies[i].append(
-                results.data[r].test_accuracies[i])
+                results.data[r].test_scores[i])
             results.h_vote_accuracies[i].append(
-                results.data[r].vote_accuracies[i])
+                results.data[r].vote_scores[i])
 
     results.highest_test_accuracy = max(array(results.h_test_accuracies))
     results.highest_vote_accuracy = max(array(results.h_vote_accuracies))
