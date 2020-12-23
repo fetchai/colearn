@@ -124,7 +124,8 @@ def display_statistics(
 
 def plot_results(results,
                  n_learners: int,
-                 block=False):
+                 block=False,
+                 score_name="user-defined score"):
     # Prepare data for plotting
     process_statistics(results, n_learners)
 
@@ -135,7 +136,7 @@ def plot_results(results,
     axes.clear()
 
     axes.set_xlabel("training epoch")
-    axes.set_ylabel("user-defined score")
+    axes.set_ylabel(score_name)
 
     axes.set_xlim(-0.5, len(results.mean_test_accuracies) - 0.5)
     axes.set_xticks(arange(0, len(results.mean_test_accuracies), step=1))
@@ -148,14 +149,14 @@ def plot_results(results,
             results.h_test_accuracies[i],
             "b--",
             alpha=0.5,
-            label="test accuracy",
+            label=f"test {score_name}",
         )
         axes.plot(
             epochs,
             results.h_vote_accuracies[i],
             "r--",
             alpha=0.5,
-            label="vote accuracy",
+            label=f"vote {score_name}",
         )
 
     (line_mean_test_acc,) = axes.plot(
@@ -163,14 +164,14 @@ def plot_results(results,
         results.mean_test_accuracies,
         "b",
         linewidth=3,
-        label="mean test accuracy",
+        label=f"mean test {score_name}",
     )
     (line_mean_vote_acc,) = axes.plot(
         epochs,
         results.mean_vote_accuracies,
         "r",
         linewidth=3,
-        label="mean vote accuracy",
+        label=f"mean vote {score_name}",
     )
     axes.legend(handles=[line_mean_test_acc, line_mean_vote_acc])
 

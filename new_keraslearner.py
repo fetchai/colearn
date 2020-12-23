@@ -1,26 +1,46 @@
+from inspect import signature
 from typing import Optional
 from tensorflow import keras
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
-from colearn_examples.training import initial_result, collective_learning_round
+from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 
 
 class NewKerasLearner(MachineLearningInterface):
-    def __init__(self, model,
-                 train_loader,
-                 test_loader=None,
-                 minimise_criterion=True):
+    def __init__(self, model: keras.Model,
+                 train_loader: tf.data.Dataset,
+                 test_loader: Optional[tf.data.Dataset] = None,
+                 minimise_criterion: bool = True,
+                 criterion: str = 'loss',
+                 model_fit_kwargs: Optional[dict] = None,
+                 model_evaluate_kwargs: Optional[dict] = None):
 
         self.model: keras.Model = model
         self.train_loader: tf.data.Dataset = train_loader
-        self.test_loader: tf.data.Dataset = test_loader
-        self.minimise_criterion = minimise_criterion
+        self.test_loader: Optional[tf.data.Dataset] = test_loader
+        self.minimise_criterion: bool = minimise_criterion
+        self.criterion = criterion
+        self.model_fit_kwargs = model_fit_kwargs or {}
+        # check that these are valid kwargs for model fit
+        sig = signature(self.model.fit)
+        try:
+            sig.bind_partial(**self.model_fit_kwargs)
+        except TypeError:
+            raise Exception("Invalid arguments for model.fit")
 
-        self.vote_score = self.test(self.train_loader)
+        self.model_evaluate_kwargs = model_evaluate_kwargs or {}
+        # check that these are valid kwargs for model evaluate
+        sig = signature(self.model.evaluate)
+        try:
+            sig.bind_partial(**self.model_evaluate_kwargs)
+        except TypeError:
+            raise Exception("Invalid arguments for model.evaluate")
+
+        self.vote_score: float = self.test(self.train_loader)
 
     def mli_propose_weights(self) -> Weights:
         current_weights = self.mli_get_current_weights()
@@ -65,11 +85,12 @@ class NewKerasLearner(MachineLearningInterface):
         self.model.set_weights(weights.weights)
 
     def train(self):
-        self.model.fit(self.train_loader, epochs=1)
+        self.model.fit(self.train_loader, **self.model_fit_kwargs)
 
-    def test(self, loader: tf.data.Dataset):
-        loss = self.model.evaluate(x=loader)
-        return loss
+    def test(self, loader: tf.data.Dataset) -> float:
+        result = self.model.evaluate(x=loader, return_dict=True,
+                                     **self.model_evaluate_kwargs)
+        return result[self.criterion]
 
 
 if __name__ == "__main__":
@@ -142,7 +163,10 @@ if __name__ == "__main__":
         opt = optimizer(
             lr=l_rate, decay=l_rate_decay
         )
-        model.compile(loss=loss, optimizer=opt)
+        model.compile(
+            loss=loss,
+            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
+            optimizer=opt)
         return model
 
 
@@ -152,7 +176,12 @@ if __name__ == "__main__":
             model=get_model(),
             train_loader=train_datasets[i],
             test_loader=test_datasets[i],
+            criterion="sparse_categorical_accuracy",
+            minimise_criterion=False,
+            model_fit_kwargs={"steps_per_epoch": 10}
         ))
+
+    set_equal_weights(all_learner_models)
 
     results = Results()
     # Get initial score
@@ -166,9 +195,11 @@ if __name__ == "__main__":
 
         if make_plot:
             # then make an updating graph
-            plot_results(results, n_learners, block=False)
+            plot_results(results, n_learners, block=False,
+                         score_name=all_learner_models[0].criterion)
             plot_votes(results, block=False)
 
     if make_plot:
-        plot_results(results, n_learners, block=False)
+        plot_results(results, n_learners, block=False,
+                     score_name=all_learner_models[0].criterion)
         plot_votes(results, block=True)

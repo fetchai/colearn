@@ -18,15 +18,18 @@ def setup_models(config: ModelConfig, client_data_folders_list: List[str],
             data_loading_func(config, client_data_folders_list[i], test_data_dir=test_data_dir)
         )
 
-    clone_model: MachineLearningInterface = config.model_type(config, data=learner_datasets[0])
-    all_learner_models = [clone_model]
+    all_learner_models = [config.model_type(config, data=learner_datasets[i]) for i in range(n_learners)]
 
-    for i in range(1, n_learners):
-        model = config.model_type(config, data=learner_datasets[i])
-        model.mli_accept_weights(clone_model.mli_get_current_weights())
-        all_learner_models.append(model)
+    set_equal_weights(all_learner_models)
 
     return all_learner_models
+
+
+def set_equal_weights(learners: List[MachineLearningInterface]):
+    first_learner_weights = learners[0].mli_get_current_weights()
+
+    for learner in learners[1:]:
+        learner.mli_accept_weights(first_learner_weights)
 
 
 def initial_result(learners: List[MachineLearningInterface]):
