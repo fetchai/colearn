@@ -25,20 +25,24 @@ class NewKerasLearner(MachineLearningInterface):
         self.minimise_criterion: bool = minimise_criterion
         self.criterion = criterion
         self.model_fit_kwargs = model_fit_kwargs or {}
-        # check that these are valid kwargs for model fit
-        sig = signature(self.model.fit)
-        try:
-            sig.bind_partial(**self.model_fit_kwargs)
-        except TypeError:
-            raise Exception("Invalid arguments for model.fit")
+
+        if model_fit_kwargs:
+            # check that these are valid kwargs for model fit
+            sig = signature(self.model.fit)
+            try:
+                sig.bind_partial(**self.model_fit_kwargs)
+            except TypeError:
+                raise Exception("Invalid arguments for model.fit")
 
         self.model_evaluate_kwargs = model_evaluate_kwargs or {}
-        # check that these are valid kwargs for model evaluate
-        sig = signature(self.model.evaluate)
-        try:
-            sig.bind_partial(**self.model_evaluate_kwargs)
-        except TypeError:
-            raise Exception("Invalid arguments for model.evaluate")
+
+        if model_evaluate_kwargs:
+            # check that these are valid kwargs for model evaluate
+            sig = signature(self.model.evaluate)
+            try:
+                sig.bind_partial(**self.model_evaluate_kwargs)
+            except TypeError:
+                raise Exception("Invalid arguments for model.evaluate")
 
         self.vote_score: float = self.test(self.train_loader)
 
@@ -123,7 +127,6 @@ if __name__ == "__main__":
         return tf.cast(image, tf.float32) / 255., label
 
 
-    # ds_info.splits['train'].num_examples
     for i in range(n_learners):
         ds_train = train_datasets[i].map(
             normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
