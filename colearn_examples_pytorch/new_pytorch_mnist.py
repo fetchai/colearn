@@ -2,7 +2,7 @@ from torchsummary import summary
 from torchvision import transforms, datasets
 import torch.utils.data
 
-from betal1_colearn import NewPytorchLearner
+from colearn_examples_pytorch.new_pytorch_learner import NewPytorchLearner
 
 import torch.nn as nn
 import torch.nn.functional as nn_func
