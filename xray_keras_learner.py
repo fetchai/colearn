@@ -27,7 +27,7 @@ batch_size = 8
 n_learners = 5
 n_epochs = 7
 vote_threshold = 0.5
-train_fraction = 0.9  # todo: not used
+train_fraction = 0.9  # todo: not used. Try tf.data.Dataset.concatenate()
 
 
 def get_model():
