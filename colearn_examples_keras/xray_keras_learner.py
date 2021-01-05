@@ -14,20 +14,15 @@ from new_keras_learner import NewKerasLearner
 
 width = 128
 height = 128
-loss = "binary_crossentropy"
-n_classes = 1
 steps_per_epoch = 10
-train_ratio = 0.92
 vote_batches = 13  # number of batches used for voting
 optimizer = tf.keras.optimizers.Adam
 l_rate = 0.001
-l_rate_decay = 1e-5
 batch_size = 8
 
 n_learners = 5
 n_epochs = 7
 vote_threshold = 0.5
-train_fraction = 0.9  # todo: not used. Try tf.data.Dataset.concatenate()
 
 
 def get_model():
@@ -47,16 +42,16 @@ def get_model():
     x = tf.keras.layers.GlobalMaxPool2D()(x)
 
     x = tf.keras.layers.Dense(
-        n_classes, activation="sigmoid", name="fc1"
+        1, activation="sigmoid", name="fc1"
     )(x)
 
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
     opt = optimizer(
-        lr=l_rate, decay=l_rate_decay
+        lr=l_rate
     )
     model.compile(
-        loss=loss,
+        loss=tf.keras.losses.BinaryCrossentropy(),
         metrics=[tf.keras.metrics.BinaryAccuracy()],
         optimizer=opt)
     return model
@@ -154,7 +149,6 @@ for i in range(n_learners):
         color_mode='grayscale'
     ))
 # todo: augmentation (although this seems to be turned off)
-# todo: class weights
 
 all_learner_models = []
 for i in range(n_learners):
@@ -164,11 +158,14 @@ for i in range(n_learners):
             model=model,
             train_loader=train_datasets[i],
             test_loader=test_datasets[i],
-            model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
+            model_fit_kwargs={"steps_per_epoch": steps_per_epoch,
+                              # "class_weight": {0: 1, 1: 0.27}
+                              },
             model_evaluate_kwargs={"steps": vote_batches},
-            criterion="loss",
-            # criterion="binary_accuracy",
-            minimise_criterion=True
+            # criterion="loss",
+            criterion="binary_accuracy",
+            # minimise_criterion=True,
+            minimise_criterion=False
         ))
 
 set_equal_weights(all_learner_models)

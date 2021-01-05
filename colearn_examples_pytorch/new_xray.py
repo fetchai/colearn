@@ -15,7 +15,7 @@ from colearn_examples_pytorch.new_pytorch_learner import NewPytorchLearner
 import torch.nn as nn
 import torch.nn.functional as nn_func
 
-from colearn_examples.training import initial_result, collective_learning_round
+from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 
@@ -24,17 +24,17 @@ n_learners = 5
 batch_size = 8
 seed = 42
 n_epochs = 15
-make_plot = True
 vote_threshold = 0.5
-no_cuda = False
-train_fraction = 0.92
-learning_rate = 0.0001
+learning_rate = 0.001
 height = 128
 width = 128
 pos_weight = torch.tensor([0.27])
 steps_per_epoch = 10
+vote_batches = 13  # number of batches used for voting
 
-cuda = not no_cuda and torch.cuda.is_available()  # boring torch stuff
+
+no_cuda = False
+cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
@@ -81,11 +81,16 @@ _________________________________________________________________"""
         x = nn_func.max_pool2d(x, kernel_size=(32, 32))
         x = x.view(-1, 64)
         x = self.fc1(x)
-        return x  # NB: output is in *logits*
+        return x  # NB: output is in *logits* - take sigmoid to get predictions
+
+
+def binary_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
+    outputs = (torch.sigmoid(outputs) > 0.5).float()
+    correct = (outputs == labels).sum().item()
+    return correct
 
 
 # load data
-
 class XrayDataset(Dataset):
     """X-ray dataset."""
 
@@ -130,7 +135,6 @@ class XrayDataset(Dataset):
         return len(self.cases)
 
     def __getitem__(self, idx):
-        # todo: balanced classes
         if torch.is_tensor(idx):
             idx = idx.tolist()
         else:
@@ -260,10 +264,18 @@ for i in range(n_learners):
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,
-        criterion=nn.BCEWithLogitsLoss(pos_weight=pos_weight, reduction='mean')
+        criterion=nn.BCEWithLogitsLoss(
+            # pos_weight=pos_weight,
+            reduction='mean'),
+        num_train_batches=steps_per_epoch,
+        num_test_batches=vote_batches,
+        vote_criterion=binary_accuracy_from_logits,
+        minimise_criterion=False
     )
 
     all_learner_models.append(learner)
+
+set_equal_weights(all_learner_models)
 
 # print a summary of the model architecture
 summary(all_learner_models[0].model, input_size=(1, width, height))
@@ -279,11 +291,8 @@ for epoch in range(n_epochs):
                                   vote_threshold, epoch)
     )
 
-    if make_plot:
-        # then make an updating graph
-        plot_results(results, n_learners, block=False)
-        plot_votes(results, block=False)
+    plot_results(results, n_learners)
+    plot_votes(results)
 
-if make_plot:
-    plot_results(results, n_learners, block=False)
-    plot_votes(results, block=True)
+plot_results(results, n_learners)
+plot_votes(results, block=True)
