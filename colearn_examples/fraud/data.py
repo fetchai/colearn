@@ -149,9 +149,6 @@ def split_to_folders(data_dir,
 
 
 def prepare_single_client(config: FraudConfig, data_dir, test_data_dir=None):
-    data = LearnerData()
-    data.train_batch_size = config.batch_size
-
     fraud_data = pickle.load(open(Path(data_dir) / DATA_FL, "rb"))
     labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
 
@@ -159,18 +156,24 @@ def prepare_single_client(config: FraudConfig, data_dir, test_data_dir=None):
         [fraud_data, labels], [config.train_ratio, config.test_ratio]
     )
 
-    data.train_data_size = len(train_data)
+    train_data_size = len(train_data)
 
-    data.train_gen = train_generator(
+    train_gen = train_generator(
         train_data, train_labels, config.batch_size, config
     )
-    data.val_gen = train_generator(train_data, train_labels, config.batch_size, config)
+    val_gen = train_generator(train_data, train_labels, config.batch_size, config)
 
-    data.test_data_size = len(test_data)
+    test_data_size = len(test_data)
 
-    data.test_gen = train_generator(test_data, test_labels, config.batch_size, config)
+    test_gen = train_generator(test_data, test_labels, config.batch_size, config)
 
-    data.test_batch_size = config.batch_size
+    data = LearnerData(train_gen=train_gen,
+                       val_gen=val_gen,
+                       test_gen=test_gen,
+                       train_data_size=train_data_size,
+                       test_data_size=test_data_size,
+                       train_batch_size=config.batch_size,
+                       test_batch_size=config.batch_size)
     return data
 
 

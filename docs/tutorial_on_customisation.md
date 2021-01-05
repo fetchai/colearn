@@ -211,7 +211,7 @@ The real work is done inside `collective_learning_round`.
 This function takes a list of learners, selects one to train, collects the votes of the other learners and
 accepts or declines the update.
 ```python
-# Get initial accuracy
+# Get initial score
 results = Results()
 results.data.append(initial_result(learners))
 

@@ -5,8 +5,8 @@ class Result:
     def __init__(self):
         self.vote = False
         self.votes = []
-        self.test_accuracies = []
-        self.vote_accuracies = []
+        self.test_scores = []
+        self.vote_scores = []
         self.block_proposer = None
 
 

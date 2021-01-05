@@ -1,6 +1,8 @@
 import hashlib
 import pickle
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Iterator
+
+from pydantic import BaseModel
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface, \
     Weights
@@ -36,27 +38,26 @@ class RingBuffer:
         return m.digest()
 
 
-class EmptyGenerator:
-    def __next__(self):
-        pass
+class LearnerData(BaseModel):
+    train_gen: Iterator
+    val_gen: Iterator  # this is a copy of train gen
+    test_gen: Iterator
 
+    train_data_size: int  # this includes augmentation
+    test_data_size: int  # this includes augmentation
 
-class LearnerData:
-    train_gen = EmptyGenerator()
-    val_gen = EmptyGenerator()  # this is a copy of train gen
-    test_gen = EmptyGenerator()
+    train_batch_size: int
+    test_batch_size: int
 
-    train_data_size = 0  # this includes augmentation
-    test_data_size = 0  # this includes augmentation
-
-    train_batch_size = 0
-    test_batch_size = 0
+    class Config:
+        # this is required to use Iterator in pydantic:
+        arbitrary_types_allowed = True
 
 
 class BasicLearner(MachineLearningInterface):
     def __init__(self, config, data: LearnerData):
         self.config = config
-        self.data = data
+        self.data: LearnerData = data
 
         self._model = self._get_model()
         self.print_summary()
@@ -66,19 +67,16 @@ class BasicLearner(MachineLearningInterface):
         self.vote_accuracy, _ = self._test_model(validate=True)
 
         # store this in the cache
-        self.vote_score_cache.add(self.get_weights(),
+        self.vote_score_cache.add(self.mli_get_current_weights(),
                                   self.vote_accuracy)
 
     def print_summary(self):
         raise NotImplementedError
 
-    def get_name(self) -> str:
-        return "Basic Learner"
-
     def _get_model(self):
         raise NotImplementedError
 
-    def accept_weights(self, weights: Weights):
+    def mli_accept_weights(self, weights: Weights):
         # overwrite model weights with new weights
         self._set_weights(weights)
 
@@ -94,12 +92,12 @@ class BasicLearner(MachineLearningInterface):
             self.vote_score_cache.add(weights,
                                       self.vote_accuracy)
 
-    def train_model(self):
-        old_weights = self.get_weights()
+    def mli_propose_weights(self):
+        old_weights = self.mli_get_current_weights()
 
         self._train_model()
 
-        new_weights = self.get_weights()
+        new_weights = self.mli_get_current_weights()
         self._set_weights(old_weights)
 
         return new_weights
@@ -107,10 +105,10 @@ class BasicLearner(MachineLearningInterface):
     def _set_weights(self, weights: Weights):
         raise NotImplementedError
 
-    def get_weights(self) -> Weights:
+    def mli_get_current_weights(self) -> Weights:
         raise NotImplementedError
 
-    def test_model(self, weights: Weights = None, eval_config: dict = None) -> ProposedWeights:
+    def mli_test_weights(self, weights: Weights, eval_config: dict = None) -> ProposedWeights:
         """
             Tests the proposed weights and fills in the rest of the fields
             Also evaluates the model using the metrics specified in eval_config.
@@ -118,30 +116,28 @@ class BasicLearner(MachineLearningInterface):
                     "name": lambda y_true, y_pred
                 }
         """
-        if weights is None:
-            weights = self.get_weights()
 
-        proposed_weights = ProposedWeights()
-        proposed_weights.weights = weights
         try:
-            proposed_weights.vote_accuracy = self.vote_score_cache.get(weights)
+            vote_accuracy = self.vote_score_cache.get(weights)
         except KeyError:
-            proposed_weights.vote_accuracy, _ = self._test_model(weights, validate=True)
+            vote_accuracy, _ = self._test_model(weights, validate=True)
 
             # store this in the cache
             self.vote_score_cache.add(weights,
-                                      proposed_weights.vote_accuracy)
+                                      vote_accuracy)
 
-        acc, eval_result = self._test_model(weights,
-                                            validate=False,
-                                            eval_config=eval_config)
-        proposed_weights.test_accuracy = acc
-        proposed_weights.evaluation_results = eval_result
+        test_acc, eval_result = self._test_model(weights,
+                                                 validate=False,
+                                                 eval_config=eval_config)
 
-        proposed_weights.vote = (
-            proposed_weights.vote_accuracy >= self.vote_accuracy
-        )
+        vote = vote_accuracy >= self.vote_accuracy
 
+        proposed_weights = ProposedWeights(weights=weights,
+                                           vote_score=vote_accuracy,
+                                           test_score=test_acc,
+                                           vote=vote,
+                                           evaluation_results=eval_result,
+                                           )
         return proposed_weights
 
     def _test_model(self, weights: Weights = None, validate=False,
@@ -151,14 +147,3 @@ class BasicLearner(MachineLearningInterface):
 
     def _train_model(self):
         raise NotImplementedError
-
-    def stop_training(self):
-        raise NotImplementedError
-
-    def clone(self, data=None):
-        data = data or self.data
-
-        new_learner = type(self)(self.config, data=data)
-        # pylint: disable=W0212
-        new_learner._set_weights(self.get_weights())
-        return new_learner

@@ -1,4 +1,4 @@
-from standalone_driver import run
+from colearn.standalone_driver import run
 
 from colearn_examples.plus_one_learner.plus_one_learner import PlusOneLearner
 

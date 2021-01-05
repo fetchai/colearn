@@ -6,7 +6,6 @@ from tqdm import trange
 
 from sklearn.metrics import jaccard_score, confusion_matrix, classification_report, roc_auc_score
 
-from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasSGDOptimizer
 import tensorflow as tf
 
 from colearn_examples.config import ModelConfig
@@ -17,9 +16,15 @@ from colearn.basic_learner import BasicLearner, LearnerData, Weights
 class KerasLearner(BasicLearner, ABC):
     def __init__(self, config: ModelConfig, data: LearnerData):
         BasicLearner.__init__(self, config=config, data=data)
-        self._stop_training = False
 
         if config.use_dp:
+            try:
+                # pylint: disable=C0415
+                from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasSGDOptimizer
+            except ImportError:
+                print("Error: tensorflow-privacy library needs to be installed to use "
+                      "differential privacy with KerasLearner")
+                raise
             opt = DPKerasSGDOptimizer(
                 l2_norm_clip=self.config.l2_norm_clip,
                 noise_multiplier=self.config.noise_multiplier,
@@ -37,18 +42,13 @@ class KerasLearner(BasicLearner, ABC):
         self._model.compile(loss=loss, metrics=self.config.metrics, optimizer=opt)
 
     def _train_model(self):
-        self._stop_training = False
-
         steps_per_epoch = self.config.steps_per_epoch or (self.data.train_data_size // self.data.train_batch_size)
         progress_bar = trange(steps_per_epoch, desc='Training: ', leave=True)
 
         train_accuracy = 0
         i = 0
         for i in progress_bar:  # tqdm provides progress bar
-            if self._stop_training:
-                break
-
-            data, labels = self.data.train_gen.__next__()
+            data, labels = next(self.data.train_gen)
             history = self._model.fit(data, labels, verbose=0)
 
             if self.config.metrics[0] in history.history:
@@ -60,9 +60,6 @@ class KerasLearner(BasicLearner, ABC):
             progress_bar.refresh()  # to show immediately the update
 
         return train_accuracy / (i + 1)
-
-    def stop_training(self):
-        self._stop_training = True
 
     @staticmethod
     def calculate_gradients(new_weights: np.array, old_weights: np.array):
@@ -78,7 +75,6 @@ class KerasLearner(BasicLearner, ABC):
             temp_weights = self._model.get_weights()
             self._model.set_weights(weights.weights)
 
-        progress_bar = None
         if validate:
             print("Getting vote accuracy:")
             n_steps = self.config.val_batches
@@ -96,7 +92,7 @@ class KerasLearner(BasicLearner, ABC):
         all_preds = []  # type: ignore
 
         for _ in progress_bar:  # tqdm provides progress bar
-            data, labels = generator.__next__()
+            data, labels = next(generator)
             pred = self._model.predict(data)
 
             if self.config.multi_hot:
@@ -179,8 +175,8 @@ class KerasLearner(BasicLearner, ABC):
     def print_summary(self):
         self._model.summary()
 
-    def get_weights(self):
-        return Weights(self._model.get_weights())
+    def mli_get_current_weights(self):
+        return Weights(weights=self._model.get_weights())
 
     def _set_weights(self, weights: Weights):
         self._model.set_weights(weights.weights)
