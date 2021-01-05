@@ -17,7 +17,8 @@ class NewPytorchLearner(MachineLearningInterface):
                  device=torch.device("cpu"),
                  criterion=None,
                  minimise_criterion=True):
-        self.model: torch.nn.Module = model
+        # Model has to be on same device as data
+        self.model: torch.nn.Module = model.to(device)
         self.optimizer: torch.optim.Optimizer = optimizer
         self.criterion = criterion
         self.train_loader: torch.utils.data.DataLoader = train_loader
@@ -41,8 +42,11 @@ class NewPytorchLearner(MachineLearningInterface):
 
         for data, labels in self.train_loader:
             self.optimizer.zero_grad()
+
+            # Data needs to be on same device as model
             data = data.to(self.device)
             labels = labels.to(self.device)
+
             output = self.model(data)
 
             loss = self.criterion(output, labels)
