@@ -63,7 +63,7 @@ def get_model():
 
 
 # this is modified from the version in xray/data in order to keep the directory structure
-# e.g. when the data is in NORAML and PNEU directories these will also be in each of the split dirs
+# e.g. when the data is in NORMAL and PNEU directories these will also be in each of the split dirs
 def split_to_folders(
         data_dir,
         n_learners,
