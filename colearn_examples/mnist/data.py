@@ -100,14 +100,13 @@ def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=None):
         config.train_augment,
     )
 
-    data = LearnerData(train_gen=train_gen,
+    return LearnerData(train_gen=train_gen,
                        val_gen=val_gen,
                        test_gen=test_gen,
                        train_data_size=train_data_size,
                        test_data_size=test_data_size,
                        train_batch_size=config.batch_size,
                        test_batch_size=config.batch_size)
-    return data
 
 
 # Augmentation sequence

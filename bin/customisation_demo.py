@@ -87,14 +87,13 @@ def load_learner_data(data_dir, batch_size, width, height, train_ratio, test_rat
         augmentation=False
     )
 
-    data = LearnerData(train_gen=train_gen,
+    return LearnerData(train_gen=train_gen,
                        val_gen=val_gen,
                        test_gen=test_gen,
                        train_data_size=train_data_size,
                        test_data_size=test_data_size,
                        train_batch_size=batch_size,
                        test_batch_size=batch_size)
-    return data
 
 
 # Now we're ready to start training!
