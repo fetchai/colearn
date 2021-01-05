@@ -14,6 +14,8 @@ from colearn.basic_learner import BasicLearner, LearnerData, Weights
 class SKLearnLearner(BasicLearner, ABC):
     def __init__(self, config: ModelConfig, data: LearnerData):
         BasicLearner.__init__(self, config=config, data=data)
+        if config.use_dp:
+            print("Warning: Differential privacy is not supported for SKLearnLearner")
 
     def _train_model(self):
         steps_per_epoch = (
@@ -31,7 +33,7 @@ class SKLearnLearner(BasicLearner, ABC):
             class_labels = list(range(self.config.n_classes))
 
         for _ in tqdm(range(steps_per_epoch)):
-            data, labels = self.data.train_gen.__next__()
+            data, labels = next(self.data.train_gen)
 
             # Convert Keras [n,1] format to scikit-learn [n,]
             labels = labels.ravel()
@@ -45,9 +47,6 @@ class SKLearnLearner(BasicLearner, ABC):
 
         return roc_auc_score(all_labels, all_preds)
 
-    def stop_training(self):
-        raise NotImplementedError
-
     def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         try:
             check_is_fitted(self._model)
@@ -60,7 +59,7 @@ class SKLearnLearner(BasicLearner, ABC):
         temp_weights = None
         if weights and weights.weights:
             # store current weights in temporary variables
-            temp_weights = self.get_weights()
+            temp_weights = self.mli_get_current_weights()
             self._set_weights(weights)
 
         if validate:
@@ -76,7 +75,7 @@ class SKLearnLearner(BasicLearner, ABC):
         all_preds: List[np.array] = []
 
         for _ in tqdm(range(n_steps)):
-            data, labels = generator.__next__()
+            data, labels = next(generator)
             pred = self._model.decision_function(data)
 
             all_labels.extend(labels)
@@ -95,8 +94,8 @@ class SKLearnLearner(BasicLearner, ABC):
     def print_summary(self):
         print(self._model)
 
-    def get_weights(self):
-        return Weights(copy.deepcopy(self._model))
+    def mli_get_current_weights(self):
+        return Weights(weights=copy.deepcopy(self._model))
 
     def _set_weights(self, weights: Weights):
         self._model = weights.weights

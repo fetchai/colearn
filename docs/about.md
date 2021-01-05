@@ -9,20 +9,21 @@ The driver implements the voting protocol, so it handles selecting a learner to 
 sending the update out for voting, calculating the vote and accepting or declining the update. 
 Here we have a very minimal driver that doesn't use networking or a blockchain. Eventually the driver will be a smart contract. 
 This is the code that implements one round of voting:
+
 ```python
 def run_one_epoch(epoch_index: int, learners: Sequence[MachineLearningInterface],
                   vote_threshold=0.5):
     proposer = epoch_index % len(learners)
-    new_weights = learners[proposer].train_model()
+    new_weights = learners[proposer].mli_propose_weights()
 
-    prop_weights_list = [ln.test_model(new_weights) for ln in learners]
+    prop_weights_list = [ln.mli_test_weights(new_weights) for ln in learners]
     approves = sum(1 if v.vote else 0 for v in prop_weights_list)
 
     vote = False
     if approves >= len(learners) * vote_threshold:
         vote = True
         for j, learner in enumerate(learners):
-            learner.accept_weights(prop_weights_list[j])
+            learner.mli_accept_weights(prop_weights_list[j])
 
     return prop_weights_list, vote
 ```

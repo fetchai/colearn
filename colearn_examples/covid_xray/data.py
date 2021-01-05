@@ -32,7 +32,6 @@ def split_to_folders(data_dir,
                      output_folder=Path(tempfile.gettempdir()) / "covid_xray",
                      test_output_folder=Path(tempfile.gettempdir()) / "covid_xray_test",
                      test_ratio=0):
-
     np.random.seed(shuffle_seed)
 
     # Load data
@@ -61,33 +60,33 @@ def split_to_folders(data_dir,
         pneumonia_test = pneumonia_features[:test_size]
         pneumonia_features = pneumonia_features[test_size:]
 
-        X_test = np.concatenate((covid_test[:, :-1], normal_test[:, :-1], pneumonia_test[:, :-1]), axis=0)
+        x_test = np.concatenate((covid_test[:, :-1], normal_test[:, :-1], pneumonia_test[:, :-1]), axis=0)
         y_test = np.concatenate((covid_test[:, -1], normal_test[:, -1], pneumonia_test[:, -1]), axis=0)
-        [X_test, y_test] = shuffle_data(
-            [X_test, y_test], seed=shuffle_seed
+        [x_test, y_test] = shuffle_data(
+            [x_test, y_test], seed=shuffle_seed
         )
 
-    X = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0)
+    x = np.concatenate((covid_features[:, :-1], normal_features[:, :-1], pneumonia_features[:, :-1]), axis=0)
     y = np.concatenate((covid_features[:, -1], normal_features[:, -1], pneumonia_features[:, -1]), axis=0)
 
     min_max_scaler = MinMaxScaler()
-    X = min_max_scaler.fit_transform(X)
+    x = min_max_scaler.fit_transform(x)
 
     transformer = KernelPCA(n_components=64, kernel='linear')
-    X = transformer.fit_transform(X)
-    print("SHAPE X: ", X.shape)
+    x = transformer.fit_transform(x)
+    print("SHAPE x: ", x.shape)
     print("SHAPE Y: ", y.shape)
     if test_ratio > 0:
-        X_test = min_max_scaler.transform(X_test)
-        X_test = transformer.transform(X_test)
-        print("SHAPE X_test: ", X_test.shape)
+        x_test = min_max_scaler.transform(x_test)
+        x_test = transformer.transform(x_test)
+        print("SHAPE x_test: ", x_test.shape)
 
-    [X, y] = shuffle_data(
-        [X, y], seed=shuffle_seed
+    [x, y] = shuffle_data(
+        [x, y], seed=shuffle_seed
     )
 
     [all_images_lists, all_labels_lists] = split_by_chunksizes(
-        [X, y], data_split
+        [x, y], data_split
     )
 
     local_output_dir = Path(output_folder)
@@ -113,7 +112,7 @@ def split_to_folders(data_dir,
         if os.path.exists(str(local_test_output_dir)):
             shutil.rmtree(str(local_test_output_dir))
         os.makedirs(str(local_test_output_dir), exist_ok=True)
-        pickle.dump(X_test, open(local_test_output_dir / IMAGE_FL, "wb"))
+        pickle.dump(x_test, open(local_test_output_dir / IMAGE_FL, "wb"))
         pickle.dump(y_test, open(local_test_output_dir / LABEL_FL, "wb"))
         dir_names.append(local_test_output_dir)
         print("Global test set created")
@@ -123,9 +122,6 @@ def split_to_folders(data_dir,
 
 
 def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=None):
-    data = LearnerData()
-    data.train_batch_size = config.batch_size
-
     images = pickle.load(open(Path(data_dir) / IMAGE_FL, "rb"))
     labels = pickle.load(open(Path(data_dir) / LABEL_FL, "rb"))
 
@@ -139,13 +135,13 @@ def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=None)
         [[train_images, test_images], [train_labels, test_labels]] = \
             split_by_chunksizes([images, labels], [config.train_ratio, config.test_ratio])
 
-    data.train_data_size = len(train_images)
+    train_data_size = len(train_images)
 
     print("PREPARE TRAIN: ")
     print("         0 count ", np.count_nonzero(train_labels == 0))
     print("         1 count ", np.count_nonzero(train_labels == 1))
     print("         2 count ", np.count_nonzero(train_labels == 2))
-    data.train_gen = train_generator(
+    train_gen = train_generator(
         train_images, train_labels, config.batch_size,
         config.feature_size,
         config.generator_seed,
@@ -154,15 +150,15 @@ def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=None)
     print("         0 count ", np.count_nonzero(test_labels == 0))
     print("         1 count ", np.count_nonzero(test_labels == 1))
     print("         2 count ", np.count_nonzero(test_labels == 2))
-    data.val_gen = train_generator(
+    val_gen = train_generator(
         train_images, train_labels, config.val_batch_size,
         config.feature_size,
         config.generator_seed,
     )
 
-    data.test_data_size = len(test_images)
+    test_data_size = len(test_images)
 
-    data.test_gen = train_generator(
+    test_gen = train_generator(
         test_images,
         test_labels,
         config.batch_size,
@@ -170,8 +166,13 @@ def prepare_single_client(config: CovidXrayConfig, data_dir, test_data_dir=None)
         config.generator_seed,
     )
 
-    data.test_batch_size = config.batch_size
-    return data
+    return LearnerData(train_gen=train_gen,
+                       val_gen=val_gen,
+                       test_gen=test_gen,
+                       train_data_size=train_data_size,
+                       test_data_size=test_data_size,
+                       train_batch_size=config.batch_size,
+                       test_batch_size=config.batch_size)
 
 
 def train_generator(data, labels, batch_size, feature_size, seed, shuffle=True):

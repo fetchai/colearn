@@ -1,16 +1,16 @@
 # type: ignore [no-redef]
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from colearn_examples.config import ColearnConfig, ModelConfig, TrainingData, TrainingMode
 from colearn_examples.utils.results import Result, Results
 
-from colearn.basic_learner import BasicLearner, LearnerData
-from colearn.ml_interface import ProposedWeights
+from colearn.basic_learner import LearnerData
+from colearn.ml_interface import ProposedWeights, MachineLearningInterface
 from colearn.standalone_driver import run_one_epoch
 
 
 def setup_models(config: ModelConfig, client_data_folders_list: List[str],
-                 data_loading_func: Callable[[ModelConfig, str], LearnerData], test_data_dir=None):
+                 data_loading_func: Callable[[ModelConfig, str, Optional[str]], LearnerData], test_data_dir=None):
     learner_datasets = []
     n_learners = len(client_data_folders_list)
     for i in range(n_learners):
@@ -18,28 +18,31 @@ def setup_models(config: ModelConfig, client_data_folders_list: List[str],
             data_loading_func(config, client_data_folders_list[i], test_data_dir=test_data_dir)
         )
 
-    all_learner_models = []
-    clone_model = config.model_type(config, data=learner_datasets[0])
+    all_learner_models = [config.model_type(config, data=learner_datasets[i]) for i in range(n_learners)]
 
-    for i in range(n_learners):
-        model = clone_model.clone(data=learner_datasets[i])
-
-        all_learner_models.append(model)
+    set_equal_weights(all_learner_models)
 
     return all_learner_models
 
 
-def initial_result(learners: List[BasicLearner]):
+def set_equal_weights(learners: List[MachineLearningInterface]):
+    first_learner_weights = learners[0].mli_get_current_weights()
+
+    for learner in learners[1:]:
+        learner.mli_accept_weights(first_learner_weights)
+
+
+def initial_result(learners: List[MachineLearningInterface]):
     result = Result()
     for learner in learners:
-        proposed_weights = learner.test_model()  # type: ProposedWeights
-        result.test_accuracies.append(proposed_weights.test_accuracy)
-        result.vote_accuracies.append(proposed_weights.vote_accuracy)
+        proposed_weights = learner.mli_test_weights(learner.mli_get_current_weights())  # type: ProposedWeights
+        result.test_scores.append(proposed_weights.test_score)
+        result.vote_scores.append(proposed_weights.vote_score)
         result.votes.append(True)
     return result
 
 
-def collective_learning_round(learners: List[BasicLearner], vote_threshold,
+def collective_learning_round(learners: List[MachineLearningInterface], vote_threshold,
                               epoch):
     print("Doing collective learning round")
     result = Result()
@@ -48,14 +51,17 @@ def collective_learning_round(learners: List[BasicLearner], vote_threshold,
                                                 vote_threshold)
     result.vote = vote
     result.votes = [pw.vote for pw in proposed_weights_list]
-    result.vote_accuracies = [pw.vote_accuracy for pw in
-                              proposed_weights_list]
-    result.test_accuracies = [pw.test_accuracy for pw in proposed_weights_list]
+    result.vote_scores = [pw.vote_score for pw in
+                          proposed_weights_list]
+    result.test_scores = [pw.test_score for pw in proposed_weights_list]
     result.block_proposer = epoch % len(learners)
 
     for i, lnr in enumerate(learners):
-        if hasattr(lnr.config, "evaluation_config") and len(lnr.config.evaluation_config) > 0:
-            print(f"Eval config for node {i}: {lnr.test_model(None, lnr.config.evaluation_config)}")
+        if (hasattr(lnr, "config")
+                and hasattr(lnr.config, "evaluation_config")
+                and len(lnr.config.evaluation_config) > 0):
+            print(f"Eval config for node {i}: "
+                  f"{lnr.mli_test_weights(lnr.mli_get_current_weights(), lnr.config.evaluation_config)}")
 
     return result
 
@@ -67,13 +73,13 @@ def individual_training_round(learners, epoch):
     # train all models
     for i, learner in enumerate(learners):
         print(f"Training learner #{i} epoch {epoch}")
-        weights = learner.train_model()
-        proposed_weights = learner.test_model(weights)
-        learner.accept_weights(weights)
+        weights = learner.mli_propose_weights()
+        proposed_weights = learner.mli_test_weights(weights)
+        learner.mli_accept_weights(weights)
 
         result.votes.append(True)
-        result.vote_accuracies.append(proposed_weights.vote_accuracy)
-        result.test_accuracies.append(proposed_weights.test_accuracy)
+        result.vote_scores.append(proposed_weights.vote_score)
+        result.test_scores.append(proposed_weights.test_score)
 
     return result
 
@@ -120,7 +126,7 @@ def main(colearn_config: ColearnConfig, data_dir):
     # setup n_learners duplicate models before training
     all_learner_models = setup_models(
         model_config, client_data_folders_list, prepare_single_client, test_data_dir
-    )  # type: List[BasicLearner]
+    )  # type: List[MachineLearningInterface]
 
     # Get initial accuracy
     results.data.append(initial_result(all_learner_models))

@@ -14,11 +14,11 @@ pneu_fl = "pneumonia.pickle"
 
 
 def split_to_folders(
-    data_dir,
-    shuffle_seed,
-    data_split,
-    n_learners,
-    output_folder=Path(tempfile.gettempdir()) / "xray"
+        data_dir,
+        shuffle_seed,
+        data_split,
+        n_learners,
+        output_folder=Path(tempfile.gettempdir()) / "xray"
 ):
     if not os.path.isdir(data_dir):
         raise Exception("Data dir does not exist: " + str(data_dir))
@@ -72,8 +72,6 @@ def split_to_folders(
 
 
 def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=None):
-    data = LearnerData()
-
     normal_data = pickle.load(open(Path(data_dir) / "normal.pickle", "rb"))
     pneumonia_data = pickle.load(open(Path(data_dir) / "pneumonia.pickle", "rb"))
 
@@ -104,27 +102,23 @@ def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=None):
         test_normal = normal_test
         test_pneumonia = pneumonia_test
 
-    data.train_batch_size = config.batch_size
-
-    data.train_gen = train_generator(
+    train_gen = train_generator(
         train_normal, train_pneumonia, config.batch_size, config.width,
         config.height,
         augmentation=config.train_augment,
         seed=config.generator_seed
     )
-    data.val_gen = train_generator(
+    val_gen = train_generator(
         train_normal, train_pneumonia, config.batch_size, config.width,
         config.height,
         augmentation=config.train_augment,
         seed=config.generator_seed
     )
 
-    data.train_data_size = estimate_cases(len(train_normal),
-                                          len(train_pneumonia))
+    train_data_size = estimate_cases(len(train_normal),
+                                     len(train_pneumonia))
 
-    data.test_batch_size = config.batch_size
-
-    data.test_gen = train_generator(
+    test_gen = train_generator(
         test_normal,
         test_pneumonia,
         config.batch_size,
@@ -135,5 +129,12 @@ def prepare_single_client(config: ModelConfig, data_dir, test_data_dir=None):
         shuffle=False,
     )
 
-    data.test_data_size = estimate_cases(len(test_normal), len(test_pneumonia))
-    return data
+    test_data_size = estimate_cases(len(test_normal), len(test_pneumonia))
+
+    return LearnerData(train_gen=train_gen,
+                       val_gen=val_gen,
+                       test_gen=test_gen,
+                       train_data_size=train_data_size,
+                       test_data_size=test_data_size,
+                       train_batch_size=config.batch_size,
+                       test_batch_size=config.batch_size)

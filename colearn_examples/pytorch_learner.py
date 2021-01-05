@@ -6,7 +6,7 @@ from tqdm import trange
 import torch
 from torchsummary import summary
 from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score
-from opacus import PrivacyEngine
+
 
 from colearn.basic_learner import BasicLearner, LearnerData
 from colearn.ml_interface import Weights
@@ -15,7 +15,6 @@ from colearn_examples.config import ModelConfig
 
 class PytorchLearner(BasicLearner, ABC):
     def __init__(self, config: ModelConfig, data: LearnerData):
-        self._stop_training = False
         BasicLearner.__init__(self, config=config, data=data)
         self._optimizer = self.config.optimizer(
             self._model.parameters(),
@@ -23,6 +22,14 @@ class PytorchLearner(BasicLearner, ABC):
         )
 
         if config.use_dp:
+            try:
+                # pylint: disable=C0415
+                from opacus import PrivacyEngine
+            except ImportError:
+                print("Error: opacus library needs to be installed to use "
+                      "differential privacy with PytorchLearner")
+                raise
+
             privacy_engine = PrivacyEngine(self._model,
                                            batch_size=self.config.batch_size,
                                            sample_size=self.config.sample_size,
@@ -33,15 +40,12 @@ class PytorchLearner(BasicLearner, ABC):
         self._criterion = self.config.loss
 
     def _train_model(self):
-        self._stop_training = False
         steps_per_epoch = self.config.steps_per_epoch or (self.data.train_data_size // self.data.train_batch_size)
         progress_bar = trange(steps_per_epoch, desc='Training: ', leave=True)
 
         self._model.train()  # sets model to "training" mode. Does not perform training
         for _ in progress_bar:
-            if self._stop_training:
-                break
-            data, labels = self.data.train_gen.__next__()
+            data, labels = next(self.data.train_gen)
             data = torch.Tensor(data)
             labels = torch.LongTensor(labels).squeeze()
 
@@ -60,15 +64,15 @@ class PytorchLearner(BasicLearner, ABC):
                                             self._model.parameters()):
                 old_param.set_(new_param)
 
-    def get_weights(self) -> Weights:
-        w = Weights([x.clone() for x in self._model.parameters()])
+    def mli_get_current_weights(self) -> Weights:
+        w = Weights(weights=[x.clone() for x in self._model.parameters()])
         return w
 
     def _test_model(self, weights: Weights = None, validate=False, eval_config: Optional[dict] = None):
         temp_weights = None
         if weights is not None:
             # store current weights in temporary variables
-            temp_weights = self.get_weights()
+            temp_weights = self.mli_get_current_weights()
             self._set_weights(weights)
 
         if validate:
@@ -86,7 +90,7 @@ class PytorchLearner(BasicLearner, ABC):
         all_preds = []  # type: ignore
 
         for _ in progress_bar:  # tqdm provides progress bar
-            data, labels = generator.__next__()
+            data, labels = next(generator)
             data = torch.Tensor(data)
             pred = self._model(data)
 
@@ -158,6 +162,3 @@ class PytorchLearner(BasicLearner, ABC):
             self._set_weights(temp_weights)
 
         return accuracy, {}
-
-    def stop_training(self):
-        self._stop_training = True
