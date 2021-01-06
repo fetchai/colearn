@@ -14,6 +14,8 @@ from new_keras_learner import NewKerasLearner
 
 width = 128
 height = 128
+channels = 1
+n_classes = 1
 steps_per_epoch = 10
 vote_batches = 13  # number of batches used for voting
 optimizer = tf.keras.optimizers.Adam
@@ -21,14 +23,14 @@ l_rate = 0.001
 batch_size = 8
 
 n_learners = 5
-n_epochs = 7
+n_epochs = 15
 vote_threshold = 0.5
 
 
 def get_model():
     # Minimalistic model XraySuperminiLearner
     input_img = tf.keras.Input(
-        shape=(width, height, 1), name="Input"
+        shape=(width, height, channels), name="Input"
     )
     x = tf.keras.layers.Conv2D(
         32, (3, 3), activation="relu", padding="same", name="Conv1_1"
@@ -42,7 +44,7 @@ def get_model():
     x = tf.keras.layers.GlobalMaxPool2D()(x)
 
     x = tf.keras.layers.Dense(
-        1, activation="sigmoid", name="fc1"
+        n_classes, activation="sigmoid", name="fc1"
     )(x)
 
     model = tf.keras.Model(inputs=input_img, outputs=x)

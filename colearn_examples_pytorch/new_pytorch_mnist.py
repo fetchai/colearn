@@ -20,11 +20,11 @@ make_plot = True
 vote_threshold = 0.5
 no_cuda = False
 train_fraction = 0.9
-learning_rate = 0.001
+learning_rate = 0.0001
 height = 28
 width = 28
 
-cuda = not no_cuda and torch.cuda.is_available()  # boring torch stuff
+cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
@@ -88,7 +88,7 @@ for i in range(n_learners):
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,
-        criterion=nn_func.nll_loss,
+        criterion=torch.nn.NLLLoss(),
         vote_criterion=cathegorical_accuracy_from_logits,
         minimise_criterion=False
     )

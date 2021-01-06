@@ -28,10 +28,12 @@ vote_threshold = 0.5
 learning_rate = 0.001
 height = 128
 width = 128
+channels = 1
+n_classes = 1
+
 pos_weight = torch.tensor([0.27])
 steps_per_epoch = 10
 vote_batches = 13  # number of batches used for voting
-
 
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
@@ -66,11 +68,11 @@ _________________________________________________________________"""
 
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, (3, 3), padding=1)
+        self.conv1 = nn.Conv2d(channels, 32, (3, 3), padding=1)
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, (3, 3), padding=1)
         self.bn2 = nn.BatchNorm2d(64)
-        self.fc1 = nn.Linear(64, 1)
+        self.fc1 = nn.Linear(64, n_classes)
 
     def forward(self, x):
         x = nn_func.relu(self.conv1(x))
@@ -285,14 +287,15 @@ summary(all_learner_models[0].model, input_size=(1, width, height))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+score_name = "accuracy" if all_learner_models[0].vote_criterion is not None else "loss"
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
                                   vote_threshold, epoch)
     )
 
-    plot_results(results, n_learners)
+    plot_results(results, n_learners, score_name=score_name)
     plot_votes(results)
 
-plot_results(results, n_learners)
+plot_results(results, n_learners, score_name=score_name)
 plot_votes(results, block=True)
