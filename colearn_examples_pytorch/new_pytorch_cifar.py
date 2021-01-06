@@ -20,7 +20,7 @@ make_plot = True
 vote_threshold = 0.5
 no_cuda = False
 train_fraction = 0.9
-learning_rate = 0.0001
+learning_rate = 0.001
 height = 32
 width = 32
 channels = 3
@@ -74,12 +74,13 @@ class Net(nn.Module):
         x = nn_func.relu(self.fc1(x))
         x = self.fc2(x)
 
-        return nn_func.softmax(x, dim=1)
+        return nn_func.log_softmax(x, dim=0)
 
 
 def cathegorical_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
     outputs = torch.argmax(outputs, 1).int()
     correct = (outputs == labels).sum().item()
+
     return correct
 
 
@@ -94,7 +95,7 @@ for i in range(n_learners):
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,
-        criterion=torch.nn.CrossEntropyLoss(),
+        criterion=torch.nn.NLLLoss(),
         vote_criterion=cathegorical_accuracy_from_logits,
         minimise_criterion=False
     )

@@ -68,7 +68,7 @@ class Net(nn.Module):
         x = x.view(-1, 4 * 4 * 50)
         x = nn_func.relu(self.fc1(x))
         x = self.fc2(x)
-        return nn_func.softmax(x, dim=1)
+        return nn_func.log_softmax(x, dim=0)
 
 
 def cathegorical_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
