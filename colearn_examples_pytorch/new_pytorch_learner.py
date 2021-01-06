@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import Optional, Callable
 
 import torch
 import torch.nn
 import torch.optim
 import torch.utils
 import torch.utils.data
+from torch.nn.modules.loss import _Loss
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 
@@ -15,16 +16,25 @@ class NewPytorchLearner(MachineLearningInterface):
                  train_loader: torch.utils.data.DataLoader,
                  test_loader: Optional[torch.utils.data.DataLoader] = None,
                  device=torch.device("cpu"),
-                 criterion=None,
-                 minimise_criterion=True):
+                 criterion: Optional[_Loss] = None,
+                 minimise_criterion=True,
+                 vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,
+                 num_train_batches: Optional[int] = None,
+                 num_test_batches: Optional[int] = None):
         self.model: torch.nn.Module = model
         self.optimizer: torch.optim.Optimizer = optimizer
         self.criterion = criterion
         self.train_loader: torch.utils.data.DataLoader = train_loader
         self.test_loader: Optional[torch.utils.data.DataLoader] = test_loader
         self.device = device
-        self.vote_score = self.test(self.train_loader)
+        self.num_train_batches = num_train_batches or int(len(train_loader) / train_loader.batch_size)
+        assert self.num_train_batches <= int(len(train_loader) / train_loader.batch_size), \
+            "num_train_batches should not be larger than the number of batches in the training dataset"
+        self.num_test_batches = num_test_batches
         self.minimise_criterion = minimise_criterion
+        self.vote_criterion = vote_criterion
+
+        self.vote_score = self.test(self.train_loader)
 
     def mli_get_current_weights(self) -> Weights:
         w = Weights(weights=[x.clone() for x in self.model.parameters()])
@@ -39,7 +49,9 @@ class NewPytorchLearner(MachineLearningInterface):
     def train(self):
         self.model.train()
 
-        for data, labels in self.train_loader:
+        for batch_idx, (data, labels) in enumerate(self.train_loader):
+            if batch_idx == self.num_train_batches:
+                break
             self.optimizer.zero_grad()
             data = data.to(self.device)
             labels = labels.to(self.device)
@@ -81,20 +93,24 @@ class NewPytorchLearner(MachineLearningInterface):
         else:
             return new_score >= self.vote_score
 
-    def test(self, loader) -> float:
+    def test(self, loader: torch.utils.data.DataLoader) -> float:
         if not self.criterion:
             raise Exception("Criterion is unspecified so test method cannot be used")
 
         self.model.eval()
-        total_loss = 0
+        total_score = 0
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
+                if self.num_test_batches and batch_idx == self.num_test_batches:
+                    break
                 data = data.to(self.device)
                 labels = labels.to(self.device)
                 output = self.model(data)
-                loss = self.criterion(output, labels)
-                total_loss += loss
-        return float(total_loss / len(loader))
+                if self.vote_criterion is not None:
+                    total_score += self.vote_criterion(output, labels)
+                else:
+                    total_score += self.criterion(output, labels)
+        return float(total_score / (batch_idx * loader.batch_size))
 
     def mli_accept_weights(self, weights: Weights):
         self.set_weights(weights)

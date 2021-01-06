@@ -24,7 +24,7 @@ learning_rate = 0.00001
 height = 28
 width = 28
 
-cuda = not no_cuda and torch.cuda.is_available()  # boring torch stuff
+cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
@@ -82,7 +82,7 @@ for i in range(n_learners):
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,
-        criterion=nn_func.nll_loss
+        criterion=torch.nn.NLLLoss()
     )
 
     all_learner_models.append(learner)
