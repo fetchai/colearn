@@ -99,6 +99,7 @@ class NewPytorchLearner(MachineLearningInterface):
 
         self.model.eval()
         total_score = 0
+        batch_idx = 0
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
                 if self.num_test_batches and batch_idx == self.num_test_batches:
@@ -110,6 +111,8 @@ class NewPytorchLearner(MachineLearningInterface):
                     total_score += self.vote_criterion(output, labels)
                 else:
                     total_score += self.criterion(output, labels)
+        if batch_idx == 0:
+            raise Exception("No batches in loader")
         return float(total_score / (batch_idx * loader.batch_size))
 
     def mli_accept_weights(self, weights: Weights):
