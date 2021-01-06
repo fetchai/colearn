@@ -68,7 +68,13 @@ class Net(nn.Module):
         x = x.view(-1, 4 * 4 * 50)
         x = nn_func.relu(self.fc1(x))
         x = self.fc2(x)
-        return nn_func.log_softmax(x, dim=1)
+        return nn_func.softmax(x, dim=1)
+
+
+def cathegorical_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
+    outputs = torch.argmax(outputs, 1).int()
+    correct = (outputs == labels).sum().item()
+    return correct
 
 
 # Make n instances of NewPytorchLearner with model and torch dataloaders
@@ -82,7 +88,9 @@ for i in range(n_learners):
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,
-        criterion=nn_func.nll_loss
+        criterion=nn_func.nll_loss,
+        vote_criterion=cathegorical_accuracy_from_logits,
+        minimise_criterion=False
     )
 
     all_learner_models.append(learner)

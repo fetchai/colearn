@@ -13,17 +13,17 @@ from colearn_examples.utils.results import Results
 
 # define some constants
 n_learners = 5
-batch_size = 32
+batch_size = 64
 seed = 42
-n_epochs = 20
+n_epochs = 50
 make_plot = True
 vote_threshold = 0.5
 no_cuda = False
 train_fraction = 0.9
-learning_rate = 0.00001
+learning_rate = 0.0001
 height = 32
 width = 32
-channels=3
+channels = 3
 
 cuda = not no_cuda and torch.cuda.is_available()  # boring torch stuff
 device = torch.device("cuda" if cuda else "cpu")
@@ -56,21 +56,30 @@ learner_test_dataloaders = [torch.utils.data.DataLoader(
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(channels, 20, 5, 1)
-        self.conv2 = nn.Conv2d(20, 50, 5, 1)
-        self.fc1 = nn.Linear(5 * 5 * 50, 500)
-        self.fc2 = nn.Linear(500, 10)
+        self.conv1 = nn.Conv2d(channels, 32, 5, 1, padding=2)
+        self.conv2 = nn.Conv2d(32, 32, 5, 1, padding=2)
+        self.conv3 = nn.Conv2d(32, 64, 5, 1, padding=2)
+        self.fc1 = nn.Linear(4 * 4 * 64, 64)
+        self.fc2 = nn.Linear(64, 10)
 
     def forward(self, x):
         x = nn_func.relu(self.conv1(x.view(-1, channels, height, width)))
         x = nn_func.max_pool2d(x, 2, 2)
         x = nn_func.relu(self.conv2(x))
         x = nn_func.max_pool2d(x, 2, 2)
-        x = x.view(-1, 5 * 5 * 50)
+        x = nn_func.relu(self.conv3(x))
+        x = nn_func.max_pool2d(x, 2, 2)
+        x = x.view(-1, 4 * 4 * 64)
         x = nn_func.relu(self.fc1(x))
         x = self.fc2(x)
 
         return nn_func.log_softmax(x, dim=1)
+
+
+def cathegorical_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
+    outputs = torch.argmax(outputs, 1).int()
+    correct = (outputs == labels).sum().item()
+    return correct
 
 
 # Make n instances of NewPytorchLearner with model and torch dataloaders
@@ -84,7 +93,9 @@ for i in range(n_learners):
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,
-        criterion=nn_func.nll_loss
+        criterion=nn_func.nll_loss,
+        vote_criterion=cathegorical_accuracy_from_logits,
+        minimise_criterion=False
     )
 
     all_learner_models.append(learner)
@@ -105,9 +116,9 @@ for epoch in range(n_epochs):
 
     if make_plot:
         # then make an updating graph
-        plot_results(results, n_learners, block=False)
+        plot_results(results, n_learners, block=False, score_name="categorical accuracy")
         plot_votes(results, block=False)
 
 if make_plot:
-    plot_results(results, n_learners, block=False)
+    plot_results(results, n_learners, block=False, score_name="categorical accuracy")
     plot_votes(results, block=True)
