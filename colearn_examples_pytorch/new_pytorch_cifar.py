@@ -20,7 +20,7 @@ make_plot = True
 vote_threshold = 0.5
 no_cuda = False
 train_fraction = 0.9
-learning_rate = 0.001
+learning_rate = 0.0001
 height = 32
 width = 32
 channels = 3
@@ -35,6 +35,7 @@ train_root = '/tmp/cifar10'
 transform = transforms.Compose([
     transforms.ToTensor()])
 data = datasets.CIFAR10(train_root, transform=transform, download=True)
+
 n_train = int(train_fraction * len(data))
 n_test = len(data) - n_train
 train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])
@@ -73,7 +74,7 @@ class Net(nn.Module):
         x = nn_func.relu(self.fc1(x))
         x = self.fc2(x)
 
-        return nn_func.log_softmax(x, dim=1)
+        return nn_func.softmax(x, dim=1)
 
 
 def cathegorical_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
@@ -93,7 +94,7 @@ for i in range(n_learners):
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,
-        criterion=nn_func.nll_loss,
+        criterion=torch.nn.CrossEntropyLoss(),
         vote_criterion=cathegorical_accuracy_from_logits,
         minimise_criterion=False
     )
