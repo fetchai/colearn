@@ -20,7 +20,7 @@ make_plot = True
 vote_threshold = 0.5
 no_cuda = False
 train_fraction = 0.9
-learning_rate = 0.00001
+learning_rate = 0.001
 height = 28
 width = 28
 
