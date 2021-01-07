@@ -32,7 +32,7 @@ class MNISTConfig(ModelConfig):
         self.test_ratio = 1 - self.train_ratio
 
         # DP params
-        self.use_dp = True
+        self.use_dp = False
         self.sample_size = 3300
         self.alphas = list(range(2, 32))
         self.noise_multiplier = 1.2
