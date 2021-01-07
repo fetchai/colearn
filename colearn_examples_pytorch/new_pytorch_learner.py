@@ -1,5 +1,5 @@
 from typing import Optional, Callable
-
+import numpy as np
 import torch
 import torch.nn
 import torch.optim
@@ -21,7 +21,8 @@ class NewPytorchLearner(MachineLearningInterface):
                  vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,
                  num_train_batches: Optional[int] = None,
                  num_test_batches: Optional[int] = None):
-        self.model: torch.nn.Module = model
+        # Model has to be on same device as data
+        self.model: torch.nn.Module = model.to(device)
         self.optimizer: torch.optim.Optimizer = optimizer
         self.criterion = criterion
         self.train_loader: torch.utils.data.DataLoader = train_loader
@@ -53,8 +54,11 @@ class NewPytorchLearner(MachineLearningInterface):
             if batch_idx == self.num_train_batches:
                 break
             self.optimizer.zero_grad()
+
+            # Data needs to be on same device as model
             data = data.to(self.device)
             labels = labels.to(self.device)
+
             output = self.model(data)
 
             loss = self.criterion(output, labels)
@@ -99,6 +103,8 @@ class NewPytorchLearner(MachineLearningInterface):
 
         self.model.eval()
         total_score = 0
+        all_labels = []
+        all_outputs = []
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
                 if self.num_test_batches and batch_idx == self.num_test_batches:
@@ -107,10 +113,14 @@ class NewPytorchLearner(MachineLearningInterface):
                 labels = labels.to(self.device)
                 output = self.model(data)
                 if self.vote_criterion is not None:
-                    total_score += self.vote_criterion(output, labels)
+                    all_labels.append(labels)
+                    all_outputs.append(output)
                 else:
                     total_score += self.criterion(output, labels)
-        return float(total_score / (batch_idx * loader.batch_size))
+        if self.vote_criterion is None:
+            return float(total_score / (batch_idx * loader.batch_size))
+        else:
+            return self.vote_criterion(torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0))
 
     def mli_accept_weights(self, weights: Weights):
         self.set_weights(weights)
