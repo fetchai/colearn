@@ -26,9 +26,9 @@ n_classes = 10
 
 optimizer = tf.keras.optimizers.Adam
 l_rate = 0.001
-l_rate_decay = 1e-5
 batch_size = 64
 loss = "sparse_categorical_crossentropy"
+vote_batches = 2
 
 train_datasets = tfds.load('cifar10',
                            split=tfds.even_splits('train', n=n_learners),
@@ -86,7 +86,7 @@ def get_model():
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
     opt = optimizer(
-        lr=l_rate, decay=l_rate_decay
+        lr=l_rate
     )
     model.compile(
         loss=loss,
@@ -103,7 +103,8 @@ for i in range(n_learners):
         test_loader=test_datasets[i],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
-        model_fit_kwargs={"steps_per_epoch": 10}
+        model_fit_kwargs={"steps_per_epoch": 100},
+        model_evaluate_kwargs={"steps": vote_batches}
     ))
 
 set_equal_weights(all_learner_models)
