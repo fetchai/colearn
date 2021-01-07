@@ -7,23 +7,25 @@ from colearn_examples_pytorch.new_pytorch_learner import NewPytorchLearner
 import torch.nn as nn
 import torch.nn.functional as nn_func
 
-from colearn_examples.training import initial_result, collective_learning_round
+from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 
 # define some constants
 n_learners = 5
-batch_size = 32
+batch_size = 64
 seed = 42
 n_epochs = 20
-make_plot = True
 vote_threshold = 0.5
-no_cuda = False
 train_fraction = 0.9
-learning_rate = 0.0001
+learning_rate = 0.001
 height = 28
 width = 28
+n_classes = 10
+vote_batches = 2
+vote_on_accuracy = True
 
+no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
@@ -58,7 +60,7 @@ class Net(nn.Module):
         self.conv1 = nn.Conv2d(1, 20, 5, 1)
         self.conv2 = nn.Conv2d(20, 50, 5, 1)
         self.fc1 = nn.Linear(4 * 4 * 50, 500)
-        self.fc2 = nn.Linear(500, 10)
+        self.fc2 = nn.Linear(500, n_classes)
 
     def forward(self, x):
         x = nn_func.relu(self.conv1(x.view(-1, 1, height, width)))
@@ -71,10 +73,20 @@ class Net(nn.Module):
         return nn_func.log_softmax(x, dim=1)
 
 
-def cathegorical_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
+def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
     outputs = torch.argmax(outputs, 1).int()
     correct = (outputs == labels).sum().item()
     return correct
+
+
+if vote_on_accuracy:
+    learner_vote_kwargs = dict(
+        vote_criterion=categorical_accuracy,
+        minimise_criterion=False)
+    score_name = "categroical accuracy"
+else:
+    learner_vote_kwargs = {}
+    score_name = "loss"
 
 
 # Make n instances of NewPytorchLearner with model and torch dataloaders
@@ -89,11 +101,13 @@ for i in range(n_learners):
         device=device,
         optimizer=opt,
         criterion=torch.nn.NLLLoss(),
-        vote_criterion=cathegorical_accuracy_from_logits,
-        minimise_criterion=False
+        num_test_batches=vote_batches,
+        **learner_vote_kwargs
     )
 
     all_learner_models.append(learner)
+
+set_equal_weights(all_learner_models)
 
 # print a summary of the model architecture
 summary(all_learner_models[0].model, input_size=(width, height))
@@ -109,11 +123,8 @@ for epoch in range(n_epochs):
                                   vote_threshold, epoch)
     )
 
-    if make_plot:
-        # then make an updating graph
-        plot_results(results, n_learners, block=False)
-        plot_votes(results, block=False)
+    plot_results(results, n_learners, score_name=score_name)
+    plot_votes(results)
 
-if make_plot:
-    plot_results(results, n_learners, block=False)
-    plot_votes(results, block=True)
+plot_results(results, n_learners, score_name=score_name)
+plot_votes(results, block=True)

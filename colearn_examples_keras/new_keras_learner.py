@@ -100,7 +100,6 @@ class NewKerasLearner(MachineLearningInterface):
 if __name__ == "__main__":
     n_learners = 5
     n_epochs = 20
-    make_plot = True
     vote_threshold = 0.5
 
     width = 28
@@ -109,9 +108,9 @@ if __name__ == "__main__":
 
     optimizer = tf.keras.optimizers.Adam
     l_rate = 0.001
-    l_rate_decay = 1e-5
     batch_size = 64
     loss = "sparse_categorical_crossentropy"
+    vote_batches = 2
 
     train_datasets = tfds.load('mnist',
                                split=tfds.even_splits('train', n=n_learners),
@@ -163,9 +162,7 @@ if __name__ == "__main__":
         )(x)
         model = tf.keras.Model(inputs=input_img, outputs=x)
 
-        opt = optimizer(
-            lr=l_rate, decay=l_rate_decay
-        )
+        opt = optimizer(lr=l_rate)
         model.compile(
             loss=loss,
             metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
@@ -181,7 +178,7 @@ if __name__ == "__main__":
             test_loader=test_datasets[i],
             criterion="sparse_categorical_accuracy",
             minimise_criterion=False,
-            model_fit_kwargs={"steps_per_epoch": 10}
+            model_evaluate_kwargs={"steps": vote_batches},
         ))
 
     set_equal_weights(all_learner_models)
@@ -196,13 +193,10 @@ if __name__ == "__main__":
                                       vote_threshold, epoch)
         )
 
-        if make_plot:
-            # then make an updating graph
-            plot_results(results, n_learners, block=False,
-                         score_name=all_learner_models[0].criterion)
-            plot_votes(results, block=False)
-
-    if make_plot:
         plot_results(results, n_learners, block=False,
                      score_name=all_learner_models[0].criterion)
-        plot_votes(results, block=True)
+        plot_votes(results, block=False)
+
+    plot_results(results, n_learners, block=False,
+                 score_name=all_learner_models[0].criterion)
+    plot_votes(results, block=True)
