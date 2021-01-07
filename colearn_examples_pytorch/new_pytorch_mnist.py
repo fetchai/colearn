@@ -12,6 +12,8 @@ from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 
 # define some constants
+from colearn_examples_pytorch.utils import categorical_accuracy
+
 n_learners = 5
 batch_size = 64
 seed = 42
@@ -73,17 +75,11 @@ class Net(nn.Module):
         return nn_func.log_softmax(x, dim=1)
 
 
-def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
-    outputs = torch.argmax(outputs, 1).int()
-    correct = (outputs == labels).sum().item()
-    return correct
-
-
 if vote_on_accuracy:
     learner_vote_kwargs = dict(
         vote_criterion=categorical_accuracy,
         minimise_criterion=False)
-    score_name = "categroical accuracy"
+    score_name = "categorical accuracy"
 else:
     learner_vote_kwargs = {}
     score_name = "loss"

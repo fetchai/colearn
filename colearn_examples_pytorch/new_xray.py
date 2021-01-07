@@ -3,7 +3,6 @@ import tempfile
 from glob import glob
 from pathlib import Path
 
-from sklearn.metrics import roc_auc_score
 from torch.utils.data import Dataset
 from torchsummary import summary
 import torch.utils.data
@@ -21,6 +20,8 @@ from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 
 # define some constants
+from colearn_examples_pytorch.utils import auc_from_logits
+
 n_learners = 5
 batch_size = 8
 seed = 42
@@ -35,6 +36,7 @@ n_classes = 1
 pos_weight = torch.tensor([0.27])
 steps_per_epoch = 10
 vote_batches = 13  # number of batches used for voting
+vote_using_auc = True
 
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
@@ -85,20 +87,6 @@ _________________________________________________________________"""
         x = x.view(-1, 64)
         x = self.fc1(x)
         return x  # NB: output is in *logits* - take sigmoid to get predictions
-
-
-def binary_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
-    outputs = (torch.sigmoid(outputs) > 0.5).float()
-    correct = (outputs == labels).sum().item()
-    return correct
-
-
-def auc_from_logits(outputs: torch.Tensor, labels: np.ndarray) -> float:
-    predictions = 1 / (1 + np.exp(-outputs))
-    print("labels", labels.astype(int))
-    print(predictions)
-    auc = roc_auc_score(labels.astype(int), predictions)
-    return auc
 
 
 # load data
@@ -264,6 +252,16 @@ for i in range(n_learners):
         batch_size=batch_size, shuffle=True)
     )
 
+
+if vote_using_auc:
+    learner_vote_kwargs = dict(
+        vote_criterion=auc_from_logits,
+        minimise_criterion=False)
+    score_name = "auc"
+else:
+    learner_vote_kwargs = {}
+    score_name = "loss"
+
 # Make n instances of NewPytorchLearner with model and torch dataloaders
 all_learner_models = []
 for i in range(n_learners):
@@ -280,8 +278,7 @@ for i in range(n_learners):
             reduction='mean'),
         num_train_batches=steps_per_epoch,
         num_test_batches=vote_batches,
-        vote_criterion=auc_from_logits,
-        minimise_criterion=False
+        **learner_vote_kwargs
     )
 
     all_learner_models.append(learner)
@@ -296,7 +293,6 @@ summary(all_learner_models[0].model, input_size=(1, width, height))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-score_name = "accuracy" if all_learner_models[0].vote_criterion is not None else "loss"
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
