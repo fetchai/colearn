@@ -14,19 +14,21 @@ from colearn_examples.utils.results import Results
 
 # define some constants
 n_learners = 5
-batch_size = 32
+batch_size = 64
 seed = 42
 n_epochs = 10
 vote_threshold = 0.5
 train_fraction = 0.9
-learning_rate = 0.00001
+learning_rate = 0.001
 height = 28
 width = 28
+n_classes = 10
+vote_batches = 2
 
 # Differential Privacy parameters
 sample_size = 3300
 alphas = list(range(2, 32))
-noise_multiplier = 1.2
+noise_multiplier = 1.3
 max_grad_norm = 1.0
 
 no_cuda = False
@@ -64,7 +66,7 @@ class Net(nn.Module):
         self.conv1 = nn.Conv2d(1, 20, 5, 1)
         self.conv2 = nn.Conv2d(20, 50, 5, 1)
         self.fc1 = nn.Linear(4 * 4 * 50, 500)
-        self.fc2 = nn.Linear(500, 10)
+        self.fc2 = nn.Linear(500, n_classes)
 
     def forward(self, x):
         x = nn_func.relu(self.conv1(x.view(-1, 1, height, width)))
@@ -97,7 +99,8 @@ for i in range(n_learners):
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,
-        criterion=nn_func.nll_loss
+        criterion=torch.nn.NLLLoss(),
+        num_test_batches=vote_batches
     )
 
     all_learner_models.append(learner)
@@ -110,14 +113,15 @@ summary(all_learner_models[0].model, input_size=(width, height))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+score_name = "loss"
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
                                   vote_threshold, epoch)
     )
 
-    plot_results(results, n_learners, block=False)
-    plot_votes(results, block=False)
+    plot_results(results, n_learners, score_name=score_name)
+    plot_votes(results)
 
-plot_results(results, n_learners, block=False)
+plot_results(results, n_learners, score_name=score_name)
 plot_votes(results, block=True)

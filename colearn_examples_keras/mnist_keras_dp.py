@@ -20,9 +20,9 @@ batch_size = 64
 vote_batches = 2
 
 # Differential privacy parameters
-l2_norm_clip = 1.0
-noise_multiplier = 1.2
-num_microbatches = batch_size
+l2_norm_clip = 1.5
+noise_multiplier = 1.3  # more noise -> more privacy, less utility
+num_microbatches = 64  # how many batches to split a batch into
 
 train_datasets = tfds.load('mnist',
                            split=tfds.even_splits('train', n=n_learners),
