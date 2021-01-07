@@ -54,7 +54,8 @@ def get_model():
     )
     model.compile(
         loss=tf.keras.losses.BinaryCrossentropy(),
-        metrics=[tf.keras.metrics.BinaryAccuracy()],
+        metrics=[tf.keras.metrics.BinaryAccuracy(),
+                 tf.keras.metrics.AUC(name='auc')],
         optimizer=opt)
     return model
 
@@ -109,7 +110,6 @@ def split_to_folders(
             # make symlinks to required files in directory
             for fl in cases_subset:
                 link_name = dir_name / os.path.basename(fl)
-                # print(link_name)
                 os.symlink(fl, link_name)
 
             start_ind = stop_ind
@@ -135,6 +135,12 @@ test_data_folders = split_to_folders(
 
 train_datasets, test_datasets = [], []
 
+
+def normalize_img(image, label):
+    """Normalizes images: `uint8` -> `float32`."""
+    return tf.cast(image, tf.float32) / 255., label
+
+
 for i in range(n_learners):
     train_datasets.append(tf.keras.preprocessing.image_dataset_from_directory(
         train_data_folders[i],
@@ -142,14 +148,14 @@ for i in range(n_learners):
         batch_size=batch_size,
         image_size=(width, height),
         color_mode='grayscale'
-    ))
+    ).map(normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE))
     test_datasets.append(tf.keras.preprocessing.image_dataset_from_directory(
         test_data_folders[i],
         label_mode='binary',
         batch_size=batch_size,
         image_size=(width, height),
         color_mode='grayscale'
-    ))
+    ).map(normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE))
 # todo: augmentation (although this seems to be turned off)
 
 all_learner_models = []
@@ -164,9 +170,7 @@ for i in range(n_learners):
                               # "class_weight": {0: 1, 1: 0.27}
                               },
             model_evaluate_kwargs={"steps": vote_batches},
-            # criterion="loss",
-            criterion="binary_accuracy",
-            # minimise_criterion=True,
+            criterion="auc",
             minimise_criterion=False
         ))
 
@@ -183,8 +187,8 @@ for epoch in range(n_epochs):
     )
 
     # then make an updating graph
-    plot_results(results, n_learners, block=False, score_name=all_learner_models[0].criterion)
-    plot_votes(results, block=False)
+    plot_results(results, n_learners, score_name=all_learner_models[0].criterion)
+    plot_votes(results)
 
-plot_results(results, n_learners, block=False, score_name=all_learner_models[0].criterion)
+plot_results(results, n_learners, score_name=all_learner_models[0].criterion)
 plot_votes(results, block=True)
