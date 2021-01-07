@@ -95,7 +95,6 @@ for i in range(n_learners):
         test_loader=test_datasets[i],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
-        model_fit_kwargs={"steps_per_epoch": 10},
         model_evaluate_kwargs={"steps": vote_batches}
     ))
 
