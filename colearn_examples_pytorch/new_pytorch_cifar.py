@@ -11,6 +11,14 @@ from colearn_examples.training import initial_result, collective_learning_round,
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 
+"""
+CIFAR10 training example using PyTorch
+
+- Loads CIFAR10 dataset from torchvision.datasets
+- Randomly splits dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
+
 # define some constants
 n_learners = 5
 batch_size = 64
@@ -24,7 +32,7 @@ width = 32
 channels = 3
 n_classes = 10
 vote_batches = 2
-vote_on_accuracy = True
+vote_on_accuracy = True  # False means vote on loss
 
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
@@ -79,6 +87,14 @@ class Net(nn.Module):
 
 
 def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
+    """
+    Function to compute accuracy based on model prediction and ground truth labels
+
+    :param outputs: Tensor with batch of model preditions
+    :param labels: Tensor with batch of ground truth labels
+    :return: Number of correct predictions
+    """
+
     outputs = torch.argmax(outputs, 1).int()
     correct = (outputs == labels).sum().item()
     return correct
@@ -111,6 +127,7 @@ for i in range(n_learners):
 
     all_learner_models.append(learner)
 
+# Ensure all learners starts with exactly same weights
 set_equal_weights(all_learner_models)
 
 # print a summary of the model architecture
@@ -121,6 +138,7 @@ summary(all_learner_models[0].model, input_size=(channels, width, height))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+# Do the training
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
@@ -130,5 +148,6 @@ for epoch in range(n_epochs):
     plot_results(results, n_learners, score_name=score_name)
     plot_votes(results)
 
+# Plot the final result with votes
 plot_results(results, n_learners, score_name=score_name)
 plot_votes(results, block=True)

@@ -74,6 +74,14 @@ class Net(nn.Module):
 
 
 def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
+    """
+    Function to compute accuracy based on model prediction and ground truth labels
+
+    :param outputs: Tensor with batch of model preditions
+    :param labels: Tensor with batch of ground truth labels
+    :return: Number of correct predictions
+    """
+
     outputs = torch.argmax(outputs, 1).int()
     correct = (outputs == labels).sum().item()
     return correct
@@ -107,6 +115,7 @@ for i in range(n_learners):
 
     all_learner_models.append(learner)
 
+# Ensure all learners starts with exactly same weights
 set_equal_weights(all_learner_models)
 
 # print a summary of the model architecture
@@ -117,6 +126,7 @@ summary(all_learner_models[0].model, input_size=(width, height))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+# Do the training
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
@@ -126,5 +136,6 @@ for epoch in range(n_epochs):
     plot_results(results, n_learners, score_name=score_name)
     plot_votes(results)
 
+# Plot the final result with votes
 plot_results(results, n_learners, score_name=score_name)
 plot_votes(results, block=True)

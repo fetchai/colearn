@@ -10,6 +10,14 @@ from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 from new_keras_learner import NewKerasLearner
 
+"""
+CIFAR10 training example using Tensorflow Keras
+
+- Loads CIFAR10 dataset from torchvision.datasets
+- Randomly splits dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
+
 n_learners = 5
 n_epochs = 20
 make_plot = True
@@ -35,7 +43,7 @@ test_datasets = tfds.load('cifar10',
 
 
 def normalize_img(image, label):
-    """Normalizes images: `uint8` -> `float32`."""
+    """Normalizes images: `uint8` 0-255 -> `float32` 0.0-1.0"""
     return tf.cast(image, tf.float32) / 255., label
 
 
