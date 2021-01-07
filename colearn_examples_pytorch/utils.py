@@ -14,6 +14,13 @@ def auc_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
 
 
 def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
+    """
+    Function to compute accuracy based on model prediction and ground truth labels
+
+    :param outputs: Tensor with batch of model preditions
+    :param labels: Tensor with batch of ground truth labels
+    :return: Number of correct predictions
+    """
     outputs = torch.argmax(outputs, 1).int()
     correct = (outputs == labels).sum().item()
     return correct / labels.shape[0]
