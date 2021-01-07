@@ -27,8 +27,8 @@ class NewPytorchLearner(MachineLearningInterface):
         self.train_loader: torch.utils.data.DataLoader = train_loader
         self.test_loader: Optional[torch.utils.data.DataLoader] = test_loader
         self.device = device
-        self.num_train_batches = num_train_batches or int(len(train_loader) / train_loader.batch_size)
-        assert self.num_train_batches <= int(len(train_loader) / train_loader.batch_size), \
+        self.num_train_batches = num_train_batches or len(train_loader)
+        assert self.num_train_batches <= len(train_loader), \
             "num_train_batches should not be larger than the number of batches in the training dataset"
         self.num_test_batches = num_test_batches
         self.minimise_criterion = minimise_criterion
