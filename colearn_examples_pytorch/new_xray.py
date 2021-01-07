@@ -3,6 +3,7 @@ import tempfile
 from glob import glob
 from pathlib import Path
 
+from sklearn.metrics import roc_auc_score
 from torch.utils.data import Dataset
 from torchsummary import summary
 import torch.utils.data
@@ -90,6 +91,14 @@ def binary_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> 
     outputs = (torch.sigmoid(outputs) > 0.5).float()
     correct = (outputs == labels).sum().item()
     return correct
+
+
+def auc_from_logits(outputs: torch.Tensor, labels: np.ndarray) -> float:
+    predictions = 1 / (1 + np.exp(-outputs))
+    print("labels", labels.astype(int))
+    print(predictions)
+    auc = roc_auc_score(labels.astype(int), predictions)
+    return auc
 
 
 # load data
@@ -271,7 +280,7 @@ for i in range(n_learners):
             reduction='mean'),
         num_train_batches=steps_per_epoch,
         num_test_batches=vote_batches,
-        vote_criterion=binary_accuracy_from_logits,
+        vote_criterion=auc_from_logits,
         minimise_criterion=False
     )
 

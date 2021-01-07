@@ -1,5 +1,5 @@
 from typing import Optional, Callable
-
+import numpy as np
 import torch
 import torch.nn
 import torch.optim
@@ -99,6 +99,8 @@ class NewPytorchLearner(MachineLearningInterface):
 
         self.model.eval()
         total_score = 0
+        all_labels = np.ndarray(())
+        all_outputs = np.ndarray(())
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
                 if self.num_test_batches and batch_idx == self.num_test_batches:
@@ -107,10 +109,15 @@ class NewPytorchLearner(MachineLearningInterface):
                 labels = labels.to(self.device)
                 output = self.model(data)
                 if self.vote_criterion is not None:
-                    total_score += self.vote_criterion(output, labels)
+                    # total_score += self.vote_criterion(output, labels)
+                    all_labels = np.vstack((all_labels, labels.numpy())) if all_labels.size else labels.numpy()
+                    all_outputs = np.vstack((all_outputs, output.numpy())) if all_outputs.size else output.numpy()
                 else:
                     total_score += self.criterion(output, labels)
-        return float(total_score / (batch_idx * loader.batch_size))
+        if self.vote_criterion is None:
+            return float(total_score / (batch_idx * loader.batch_size))
+        else:
+            return self.vote_criterion(all_outputs, all_labels)
 
     def mli_accept_weights(self, weights: Weights):
         self.set_weights(weights)
