@@ -1,10 +1,7 @@
-from inspect import signature
-from typing import Optional
 from tensorflow import keras
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
