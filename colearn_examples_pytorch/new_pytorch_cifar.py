@@ -12,13 +12,13 @@ from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 
 """
-MNIST training example using PyTorch
+CIFAR10 training example using PyTorch
 
 Used dataset:
-- MNIST is set of 60 000 black and white hand written digits images of size 28x28x1 in 10 classes
+- CIFAR10 is set of 60 000 colour images of size 32x32x3 in 10 classes
 
 What script does:
-- Loads MNIST dataset from torchvision.datasets
+- Loads CIFAR10 dataset from torchvision.datasets
 - Randomly splits dataset between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 """
@@ -31,11 +31,12 @@ n_epochs = 20
 vote_threshold = 0.5
 train_fraction = 0.9
 learning_rate = 0.001
-height = 28
-width = 28
+height = 32
+width = 32
+channels = 3
 n_classes = 10
 vote_batches = 2
-vote_on_accuracy = True
+vote_on_accuracy = True  # False means vote on loss
 
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
@@ -44,10 +45,10 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # Load the data and split for each learner.
 # Using a torch-native dataloader makes this much easier
-train_root = '/tmp/mnist'
+train_root = '/tmp/cifar10'
 transform = transforms.Compose([
     transforms.ToTensor()])
-data = datasets.MNIST(train_root, transform=transform, download=True)
+data = datasets.CIFAR10(train_root, transform=transform, download=True)
 n_train = int(train_fraction * len(data))
 n_test = len(data) - n_train
 train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])
@@ -69,19 +70,23 @@ learner_test_dataloaders = [torch.utils.data.DataLoader(
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5, 1)
-        self.conv2 = nn.Conv2d(20, 50, 5, 1)
-        self.fc1 = nn.Linear(4 * 4 * 50, 500)
-        self.fc2 = nn.Linear(500, n_classes)
+        self.conv1 = nn.Conv2d(channels, 32, 5, 1, padding=2)
+        self.conv2 = nn.Conv2d(32, 32, 5, 1, padding=2)
+        self.conv3 = nn.Conv2d(32, 64, 5, 1, padding=2)
+        self.fc1 = nn.Linear(4 * 4 * 64, 64)
+        self.fc2 = nn.Linear(64, 10)
 
     def forward(self, x):
-        x = nn_func.relu(self.conv1(x.view(-1, 1, height, width)))
+        x = nn_func.relu(self.conv1(x.view(-1, channels, height, width)))
         x = nn_func.max_pool2d(x, 2, 2)
         x = nn_func.relu(self.conv2(x))
         x = nn_func.max_pool2d(x, 2, 2)
-        x = x.view(-1, 4 * 4 * 50)
+        x = nn_func.relu(self.conv3(x))
+        x = nn_func.max_pool2d(x, 2, 2)
+        x = x.view(-1, 4 * 4 * 64)
         x = nn_func.relu(self.fc1(x))
         x = self.fc2(x)
+
         return nn_func.log_softmax(x, dim=1)
 
 
@@ -130,7 +135,7 @@ for i in range(n_learners):
 set_equal_weights(all_learner_models)
 
 # print a summary of the model architecture
-summary(all_learner_models[0].model, input_size=(width, height))
+summary(all_learner_models[0].model, input_size=(channels, width, height))
 
 # Now we're ready to start collective learning
 # Get initial accuracy

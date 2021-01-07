@@ -21,7 +21,8 @@ class NewPytorchLearner(MachineLearningInterface):
                  vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,
                  num_train_batches: Optional[int] = None,
                  num_test_batches: Optional[int] = None):
-        self.model: torch.nn.Module = model
+        # Model has to be on same device as data
+        self.model: torch.nn.Module = model.to(device)
         self.optimizer: torch.optim.Optimizer = optimizer
         self.criterion = criterion
         self.train_loader: torch.utils.data.DataLoader = train_loader
@@ -53,8 +54,11 @@ class NewPytorchLearner(MachineLearningInterface):
             if batch_idx == self.num_train_batches:
                 break
             self.optimizer.zero_grad()
+
+            # Data needs to be on same device as model
             data = data.to(self.device)
             labels = labels.to(self.device)
+
             output = self.model(data)
 
             loss = self.criterion(output, labels)
