@@ -11,6 +11,18 @@ from colearn_examples.training import initial_result, collective_learning_round,
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 
+"""
+MNIST training example using PyTorch
+
+Used dataset:
+- MNIST is set of 60 000 black and white hand written digits images of size 28x28x1 in 10 classes
+
+What script does:
+- Loads MNIST dataset from torchvision.datasets
+- Randomly splits dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
+
 # define some constants
 n_learners = 5
 batch_size = 64
@@ -95,7 +107,6 @@ if vote_on_accuracy:
 else:
     learner_vote_kwargs = {}
     score_name = "loss"
-
 
 # Make n instances of NewPytorchLearner with model and torch dataloaders
 all_learner_models = []

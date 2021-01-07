@@ -10,6 +10,10 @@ from new_keras_learner import NewKerasLearner
 """
 CIFAR10 training example using Tensorflow Keras
 
+Used dataset:
+- CIFAR10 is set of 60 000 colour images of size 32x32x3 in 10 classes
+
+What script does:
 - Loads CIFAR10 dataset from torchvision.datasets
 - Randomly splits dataset between multiple learners
 - Does multiple rounds of learning process and displays plot with results
