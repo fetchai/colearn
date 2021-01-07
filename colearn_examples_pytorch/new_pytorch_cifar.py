@@ -10,6 +10,7 @@ import torch.nn.functional as nn_func
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
+from colearn_examples_pytorch.utils import categorical_accuracy
 
 """
 CIFAR10 training example using PyTorch
@@ -88,20 +89,6 @@ class Net(nn.Module):
         x = self.fc2(x)
 
         return nn_func.log_softmax(x, dim=1)
-
-
-def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
-    """
-    Function to compute accuracy based on model prediction and ground truth labels
-
-    :param outputs: Tensor with batch of model preditions
-    :param labels: Tensor with batch of ground truth labels
-    :return: Number of correct predictions
-    """
-
-    outputs = torch.argmax(outputs, 1).int()
-    correct = (outputs == labels).sum().item()
-    return correct
 
 
 if vote_on_accuracy:
