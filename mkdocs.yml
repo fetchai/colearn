@@ -1,7 +1,7 @@
 site_name: Colearn
 site_url: https://docs.fetch.ai/
 site_description: Everything you need to know about Collective Learning.
-repo_url: https://github.com/fetchai/colearn/docs
+repo_url: https://github.com/fetchai/colearn/
 site_author: developer@fetch.ai
 
 theme:
@@ -9,14 +9,23 @@ theme:
   feature:
     tabs: true
 
-#strict: true
+strict: true
 
 nav:
   - About: 'about.md'
   - Getting Started: 'intro_tutorial_keras.md'
+  - Customisation: 'customisation.md'
+  - Demo: 'demo.md'
+  - Differential Privacy: 'differential_privacy.md'
+  - Tasks: 'tasks.md'
+  - Customisation tutorial: 'tutorial_on_customisation.md'
 
 extra_css:
     - css/my-styles.css
+
+plugins:
+    - search
+    - macros
 
 markdown_extensions:
     - toc:  # table of contents
@@ -32,3 +41,6 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_div_format ''
     - pymdownx.tabbed  # provides tabs
+
+extra:
+  repo_root: https://github.com/fetchai/colearn/tree/master/

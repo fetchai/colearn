@@ -56,3 +56,10 @@ For other demo options see [here](docs/demo.md)
 
 ## Writing your own models
 We encourage users to try out the system by writing their own models. Models need to implement the collective learning interface, which provides functions for training and voting on updates. More instructions can be found [here](docs/customisation.md)
+
+## Documentation
+To run the documentation, run 
+```
+mkdocs serve
+```
+Documentation will be hosted somewhere soon!

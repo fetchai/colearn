@@ -24,7 +24,7 @@ As you can see, there are five learners, and intially they perform poorly.
 In round one, learner 0 is selected to propose a new set of weights.
 
 ## Other datasets
-All available models and datasets are listed [here](docs/tasks.md)
+All available models and datasets are listed [here](./tasks.md)
 
 The Fraud and X-ray datasets need to be downloaded from kaggle (this requires a kaggle account).
 To run the fraud dataset:
@@ -35,4 +35,4 @@ To run the X-ray dataset:
 ```bash
 bin/run_no_networking_demo.py -t XRAY -n 5 -e 15 -d ./data/xray
 ```
-To find out how to try your own datasets, see the next tutorial in the series [here](docs/customisation.md)
+To find out how to try your own datasets, see the next tutorial in the series [here](./customisation.md)

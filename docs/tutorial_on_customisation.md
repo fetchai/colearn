@@ -1,7 +1,7 @@
 # Tutorial
 
 The most flexible way to use the collective learning backends is to make a class that implements
-the Collective Learning `MachineLearningInterface` defined in [ml_interface.py](../colearn/ml_interface.py). 
+the Collective Learning `MachineLearningInterface` defined in [ml_interface.py]({{ repo_root }}/colearn/ml_interface.py). 
 The methods that need to be implemented are `train_model`, `test_model` and `accept_weights`. 
 
 However, the simpler way is to use one of the helper classes that we have provided that implement 
@@ -15,7 +15,7 @@ First we are going to define the model architecture, then
 we are going to load the data and configure the model, and then we will run Collective Learning.
 
 ## Package structure
-The above mentioned interfaces and basic classes can be accessed after installing Collective Learning as described in the [README](../README.md):
+The above mentioned interfaces and basic classes can be accessed after installing Collective Learning as described in the [README]({{ repo_root }}/README.md):
 
 ```python
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
@@ -40,7 +40,7 @@ from colearn_examples.utils.data import split_by_chunksizes
 from colearn_examples.utils.plot import plot_results, plot_votes
 ```
 
-All the code for this tutorial can be found in [customisation_demo.py](../bin/customisation_demo.py).
+All the code for this tutorial can be found in [customisation_demo.py]({{ repo_root }}/bin/customisation_demo.py).
 
 ## Defining the model
 What we need to do is define a subclass of `PytorchLearner` that implements `_get_model`. 
@@ -94,7 +94,7 @@ image_height = 28  # height of the mnist images in pixels
 
 ## Loading the data
 The `PytorchLearner` expects the data to be wrapped by an instance of `LearnerData`.
-The `LearnerData` class is defined in [basic_learner.py](../colearn/basic_learner.py) 
+The `LearnerData` class is defined in [basic_learner.py]({{ repo_root }}/colearn/basic_learner.py) 
 and is a simple wrapper around generators for the testing, training and validation data.
 The validation data here means the data that is used for voting.
 Each generator needs to return numpy arrays of the next batch of data and labels when `__next__` is called on it. 
@@ -227,4 +227,4 @@ for i in range(n_rounds):
 plot_results(results, n_learners)
 plot_votes(results, block=True)
 ```
-You can try more examples of collective learning by using the script [run_demo.py](../bin/run_demo.py).
+You can try more examples of collective learning by using the script [run_demo.py]({{ repo_root }}/bin/run_demo.py).

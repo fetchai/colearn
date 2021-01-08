@@ -32,7 +32,12 @@ class MNISTConvLearner(KerasLearner):
         model.compile(loss=self.config.loss, metrics=["accuracy"], optimizer=opt)
         return model
 ```
-As can be seen the model inherits from the [KerasLearner](colearn_examples/keras_learner.py) which inherits from the BasicLearner which implements the interface. Each of these intermediate classes are customization points the library provides to simplify the deployment of your own models. For any Keras based model we recommend starting with the KerasLearner. In the Example folder there is also a [SKLearnLearner](colearn_examples/sklearn_learner.py) for Scikit-learn models .
+As can be seen the model inherits from the
+[KerasLearner]({{ repo_root }}/colearn_examples/keras_learner.py) 
+which inherits from the BasicLearner which implements the interface. 
+Each of these intermediate classes are customization points the library provides to simplify 
+the deployment of your own models. For any Keras based model we recommend starting with the KerasLearner. 
+In the Example folder there is also a [SKLearnLearner]({{ repo_root }}/colearn_examples/sklearn_learner.py) for Scikit-learn models .
 
 The BasicLearner handles some of the logic required by the interface and hands what is model specific to the subclass. For example BasicLearner implements test_model
 
