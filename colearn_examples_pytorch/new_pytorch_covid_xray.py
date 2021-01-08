@@ -5,6 +5,7 @@ from colearn_examples_pytorch.new_pytorch_learner import NewPytorchLearner
 
 import torch.nn as nn
 import torch.nn.functional as nn_func
+from torch.utils.data import TensorDataset
 
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
@@ -84,10 +85,10 @@ data = min_max_scaler.fit_transform(data)
 transformer = KernelPCA(n_components=input_width, kernel='linear')
 data = transformer.fit_transform(data)
 
-# Prepare list of data, label pairs of all samples
-dataset = []
-for i in range(len(data)):
-    dataset.append([data[i], labels[i]])
+# Create tensor dataset
+data_tensor = torch.FloatTensor(data)
+labels_tensor = torch.LongTensor(labels)
+dataset = TensorDataset(data_tensor, labels_tensor)
 
 # Split dataset to train and test part
 n_train = int(train_fraction * len(dataset))
