@@ -9,6 +9,7 @@ import torch.nn.functional as nn_func
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
+from colearn_examples_pytorch.utils import categorical_accuracy
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import KernelPCA
@@ -30,8 +31,6 @@ What script does:
 """
 
 # define some constants
-from colearn_examples_pytorch.utils import categorical_accuracy
-
 n_learners = 5
 batch_size = 64
 seed = 42
