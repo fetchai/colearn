@@ -1,0 +1,21 @@
+site_name: Colearn
+site_url: https://docs.fetch.ai/
+site_description: Everything you need to know about Collective Learning.
+repo_url: https://github.com/fetchai/colearn/docs
+site_author: developer@fetch.ai
+
+theme:
+  name: 'material'
+  logo:
+    icon: code
+  feature:
+    tabs: true
+
+strict: true
+
+nav:
+  - About: 'about.md'
+  - Getting Started: 'intro_tutorial_keras.md'
+
+extra_css:
+    - css/my-styles.css
