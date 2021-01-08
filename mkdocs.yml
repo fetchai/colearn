@@ -6,12 +6,10 @@ site_author: developer@fetch.ai
 
 theme:
   name: 'material'
-  logo:
-    icon: code
   feature:
     tabs: true
 
-strict: true
+#strict: true
 
 nav:
   - About: 'about.md'
@@ -19,3 +17,7 @@ nav:
 
 extra_css:
     - css/my-styles.css
+
+markdown_extensions:
+    - markdown_include.include:
+        base_path: docs
