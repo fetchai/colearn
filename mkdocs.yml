@@ -19,5 +19,16 @@ extra_css:
     - css/my-styles.css
 
 markdown_extensions:
+    - toc:  # table of contents
+        permalink: true
     - markdown_include.include:
         base_path: docs
+    - admonition  # provides notes, syntax is !!!\n\tnote
+    - codehilite  # code highlighting
+    - extra
+    - pymdownx.superfences:  # "fenced" code blocks
+        custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_div_format ''
+    - pymdownx.tabbed  # provides tabs
