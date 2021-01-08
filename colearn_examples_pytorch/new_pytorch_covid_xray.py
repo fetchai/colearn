@@ -10,18 +10,21 @@ from colearn_examples.training import initial_result, collective_learning_round,
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.decomposition import KernelPCA
+
 import os
 import scipy.io as sio
 import numpy as np
 
 """
-MNIST training example using PyTorch
+COVID-XRAY training example using PyTorch
 
 Used dataset:
-- MNIST is set of 60 000 black and white hand written digits images of size 28x28x1 in 10 classes
+- COVID-XRAY is
 
 What script does:
-- Loads MNIST dataset from torchvision.datasets
+- Loads XRAY dataset .mat files with normal, pneumonia and covid samples and normalizes them
 - Randomly splits dataset between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 """
@@ -32,11 +35,11 @@ from colearn_examples_pytorch.utils import categorical_accuracy
 n_learners = 5
 batch_size = 64
 seed = 42
-n_epochs = 20
+n_epochs = 50
 vote_threshold = 0.5
 train_fraction = 0.9
 learning_rate = 0.001
-input_width = 252
+input_width = 64
 n_classes = 3
 vote_batches = 2
 vote_on_accuracy = True
@@ -49,7 +52,6 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 data_dir = '/home/jiri/fetch/colearn/examples/covid'
 
 # Load data
-
 covid_data = sio.loadmat(os.path.join(data_dir, 'covid.mat'))['covid']
 normal_data = sio.loadmat(os.path.join(data_dir, 'normal.mat'))['normal']
 pneumonia_data = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))['pneumonia']
@@ -57,6 +59,14 @@ pneumonia_data = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))['pneumonia
 data = np.concatenate((covid_data[:, :-1], normal_data[:, :-1], pneumonia_data[:, :-1]), axis=0).astype(np.float32)
 labels = np.concatenate((covid_data[:, -1], normal_data[:, -1], pneumonia_data[:, -1]), axis=0).astype(int)
 
+# Normalise data
+min_max_scaler = MinMaxScaler()
+data = min_max_scaler.fit_transform(data)
+
+transformer = KernelPCA(n_components=input_width, kernel='linear')
+data = transformer.fit_transform(data)
+
+# Split data between learners
 dataset = []
 for i in range(len(data)):
     dataset.append([data[i], labels[i]])
@@ -74,7 +84,6 @@ learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
     batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
 
-
 data_split = [len(test_data) // n_learners] * n_learners
 if (sum(data_split) < len(test_data)):
     data_split[-1] += len(test_data) - sum(data_split)
@@ -89,10 +98,20 @@ learner_test_dataloaders = [torch.utils.data.DataLoader(
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.fc1 = nn.Linear(input_width, n_classes)
+        self.fc1 = nn.Linear(input_width, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 32)
+        self.fc5 = nn.Linear(32, 16)
+        self.fc6 = nn.Linear(16, n_classes)
 
     def forward(self, x):
-        x = self.fc1(x)
+        x = nn_func.dropout(nn_func.relu(self.fc1(x)), 0.2)
+        x = nn_func.dropout(nn_func.relu(self.fc2(x)), 0.2)
+        x = nn_func.dropout(nn_func.relu(self.fc3(x)), 0.2)
+        x = nn_func.dropout(nn_func.relu(self.fc4(x)), 0.2)
+        x = nn_func.dropout(nn_func.relu(self.fc5(x)), 0.2)
+        x = self.fc6(x)
 
         return nn_func.log_softmax(x, dim=1)
 
