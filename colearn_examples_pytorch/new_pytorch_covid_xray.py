@@ -22,13 +22,31 @@ import numpy as np
 COVID-XRAY training example using PyTorch
 
 Used dataset:
-- COVID-XRAY is
+- contains 478 normal samples, 478 covid samples and 478 pneumonia samples
+- Each sample is vector of 252 feature values extracted from xray mages
 
 What script does:
 - Loads XRAY dataset .mat files with normal, pneumonia and covid samples and normalizes them
+- Applies PCA to reduce 252 input features to 64 features
 - Randomly splits dataset between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 """
+
+
+def data_split(data, n):
+    """
+    Create list of sizes for splitting
+
+    :param data: dataset
+    :param n: number of equal parts
+    :return: list of sizes
+    """
+
+    parts = [len(data) // n] * n
+    if sum(parts) < len(data):
+        parts[-1] += len(data) - sum(parts)
+    return parts
+
 
 # define some constants
 n_learners = 5
@@ -48,7 +66,8 @@ cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
-data_dir = '/home/jiri/fetch/colearn/examples/covid'
+# Replace with path containing .mat files if necessary
+data_dir = '../../colearn/examples/covid'
 
 # Load data
 covid_data = sio.loadmat(os.path.join(data_dir, 'covid.mat'))['covid']
@@ -65,29 +84,26 @@ data = min_max_scaler.fit_transform(data)
 transformer = KernelPCA(n_components=input_width, kernel='linear')
 data = transformer.fit_transform(data)
 
-# Split data between learners
+# Prepare list of data, label pairs of all samples
 dataset = []
 for i in range(len(data)):
     dataset.append([data[i], labels[i]])
 
+# Split dataset to train and test part
 n_train = int(train_fraction * len(dataset))
 n_test = len(dataset) - n_train
 train_data, test_data = torch.utils.data.random_split(dataset, [n_train, n_test])
 
-data_split = [len(train_data) // n_learners] * n_learners
-if (sum(data_split) < len(train_data)):
-    data_split[-1] += len(train_data) - sum(data_split)
-
-learner_train_data = torch.utils.data.random_split(train_data, data_split)
+# Split train set between learners
+parts = data_split(train_data, n_learners)
+learner_train_data = torch.utils.data.random_split(train_data, parts)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
     batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
 
-data_split = [len(test_data) // n_learners] * n_learners
-if (sum(data_split) < len(test_data)):
-    data_split[-1] += len(test_data) - sum(data_split)
-
-learner_test_data = torch.utils.data.random_split(test_data, data_split)
+# Split test set between learners
+parts = data_split(test_data, n_learners)
+learner_test_data = torch.utils.data.random_split(test_data, parts)
 learner_test_dataloaders = [torch.utils.data.DataLoader(
     ds,
     batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
