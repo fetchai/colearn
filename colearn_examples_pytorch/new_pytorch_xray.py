@@ -10,7 +10,7 @@ import random as rand
 import cv2
 import numpy as np
 
-from colearn_examples_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 import torch.nn as nn
 import torch.nn.functional as nn_func

@@ -1,7 +1,7 @@
 from torchsummary import summary
 import torch.utils.data
 
-from colearn_examples_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 import torch.nn as nn
 import torch.nn.functional as nn_func
