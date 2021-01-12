@@ -2,7 +2,7 @@ from torch.utils.data import Dataset
 import random as rand
 from pathlib import Path
 from glob import glob
-
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 import numpy as np
 
@@ -14,8 +14,78 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
 
+from colearn_examples_pytorch.utils import auc_from_logits
 
-class Net(nn.Module):
+default_config = dict(
+    height=128,
+    width=128,
+    seed=None,
+    learning_rate=0.001,
+    steps_per_epoch=10,
+    vote_batches=2,
+    vote_using_auc=True,
+    no_cuda=False,
+    batch_size=8,
+)
+
+
+
+def prepare_learner(model, train_loader, test_loader=None, config=None):
+    # Merge default_config with dataset_config
+    current_config = default_config.copy()
+    if config is not None:
+        current_config.update(config)
+
+    cuda = not current_config["no_cuda"] and torch.cuda.is_available()
+    device = torch.device("cuda" if cuda else "cpu")
+
+    pos_weight = torch.tensor([0.27])
+
+    if current_config["vote_using_auc"]:
+        learner_vote_kwargs = dict(
+            vote_criterion=auc_from_logits,
+            minimise_criterion=False)
+        score_name = "auc"
+    else:
+        learner_vote_kwargs = {}
+        score_name = "loss"
+
+    # Make n instances of NewPytorchLearner with model and torch dataloaders
+
+    opt = torch.optim.Adam(model.parameters(), lr=current_config["learning_rate"])
+    learner = NewPytorchLearner(
+        model=model,
+        train_loader=train_loader,
+        test_loader=test_loader,
+        device=device,
+        optimizer=opt,
+        criterion=nn.BCEWithLogitsLoss(
+            # pos_weight=pos_weight,
+            reduction='mean'),
+        num_train_batches=current_config["steps_per_epoch"],
+        num_test_batches=current_config["vote_batches"],
+        **learner_vote_kwargs
+    )
+
+    return learner
+
+def prepare_data_loader(data_folder, config = None):
+    # Merge default_config with dataset_config
+    current_config = default_config.copy()
+    if config is not None:
+        current_config.update(config)
+
+    cuda = not current_config["no_cuda"] and torch.cuda.is_available()
+    kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+
+
+    return torch.utils.data.DataLoader(
+        XrayDataset(data_folder, train_ratio=1),
+        batch_size=current_config["batch_size"], shuffle=True, **kwargs)
+
+
+
+class TorchXrayModel(nn.Module):
     """_________________________________________________________________
 Layer (type)                 Output Shape              Param #
 =================================================================
@@ -41,7 +111,7 @@ Non-trainable params: 192
 _________________________________________________________________"""
 
     def __init__(self):
-        super(Net, self).__init__()
+        super(TorchXrayModel, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, (3, 3), padding=1)
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, (3, 3), padding=1)
@@ -58,16 +128,6 @@ _________________________________________________________________"""
         x = x.view(-1, 64)
         x = self.fc1(x)
         return x  # NB: output is in *logits* - take sigmoid to get predictions
-
-
-
-default_config = \
-    {
-        "height": 128,
-        "width": 128,
-        "seed": None,
-
-    }
 
 # load data
 class XrayDataset(Dataset):
