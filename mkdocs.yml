@@ -9,23 +9,30 @@ theme:
   feature:
     tabs: true
 
-strict: true
+#strict: true
 
 nav:
-  - About: 'about.md'
-  - Getting Started: 'intro_tutorial_keras.md'
-  - Customisation: 'customisation.md'
-  - Demo: 'demo.md'
+  - Colearn: 'index.md'
+  - Collective Learning Protocol: 'about.md'
+  - Getting Started:
+    - Intro: 'customisation.md'
+    - With Keras: 'intro_tutorial_keras.md'
+    - With PyTorch: 'intro_tutorial_pytorch.md'
+    - With the MachineLearningInterface: 'intro_tutorial_mli.md'
+  - Examples:
+      - Standalone examples: 'examples.md'
+      - Demo: 'demo.md'
+#  - Customisation: 'customisation.md'
+#  - Demo: 'demo.md'
   - Differential Privacy: 'differential_privacy.md'
-  - Tasks: 'tasks.md'
-  - Customisation tutorial: 'tutorial_on_customisation.md'
+#  - Customisation tutorial: 'tutorial_on_customisation.md'
 
 extra_css:
     - css/my-styles.css
 
 plugins:
     - search
-    - macros
+    - macros  # use variables, e.g. {{ repo_root }}
 
 markdown_extensions:
     - toc:  # table of contents
