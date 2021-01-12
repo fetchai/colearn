@@ -28,7 +28,6 @@ batch_size = 8
 seed = 42
 n_epochs = 15
 vote_threshold = 0.5
-train_fraction = 0.9
 learning_rate = 0.001
 height = 128
 width = 128
