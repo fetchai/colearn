@@ -7,26 +7,22 @@ from colearn_examples.utils.results import Results
 from colearn_examples_keras.new_keras_learner import NewKerasLearner
 
 n_learners = 5
-n_epochs = 20
 vote_threshold = 0.5
+vote_batches = 2
 
+n_epochs = 20
 width = 28
 height = 28
 n_classes = 10
-
-optimizer = tf.keras.optimizers.Adam
 l_rate = 0.001
 batch_size = 64
-loss = "sparse_categorical_crossentropy"
-vote_batches = 2
 
-train_datasets = tfds.load('mnist',
-                           split=tfds.even_splits('train', n=n_learners),
-                           as_supervised=True)
+# Load data for each learner
+train_dataset = tfds.load('mnist', split='train', as_supervised=True)
+train_datasets = [train_dataset.shard(num_shards=n_learners, index=i) for i in range(n_learners)]
 
-test_datasets = tfds.load('mnist',
-                          split=tfds.even_splits('test', n=n_learners),
-                          as_supervised=True)
+test_dataset = tfds.load('mnist', split='test', as_supervised=True)
+test_datasets = [test_dataset.shard(num_shards=n_learners, index=i) for i in range(n_learners)]
 
 
 def normalize_img(image, label):
@@ -35,21 +31,18 @@ def normalize_img(image, label):
 
 
 for i in range(n_learners):
-    ds_train = train_datasets[i].map(
+    train_datasets[i] = train_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    ds_train = ds_train.cache()
-    ds_train = ds_train.shuffle(len(ds_train))
-    ds_train = ds_train.batch(batch_size)
-    train_datasets[i] = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
+    train_datasets[i] = train_datasets[i].shuffle(len(train_datasets[i]))
+    train_datasets[i] = train_datasets[i].batch(batch_size)
 
-    ds_test = test_datasets[i].map(
+    test_datasets[i] = test_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    ds_test = ds_test.batch(batch_size)
-    ds_test = ds_test.cache()
-    ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
-    test_datasets[i] = ds_test
+    test_datasets[i] = test_datasets[i].shuffle(len(test_datasets[i]))
+    test_datasets[i] = test_datasets[i].batch(batch_size)
 
 
+# Define model
 def get_model():
     input_img = tf.keras.Input(
         shape=(width, height, 1), name="Input"
@@ -70,9 +63,9 @@ def get_model():
     )(x)
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
-    opt = optimizer(lr=l_rate)
+    opt = tf.keras.optimizers.Adam(lr=l_rate)
     model.compile(
-        loss=loss,
+        loss="sparse_categorical_crossentropy",
         metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
         optimizer=opt)
     return model
@@ -91,8 +84,8 @@ for i in range(n_learners):
 
 set_equal_weights(all_learner_models)
 
+# Train the model using Collective Learning
 results = Results()
-# Get initial score
 results.data.append(initial_result(all_learner_models))
 
 for epoch in range(n_epochs):
