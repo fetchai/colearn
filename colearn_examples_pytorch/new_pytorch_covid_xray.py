@@ -2,7 +2,7 @@ from torchsummary import summary
 import torch.utils.data
 
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
-from utils import data_split
+from utils import prepare_data_split_list
 
 import torch.nn as nn
 import torch.nn.functional as nn_func
@@ -82,14 +82,14 @@ n_test = len(dataset) - n_train
 train_data, test_data = torch.utils.data.random_split(dataset, [n_train, n_test])
 
 # Split train set between learners
-parts = data_split(train_data, n_learners)
+parts = prepare_data_split_list(train_data, n_learners)
 learner_train_data = torch.utils.data.random_split(train_data, parts)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
     batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
 
 # Split test set between learners
-parts = data_split(test_data, n_learners)
+parts = prepare_data_split_list(test_data, n_learners)
 learner_test_data = torch.utils.data.random_split(test_data, parts)
 learner_test_dataloaders = [torch.utils.data.DataLoader(
     ds,

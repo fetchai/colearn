@@ -40,7 +40,7 @@ def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
     return correct / labels.shape[0]
 
 
-def data_split(data, n):
+def prepare_data_split_list(data, n):
     """
     Create list of sizes for splitting
 
