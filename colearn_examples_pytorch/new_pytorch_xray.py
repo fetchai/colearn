@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from utils import data_split
 
 import torch.nn as nn
 import torch.nn.functional as nn_func
@@ -27,6 +28,7 @@ batch_size = 8
 seed = 42
 n_epochs = 15
 vote_threshold = 0.5
+train_fraction = 0.9
 learning_rate = 0.001
 height = 128
 width = 128
@@ -165,93 +167,29 @@ class XrayDataset(Dataset):
         return img
 
 
-# this is modified from the version in xray/data in order to keep the directory structure
-# e.g. when the data is in NORMAL and PNEU directories these will also be in each of the split dirs
-def split_to_folders(
-        data_dir,
-        n_learners,
-        data_split=None,
-        shuffle_seed=None,
-        output_folder=Path(tempfile.gettempdir()) / "xray",
-
-):
-    if not os.path.isdir(data_dir):
-        raise Exception("Data dir does not exist: " + str(data_dir))
-
-    if data_split is None:
-        data_split = [1 / n_learners] * n_learners
-
-    local_output_dir = Path(output_folder)
-
-    dir_names = []
-    for i in range(n_learners):
-        dir_name = local_output_dir / str(i)
-        os.system(f"rm -r {dir_name}")
-        dir_names.append(dir_name)
-
-    subdirs = glob(os.path.join(data_dir, "*", ""))
-    for subdir in subdirs:
-        subdir_name = os.path.basename(os.path.split(subdir)[0])
-
-        cases = list(Path(subdir).rglob("*.jp*"))
-
-        if len(cases) == 0:
-            raise Exception(f"No data found in path: {str(subdir)}")
-
-        n_cases = len(cases)
-        if shuffle_seed is not None:
-            np.random.seed(shuffle_seed)
-        random_indices = np.random.permutation(np.arange(n_cases))
-        start_ind = 0
-
-        for i in range(n_learners):
-            stop_ind = start_ind + int(data_split[i] * n_cases)
-
-            cases_subset = [cases[j] for j in random_indices[start_ind:stop_ind]]
-
-            dir_name = local_output_dir / str(i) / subdir_name
-            os.makedirs(str(dir_name))
-
-            # make symlinks to required files in directory
-            for fl in cases_subset:
-                link_name = dir_name / os.path.basename(fl)
-                # print(link_name)
-                os.symlink(fl, link_name)
-
-            start_ind = stop_ind
-
-    print(dir_names)
-    return dir_names
-
-
 # lOAD DATA
-full_train_data_folder = '/home/emmasmith/Development/datasets/chest_xray/train'
-full_test_data_folder = '/home/emmasmith/Development/datasets/chest_xray/test'
-train_data_folders = split_to_folders(
-    full_train_data_folder,
-    shuffle_seed=42,
-    n_learners=n_learners)
+data_folder = '/home/jiri/fetch/corpora/chest_xray/'
 
-test_data_folders = split_to_folders(
-    full_test_data_folder,
-    shuffle_seed=42,
-    n_learners=n_learners,
-    output_folder='/tmp/xray_test'
-)
+dataset = XrayDataset(data_folder, train_ratio=1)
 
-learner_train_dataloaders = []
-learner_test_dataloaders = []
+# Split dataset to train and test part
+n_train = int(train_fraction * len(dataset))
+n_test = len(dataset) - n_train
+train_data, test_data = torch.utils.data.random_split(dataset, [n_train, n_test])
 
-for i in range(n_learners):
-    learner_train_dataloaders.append(torch.utils.data.DataLoader(
-        XrayDataset(train_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True)
-    )
-    learner_test_dataloaders.append(torch.utils.data.DataLoader(
-        XrayDataset(test_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True)
-    )
+# Split train set between learners
+parts = data_split(train_data, n_learners)
+learner_train_data = torch.utils.data.random_split(train_data, parts)
+learner_train_dataloaders = [torch.utils.data.DataLoader(
+    ds,
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
 
+# Split test set between learners
+parts = data_split(test_data, n_learners)
+learner_test_data = torch.utils.data.random_split(test_data, parts)
+learner_test_dataloaders = [torch.utils.data.DataLoader(
+    ds,
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
 
 if vote_using_auc:
     learner_vote_kwargs = dict(

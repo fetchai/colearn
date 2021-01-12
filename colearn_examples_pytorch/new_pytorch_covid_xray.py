@@ -2,6 +2,7 @@ from torchsummary import summary
 import torch.utils.data
 
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from utils import data_split
 
 import torch.nn as nn
 import torch.nn.functional as nn_func
@@ -32,21 +33,6 @@ What script does:
 - Randomly splits dataset between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 """
-
-
-def data_split(data, n):
-    """
-    Create list of sizes for splitting
-
-    :param data: dataset
-    :param n: number of equal parts
-    :return: list of sizes
-    """
-
-    parts = [len(data) // n] * n
-    if sum(parts) < len(data):
-        parts[-1] += len(data) - sum(parts)
-    return parts
 
 
 # define some constants
