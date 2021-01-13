@@ -10,13 +10,12 @@ n_learners = 5
 n_epochs = 15
 vote_threshold = 0.5
 
-#seed = 42
-
-#batch_size = 8
-#learning_rate = 0.001
-#steps_per_epoch = 10
-#vote_batches = 13  # number of batches used for voting
-#vote_using_auc = True
+learning_kwargs = dict(
+    seed=42,
+    shuffle_sees=42,
+    batch_size=8,
+    learning_rate=0.001,
+)
 
 full_train_data_folder = '/home/jiri/fetch/corpora/chest_xray/train'
 full_test_data_folder = '/home/jiri/fetch/corpora/chest_xray/test'
@@ -24,38 +23,33 @@ full_test_data_folder = '/home/jiri/fetch/corpora/chest_xray/test'
 # lOAD DATA
 train_data_folders = split_to_folders(
     full_train_data_folder,
-    shuffle_seed=42,
-    n_learners=n_learners)
+    n_learners=n_learners,
+    **learning_kwargs)
 
 test_data_folders = split_to_folders(
     full_test_data_folder,
-    shuffle_seed=42,
     n_learners=n_learners,
-    output_folder='/tmp/xray_test'
+    output_folder='/tmp/xray_test',
+    **learning_kwargs
 )
 
 learner_train_dataloaders = []
 learner_test_dataloaders = []
 
 for i in range(n_learners):
-    learner_train_dataloaders.append(prepare_data_loader(train_data_folders[i]))
-    learner_test_dataloaders.append(prepare_data_loader(test_data_folders[i]))
+    learner_train_dataloaders.append(prepare_data_loader(train_data_folders[i], **learning_kwargs))
+    learner_test_dataloaders.append(prepare_data_loader(test_data_folders[i], **learning_kwargs))
 
 all_learner_models = []
 for i in range(n_learners):
     model = TorchXrayModel()
     all_learner_models.append(prepare_learner(model,
                                               learner_train_dataloaders[i],
-                                              test_loader=learner_test_dataloaders[i]))
+                                              test_loader=learner_test_dataloaders[i],
+                                              **learning_kwargs))
 
 set_equal_weights(all_learner_models)
-
-# TODO: universal way to get input_size
-# print a summary of the model architecture
-summary(all_learner_models[0].model, input_size=(1, 128, 128))
-
-# TODO: get score name
-score_name = "score"
+score_name = all_learner_models[0].score_name
 
 # Now we're ready to start collective learning
 # Get initial accuracy

@@ -16,32 +16,15 @@ import torch.nn.functional as nn_func
 
 from colearn_examples_pytorch.utils import auc_from_logits
 
-default_config = dict(
-    height=128,
-    width=128,
-    seed=None,
-    learning_rate=0.001,
-    steps_per_epoch=10,
-    vote_batches=2,
-    vote_using_auc=True,
-    no_cuda=False,
-    batch_size=8,
-)
 
-
-
-def prepare_learner(model, train_loader, test_loader=None, config=None):
-    # Merge default_config with dataset_config
-    current_config = default_config.copy()
-    if config is not None:
-        current_config.update(config)
-
-    cuda = not current_config["no_cuda"] and torch.cuda.is_available()
+def prepare_learner(model, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40, vote_batches=10,
+                    no_cuda=False, vote_using_auc=True, **kwargs):
+    cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
     pos_weight = torch.tensor([0.27])
 
-    if current_config["vote_using_auc"]:
+    if vote_using_auc:
         learner_vote_kwargs = dict(
             vote_criterion=auc_from_logits,
             minimise_criterion=False)
@@ -52,7 +35,7 @@ def prepare_learner(model, train_loader, test_loader=None, config=None):
 
     # Make n instances of NewPytorchLearner with model and torch dataloaders
 
-    opt = torch.optim.Adam(model.parameters(), lr=current_config["learning_rate"])
+    opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
     learner = NewPytorchLearner(
         model=model,
         train_loader=train_loader,
@@ -62,27 +45,22 @@ def prepare_learner(model, train_loader, test_loader=None, config=None):
         criterion=nn.BCEWithLogitsLoss(
             # pos_weight=pos_weight,
             reduction='mean'),
-        num_train_batches=current_config["steps_per_epoch"],
-        num_test_batches=current_config["vote_batches"],
+        num_train_batches=steps_per_epoch,
+        num_test_batches=vote_batches,
+        score_name=score_name,
         **learner_vote_kwargs
     )
 
     return learner
 
-def prepare_data_loader(data_folder, config = None):
-    # Merge default_config with dataset_config
-    current_config = default_config.copy()
-    if config is not None:
-        current_config.update(config)
 
-    cuda = not current_config["no_cuda"] and torch.cuda.is_available()
+def prepare_data_loader(data_folder, batch_size=8, no_cuda=False, **kwargs):
+    cuda = not no_cuda and torch.cuda.is_available()
     kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
-
 
     return torch.utils.data.DataLoader(
         XrayDataset(data_folder, train_ratio=1),
-        batch_size=current_config["batch_size"], shuffle=True, **kwargs)
-
+        batch_size=batch_size, shuffle=True, **kwargs)
 
 
 class TorchXrayModel(nn.Module):
@@ -129,11 +107,12 @@ _________________________________________________________________"""
         x = self.fc1(x)
         return x  # NB: output is in *logits* - take sigmoid to get predictions
 
+
 # load data
 class XrayDataset(Dataset):
     """X-ray dataset."""
 
-    def __init__(self, data_dir, dataset_config=None, transform=None, train=True, train_ratio=0.96):
+    def __init__(self, data_dir, transform=None, train=True, train_ratio=0.96, seed=None, width=128, height=128):
         """
         Args:
             data_dir (string): Path to the data directory.
@@ -141,13 +120,8 @@ class XrayDataset(Dataset):
                 on a sample.
         """
 
-        # Merge default_config with dataset_config
-        current_config = default_config.copy()
-        if dataset_config is not None:
-            current_config.update(dataset_config)
-
-        self.width, self.height = current_config["width"], current_config["height"]
-        self.seed = current_config["seed"]
+        self.width, self.height = width, height
+        self.seed = seed
 
         self.cases = list(Path(data_dir).rglob('*.jp*'))  # list of filenames
         if len(self.cases) == 0:
@@ -223,7 +197,7 @@ def split_to_folders(
         data_split=None,
         shuffle_seed=None,
         output_folder=Path(tempfile.gettempdir()) / "xray",
-
+        **kwargs
 ):
     if not os.path.isdir(data_dir):
         raise Exception("Data dir does not exist: " + str(data_dir))

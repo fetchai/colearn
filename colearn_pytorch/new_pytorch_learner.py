@@ -20,7 +20,8 @@ class NewPytorchLearner(MachineLearningInterface):
                  minimise_criterion=True,
                  vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,
                  num_train_batches: Optional[int] = None,
-                 num_test_batches: Optional[int] = None):
+                 num_test_batches: Optional[int] = None,
+                 score_name: str = "score"):
         # Model has to be on same device as data
         self.model: torch.nn.Module = model.to(device)
         self.optimizer: torch.optim.Optimizer = optimizer
@@ -34,6 +35,7 @@ class NewPytorchLearner(MachineLearningInterface):
         self.vote_criterion = vote_criterion
 
         self.vote_score = self.test(self.train_loader)
+        self.score_name = score_name
 
     def mli_get_current_weights(self) -> Weights:
         w = Weights(weights=[x.clone() for x in self.model.parameters()])
