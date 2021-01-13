@@ -3,6 +3,7 @@ import random as rand
 from pathlib import Path
 from glob import glob
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from enum import Enum
 
 import numpy as np
 
@@ -54,16 +55,27 @@ def prepare_learner(model, train_loader, test_loader=None, learning_rate=0.001, 
     return learner
 
 
-def prepare_data_loader(data_folder, batch_size=8, no_cuda=False, **kwargs):
+def prepare_data_loader(data_folder, train=True, train_ratio=1.0, batch_size=8, no_cuda=False, **kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
     kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
     return torch.utils.data.DataLoader(
-        XrayDataset(data_folder, train_ratio=1),
+        XrayDataset(data_folder, train=True, train_ratio=train_ratio),
         batch_size=batch_size, shuffle=True, **kwargs)
 
 
-class TorchXrayModel(nn.Module):
+class ModelType(Enum):
+    CONV2D = 1
+
+
+def prepare_model(type: ModelType):
+    if type == ModelType.CONV2D:
+        return TorchXrayConv2DModel()
+    else:
+        raise Exception("Model %s not part of the ModelType enum" % type)
+
+
+class TorchXrayConv2DModel(nn.Module):
     """_________________________________________________________________
 Layer (type)                 Output Shape              Param #
 =================================================================
@@ -89,7 +101,7 @@ Non-trainable params: 192
 _________________________________________________________________"""
 
     def __init__(self):
-        super(TorchXrayModel, self).__init__()
+        super(TorchXrayConv2DModel, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, (3, 3), padding=1)
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, (3, 3), padding=1)
@@ -112,7 +124,8 @@ _________________________________________________________________"""
 class XrayDataset(Dataset):
     """X-ray dataset."""
 
-    def __init__(self, data_dir, transform=None, train=True, train_ratio=0.96, seed=None, width=128, height=128):
+    def __init__(self, data_dir, transform=None, train=True, train_ratio=0.96, seed=None, width=128, height=128,
+                 **kwargs):
         """
         Args:
             data_dir (string): Path to the data directory.
