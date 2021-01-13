@@ -3,7 +3,7 @@ from torchvision import transforms, datasets
 import torch.utils.data
 from opacus import PrivacyEngine
 
-from colearn_examples_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 import torch.nn as nn
 import torch.nn.functional as nn_func
