@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from colearn_examples_new.new_demo import main, TaskType
 import argparse
 import os
