@@ -9,45 +9,41 @@ theme:
   feature:
     tabs: true
 
-#strict: true
+strict: true
 
 nav:
   - Colearn: 'index.md'
   - Collective Learning Protocol: 'about.md'
   - Getting Started:
-    - Intro: 'customisation.md'
-    - With Keras: 'intro_tutorial_keras.md'
-    - With PyTorch: 'intro_tutorial_pytorch.md'
-    - With the MachineLearningInterface: 'intro_tutorial_mli.md'
+      - Keras: 'intro_tutorial_keras.md'
+      - PyTorch: 'intro_tutorial_pytorch.md'
+      - The MachineLearningInterface: 'intro_tutorial_mli.md'
+      - Differential Privacy: 'differential_privacy.md'
   - Examples:
       - Standalone examples: 'examples.md'
       - Demo: 'demo.md'
-#  - Customisation: 'customisation.md'
-#  - Demo: 'demo.md'
-  - Differential Privacy: 'differential_privacy.md'
-#  - Customisation tutorial: 'tutorial_on_customisation.md'
 
 extra_css:
-    - css/my-styles.css
+  - css/my-styles.css
 
 plugins:
-    - search
-    - macros  # use variables, e.g. {{ repo_root }}
+  - search
+  - macros  # use variables, e.g. {{ repo_root }}
 
 markdown_extensions:
-    - toc:  # table of contents
-        permalink: true
-    - markdown_include.include:
-        base_path: docs
-    - admonition  # provides notes, syntax is !!!\n\tnote
-    - codehilite  # code highlighting
-    - extra
-    - pymdownx.superfences:  # "fenced" code blocks
-        custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_div_format ''
-    - pymdownx.tabbed  # provides tabs
+  - toc:  # table of contents
+      permalink: true
+  - markdown_include.include:
+      base_path: docs
+  - admonition  # provides notes, syntax is !!!\n\tnote
+  - codehilite  # code highlighting
+  - extra
+  - pymdownx.superfences:  # "fenced" code blocks
+      custom_fences:
+      - name: mermaid
+        class: mermaid
+        format: !!python/name:pymdownx.superfences.fence_div_format ''
+  - pymdownx.tabbed  # provides tabs
 
 extra:
   repo_root: https://github.com/fetchai/colearn/tree/master/

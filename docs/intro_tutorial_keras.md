@@ -71,7 +71,7 @@ The function `collective_learning_round` performs one round of collective learni
 One learner is selected to train and propose an update.
 The other learners vote on the update, and if the vote passes then the update is accepted.
 Then a new round begins.
-```Python
+```Python 
 # Train the model using Collective Learning
 results = Results()
 results.data.append(initial_result(all_learner_models))

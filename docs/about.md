@@ -50,8 +50,22 @@ The driver then sends the proposed weights to each of the learners and they each
 If the number of approving votes is greater than the vote threshold the proposed weights are accepted, ad if not they're rejected.
 
 
+## The MachineLearningInterface
+```Python 
+{!../colearn/ml_interface.py!} 
+```
+There are four methods that need to be implemented:
 
-## Implementation details - the ML interface
-The ML interface is a set of methods that users need to define to interact with the driver. This is the bit that's customisable! 
-Users that want to write new models that the driver can use just need to inherit from the foloowing class and implement the necessary functions.
+1. `propose_weights` causes the model to do some training and then return a
+   new set of weights that are propsed to the other learners. 
+   This method shouldn't charge the current weights of the model - that
+   only happens when `accept_weights` is called.
+2. `test_weights` - the models takes some new weights and returns a vote on whether the new weights are an improvement. 
+   As in propse_weights, this shouldn't change the current weights of the model - 
+   that only happens when `accept_weights` is called.
+3. `accept_weights` - the models accepts some weights that have been voted on and approved by the set of learners. 
+    The old weighs of the model are discarded and replaced by the new weights.
+4. `current_weights` should return the current weights of the model.
 
+For more details about directly implementing the machine learning interface
+see the tutorial [here](./intro_tutorial_mli.md)
