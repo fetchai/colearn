@@ -18,11 +18,24 @@ import torch.nn.functional as nn_func
 from colearn_examples_pytorch.utils import auc_from_logits
 
 
-def prepare_learner(model, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40, vote_batches=10,
+class ModelType(Enum):
+    CONV2D = 1
+
+
+def prepare_model(type: ModelType):
+    if type == ModelType.CONV2D:
+        return TorchXrayConv2DModel()
+    else:
+        raise Exception("Model %s not part of the ModelType enum" % type)
+
+
+def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40,
+                    vote_batches=10,
                     no_cuda=False, vote_using_auc=True, **kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
+    model = prepare_model(model_type)
     pos_weight = torch.tensor([0.27])
 
     if vote_using_auc:
@@ -62,17 +75,6 @@ def prepare_data_loader(data_folder, train=True, train_ratio=1.0, batch_size=8, 
     return torch.utils.data.DataLoader(
         XrayDataset(data_folder, train=True, train_ratio=train_ratio),
         batch_size=batch_size, shuffle=True, **kwargs)
-
-
-class ModelType(Enum):
-    CONV2D = 1
-
-
-def prepare_model(type: ModelType):
-    if type == ModelType.CONV2D:
-        return TorchXrayConv2DModel()
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % type)
 
 
 class TorchXrayConv2DModel(nn.Module):
