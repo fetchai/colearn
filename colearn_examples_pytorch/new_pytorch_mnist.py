@@ -10,6 +10,7 @@ import torch.nn.functional as nn_func
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
+from colearn_examples_pytorch.utils import categorical_accuracy
 
 """
 MNIST training example using PyTorch
@@ -24,11 +25,8 @@ What script does:
 """
 
 # define some constants
-from colearn_examples_pytorch.utils import categorical_accuracy
-
 n_learners = 5
 batch_size = 64
-seed = 42
 n_epochs = 20
 vote_threshold = 0.5
 train_fraction = 0.9
@@ -37,7 +35,7 @@ height = 28
 width = 28
 n_classes = 10
 vote_batches = 2
-vote_on_accuracy = True
+score_name = "categorical accuracy"
 
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
@@ -45,11 +43,8 @@ device = torch.device("cuda" if cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # Load the data and split for each learner.
-# Using a torch-native dataloader makes this much easier
 train_root = '/tmp/mnist'
-transform = transforms.Compose([
-    transforms.ToTensor()])
-data = datasets.MNIST(train_root, transform=transform, download=True)
+data = datasets.MNIST(train_root, transform=transforms.ToTensor(), download=True)
 n_train = int(train_fraction * len(data))
 n_test = len(data) - n_train
 train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])
@@ -67,7 +62,7 @@ learner_test_dataloaders = [torch.utils.data.DataLoader(
     batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
 
 
-# define the neural net architecture in Pytorch
+# Define the model
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -87,15 +82,6 @@ class Net(nn.Module):
         return nn_func.log_softmax(x, dim=1)
 
 
-if vote_on_accuracy:
-    learner_vote_kwargs = dict(
-        vote_criterion=categorical_accuracy,
-        minimise_criterion=False)
-    score_name = "categorical accuracy"
-else:
-    learner_vote_kwargs = {}
-    score_name = "loss"
-
 # Make n instances of NewPytorchLearner with model and torch dataloaders
 all_learner_models = []
 for i in range(n_learners):
@@ -109,7 +95,8 @@ for i in range(n_learners):
         optimizer=opt,
         criterion=torch.nn.NLLLoss(),
         num_test_batches=vote_batches,
-        **learner_vote_kwargs
+        vote_criterion=categorical_accuracy,
+        minimise_criterion=False
     )
 
     all_learner_models.append(learner)
@@ -117,15 +104,12 @@ for i in range(n_learners):
 # Ensure all learners starts with exactly same weights
 set_equal_weights(all_learner_models)
 
-# print a summary of the model architecture
 summary(all_learner_models[0].model, input_size=(width, height))
 
-# Now we're ready to start collective learning
-# Get initial accuracy
+# Train the model using Collective Learning
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-# Do the training
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
