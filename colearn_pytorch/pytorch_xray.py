@@ -209,7 +209,7 @@ def split_to_folders(
         data_split=None,
         shuffle_seed=None,
         output_folder=None,
-        train = True,
+        train=True,
         **kwargs
 ):
     if output_folder is None:
