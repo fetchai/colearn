@@ -19,7 +19,7 @@ def main(str_task_type: str,
          test_data_folder: str = None,
          str_model_type: str = None,
          **learning_kwargs):
-    # Resolve task model_type
+    # Resolve task type
     task_type = TaskType[str_task_type]
 
     # Load task
@@ -33,7 +33,7 @@ def main(str_task_type: str,
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
 
-    # Resolve model model_type
+    # Resolve model type
     if str_model_type is not None:
         model_type = ModelType[str_model_type]
     else:
