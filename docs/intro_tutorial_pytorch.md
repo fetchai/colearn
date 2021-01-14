@@ -43,7 +43,7 @@ To make it easier to use the `MachineLearningInterface` with pytorch, we've defi
 `PytorchLearner` implements standard training and evaluation routines as well as the MachineLearningInterface methods.
 
 ```Python 
-{!../colearn_examples_pytorch/new_pytorch_learner.py!}
+{!../colearn_pytorch/new_pytorch_learner.py!}
 ```
 
 We create a set of PytorchLearners by passing in the model and the datasets:
@@ -72,7 +72,7 @@ Then we give all the models the same weights to start off with:
 set_equal_weights(all_learner_models)
 ```
 
-And then we can move to the final stage, which is training with Collective Learning.
+And then we can move on to the final stage, which is training with Collective Learning.
 The function `collective_learning_round` performs one round of collective learning.
 One learner is selected to train and propose an update.
 The other learners vote on the update, and if the vote passes then the update is accepted.

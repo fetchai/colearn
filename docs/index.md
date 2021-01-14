@@ -45,5 +45,5 @@ For other demo options see [here](./demo.md)
 
 ## Writing your own models
 We encourage users to try out the system by writing their own models. 
-Models need to implement the collective learning interface, which provides functions for training and voting on updates. 
-More instructions can be found [here](./customisation.md)
+Models need to implement the collective learning interface, which provides functions for training and voting on updates.
+More instructions can be found in the Getting Started section.

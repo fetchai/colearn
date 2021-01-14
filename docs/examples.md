@@ -20,6 +20,6 @@ This is a list of examples that we've implemented to show you how to use Collect
   Uses `PytorchLearner` with CIFAR.
 * [covid_pytorch]({{ repo_root }}/colearn_examples_pytorch/new_pytorch_covid_xray.py).
   Uses `PytorchLearner`, detects Covid19 from chest X-rays
-* [xray_pytorch]({{ repo_root }}/colearn_examples_pytorch/new_xray.py). 
+* [xray_pytorch]({{ repo_root }}/colearn_examples_pytorch/new_pytorch_xray.py). 
   Loads xray image data and uses `PytorchLearner`.
   

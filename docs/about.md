@@ -58,7 +58,7 @@ There are four methods that need to be implemented:
 
 1. `propose_weights` causes the model to do some training and then return a
    new set of weights that are propsed to the other learners. 
-   This method shouldn't charge the current weights of the model - that
+   This method shouldn't change the current weights of the model - that
    only happens when `accept_weights` is called.
 2. `test_weights` - the models takes some new weights and returns a vote on whether the new weights are an improvement. 
    As in propse_weights, this shouldn't change the current weights of the model - 
