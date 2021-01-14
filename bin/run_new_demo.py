@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from colearn_examples_new.new_demo import main, TaskType
 import argparse
 import os
@@ -6,7 +7,7 @@ parser = argparse.ArgumentParser(description='Run colearn demo')
 parser.add_argument("-d", "--train_dir", default=None, help="Directory for training data")
 parser.add_argument("-e", "--test_dir", default=None, help="Directory for test data")
 
-parser.add_argument("-t", "--task", default="PYTORCH_XRAY",
+parser.add_argument("-t", "--task", default="KERAS_MNIST",
                     help="Options are " + " ".join(str(x.name)
                                                    for x in TaskType))
 
@@ -48,4 +49,5 @@ main(str_task_type=args.task,
      vote_threshold=args.vote_threshold,
      seed=args.seed,
      shuffle_seed=args.seed,
+     train_ratio=args.train_ratio,
      **optional_learning_kwargs)
