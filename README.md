@@ -25,7 +25,7 @@ To run the documentation, first install mkdocs and plugins:
 ```bash
 pip install mkdocs==1.1.2 mkdocs-macros-plugin==0.5.0 \
 mkdocs-macros-test==0.1.0 mkdocs-material==6.2.3 \
-mkdocs-material-extensions==1.0.1
+mkdocs-material-extensions==1.0.1 markdown-include==0.6.0
 ```
 
 Then run: 
