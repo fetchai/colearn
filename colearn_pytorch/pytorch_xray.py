@@ -76,7 +76,7 @@ def prepare_data_loader(data_folder, train=True, train_ratio=1.0, batch_size=8, 
 
 class TorchXrayConv2DModel(nn.Module):
     """_________________________________________________________________
-Layer (model_type)                 Output Shape              Param #
+Layer (type)                 Output Shape              Param #
 =================================================================
 Input (InputLayer)           [(None, 128, 128, 1)]     0
 _________________________________________________________________

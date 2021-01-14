@@ -43,7 +43,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 class Net(nn.Module):
     """_________________________________________________________________
-Layer (model_type)                 Output Shape              Param #
+Layer (type)                 Output Shape              Param #
 =================================================================
 Input (InputLayer)           [(None, 128, 128, 1)]     0
 _________________________________________________________________
