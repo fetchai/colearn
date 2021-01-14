@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
-from colearn_examples.utils.results import Results
-from colearn_examples.utils.plot import plot_results, plot_votes
 from enum import Enum
+
+from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
+from colearn_examples.utils.plot import plot_results, plot_votes
+from colearn_examples.utils.results import Results
 
 
 class TaskType(Enum):
@@ -18,16 +18,17 @@ def main(str_task_type: str,
          test_data_folder: str = None,
          str_model_type: str = None,
          **learning_kwargs):
-    # Resolve task type
+    # Resolve task model_type
     task_type = TaskType[str_task_type]
 
     # Load task
+    # pylint: disable=C0415
     if task_type == TaskType.PYTORCH_XRAY:
         from colearn_pytorch.pytorch_xray import split_to_folders, prepare_learner, prepare_data_loader, ModelType
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
 
-    # Resolve model type
+    # Resolve model model_type
     if str_model_type is not None:
         model_type = ModelType[str_model_type]
     else:

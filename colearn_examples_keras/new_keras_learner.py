@@ -120,11 +120,9 @@ if __name__ == "__main__":
                               split=tfds.even_splits('test', n=n_learners),
                               as_supervised=True)
 
-
     def normalize_img(image, label):
         """Normalizes images: `uint8` -> `float32`."""
         return tf.cast(image, tf.float32) / 255., label
-
 
     for i in range(n_learners):
         ds_train = train_datasets[i].map(
@@ -140,7 +138,6 @@ if __name__ == "__main__":
         ds_test = ds_test.cache()
         ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
         test_datasets[i] = ds_test
-
 
     def get_model():
         input_img = tf.keras.Input(
@@ -168,7 +165,6 @@ if __name__ == "__main__":
             metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
             optimizer=opt)
         return model
-
 
     all_learner_models = []
     for i in range(n_learners):

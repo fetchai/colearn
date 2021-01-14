@@ -1,15 +1,14 @@
-from torchsummary import summary
-from torchvision import transforms, datasets
-import torch.utils.data
-
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
-
 import torch.nn as nn
 import torch.nn.functional as nn_func
+import torch.utils.data
+from torchsummary import summary
+from torchvision import transforms, datasets
 
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
+from colearn_examples_pytorch.utils import categorical_accuracy
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 """
 MNIST training example using PyTorch
@@ -24,8 +23,6 @@ What script does:
 """
 
 # define some constants
-from colearn_examples_pytorch.utils import categorical_accuracy
-
 n_learners = 5
 batch_size = 64
 seed = 42
@@ -109,7 +106,7 @@ for i in range(n_learners):
         optimizer=opt,
         criterion=torch.nn.NLLLoss(),
         num_test_batches=vote_batches,
-        **learner_vote_kwargs
+        **learner_vote_kwargs  # type: ignore[arg-type]
     )
 
     all_learner_models.append(learner)

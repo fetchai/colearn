@@ -54,7 +54,7 @@ class FileTester:
             dist = np.linalg.norm(s-t)/ns/nt
             return  dist < self._tolerance, "matrix mismatch given {} tolerance, (actual distance {})".format(self._tolerance, dist)
         else:
-            return False, "Not known object type: {}".format(type(s))
+            return False, "Not known object model_type: {}".format(type(s))
 
     def test_pickle(self, source, target):
         s = self.get_pickle(source)

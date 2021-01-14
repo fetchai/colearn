@@ -1,7 +1,7 @@
 from pathlib import Path
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from colearn_examples.training import set_equal_weights, initial_result, collective_learning_round
 from colearn_examples.utils.plot import plot_results, plot_votes
@@ -62,7 +62,6 @@ train_data = fraud_data[random_indices[:n_train]]
 train_labels = labels[random_indices[:n_train]]
 test_data = fraud_data[random_indices[n_train:]]
 test_labels = labels[random_indices[n_train:]]
-
 
 # make a tensorflow dataloader out of np arrays
 train_dataset = tf.data.Dataset.from_tensor_slices((train_data, train_labels))

@@ -1,32 +1,30 @@
-from torch.utils.data import Dataset
+import os
 import random as rand
-from pathlib import Path
-from glob import glob
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+import tempfile
 from enum import Enum
+from glob import glob
+from pathlib import Path
 
 import numpy as np
-
 import cv2
-import tempfile
-import os
 import torch
-
 import torch.nn as nn
 import torch.nn.functional as nn_func
+from torch.utils.data import Dataset
 
 from colearn_examples_pytorch.utils import auc_from_logits
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 
 class ModelType(Enum):
     CONV2D = 1
 
 
-def prepare_model(type: ModelType):
-    if type == ModelType.CONV2D:
+def prepare_model(model_type: ModelType):
+    if model_type == ModelType.CONV2D:
         return TorchXrayConv2DModel()
     else:
-        raise Exception("Model %s not part of the ModelType enum" % type)
+        raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
 def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40,
@@ -36,7 +34,6 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
     device = torch.device("cuda" if cuda else "cpu")
 
     model = prepare_model(model_type)
-    pos_weight = torch.tensor([0.27])
 
     if vote_using_auc:
         learner_vote_kwargs = dict(
@@ -62,7 +59,7 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
         num_train_batches=steps_per_epoch,
         num_test_batches=vote_batches,
         score_name=score_name,
-        **learner_vote_kwargs
+        **learner_vote_kwargs  # type: ignore[arg-type]
     )
 
     return learner
@@ -79,7 +76,7 @@ def prepare_data_loader(data_folder, train=True, train_ratio=1.0, batch_size=8, 
 
 class TorchXrayConv2DModel(nn.Module):
     """_________________________________________________________________
-Layer (type)                 Output Shape              Param #
+Layer (model_type)                 Output Shape              Param #
 =================================================================
 Input (InputLayer)           [(None, 128, 128, 1)]     0
 _________________________________________________________________
