@@ -10,7 +10,7 @@ import random as rand
 import cv2
 import numpy as np
 
-from colearn_examples_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 import torch.nn as nn
 import torch.nn.functional as nn_func
@@ -225,8 +225,8 @@ def split_to_folders(
 
 
 # lOAD DATA
-full_train_data_folder = '/home/emmasmith/Development/datasets/chest_xray/train'
-full_test_data_folder = '/home/emmasmith/Development/datasets/chest_xray/test'
+full_train_data_folder = '/home/jiri/fetch/corpora/chest_xray/train'
+full_test_data_folder = '/home/jiri/fetch/corpora/chest_xray/test'
 train_data_folders = split_to_folders(
     full_train_data_folder,
     shuffle_seed=42,
@@ -245,13 +245,12 @@ learner_test_dataloaders = []
 for i in range(n_learners):
     learner_train_dataloaders.append(torch.utils.data.DataLoader(
         XrayDataset(train_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True)
+        batch_size=batch_size, shuffle=True, **kwargs)
     )
     learner_test_dataloaders.append(torch.utils.data.DataLoader(
         XrayDataset(test_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True)
+        batch_size=batch_size, shuffle=True, **kwargs)
     )
-
 
 if vote_using_auc:
     learner_vote_kwargs = dict(

@@ -24,7 +24,7 @@ def auc_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:
     :return: AUC score
     """
     predictions = torch.sigmoid(outputs)
-    return roc_auc_score(labels.numpy().astype(int), predictions.numpy())
+    return roc_auc_score(labels.cpu().numpy().astype(int), predictions.cpu().numpy())
 
 
 def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
@@ -38,3 +38,18 @@ def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
     outputs = torch.argmax(outputs, 1).int()
     correct = (outputs == labels).sum().item()
     return correct / labels.shape[0]
+
+
+def prepare_data_split_list(data, n):
+    """
+    Create list of sizes for splitting
+
+    :param data: dataset
+    :param n: number of equal parts
+    :return: list of sizes
+    """
+
+    parts = [len(data) // n] * n
+    if sum(parts) < len(data):
+        parts[-1] += len(data) - sum(parts)
+    return parts
