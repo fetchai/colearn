@@ -1,10 +1,9 @@
 from unittest.mock import Mock, create_autospec
 
-import torch
-from torch.nn.modules.loss import _Loss
-import torch.utils.data
-
 import pytest
+import torch
+import torch.utils.data
+from torch.nn.modules.loss import _Loss
 
 from colearn.ml_interface import Weights
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
