@@ -211,9 +211,16 @@ def split_to_folders(
         n_learners,
         data_split=None,
         shuffle_seed=None,
-        output_folder=Path(tempfile.gettempdir()) / "xray",
+        output_folder=None,
+        train = True,
         **kwargs
 ):
+    if output_folder is None:
+        if train:
+            output_folder = Path(tempfile.gettempdir()) / "train_xray"
+        else:
+            output_folder = Path(tempfile.gettempdir()) / "test_xray"
+
     if not os.path.isdir(data_dir):
         raise Exception("Data dir does not exist: " + str(data_dir))
 

@@ -1,36 +1,28 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
-from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
 
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
-from colearn_keras.new_keras_learner import NewKerasLearner
+from colearn_examples_keras.new_keras_learner import NewKerasLearner
 
 n_learners = 5
-n_epochs = 20
 vote_threshold = 0.5
+vote_batches = 2
 
+n_epochs = 20
 width = 28
 height = 28
 n_classes = 10
-
 l_rate = 0.001
 batch_size = 64
-vote_batches = 2
 
-# Differential privacy parameters
-l2_norm_clip = 1.5
-noise_multiplier = 1.3  # more noise -> more privacy, less utility
-num_microbatches = 64  # how many batches to split a batch into
+# Load data for each learner
+train_dataset = tfds.load('mnist', split='train', as_supervised=True)
+train_datasets = [train_dataset.shard(num_shards=n_learners, index=i) for i in range(n_learners)]
 
-train_datasets = tfds.load('mnist',
-                           split=tfds.even_splits('train', n=n_learners),
-                           as_supervised=True)
-
-test_datasets = tfds.load('mnist',
-                          split=tfds.even_splits('test', n=n_learners),
-                          as_supervised=True)
+test_dataset = tfds.load('mnist', split='test', as_supervised=True)
+test_datasets = [test_dataset.shard(num_shards=n_learners, index=i) for i in range(n_learners)]
 
 
 def normalize_img(image, label):
@@ -39,21 +31,18 @@ def normalize_img(image, label):
 
 
 for i in range(n_learners):
-    ds_train = train_datasets[i].map(
+    train_datasets[i] = train_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    ds_train = ds_train.cache()
-    ds_train = ds_train.shuffle(len(ds_train))
-    ds_train = ds_train.batch(batch_size)
-    train_datasets[i] = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
+    train_datasets[i] = train_datasets[i].shuffle(len(train_datasets[i]))
+    train_datasets[i] = train_datasets[i].batch(batch_size)
 
-    ds_test = test_datasets[i].map(
+    test_datasets[i] = test_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    ds_test = ds_test.batch(batch_size)
-    ds_test = ds_test.cache()
-    ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
-    test_datasets[i] = ds_test
+    test_datasets[i] = test_datasets[i].shuffle(len(test_datasets[i]))
+    test_datasets[i] = test_datasets[i].batch(batch_size)
 
 
+# Define model
 def get_model():
     input_img = tf.keras.Input(
         shape=(width, height, 1), name="Input"
@@ -74,14 +63,9 @@ def get_model():
     )(x)
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
-    opt = DPKerasAdamOptimizer(
-        l2_norm_clip=l2_norm_clip,
-        noise_multiplier=noise_multiplier,
-        num_microbatches=num_microbatches,
-        learning_rate=l_rate)
-
+    opt = tf.keras.optimizers.Adam(lr=l_rate)
     model.compile(
-        loss='sparse_categorical_crossentropy',
+        loss="sparse_categorical_crossentropy",
         metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
         optimizer=opt)
     return model
@@ -95,13 +79,13 @@ for i in range(n_learners):
         test_loader=test_datasets[i],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
-        model_evaluate_kwargs={"steps": vote_batches}
+        model_evaluate_kwargs={"steps": vote_batches},
     ))
 
 set_equal_weights(all_learner_models)
 
+# Train the model using Collective Learning
 results = Results()
-# Get initial score
 results.data.append(initial_result(all_learner_models))
 
 for epoch in range(n_epochs):

@@ -1,0 +1,49 @@
+site_name: Colearn
+site_url: https://docs.fetch.ai/
+site_description: Everything you need to know about Collective Learning.
+repo_url: https://github.com/fetchai/colearn/
+site_author: developer@fetch.ai
+
+theme:
+  name: 'material'
+  feature:
+    tabs: true
+
+strict: true
+
+nav:
+  - Colearn: 'index.md'
+  - Collective Learning Protocol: 'about.md'
+  - Getting Started:
+      - Keras: 'intro_tutorial_keras.md'
+      - PyTorch: 'intro_tutorial_pytorch.md'
+      - The MachineLearningInterface: 'intro_tutorial_mli.md'
+      - Differential Privacy: 'differential_privacy.md'
+  - Examples:
+      - Standalone examples: 'examples.md'
+      - Demo: 'demo.md'
+
+extra_css:
+  - css/my-styles.css
+
+plugins:
+  - search
+  - macros  # use variables, e.g. {{ repo_root }}
+
+markdown_extensions:
+  - toc:  # table of contents
+      permalink: true
+  - markdown_include.include:
+      base_path: docs
+  - admonition  # provides notes, syntax is !!!\n\tnote
+  - codehilite  # code highlighting
+  - extra
+  - pymdownx.superfences:  # "fenced" code blocks
+      custom_fences:
+      - name: mermaid
+        class: mermaid
+        format: !!python/name:pymdownx.superfences.fence_div_format ''
+  - pymdownx.tabbed  # provides tabs
+
+extra:
+  repo_root: https://github.com/fetchai/colearn/tree/master/

@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from colearn.ml_interface import Weights
-from new_keras_learner import NewKerasLearner
+from colearn_keras.new_keras_learner import NewKerasLearner
 
 
 def get_mock_model() -> mock.Mock:

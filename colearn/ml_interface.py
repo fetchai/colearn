@@ -19,7 +19,7 @@ class MachineLearningInterface(abc.ABC):
     @abc.abstractmethod
     def mli_propose_weights(self) -> Weights:
         """
-        Trains the model. This function may block. Returns new weights.
+        Trains the model. Returns new weights. Does not change the current weights of the model.
         """
         pass
 
@@ -27,10 +27,6 @@ class MachineLearningInterface(abc.ABC):
     def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
         """
         Tests the proposed weights and fills in the rest of the fields
-        Also evaluate the model using the metrics specified in eval_config:
-            eval_config = {
-                    "name": lambda y_true, y_pred
-                }
         """
 
     @abc.abstractmethod
