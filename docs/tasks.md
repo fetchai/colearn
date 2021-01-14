@@ -7,7 +7,7 @@
 * NN output is distribution of probabilities for each class i.e. 10 values that sums up to 1
 
 
-* Code folder: [here](colearn_examples/cifar10)
+* Code folder: [here]({{ repo_root }}/colearn_examples/cifar10)
 * Invoke parameter: -t CIFAR10
 ### 1.1.2. Requirements
 * Cifar dataset is loaded from tensorflow.keras.datasets.cifar10 and no stored data are required
@@ -104,7 +104,7 @@ ________________________________________________________
 * Images are cropped and resized to 512x512 pixel and spatial domain (Texture, GLDM, GLCM) and frequency domain (FFT and Wavelet) features are used to create 256 dimensional vector representation of each image. PCA is applied after to reduce dimensionality to 64 values which represents the first 64 highest eigenvalues of the covariance matrix. 
 * Input for NN are 64 values for each image
 * NN output is distribution of probabilities for each class i.e. 3 values
-* Code folder: [here](colearn_examples/covid_xray)
+* Code folder: [here]({{ repo_root }}/colearn_examples/covid_xray)
 * Invoke parameter: -t COVID
 ### 2.1.2 Requirements
 * Download Covid dataset: [here](https://github.com/ieee8023/COVID-chestxray-dataset)
@@ -141,7 +141,7 @@ _________________________________________________________
        + 0 = not a fraud
        + 1 = fraud 
 
-* Code folder: [here](colearn_examples/fraud)
+* Code folder: [here]({{ repo_root }}/colearn_examples/fraud)
 * Invoke parameter: -t FRAUD
 ### 3.1.2. Requirements
 * Download dataset: [here](https://www.kaggle.com/c/ieee-fraud-detection)
@@ -182,7 +182,7 @@ _________________________________________________________
 * NN output is distribution of probabilities for each class i.e. 10 values that sums up to 1
 
 
-* Code folder: [here](colearn_examples/mnist)
+* Code folder: [here]({{ repo_root }}/colearn_examples/mnist)
 * Invoke parameter: -t MNIST
 ### 4.1.2 Requirements
 * MNIST dataset is loaded from tensorflow.keras.datasets.cifar10 and no stored data are required
@@ -278,7 +278,7 @@ ________________________________________________________________________________
    * NN output is distribution of probabilities for each class i.e. 2 values
 
 
-   * Code folder: [here](colearn_examples/xray)
+   * Code folder: [here]({{ repo_root }}/colearn_examples/xray)
    * Invoke parameter: -t XRAY
 ### 5.1.2 Requirements
    * Download dataset: [here](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
