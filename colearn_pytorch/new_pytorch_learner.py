@@ -79,7 +79,7 @@ class NewPytorchLearner(MachineLearningInterface):
         self.set_weights(current_weights)
         return new_weights
 
-    def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
+    def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 

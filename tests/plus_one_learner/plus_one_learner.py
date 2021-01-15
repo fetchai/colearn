@@ -10,7 +10,7 @@ class PlusOneLearner(MachineLearningInterface):
         self.current_value += 1
         return Weights(weights=self.current_value)
 
-    def mli_test_weights(self, weights, eval_config=None) -> ProposedWeights:
+    def mli_test_weights(self, weights) -> ProposedWeights:
         if weights.weights > self.current_value:
             test_accuracy = 1.0
             vote_accuracy = 1.0
@@ -32,7 +32,7 @@ class PlusOneLearner(MachineLearningInterface):
 
         return result
 
-    def mli_accept_weights(self, weights: Weights, eval_config: dict = None):
+    def mli_accept_weights(self, weights: Weights):
         self.current_value = weights.weights
 
     def mli_get_current_weights(self) -> Weights:
