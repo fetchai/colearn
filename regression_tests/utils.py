@@ -1,5 +1,5 @@
 import pytest
-from colearn_examples.training import setup_models
+from colearn.training import setup_models
 from colearn_examples.config import TrainingData, ColearnConfig
 
 

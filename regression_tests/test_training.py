@@ -1,6 +1,5 @@
 from .context import ColearnConfig, TrainingData
-from .utils import learner_provider, data_provider
-from colearn_examples.training import collective_learning_round, individual_training_round
+from colearn.training import collective_learning_round, individual_training_round
 from colearn_examples.utils.results import Result
 from .pickle_tester import FileTester
 import pytest

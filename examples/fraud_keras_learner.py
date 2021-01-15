@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import tensorflow as tf
 
-from colearn_examples.training import set_equal_weights, initial_result, collective_learning_round
+from colearn.training import set_equal_weights, initial_result, collective_learning_round
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 from colearn_keras.new_keras_learner import NewKerasLearner
