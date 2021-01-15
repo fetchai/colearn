@@ -18,8 +18,8 @@ class ModelType(Enum):
     CONV2D = 1
 
 
-def prepare_model(type: ModelType, **kwargs):
-    if type == ModelType.CONV2D:
+def prepare_model(model_type: ModelType, **kwargs):
+    if model_type == ModelType.CONV2D:
         return get_keras_cifar_conv2D_model(**kwargs)
     else:
         raise Exception("Model %s not part of the ModelType enum" % type)

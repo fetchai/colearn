@@ -1,5 +1,5 @@
 from typing import Optional, Callable
-import numpy as np
+
 import torch
 import torch.nn
 import torch.optim
@@ -9,13 +9,15 @@ from torch.nn.modules.loss import _Loss
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 
+_DEFAULT_DEVICE = torch.device("cpu")
+
 
 class NewPytorchLearner(MachineLearningInterface):
     def __init__(self, model: torch.nn.Module,
                  optimizer: torch.optim.Optimizer,
                  train_loader: torch.utils.data.DataLoader,
                  test_loader: Optional[torch.utils.data.DataLoader] = None,
-                 device=torch.device("cpu"),
+                 device=_DEFAULT_DEVICE,
                  criterion: Optional[_Loss] = None,
                  minimise_criterion=True,
                  vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,
@@ -105,6 +107,7 @@ class NewPytorchLearner(MachineLearningInterface):
         total_score = 0
         all_labels = []
         all_outputs = []
+        batch_idx = 0
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
                 if self.num_test_batches and batch_idx == self.num_test_batches:
@@ -117,6 +120,8 @@ class NewPytorchLearner(MachineLearningInterface):
                     all_outputs.append(output)
                 else:
                     total_score += self.criterion(output, labels)
+        if batch_idx == 0:
+            raise Exception("No batches in loader")
         if self.vote_criterion is None:
             return float(total_score / (batch_idx * loader.batch_size))
         else:

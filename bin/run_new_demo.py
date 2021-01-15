@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-from colearn_examples_new.new_demo import main, TaskType
 import argparse
 import os
+
+from colearn_examples_new.new_demo import main, TaskType
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
 parser.add_argument("-d", "--train_dir", default=None, help="Directory for training data")
