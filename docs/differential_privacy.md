@@ -7,5 +7,5 @@ Differential privacy (DP) is a system for publicly sharing information about a d
 
 # How to use differential privacy with colearn
 The opacus and tensorflow-privacy libraries implement DP for pytorch and keras respectively.
-To see an example of using them see [dp_pytorch]({{ repo_root }}/colearn_examples_pytorch/mnist_pytorch_dp.py) 
-and [dp_keras]({{ repo_root }}/colearn_examples_keras/mnist_keras_dp.py).
+To see an example of using them see [dp_pytorch]({{ repo_root }}/examples/mnist_pytorch_dp.py) 
+and [dp_keras]({{ repo_root }}/examples/mnist_keras_dp.py).
