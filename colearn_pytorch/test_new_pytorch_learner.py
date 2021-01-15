@@ -94,9 +94,13 @@ def test_accept_weights(nkl):
 
 
 def test_propose_weights(nkl):
-    weights = nkl.mli_propose_weights()
-    assert type(weights) == Weights
-    assert str(weights.weights) == str(nkl.model.parameters())
+    current_weights = nkl.model.parameters()
+    proposed_weights = nkl.mli_propose_weights()
+    assert type(proposed_weights) == Weights
+    # current weights should not change
+    assert str(current_weights) == str(nkl.model.parameters())
+    # proposed_weights should be different from current_weights, but I cannot
+    # find a way to test this!
 
 
 def test_get_current_weights(nkl):
