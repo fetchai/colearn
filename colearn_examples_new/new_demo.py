@@ -8,6 +8,8 @@ from colearn_examples.utils.results import Results
 class TaskType(Enum):
     PYTORCH_XRAY = 1
     KERAS_MNIST = 2
+    KERAS_CIFAR10 = 3
+    PYTORCH_COVID_XRAY = 4
 
 
 def main(str_task_type: str,
@@ -29,6 +31,14 @@ def main(str_task_type: str,
     elif task_type == TaskType.KERAS_MNIST:
         # noinspection PyUnresolvedReferences
         from colearn_keras.keras_mnist import (  # type: ignore [no-redef]
+            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
+    elif task_type == TaskType.KERAS_CIFAR10:
+        # noinspection PyUnresolvedReferences
+        from colearn_keras.keras_cifar10 import (  # type: ignore [no-redef]
+            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
+    elif task_type == TaskType.PYTORCH_COVID_XRAY:
+        # noinspection PyUnresolvedReferences
+        from colearn_pytorch.pytorch_covid_xray import (  # type: ignore [no-redef]
             split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)

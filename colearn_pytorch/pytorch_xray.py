@@ -67,11 +67,11 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
 
 def prepare_data_loader(data_folder, train=True, train_ratio=1.0, batch_size=8, no_cuda=False, **kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
-    kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+    loader_kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
     return torch.utils.data.DataLoader(
         XrayDataset(data_folder, train=True, train_ratio=train_ratio),
-        batch_size=batch_size, shuffle=True, **kwargs)
+        batch_size=batch_size, shuffle=True, **loader_kwargs)
 
 
 class TorchXrayConv2DModel(nn.Module):

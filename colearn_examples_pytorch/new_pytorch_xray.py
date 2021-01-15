@@ -242,11 +242,11 @@ learner_test_dataloaders = []
 for i in range(n_learners):
     learner_train_dataloaders.append(torch.utils.data.DataLoader(
         XrayDataset(train_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True, **kwargs)
+        batch_size=batch_size, shuffle=True, **kwargs)  # type: ignore[arg-type]
     )
     learner_test_dataloaders.append(torch.utils.data.DataLoader(
         XrayDataset(test_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True, **kwargs)
+        batch_size=batch_size, shuffle=True, **kwargs)  # type: ignore[arg-type]
     )
 
 if vote_using_auc:
