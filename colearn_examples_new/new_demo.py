@@ -38,7 +38,7 @@ def main(str_task_type: str,
             split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     elif task_type == TaskType.PYTORCH_COVID_XRAY:
         # noinspection PyUnresolvedReferences
-        from colearn_keras.pytorch_covid_xray import (  # type: ignore [no-redef]
+        from colearn_pytorch.pytorch_covid_xray import (  # type: ignore [no-redef]
             split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
