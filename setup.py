@@ -1,6 +1,6 @@
 import setuptools
 
-keras_deps = ['tensorflow', ]
+keras_deps = ['tensorflow']
 pytorch_deps = ['torch']
 docs_deps = ["mkdocs", "mkdocs-macros-plugin", "mkdocs-material",
              "mkdocs-material-extensions", "markdown-include"]
