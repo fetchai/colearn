@@ -4,15 +4,13 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-
+import tensorflow.keras.datasets.mnist as mnist
 import imgaug.augmenters as iaa
 
-import tensorflow.keras.datasets.mnist as mnist
-
+from colearn.basic_learner import LearnerData
 from colearn_examples.config import ModelConfig
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
-from colearn.basic_learner import LearnerData
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't
 # tracked yet

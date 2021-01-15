@@ -30,7 +30,6 @@ width = 128
 channels = 1
 n_classes = 1
 
-pos_weight = torch.tensor([0.27])
 steps_per_epoch = 10
 vote_batches = 13  # number of batches used for voting
 vote_using_auc = True
@@ -222,8 +221,8 @@ def split_to_folders(
 
 
 # lOAD DATA
-full_train_data_folder = '/home/jiri/fetch/corpora/chest_xray/train'
-full_test_data_folder = '/home/jiri/fetch/corpora/chest_xray/test'
+full_train_data_folder = "/home/emmasmith/Development/datasets/chest_xray/train"
+full_test_data_folder = "/home/emmasmith/Development/datasets/chest_xray/test"
 train_data_folders = split_to_folders(
     full_train_data_folder,
     shuffle_seed=42,
@@ -270,7 +269,6 @@ for i in range(n_learners):
         device=device,
         optimizer=opt,
         criterion=nn.BCEWithLogitsLoss(
-            # pos_weight=pos_weight,
             reduction='mean'),
         num_train_batches=steps_per_epoch,
         num_test_batches=vote_batches,

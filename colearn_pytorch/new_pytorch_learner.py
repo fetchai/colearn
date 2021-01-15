@@ -1,6 +1,11 @@
 from typing import Optional, Callable
 
-import torch
+try:
+    import torch
+except ImportError:
+    raise Exception("Pytorch is not installed. To use the pytorch "
+                    "add-ons please install colearn with `pip install colearn[pytorch]`.")
+
 import torch.nn
 import torch.optim
 import torch.utils

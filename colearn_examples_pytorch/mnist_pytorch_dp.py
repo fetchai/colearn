@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as nn_func
 import torch.utils.data
-from opacus import PrivacyEngine
 from torchsummary import summary
+from opacus import PrivacyEngine
 from torchvision import transforms, datasets
 
 from colearn_examples.training import initial_result, collective_learning_round
