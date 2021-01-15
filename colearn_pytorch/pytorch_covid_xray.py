@@ -1,13 +1,12 @@
 import tempfile
 import os
-import torch
-from pathlib import Path
 from enum import Enum
+from pathlib import Path
 import pickle
-
 import numpy as np
 import scipy.io as sio
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
 from torch.utils.data import TensorDataset
@@ -28,11 +27,11 @@ class ModelType(Enum):
     MULTILAYER_PERCEPTRON = 1
 
 
-def prepare_model(type: ModelType):
-    if type == ModelType.MULTILAYER_PERCEPTRON:
+def prepare_model(model_type: ModelType):
+    if model_type == ModelType.MULTILAYER_PERCEPTRON:
         return TorchCovidXrayPerceptronModel()
     else:
-        raise Exception("Model %s not part of the ModelType enum" % type)
+        raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
 def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40,
@@ -64,8 +63,7 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
         num_train_batches=steps_per_epoch,
         num_test_batches=vote_batches,
         score_name=score_name,
-        **learner_vote_kwargs
-    )
+        **learner_vote_kwargs)  # type: ignore[arg-type]
 
     return learner
 

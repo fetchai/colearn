@@ -3,14 +3,13 @@ import tempfile
 from glob import glob
 from pathlib import Path
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from colearn_examples.training import set_equal_weights, initial_result, collective_learning_round
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
 from colearn_keras.new_keras_learner import NewKerasLearner
-
 
 width = 128
 height = 128
@@ -74,7 +73,7 @@ def split_to_folders(
         raise Exception("Data dir does not exist: " + str(data_dir))
 
     if data_split is None:
-        data_split = [1/n_learners] * n_learners
+        data_split = [1 / n_learners] * n_learners
 
     local_output_dir = Path(output_folder)
 

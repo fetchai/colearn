@@ -1,27 +1,24 @@
 import os
+import random as rand
 import tempfile
 from glob import glob
 from pathlib import Path
 
-from torch.utils.data import Dataset
-from torchsummary import summary
-import torch.utils.data
-import random as rand
-import cv2
 import numpy as np
-
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
-
+import cv2
 import torch.nn as nn
 import torch.nn.functional as nn_func
+import torch.utils.data
+from torch.utils.data import Dataset
+from torchsummary import summary
 
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
+from colearn_examples_pytorch.utils import auc_from_logits
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 # define some constants
-from colearn_examples_pytorch.utils import auc_from_logits
-
 n_learners = 5
 batch_size = 8
 seed = 42
@@ -245,11 +242,11 @@ learner_test_dataloaders = []
 for i in range(n_learners):
     learner_train_dataloaders.append(torch.utils.data.DataLoader(
         XrayDataset(train_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True, **kwargs)
+        batch_size=batch_size, shuffle=True, **kwargs)  # type: ignore[arg-type]
     )
     learner_test_dataloaders.append(torch.utils.data.DataLoader(
         XrayDataset(test_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True, **kwargs)
+        batch_size=batch_size, shuffle=True, **kwargs)  # type: ignore[arg-type]
     )
 
 if vote_using_auc:
@@ -277,7 +274,7 @@ for i in range(n_learners):
             reduction='mean'),
         num_train_batches=steps_per_epoch,
         num_test_batches=vote_batches,
-        **learner_vote_kwargs
+        **learner_vote_kwargs  # type: ignore[arg-type]
     )
 
     all_learner_models.append(learner)

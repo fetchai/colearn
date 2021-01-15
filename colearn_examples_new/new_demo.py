@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
-from colearn_examples.utils.results import Results
-from colearn_examples.utils.plot import plot_results, plot_votes
 from enum import Enum
+
+from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
+from colearn_examples.utils.plot import plot_results, plot_votes
+from colearn_examples.utils.results import Results
 
 
 class TaskType(Enum):
@@ -26,16 +26,25 @@ def main(str_task_type: str,
     task_type = TaskType[str_task_type]
 
     # Load task
+    # pylint: disable=C0415
     if task_type == TaskType.PYTORCH_XRAY:
         from colearn_pytorch.pytorch_xray import split_to_folders, prepare_learner, prepare_data_loader, ModelType
     elif task_type == TaskType.KERAS_MNIST:
-        from colearn_keras.keras_mnist import split_to_folders, prepare_learner, prepare_data_loader, ModelType
+        # noinspection PyUnresolvedReferences
+        from colearn_keras.keras_mnist import (  # type: ignore [no-redef]
+            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     elif task_type == TaskType.KERAS_CIFAR10:
-        from colearn_keras.keras_cifar10 import split_to_folders, prepare_learner, prepare_data_loader, ModelType
+        # noinspection PyUnresolvedReferences
+        from colearn_keras.keras_cifar10 import (  # type: ignore [no-redef]
+            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     elif task_type == TaskType.PYTORCH_COVID_XRAY:
-        from colearn_pytorch.pytorch_covid_xray import split_to_folders, prepare_learner, prepare_data_loader, ModelType
+        # noinspection PyUnresolvedReferences
+        from colearn_pytorch.pytorch_covid_xray import (  # type: ignore [no-redef]
+            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     elif task_type == TaskType.FRAUD:
-        from colearn_examples_new.fraud import split_to_folders, prepare_learner, prepare_data_loader, ModelType
+        # noinspection PyUnresolvedReferences
+        from colearn_examples_new.fraud import (  # type: ignore [no-redef]
+            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
 

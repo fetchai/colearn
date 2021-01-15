@@ -1,24 +1,20 @@
-from torchsummary import summary
-import torch.utils.data
+import os
 
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
-from utils import prepare_data_split_list
-
+import numpy as np
+import scipy.io as sio
 import torch.nn as nn
 import torch.nn.functional as nn_func
+import torch.utils.data
+from sklearn.decomposition import KernelPCA
+from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import TensorDataset
+from torchsummary import summary
 
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
-from colearn_examples_pytorch.utils import categorical_accuracy
-
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.decomposition import KernelPCA
-
-import os
-import scipy.io as sio
-import numpy as np
+from colearn_examples_pytorch.utils import categorical_accuracy, prepare_data_split_list
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 """
 COVID-XRAY training example using PyTorch
@@ -33,7 +29,6 @@ What script does:
 - Randomly splits dataset between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 """
-
 
 # define some constants
 n_learners = 5
@@ -86,14 +81,14 @@ parts = prepare_data_split_list(train_data, n_learners)
 learner_train_data = torch.utils.data.random_split(train_data, parts)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]  # type: ignore[arg-type]
 
 # Split test set between learners
 parts = prepare_data_split_list(test_data, n_learners)
 learner_test_data = torch.utils.data.random_split(test_data, parts)
 learner_test_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]  # type: ignore[arg-type]
 
 
 # define the neural net architecture in Pytorch
@@ -140,7 +135,7 @@ for i in range(n_learners):
         optimizer=opt,
         criterion=torch.nn.NLLLoss(),
         num_test_batches=vote_batches,
-        **learner_vote_kwargs
+        **learner_vote_kwargs  # type: ignore[arg-type]
     )
 
     all_learner_models.append(learner)
