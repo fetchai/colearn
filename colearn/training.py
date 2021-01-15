@@ -2,7 +2,7 @@ from typing import Sequence
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface
 from colearn.standalone_driver import run_one_epoch
-from colearn_examples.utils.results import Result
+from colearn.utils.results import Result
 
 
 def set_equal_weights(learners: Sequence[MachineLearningInterface]):

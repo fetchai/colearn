@@ -1,8 +1,8 @@
 import matplotlib.axes._axes as mpl_ax
 import matplotlib.pyplot as plt
-from numpy import arange, array, max, mean
+import numpy as np
 
-from colearn_examples.utils.results import Results
+from colearn.utils.results import Results
 
 
 def process_statistics(results: Results, n_learners: int):
@@ -17,13 +17,13 @@ def process_statistics(results: Results, n_learners: int):
 
     for r in range(len(results.data)):
         results.mean_test_accuracies.append(
-            mean(array(results.data[r].test_scores))
+            np.mean(np.array(results.data[r].test_scores))
         )
         results.mean_vote_accuracies.append(
-            mean(array(results.data[r].vote_scores))
+            np.mean(np.array(results.data[r].vote_scores))
         )
-        results.max_test_accuracies.append(max(array(results.data[r].test_scores)))
-        results.max_vote_accuracies.append(max(array(results.data[r].vote_scores)))
+        results.max_test_accuracies.append(np.max(np.array(results.data[r].test_scores)))
+        results.max_vote_accuracies.append(np.max(np.array(results.data[r].vote_scores)))
 
     # gather individual scores
     for i in range(n_learners):
@@ -34,11 +34,11 @@ def process_statistics(results: Results, n_learners: int):
             results.h_test_accuracies[i].append(results.data[r].test_scores[i])
             results.h_vote_accuracies[i].append(results.data[r].vote_scores[i])
 
-    results.highest_test_accuracy = max(array(results.h_test_accuracies))
-    results.highest_vote_accuracy = max(array(results.h_vote_accuracies))
+    results.highest_test_accuracy = np.max(np.array(results.h_test_accuracies))
+    results.highest_vote_accuracy = np.max(np.array(results.h_vote_accuracies))
 
-    results.highest_mean_test_accuracy = max(results.mean_test_accuracies)
-    results.highest_mean_vote_accuracy = max(results.mean_vote_accuracies)
+    results.highest_mean_test_accuracy = np.max(results.mean_test_accuracies)
+    results.highest_mean_vote_accuracy = np.max(results.mean_vote_accuracies)
 
     results.current_mean_test_accuracy = results.mean_test_accuracies[-1]
     results.current_mean_vote_accuracy = results.mean_vote_accuracies[-1]
@@ -46,8 +46,8 @@ def process_statistics(results: Results, n_learners: int):
     results.current_max_test_accuracy = results.max_test_accuracies[-1]
     results.current_max_vote_accuracy = results.max_vote_accuracies[-1]
 
-    results.mean_mean_test_accuracy = mean(array(results.h_test_accuracies))
-    results.mean_mean_vote_accuracy = mean(array(results.h_vote_accuracies))
+    results.mean_mean_test_accuracy = np.mean(np.array(results.h_test_accuracies))
+    results.mean_mean_vote_accuracy = np.mean(np.array(results.h_vote_accuracies))
 
 
 def plot_results(results,
@@ -67,7 +67,7 @@ def plot_results(results,
     axes.set_ylabel(score_name)
 
     axes.set_xlim(-0.5, len(results.mean_test_accuracies) - 0.5)
-    axes.set_xticks(arange(0, len(results.mean_test_accuracies), step=1))
+    axes.set_xticks(np.arange(0, len(results.mean_test_accuracies), step=1))
 
     epochs = range(len(results.mean_test_accuracies))
 
@@ -119,7 +119,7 @@ def plot_votes(results: Results, block=False):
 
     results_list = results.data
 
-    data = array([res.votes for res in results_list])
+    data = np.array([res.votes for res in results_list])
 
     data = data.transpose()
     axes.matshow(data, aspect="auto", vmin=0, vmax=1)
@@ -155,8 +155,8 @@ def plot_votes(results: Results, block=False):
     axes.set_position([pos.x0, pos2.y0, pos.width, pos2.height])
 
     # Gridlines based on minor ticks
-    axes.set_xticks(arange(-0.5, n_epochs, 1), minor=True)
-    axes.set_yticks(arange(-0.5, n_learners, 1), minor=True)
+    axes.set_xticks(np.arange(-0.5, n_epochs, 1), minor=True)
+    axes.set_yticks(np.arange(-0.5, n_learners, 1), minor=True)
     axes.grid(which="minor", color="w", linestyle="-", linewidth=2)
 
     if block is False:

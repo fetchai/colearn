@@ -7,8 +7,8 @@ from torchvision import transforms, datasets
 from typing_extensions import TypedDict
 
 from colearn.training import initial_result, collective_learning_round
-from colearn_examples.utils.plot import plot_results, plot_votes
-from colearn_examples.utils.results import Results
+from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.results import Results
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 # define some constants

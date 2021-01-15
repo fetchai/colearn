@@ -8,8 +8,8 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras.datasets.mnist as mnist
 
-from colearn_examples.utils.data import shuffle_data
-from colearn_examples.utils.data import split_by_chunksizes
+from colearn.utils.data import shuffle_data
+from colearn.utils.data import split_by_chunksizes
 from colearn_keras.new_keras_learner import NewKerasLearner
 
 IMAGE_FL = "images.pickle"

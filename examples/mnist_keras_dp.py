@@ -3,8 +3,8 @@ import tensorflow_datasets as tfds
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn_examples.utils.plot import plot_results, plot_votes
-from colearn_examples.utils.results import Results
+from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.results import Results
 from colearn_keras.new_keras_learner import NewKerasLearner
 
 n_learners = 5

@@ -13,8 +13,8 @@ from sklearn.decomposition import KernelPCA
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import TensorDataset
 
-from colearn_examples.utils.data import shuffle_data
-from colearn_examples.utils.data import split_by_chunksizes
+from colearn.utils.data import shuffle_data
+from colearn.utils.data import split_by_chunksizes
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 from .utils import categorical_accuracy
 
