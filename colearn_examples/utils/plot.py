@@ -1,13 +1,7 @@
-import os
-import tempfile
-from pathlib import Path
-
 import matplotlib.axes._axes as mpl_ax
 import matplotlib.pyplot as plt
-
 from numpy import arange, array, max, mean
 
-from colearn_examples.config import TrainingMode, ModelConfig
 from colearn_examples.utils.results import Results
 
 
@@ -54,72 +48,6 @@ def process_statistics(results: Results, n_learners: int):
 
     results.mean_mean_test_accuracy = mean(array(results.h_test_accuracies))
     results.mean_mean_vote_accuracy = mean(array(results.h_vote_accuracies))
-
-
-def display_statistics(
-        results: Results,
-        n_learners: int,
-        mode: TrainingMode,
-        vote_threshold: float,
-        model_config: ModelConfig,
-        current_epoch,
-        filename=Path(tempfile.gettempdir()) / "stats_mnist.tsv",
-):
-    print("Statistics")
-
-    # Prepare data for statistics
-    process_statistics(results, n_learners)
-
-    header_str = (
-        "MODEL_TYPE\tHOSPITALS\tEPOCHS\tL_RATE\tCOLLAB\tVOTE_THRESHOLD"
-        "\tTRAIN_RATIO\tVAL_BATCHES\tTEST_RATIO\tHIGHEST_TEST_ACCURACY"
-        "\tHIGHEST_VOTE_ACCURACY"
-        "\tHIGHEST_MEAN_TEST_ACCURACY\tHIGHEST_MEAN_VOTE_ACCURACY"
-        "\tTRAIN_AUGMENTATION\tBATCH_SIZE\tBATCHES_PER_EPOCH"
-        "\tCURRENT_MEAN_TEST_ACCURACY\tCURRENT_MEAN_VOTE_ACCURACY"
-        "\tCURRENT_MAX_TEST_ACCURACY\tCURRENT_MAX_VOTE_ACCURACY"
-        "\tMEAN_MEAN_TEST_ACCURACY\tMEAN_MEAN_VOTE_ACCURACY\tNON_IID"
-    )
-
-    data_str = "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t" "%s\n" % (
-        model_config.model_type,
-        n_learners,
-        current_epoch,
-        model_config.l_rate,
-        mode,
-        vote_threshold,
-        model_config.train_ratio,
-        model_config.val_batches,
-        model_config.test_ratio,
-        results.highest_test_accuracy,
-        results.highest_vote_accuracy,
-        results.highest_mean_test_accuracy,
-        results.highest_mean_vote_accuracy,
-        model_config.train_augment,
-        model_config.batch_size,
-        model_config.steps_per_epoch,
-        results.current_mean_test_accuracy,
-        results.current_mean_vote_accuracy,
-        results.current_max_test_accuracy,
-        results.current_max_vote_accuracy,
-        results.mean_mean_test_accuracy,
-        results.mean_mean_vote_accuracy,
-    )
-
-    print(header_str)
-    print(data_str)
-
-    new_file = False
-    if not os.path.isfile(filename):
-        new_file = True
-
-    f = open(filename, "a")
-    # Write header if file was empty
-    if new_file:
-        f.write(header_str + "\n")
-
-    f.write(data_str)
-    f.close()
 
 
 def plot_results(results,

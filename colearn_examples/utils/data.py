@@ -1,7 +1,6 @@
 import random
 
 import cv2
-
 import numpy as np
 
 
@@ -76,32 +75,3 @@ def split_by_chunksizes(data_lists, chunks):
         it += step
 
     return splitted_lists
-
-
-# Randomly splits data following normal distribution
-def split_normal(parts, std_dev, seed=None):
-    data_mean = 1 / parts
-
-    # std_dev as percentage of mean
-    std_dev = data_mean * std_dev
-
-    if seed is not None:
-        np.random.seed(seed)
-
-    chunk_sizes = []
-    for _ in range(parts):
-        chunk_sizes.append(np.round(np.random.normal(data_mean, std_dev)))
-    chunk_sizes = chunk_sizes / sum(chunk_sizes)
-
-    return chunk_sizes
-
-
-# One learner gets certain percentage and others get the rest of the data
-def split_lrg(parts, ratio):
-    rest_ratio = (1.0 - ratio) / (parts - 1)
-
-    chunk_sizes = [ratio]
-    for _ in range(parts - 1):
-        chunk_sizes.append(rest_ratio)
-
-    return chunk_sizes
