@@ -42,7 +42,7 @@ def get_mock_criterion() -> Mock:
     crit = create_autospec(_Loss, instance=True)
 
     crit.return_value = torch.tensor(LOSS)
-    crit.return_value.backward = Mock()  # type: ignore [assignment]
+    crit.return_value.backward = Mock()  # type: ignore[assignment]
 
     return crit
 

@@ -83,14 +83,14 @@ parts = prepare_data_split_list(train_data, n_learners)
 learner_train_data = torch.utils.data.random_split(train_data, parts)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]  # type: ignore[arg-type]
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
 
 # Split test set between learners
 parts = prepare_data_split_list(test_data, n_learners)
 learner_test_data = torch.utils.data.random_split(test_data, parts)
 learner_test_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]  # type: ignore[arg-type]
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
 
 
 # define the neural net architecture in Pytorch
