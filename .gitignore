@@ -50,3 +50,6 @@ coverage.xml
 .idea/
 .*.swp
 *.db
+
+# mkdocs
+site/
