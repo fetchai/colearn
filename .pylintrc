@@ -69,6 +69,6 @@ ENABLED:
 [IMPORTS]
 ignored-modules=aiohttp,cv2,defusedxml,imgaug,gym,fetch,librosa,matplotlib,
     memory_profiler,numpy,oef,opacus,
-    openapi_core,pandas,psutil,pydantic,tensorflow,tensorflow_datasets,tensorflow_core,
+    openapi_core,pandas,psutil,pydantic,pytest,tensorflow,tensorflow_datasets,tensorflow_core,
     tensorflow_privacy,temper,torch,torchvision,torchsummary,tqdm,
-    skimage,sklearn,vyper,web3
+    scipy,skimage,sklearn,vyper,web3
