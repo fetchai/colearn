@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as nn_func
 from torch.utils.data import Dataset
 
-from colearn_examples_pytorch.utils import auc_from_logits
+from .utils import auc_from_logits
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 

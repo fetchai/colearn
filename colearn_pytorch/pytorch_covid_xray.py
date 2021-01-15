@@ -15,7 +15,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import KernelPCA
 
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
-from colearn_examples_pytorch.utils import categorical_accuracy
+from .utils import categorical_accuracy
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
 
