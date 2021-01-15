@@ -11,7 +11,7 @@ examples_deps = ['pandas',
                  'scipy',
                  'opencv-python']
 
-all_deps = keras_deps + pytorch_deps + docs_deps + examples_deps
+all_deps = keras_deps + pytorch_deps + examples_deps
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
