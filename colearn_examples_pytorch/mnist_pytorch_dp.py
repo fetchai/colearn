@@ -1,16 +1,14 @@
-from torchsummary import summary
-from torchvision import transforms, datasets
-import torch.utils.data
-from opacus import PrivacyEngine
-
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
-
 import torch.nn as nn
 import torch.nn.functional as nn_func
+import torch.utils.data
+from opacus import PrivacyEngine
+from torchsummary import summary
+from torchvision import transforms, datasets
 
 from colearn_examples.training import initial_result, collective_learning_round
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 # define some constants
 n_learners = 5

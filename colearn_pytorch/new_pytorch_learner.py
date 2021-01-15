@@ -1,5 +1,5 @@
 from typing import Optional, Callable
-import numpy as np
+
 import torch
 import torch.nn
 import torch.optim
@@ -9,13 +9,15 @@ from torch.nn.modules.loss import _Loss
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 
+_DEFAULT_DEVICE = torch.device("cpu")
+
 
 class NewPytorchLearner(MachineLearningInterface):
     def __init__(self, model: torch.nn.Module,
                  optimizer: torch.optim.Optimizer,
                  train_loader: torch.utils.data.DataLoader,
                  test_loader: Optional[torch.utils.data.DataLoader] = None,
-                 device=torch.device("cpu"),
+                 device=_DEFAULT_DEVICE,
                  criterion: Optional[_Loss] = None,
                  minimise_criterion=True,
                  vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,

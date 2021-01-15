@@ -44,7 +44,7 @@ class FraudLearner(MachineLearningInterface):
     def mli_propose_weights(self) -> Weights:
         current_weights = self.mli_get_current_weights()
 
-        for i in range(self.steps_per_round):
+        for _ in range(self.steps_per_round):
             batch_indices = next(self.train_sampler)
             train_data = self.train_data[batch_indices]
             train_labels = self.train_labels[batch_indices]
