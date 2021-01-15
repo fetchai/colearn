@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
-import tensorflow.keras.datasets.mnist as mnist
+import tensorflow.keras.datasets.cifar10 as cifar10
 
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
@@ -22,17 +22,17 @@ class ModelType(Enum):
 
 def prepare_model(model_type: ModelType, learning_rate):
     if model_type == ModelType.CONV2D:
-        return get_keras_mnist_conv2D_model(learning_rate)
+        return get_keras_cifar10_conv2D_model(learning_rate)
     else:
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def get_keras_mnist_conv2D_model(learning_rate):
+def get_keras_cifar10_conv2D_model(learning_rate):
     loss = "sparse_categorical_crossentropy"
     optimizer = tf.keras.optimizers.Adam
 
     input_img = tf.keras.Input(
-        shape=(28, 28, 1), name="Input"
+        shape=(32, 32, 3), name="Input"
     )
     x = tf.keras.layers.Conv2D(
         32, (5, 5), activation="relu", padding="same", name="Conv1_1"
@@ -110,21 +110,18 @@ def split_to_folders(
         **kwargs
 ):
     if output_folder is None:
-        output_folder = Path(tempfile.gettempdir()) / "mnist"
+        output_folder = Path(tempfile.gettempdir()) / "cifar10"
 
     if data_split is None:
         data_split = [1 / n_learners] * n_learners
 
-    # Load MNIST
-    (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+    # Load CIFAR10
+    (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
     all_images = np.concatenate([train_images, test_images], axis=0)
     all_labels = np.concatenate([train_labels, test_labels], axis=0)
 
     # Normalization
     all_images = all_images.astype("float32") / 255.0
-
-    # Add channel dimension: 28,28 -> 28,28,1
-    all_images = np.expand_dims(all_images, axis=-1)
 
     [all_images, all_labels] = shuffle_data(
         [all_images, all_labels], seed=shuffle_seed
