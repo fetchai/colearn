@@ -27,5 +27,5 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Run Tox
-      run: tox
+    - name: Run Tox style checks
+      run: tox -e flake8 -e mypy -e pylint
