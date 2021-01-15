@@ -2,7 +2,9 @@
 ignore-patterns=serialization.py,message.py,__main__.py,.*_pb2.py,launch.py,transaction.py
 
 [MESSAGES CONTROL]
-disable=C0103,C0201,C0330,C0301,C0302,W1202,W1203,W0511,W0107,W0105,W0621,W0235,W0613,W0221,R0902,R0913,R0914,R1720,R1705,R0801,R0904,R0903,R0911,R0912,R0901,R1704,R0916,R1702,R0915,R1710,R1703,R0401,   C0114,C0115,C0116
+disable=C0103,C0201,C0330,C0301,C0302,W1202,W1203,W0511,W0107,W0105,W0621,W0235,W0613,W0221,
+    R0902,R0913,R0914,R1720,R1705,R0801,R0904,R0903,R0911,R0912,R0901,R1704,R0916,R1702,
+    R0915,R1710,R1703,R0401,C0114,C0115,C0116
 
 ENABLED:
 # W0703: broad-except
@@ -67,6 +69,6 @@ ENABLED:
 [IMPORTS]
 ignored-modules=aiohttp,cv2,defusedxml,imgaug,gym,fetch,librosa,matplotlib,
     memory_profiler,numpy,oef,opacus,
-    openapi_core,pandas,psutil,pydantic,tensorflow,tensorflow_core,
-    tensorflow_privacy,temper,torch,torchsummary,tqdm,
+    openapi_core,pandas,psutil,pydantic,tensorflow,tensorflow_datasets,tensorflow_core,
+    tensorflow_privacy,temper,torch,torchvision,torchsummary,tqdm,
     skimage,sklearn,vyper,web3

@@ -51,11 +51,11 @@ def test_criterion(nkl):
 
 def test_propose_weights(nkl):
     weights = nkl.mli_propose_weights()
-    assert type(weights) == Weights
+    assert isinstance(weights, Weights)
     assert weights.weights == get_mock_model().get_weights.return_value
 
 
 def test_get_current_weights(nkl):
     weights = nkl.mli_get_current_weights()
-    assert type(weights) == Weights
+    assert isinstance(weights, Weights)
     assert weights.weights == get_mock_model().get_weights.return_value
