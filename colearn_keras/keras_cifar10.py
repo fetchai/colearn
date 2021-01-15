@@ -20,14 +20,14 @@ class ModelType(Enum):
     CONV2D = 1
 
 
-def prepare_model(model_type: ModelType, **kwargs):
+def prepare_model(model_type: ModelType, learning_rate):
     if model_type == ModelType.CONV2D:
-        return get_keras_cifar10_conv2D_model(**kwargs)
+        return get_keras_cifar10_conv2D_model(learning_rate)
     else:
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def get_keras_cifar10_conv2D_model(learning_rate=0.001, **kwargs):
+def get_keras_cifar10_conv2D_model(learning_rate):
     loss = "sparse_categorical_crossentropy"
     optimizer = tf.keras.optimizers.Adam
 
@@ -66,9 +66,9 @@ def get_keras_cifar10_conv2D_model(learning_rate=0.001, **kwargs):
 
 
 def prepare_learner(model_type: ModelType, train_loader, test_loader=None, steps_per_epoch=100,
-                    vote_batches=10, **kwargs):
+                    vote_batches=10, learning_rate=0.001, **kwargs):
     learner = NewKerasLearner(
-        model=prepare_model(model_type, **kwargs),
+        model=prepare_model(model_type, learning_rate),
         train_loader=train_loader,
         test_loader=test_loader,
         criterion="sparse_categorical_accuracy",
