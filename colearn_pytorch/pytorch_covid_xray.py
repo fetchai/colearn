@@ -1,23 +1,22 @@
-import tempfile
 import os
+import pickle
+import tempfile
 from enum import Enum
 from pathlib import Path
-import pickle
+
 import numpy as np
 import scipy.io as sio
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
+from sklearn.decomposition import KernelPCA
+from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import TensorDataset
 
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.decomposition import KernelPCA
-
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
-from .utils import categorical_accuracy
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from .utils import categorical_accuracy
 
 DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"

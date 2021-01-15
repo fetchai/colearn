@@ -16,7 +16,7 @@ from torchsummary import summary
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
 from colearn_examples.utils.results import Results
-from examples.utils import auc_from_logits
+from colearn_pytorch.utils import auc_from_logits
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 
 # define some constants

@@ -5,15 +5,15 @@ from enum import Enum
 from glob import glob
 from pathlib import Path
 
-import numpy as np
 import cv2
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
 from torch.utils.data import Dataset
 
-from .utils import auc_from_logits
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from .utils import auc_from_logits
 
 
 class ModelType(Enum):
