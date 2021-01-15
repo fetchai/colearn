@@ -1,8 +1,8 @@
-from colearn.utils.data import shuffle_data, split_by_chunksizes
-
-import random
 import pickle
-from .pickle_tester import FileTester
+import random
+
+from colearn.utils.data import shuffle_data, split_by_chunksizes
+from pickle_tester import FileTester, get_pickle
 
 
 def rand_list(size, size2):
@@ -42,7 +42,7 @@ def _gen():
 
 def test_shuffle_data():
     ft = FileTester()
-    data = ft.get_pickle("./tests/data/utils.pickle")
+    data = get_pickle("./tests/data/utils.pickle")
 
     shuffled = []
     for a in data["lists"]:
@@ -53,7 +53,7 @@ def test_shuffle_data():
 
 def test_split_by_chunksizes():
     ft = FileTester()
-    data = ft.get_pickle("./tests/data/utils.pickle")
+    data = get_pickle("./tests/data/utils.pickle")
     chunk_sizes = []
     chunks = []
 
@@ -64,4 +64,3 @@ def test_split_by_chunksizes():
         chunks.append(split_by_chunksizes(a, chunk_sizes))
 
     assert ft.test_object_match(data["chunks"], chunks)
-
