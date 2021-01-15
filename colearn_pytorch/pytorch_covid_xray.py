@@ -28,11 +28,11 @@ class ModelType(Enum):
     MULTILAYER_PERCEPTRON = 1
 
 
-def prepare_model(type: ModelType):
-    if type == ModelType.MULTILAYER_PERCEPTRON:
+def prepare_model(model_type: ModelType):
+    if model_type == ModelType.MULTILAYER_PERCEPTRON:
         return TorchCovidXrayPerceptronModel()
     else:
-        raise Exception("Model %s not part of the ModelType enum" % type)
+        raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
 def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40,

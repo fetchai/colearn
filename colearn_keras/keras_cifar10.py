@@ -1,14 +1,16 @@
-from enum import Enum
-import tempfile
-from pathlib import Path
-import tensorflow as tf
-import tensorflow.keras.datasets.cifar10 as cifar10
-from colearn_keras.new_keras_learner import NewKerasLearner
-from colearn_examples.utils.data import shuffle_data
-from colearn_examples.utils.data import split_by_chunksizes
 import os
 import pickle
+import tempfile
+from enum import Enum
+from pathlib import Path
+
 import numpy as np
+import tensorflow as tf
+import tensorflow.keras.datasets.cifar10 as cifar10
+
+from colearn_examples.utils.data import shuffle_data
+from colearn_examples.utils.data import split_by_chunksizes
+from colearn_keras.new_keras_learner import NewKerasLearner
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
@@ -20,12 +22,12 @@ class ModelType(Enum):
 
 def prepare_model(model_type: ModelType, **kwargs):
     if model_type == ModelType.CONV2D:
-        return get_keras_cifar_conv2D_model(**kwargs)
+        return get_keras_cifar10_conv2D_model(**kwargs)
     else:
-        raise Exception("Model %s not part of the ModelType enum" % type)
+        raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def get_keras_cifar_conv2D_model(learning_rate=0.001, **kwargs):
+def get_keras_cifar10_conv2D_model(learning_rate=0.001, **kwargs):
     loss = "sparse_categorical_crossentropy"
     optimizer = tf.keras.optimizers.Adam
 
@@ -120,9 +122,6 @@ def split_to_folders(
 
     # Normalization
     all_images = all_images.astype("float32") / 255.0
-
-    # Add channel dimension: 28,28 -> 28,28,1
-    all_images = np.expand_dims(all_images, axis=-1)
 
     [all_images, all_labels] = shuffle_data(
         [all_images, all_labels], seed=shuffle_seed
