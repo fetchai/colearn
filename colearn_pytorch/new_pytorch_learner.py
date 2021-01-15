@@ -125,6 +125,8 @@ class NewPytorchLearner(MachineLearningInterface):
                     all_outputs.append(output)
                 else:
                     total_score += self.criterion(output, labels)
+        if batch_idx == 0:
+            raise Exception("No batches in loader")
         if self.vote_criterion is None:
             return float(total_score / (batch_idx * loader.batch_size))
         else:
