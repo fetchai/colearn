@@ -6,9 +6,14 @@ from colearn_examples.utils.data import split_by_chunksizes
 import os
 import pickle
 import numpy as np
+from typing import Optional
+import sklearn
 
+from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
+
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 
 import pandas as pd
 
@@ -20,9 +25,91 @@ class ModelType(Enum):
     SVM = 1
 
 
-def prepare_learner(model_type: ModelType, train_loader, test_loader=None, steps_per_epoch=100,
-                    vote_batches=10, **kwargs):
-    return None
+def prepare_learner(model_type: ModelType, train_loader, test_loader, **kwargs):
+    if model_type == ModelType.SVM:
+        return FraudLearner(
+            train_data=train_loader[0],
+            train_labels=train_loader[1],
+            test_data=test_loader[0],
+            test_labels=test_loader[1])
+    else:
+        raise Exception("Model %s not part of the ModelType enum" % model_type)
+
+
+def infinite_batch_sampler(data_size, batch_size):
+    while True:
+        random_ind = np.random.permutation(np.arange(data_size))
+        for i in range(0, data_size, batch_size):
+            yield random_ind[i:i + batch_size]
+
+
+class FraudLearner(MachineLearningInterface):
+    def __init__(self, train_data, train_labels, test_data, test_labels,
+                 batch_size: int = 10000,
+                 steps_per_round: int = 1):
+        self.steps_per_round = steps_per_round
+        self.batch_size = batch_size
+        self.train_data = train_data
+        self.train_labels = train_labels
+        self.test_data = test_data
+        self.test_labels = test_labels
+
+        self.class_labels = np.unique(train_labels)
+        self.train_sampler = infinite_batch_sampler(train_data.shape[0], batch_size)
+
+        self.model = SGDClassifier(max_iter=1, verbose=0, loss="modified_huber")
+        self.model.partial_fit(self.train_data[0:1], self.train_labels[0:1],
+                               classes=self.class_labels)  # this needs to be called before predict
+        self.vote_score = self.test(self.train_data, self.train_labels)
+        self.score_name = "mean_accuracy"
+
+    def mli_propose_weights(self) -> Weights:
+        current_weights = self.mli_get_current_weights()
+
+        for _ in range(self.steps_per_round):
+            batch_indices = next(self.train_sampler)
+            train_data = self.train_data[batch_indices]
+            train_labels = self.train_labels[batch_indices]
+            self.model.partial_fit(train_data, train_labels, classes=self.class_labels)
+
+        new_weights = self.mli_get_current_weights()
+        self.set_weights(current_weights)
+        return new_weights
+
+    def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
+        current_weights = self.mli_get_current_weights()
+        self.set_weights(weights)
+
+        vote_score = self.test(self.train_data, self.train_labels)
+
+        test_score = self.test(self.test_data, self.test_labels)
+
+        vote = self.vote_score <= vote_score
+
+        self.set_weights(current_weights)
+        return ProposedWeights(weights=weights,
+                               vote_score=vote_score,
+                               test_score=test_score,
+                               vote=vote
+                               )
+
+    def mli_accept_weights(self, weights: Weights):
+        self.set_weights(weights)
+        self.vote_score = self.test(self.train_data, self.train_labels)
+
+    def mli_get_current_weights(self):
+        return Weights(weights=dict(coef_=self.model.coef_,
+                                    intercept_=self.model.intercept_))
+
+    def set_weights(self, weights: Weights):
+        self.model.coef_ = weights.weights['coef_']
+        self.model.intercept_ = weights.weights['intercept_']
+
+    def test(self, data, labels):
+        try:
+            return self.model.score(data, labels)
+        except sklearn.exceptions.NotFittedError:
+            return 0
 
 
 def prepare_data_loader(data_folder, train=True, train_ratio=0.8, batch_size=32, **kwargs):
@@ -49,7 +136,7 @@ def split_to_folders(
         output_folder=None,
         **kwargs):
     if output_folder is None:
-        output_folder = Path(tempfile.gettempdir()) / "cifar10"
+        output_folder = Path(tempfile.gettempdir()) / "fraud"
 
     if data_split is None:
         data_split = [1 / n_learners] * n_learners
