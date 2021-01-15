@@ -8,6 +8,8 @@ from enum import Enum
 class TaskType(Enum):
     PYTORCH_XRAY = 1
     KERAS_MNIST = 2
+    KERAS_CIFAR10 = 3
+    PYTORCH_COVID_XRAY = 4
 
 
 def main(str_task_type: str,
@@ -27,6 +29,10 @@ def main(str_task_type: str,
         from colearn_pytorch.pytorch_xray import split_to_folders, prepare_learner, prepare_data_loader, ModelType
     elif task_type == TaskType.KERAS_MNIST:
         from colearn_keras.keras_mnist import split_to_folders, prepare_learner, prepare_data_loader, ModelType
+    elif task_type == TaskType.KERAS_CIFAR10:
+        from colearn_keras.keras_cifar10 import split_to_folders, prepare_learner, prepare_data_loader, ModelType
+    elif task_type == TaskType.PYTORCH_COVID_XRAY:
+        from colearn_pytorch.pytorch_covid_xray import split_to_folders, prepare_learner, prepare_data_loader, ModelType
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
 
