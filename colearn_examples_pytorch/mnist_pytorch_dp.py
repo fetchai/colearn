@@ -4,6 +4,7 @@ import torch.utils.data
 from torchsummary import summary
 from opacus import PrivacyEngine
 from torchvision import transforms, datasets
+from typing_extensions import TypedDict
 
 from colearn_examples.training import initial_result, collective_learning_round
 from colearn_examples.utils.plot import plot_results, plot_votes
@@ -32,7 +33,8 @@ max_grad_norm = 1.0
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()  # boring torch stuff
 device = torch.device("cuda" if cuda else "cpu")
-kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # Load the data and split for each learner.
 # Using a torch-native dataloader makes this much easier

@@ -9,6 +9,7 @@ from sklearn.decomposition import KernelPCA
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import TensorDataset
 from torchsummary import summary
+from typing_extensions import TypedDict
 
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
@@ -48,7 +49,8 @@ vote_on_accuracy = True
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
-kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # Replace with path containing .mat files if necessary
 data_dir = '../../colearn/examples/covid'

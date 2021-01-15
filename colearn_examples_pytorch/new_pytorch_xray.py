@@ -3,6 +3,7 @@ import random as rand
 import tempfile
 from glob import glob
 from pathlib import Path
+from typing_extensions import TypedDict
 
 import numpy as np
 import cv2
@@ -37,7 +38,8 @@ vote_using_auc = True
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
-kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 
 class Net(nn.Module):

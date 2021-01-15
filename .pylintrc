@@ -70,5 +70,5 @@ ENABLED:
 ignored-modules=aiohttp,cv2,defusedxml,imgaug,gym,fetch,librosa,matplotlib,
     memory_profiler,numpy,oef,opacus,
     openapi_core,pandas,psutil,pydantic,pytest,tensorflow,tensorflow_datasets,tensorflow_core,
-    tensorflow_privacy,temper,torch,torchvision,torchsummary,tqdm,
+    tensorflow_privacy,temper,torch,torchvision,torchsummary,tqdm,typing_extensions,
     scipy,skimage,sklearn,vyper,web3
