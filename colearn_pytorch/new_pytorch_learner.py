@@ -124,12 +124,11 @@ class NewPytorchLearner(MachineLearningInterface):
                     all_labels.append(labels)
                     all_outputs.append(output)
                 else:
-                    total_score += self.criterion(output, labels)
+                    total_score += self.criterion(output, labels).item()
         if batch_idx == 0:
             raise Exception("No batches in loader")
         if self.vote_criterion is None:
-            return self.criterion(output, labels).item()
-            #return float(total_score / (batch_idx * loader.batch_size))  # type: ignore[operator]
+            return float(total_score / (batch_idx * loader.batch_size))  # type: ignore[operator]
         else:
             return self.vote_criterion(torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0))
 
