@@ -30,15 +30,15 @@ def main(str_task_type: str,
         from colearn_pytorch.pytorch_xray import split_to_folders, prepare_learner, prepare_data_loader, ModelType
     elif task_type == TaskType.KERAS_MNIST:
         # noinspection PyUnresolvedReferences
-        from colearn_keras.keras_mnist import (  # type: ignore [no-redef]
+        from colearn_keras.keras_mnist import (  # type: ignore[no-redef]
             split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     elif task_type == TaskType.KERAS_CIFAR10:
         # noinspection PyUnresolvedReferences
-        from colearn_keras.keras_cifar10 import (  # type: ignore [no-redef]
+        from colearn_keras.keras_cifar10 import (  # type: ignore[no-redef]
             split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     elif task_type == TaskType.PYTORCH_COVID_XRAY:
         # noinspection PyUnresolvedReferences
-        from colearn_pytorch.pytorch_covid_xray import (  # type: ignore [no-redef]
+        from colearn_pytorch.pytorch_covid_xray import (  # type: ignore[no-redef]
             split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     elif task_type == TaskType.FRAUD:
         # noinspection PyUnresolvedReferences

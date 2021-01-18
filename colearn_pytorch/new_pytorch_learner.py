@@ -1,6 +1,11 @@
 from typing import Optional, Callable
 
-import torch
+try:
+    import torch
+except ImportError:
+    raise Exception("Pytorch is not installed. To use the pytorch "
+                    "add-ons please install colearn with `pip install colearn[pytorch]`.")
+
 import torch.nn
 import torch.optim
 import torch.utils
@@ -123,8 +128,7 @@ class NewPytorchLearner(MachineLearningInterface):
         if batch_idx == 0:
             raise Exception("No batches in loader")
         if self.vote_criterion is None:
-            assert loader.batch_size is not None
-            return float(total_score / (batch_idx * int(loader.batch_size)))
+            return float(total_score / (batch_idx * loader.batch_size))  # type: ignore[operator]
         else:
             return self.vote_criterion(torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0))
 

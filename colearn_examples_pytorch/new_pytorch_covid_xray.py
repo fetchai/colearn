@@ -9,6 +9,7 @@ from sklearn.decomposition import KernelPCA
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import TensorDataset
 from torchsummary import summary
+from typing_extensions import TypedDict
 
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
@@ -46,7 +47,8 @@ vote_on_accuracy = True
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
-kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # Replace with path containing .mat files if necessary
 data_dir = '../../colearn/examples/covid'
@@ -81,14 +83,14 @@ parts = prepare_data_split_list(train_data, n_learners)
 learner_train_data = torch.utils.data.random_split(train_data, parts)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]  # type: ignore[arg-type]
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
 
 # Split test set between learners
 parts = prepare_data_split_list(test_data, n_learners)
 learner_test_data = torch.utils.data.random_split(test_data, parts)
 learner_test_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]  # type: ignore[arg-type]
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
 
 
 # define the neural net architecture in Pytorch

@@ -3,6 +3,7 @@ import random as rand
 import tempfile
 from glob import glob
 from pathlib import Path
+from typing_extensions import TypedDict
 
 import numpy as np
 import cv2
@@ -30,7 +31,6 @@ width = 128
 channels = 1
 n_classes = 1
 
-pos_weight = torch.tensor([0.27])
 steps_per_epoch = 10
 vote_batches = 13  # number of batches used for voting
 vote_using_auc = True
@@ -38,7 +38,8 @@ vote_using_auc = True
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
-kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 
 class Net(nn.Module):
@@ -222,8 +223,8 @@ def split_to_folders(
 
 
 # lOAD DATA
-full_train_data_folder = '/home/jiri/fetch/corpora/chest_xray/train'
-full_test_data_folder = '/home/jiri/fetch/corpora/chest_xray/test'
+full_train_data_folder = "/home/emmasmith/Development/datasets/chest_xray/train"
+full_test_data_folder = "/home/emmasmith/Development/datasets/chest_xray/test"
 train_data_folders = split_to_folders(
     full_train_data_folder,
     shuffle_seed=42,
@@ -242,11 +243,11 @@ learner_test_dataloaders = []
 for i in range(n_learners):
     learner_train_dataloaders.append(torch.utils.data.DataLoader(
         XrayDataset(train_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True, **kwargs)  # type: ignore[arg-type]
+        batch_size=batch_size, shuffle=True, **kwargs)
     )
     learner_test_dataloaders.append(torch.utils.data.DataLoader(
         XrayDataset(test_data_folders[i], train_ratio=1),
-        batch_size=batch_size, shuffle=True, **kwargs)  # type: ignore[arg-type]
+        batch_size=batch_size, shuffle=True, **kwargs)
     )
 
 if vote_using_auc:
@@ -270,7 +271,6 @@ for i in range(n_learners):
         device=device,
         optimizer=opt,
         criterion=nn.BCEWithLogitsLoss(
-            # pos_weight=pos_weight,
             reduction='mean'),
         num_train_batches=steps_per_epoch,
         num_test_batches=vote_batches,

@@ -1,7 +1,12 @@
 from inspect import signature
 from typing import Optional
+
+try:
+    import tensorflow as tf
+except ImportError:
+    raise Exception("Tensorflow is not installed. To use the tensorflow/keras "
+                    "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
-import tensorflow as tf
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 

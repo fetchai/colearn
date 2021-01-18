@@ -5,14 +5,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
-from colearn.basic_learner import LearnerData
-
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
+from colearn.basic_learner import LearnerData
 from colearn_examples.utils.data import shuffle_data, split_by_chunksizes
-
 from .config import FraudConfig
 
 

@@ -3,6 +3,7 @@ import torch.nn.functional as nn_func
 import torch.utils.data
 from torchsummary import summary
 from torchvision import transforms, datasets
+from typing_extensions import TypedDict
 
 from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
 from colearn_examples.utils.plot import plot_results, plot_votes
@@ -40,7 +41,8 @@ vote_on_accuracy = True  # False means vote on loss
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
-kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # Load the data and split for each learner.
 # Using a torch-native dataloader makes this much easier
@@ -56,13 +58,13 @@ data_split = [len(train_data) // n_learners] * n_learners
 learner_train_data = torch.utils.data.random_split(train_data, data_split)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]  # type: ignore[arg-type]
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
 
 data_split = [len(test_data) // n_learners] * n_learners
 learner_test_data = torch.utils.data.random_split(test_data, data_split)
 learner_test_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]  # type: ignore[arg-type]
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
 
 
 # define the neural net architecture in Pytorch

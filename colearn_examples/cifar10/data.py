@@ -5,8 +5,8 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-import imgaug.augmenters as iaa
 import tensorflow.keras.datasets.cifar10 as cifar10
+import imgaug.augmenters as iaa
 
 from colearn.basic_learner import LearnerData
 from colearn_examples.config import ModelConfig

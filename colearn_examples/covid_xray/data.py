@@ -1,18 +1,17 @@
 import os
 import pickle
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
+
 import numpy as np
 import scipy.io as sio
+from sklearn.decomposition import KernelPCA
+from sklearn.preprocessing import MinMaxScaler
 
+from colearn.basic_learner import LearnerData
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
-from colearn.basic_learner import LearnerData
-
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.decomposition import KernelPCA
-
 from .config import CovidXrayConfig
 
 # this line is a fix for np.version 1.18 making a change that imgaug hasn't

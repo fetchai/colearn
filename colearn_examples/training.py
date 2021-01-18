@@ -89,28 +89,28 @@ def main(colearn_config: ColearnConfig, data_dir):
         model_config: ModelConfig = XrayConfig(colearn_config.shuffle_seed)
     elif colearn_config.data == TrainingData.MNIST:
         # noinspection PyUnresolvedReferences
-        from colearn_examples.mnist import (  # type: ignore [no-redef]
+        from colearn_examples.mnist import (  # type: ignore[no-redef]
             split_to_folders, display_statistics,
             plot_results, plot_votes, prepare_single_client,
             MNISTConfig)
         model_config = MNISTConfig(colearn_config.shuffle_seed)
     elif colearn_config.data == TrainingData.FRAUD:
         # noinspection PyUnresolvedReferences
-        from colearn_examples.fraud import (  # type: ignore [no-redef]
+        from colearn_examples.fraud import (  # type: ignore[no-redef]
             split_to_folders, display_statistics,
             plot_results, plot_votes, prepare_single_client,
             FraudConfig)
         model_config = FraudConfig(colearn_config.shuffle_seed)
     elif colearn_config.data == TrainingData.CIFAR10:
         # noinspection PyUnresolvedReferences
-        from colearn_examples.cifar10 import (  # type: ignore [no-redef]
+        from colearn_examples.cifar10 import (  # type: ignore[no-redef]
             split_to_folders, display_statistics,
             plot_results, plot_votes, prepare_single_client,
             CIFAR10Config)
         model_config = CIFAR10Config(colearn_config.shuffle_seed)
     elif colearn_config.data == TrainingData.COVID:
         # noinspection PyUnresolvedReferences
-        from colearn_examples.covid_xray import (  # type: ignore [no-redef]
+        from colearn_examples.covid_xray import (  # type: ignore[no-redef]
             split_to_folders, display_statistics,
             plot_results, plot_votes, prepare_single_client,
             CovidXrayConfig)
