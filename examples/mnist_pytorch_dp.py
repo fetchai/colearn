@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as nn_func
 import torch.utils.data
-from torchsummary import summary
 from opacus import PrivacyEngine
+from torchsummary import summary
 from torchvision import transforms, datasets
 from typing_extensions import TypedDict
 
