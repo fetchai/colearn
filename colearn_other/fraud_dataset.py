@@ -6,9 +6,8 @@ from colearn_examples.utils.data import split_by_chunksizes
 import os
 import pickle
 import numpy as np
-from typing import Optional
+from typing import Optional, List, Tuple
 import sklearn
-from typing import Tuple
 
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
@@ -26,7 +25,9 @@ class ModelType(Enum):
     SVM = 1
 
 
-def prepare_learner(model_type: ModelType, data_loaders, **kwargs):
+def prepare_learner(model_type: ModelType,
+                    data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
+                    **kwargs):
     if model_type == ModelType.SVM:
         return FraudLearner(
             train_data=data_loaders[0][0],
@@ -37,7 +38,8 @@ def prepare_learner(model_type: ModelType, data_loaders, **kwargs):
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def _infinite_batch_sampler(data_size, batch_size):
+def _infinite_batch_sampler(data_size: int,
+                            batch_size: int):
     while True:
         random_ind = np.random.permutation(np.arange(data_size))
         for i in range(0, data_size, batch_size):
@@ -45,7 +47,11 @@ def _infinite_batch_sampler(data_size, batch_size):
 
 
 class FraudLearner(MachineLearningInterface):
-    def __init__(self, train_data, train_labels, test_data, test_labels,
+    def __init__(self,
+                 train_data: np.array,
+                 train_labels: np.array,
+                 test_data: np.array,
+                 test_labels: np.array,
                  batch_size: int = 10000,
                  steps_per_round: int = 1):
         self.steps_per_round = steps_per_round
@@ -113,7 +119,9 @@ class FraudLearner(MachineLearningInterface):
             return 0
 
 
-def prepare_data_loaders(train_folder, train_ratio=0.8, **kwargs) -> Tuple[Tuple[np.array], Tuple[np.array]]:
+def prepare_data_loaders(train_folder: str,
+                         train_ratio: float = 0.8,
+                         **kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
     """
     Load training data from folders and create train and test arrays
 
@@ -134,11 +142,11 @@ def prepare_data_loaders(train_folder, train_ratio=0.8, **kwargs) -> Tuple[Tuple
 
 
 def split_to_folders(
-        data_dir,
-        n_learners,
-        data_split=None,
-        shuffle_seed=None,
-        output_folder=None,
+        data_dir: str,
+        n_learners: int,
+        data_split: Optional[List[float]] = None,
+        shuffle_seed: Optional[int] = None,
+        output_folder: Optional[Path] = None,
         **kwargs):
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "fraud"

@@ -3,7 +3,7 @@ import pickle
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List, Optional
 
 import numpy as np
 import tensorflow as tf
@@ -22,14 +22,14 @@ class ModelType(Enum):
     CONV2D = 1
 
 
-def prepare_model(model_type: ModelType, learning_rate):
+def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Model:
     if model_type == ModelType.CONV2D:
         return _get_keras_mnist_conv2D_model(learning_rate)
     else:
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def _get_keras_mnist_conv2D_model(learning_rate):
+def _get_keras_mnist_conv2D_model(learning_rate: float):
     loss = "sparse_categorical_crossentropy"
     optimizer = tf.keras.optimizers.Adam
 
@@ -67,10 +67,14 @@ def _get_keras_mnist_conv2D_model(learning_rate):
     return model
 
 
-def prepare_learner(model_type: ModelType, data_loaders, steps_per_epoch=100,
-                    vote_batches=10, learning_rate=0.001, **kwargs):
+def prepare_learner(model_type: ModelType,
+                    data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+                    steps_per_epoch: int = 100,
+                    vote_batches: int = 10,
+                    learning_rate: float = 0.001,
+                    **kwargs):
     learner = NewKerasLearner(
-        model=prepare_model(model_type, learning_rate),
+        model=_prepare_model(model_type, learning_rate),
         train_loader=data_loaders[0],
         test_loader=data_loaders[1],
         criterion="sparse_categorical_accuracy",
@@ -81,7 +85,9 @@ def prepare_learner(model_type: ModelType, data_loaders, steps_per_epoch=100,
     return learner
 
 
-def _make_loader(images, labels, batch_size) -> PrefetchDataset:
+def _make_loader(images: np.array,
+                 labels: np.array,
+                 batch_size: int) -> PrefetchDataset:
     dataset = tf.data.Dataset.from_tensor_slices((images, labels))
 
     dataset = dataset.cache()
@@ -92,9 +98,9 @@ def _make_loader(images, labels, batch_size) -> PrefetchDataset:
     return dataset
 
 
-def prepare_data_loaders(train_folder,
-                         train_ratio=0.9,
-                         batch_size=32,
+def prepare_data_loaders(train_folder: str,
+                         train_ratio: float = 0.9,
+                         batch_size: int = 32,
                          **kwargs) -> Tuple[PrefetchDataset, PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
@@ -117,10 +123,10 @@ def prepare_data_loaders(train_folder,
 
 
 def split_to_folders(
-        n_learners,
-        data_split=None,
-        shuffle_seed=None,
-        output_folder=None,
+        n_learners: int,
+        data_split: Optional[List[float]] = None,
+        shuffle_seed: Optional[int] = None,
+        output_folder: Optional[Path] = None,
         **kwargs
 ):
     if output_folder is None:

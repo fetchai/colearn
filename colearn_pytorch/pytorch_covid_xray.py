@@ -3,9 +3,10 @@ import os
 from enum import Enum
 from pathlib import Path
 import pickle
+from typing import Tuple, List, Optional
+from typing_extensions import TypedDict
 import numpy as np
 import scipy.io as sio
-from typing import Tuple
 
 import torch
 import torch.nn as nn
@@ -35,9 +36,14 @@ def prepare_model(model_type: ModelType):
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def prepare_learner(model_type: ModelType, data_loaders, learning_rate=0.001, steps_per_epoch=40,
-                    vote_batches=10,
-                    no_cuda=False, vote_on_accuracy=True, **kwargs):
+def prepare_learner(model_type: ModelType,
+                    data_loaders: Tuple[DataLoader, DataLoader],
+                    learning_rate: float = 0.001,
+                    steps_per_epoch: int = 40,
+                    vote_batches: int = 10,
+                    no_cuda: bool = False,
+                    vote_on_accuracy: bool = True,
+                    **kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
@@ -69,7 +75,10 @@ def prepare_learner(model_type: ModelType, data_loaders, learning_rate=0.001, st
     return learner
 
 
-def _make_loader(data, labels, batch_size, **loader_kwargs) -> DataLoader:
+def _make_loader(data: np.array,
+                 labels: np.array,
+                 batch_size: int,
+                 **loader_kwargs) -> DataLoader:
     # Create tensor dataset
     data_tensor = torch.FloatTensor(data)
     labels_tensor = torch.LongTensor(labels)
@@ -82,10 +91,10 @@ def _make_loader(data, labels, batch_size, **loader_kwargs) -> DataLoader:
 
 
 def prepare_data_loaders(train_folder: str,
-                        train_ratio: float = 0.8,
-                        batch_size: int = 8,
-                        no_cuda: bool = False,
-                        **kwargs) -> Tuple[DataLoader, DataLoader]:
+                         train_ratio: float = 0.8,
+                         batch_size: int = 8,
+                         no_cuda: bool = False,
+                         **kwargs) -> Tuple[DataLoader, DataLoader]:
     """
     Load training data from folders and create train and test dataloader
 
@@ -98,7 +107,8 @@ def prepare_data_loaders(train_folder: str,
     """
 
     cuda = not no_cuda and torch.cuda.is_available()
-    loader_kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+    DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+    loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
     data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
     labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
@@ -137,11 +147,11 @@ class TorchCovidXrayPerceptronModel(nn.Module):
 # this is modified from the version in xray/data in order to keep the directory structure
 # e.g. when the data is in NORMAL and PNEU directories these will also be in each of the split dirs
 def split_to_folders(
-        data_dir,
-        n_learners,
-        data_split=None,
-        shuffle_seed=None,
-        output_folder=None,
+        data_dir: str,
+        n_learners: int,
+        data_split: Optional[List[float]] = None,
+        shuffle_seed: Optional[int] = None,
+        output_folder: Optional[Path] = None,
         **kwargs
 ):
     if output_folder is None:
