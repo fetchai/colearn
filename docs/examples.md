@@ -14,7 +14,7 @@ This is a list of examples that we've implemented to show you how to use Collect
   Uses the cifar dataset and `KerasLearner`.
 * [xray_keras]({{ repo_root }}/examples/xray_keras_learner.py). 
   Loads xray image data and uses `KerasLearner`.
-* [fraud_mli]({{ repo_root }}/colearn_examples_new/not_neural_net_learner.py).
+* [fraud_mli]({{ repo_root }}/examples/not_neural_net_learner.py).
   Uses the `MachineLearningInterface` directly and detects fraud in bank transactions.
 * [cifar_pytorch]({{ repo_root }}/examples/new_pytorch_cifar.py).
   Uses `PytorchLearner` with CIFAR.
