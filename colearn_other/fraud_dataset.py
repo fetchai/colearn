@@ -8,6 +8,7 @@ import pickle
 import numpy as np
 from typing import Optional
 import sklearn
+from typing import Tuple
 
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
@@ -36,7 +37,7 @@ def prepare_learner(model_type: ModelType, data_loaders, **kwargs):
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def infinite_batch_sampler(data_size, batch_size):
+def _infinite_batch_sampler(data_size, batch_size):
     while True:
         random_ind = np.random.permutation(np.arange(data_size))
         for i in range(0, data_size, batch_size):
@@ -55,7 +56,7 @@ class FraudLearner(MachineLearningInterface):
         self.test_labels = test_labels
 
         self.class_labels = np.unique(train_labels)
-        self.train_sampler = infinite_batch_sampler(train_data.shape[0], batch_size)
+        self.train_sampler = _infinite_batch_sampler(train_data.shape[0], batch_size)
 
         self.model = SGDClassifier(max_iter=1, verbose=0, loss="modified_huber")
         self.model.partial_fit(self.train_data[0:1], self.train_labels[0:1],
@@ -112,7 +113,16 @@ class FraudLearner(MachineLearningInterface):
             return 0
 
 
-def prepare_data_loader(train_folder, train_ratio=0.8, batch_size=32, **kwargs):
+def prepare_data_loaders(train_folder, train_ratio=0.8, **kwargs) -> Tuple[Tuple[np.array], Tuple[np.array]]:
+    """
+    Load training data from folders and create train and test arrays
+
+    :param train_folder: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param kwargs:
+    :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
+    """
+
     data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
     labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
 

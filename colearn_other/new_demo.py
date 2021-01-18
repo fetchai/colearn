@@ -27,23 +27,23 @@ def main(str_task_type: str,
     # Load task
     # pylint: disable=C0415
     if task_type == TaskType.PYTORCH_XRAY:
-        from colearn_pytorch.pytorch_xray import split_to_folders, prepare_learner, prepare_data_loader, ModelType
+        from colearn_pytorch.pytorch_xray import split_to_folders, prepare_learner, prepare_data_loaders, ModelType
     elif task_type == TaskType.KERAS_MNIST:
         # noinspection PyUnresolvedReferences
         from colearn_keras.keras_mnist import (  # type: ignore[no-redef]
-            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
+            split_to_folders, prepare_learner, prepare_data_loaders, ModelType)
     elif task_type == TaskType.KERAS_CIFAR10:
         # noinspection PyUnresolvedReferences
         from colearn_keras.keras_cifar10 import (  # type: ignore[no-redef]
-            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
+            split_to_folders, prepare_learner, prepare_data_loaders, ModelType)
     elif task_type == TaskType.PYTORCH_COVID_XRAY:
         # noinspection PyUnresolvedReferences
         from colearn_pytorch.pytorch_covid_xray import (  # type: ignore[no-redef]
-            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
+            split_to_folders, prepare_learner, prepare_data_loaders, ModelType)
     elif task_type == TaskType.FRAUD:
         # noinspection PyUnresolvedReferences
         from colearn_other.fraud_dataset import (  # type: ignore [no-redef]
-            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
+            split_to_folders, prepare_learner, prepare_data_loaders, ModelType)
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
 
@@ -73,7 +73,7 @@ def main(str_task_type: str,
 
     all_learner_models = []
     for i in range(n_learners):
-        learner_dataloaders = prepare_data_loader(train_folder=train_data_folders[i],
+        learner_dataloaders = prepare_data_loaders(train_folder=train_data_folders[i],
                                                   test_folder=test_data_folders[i],
                                                   **learning_kwargs)
 

@@ -3,10 +3,12 @@ import pickle
 import tempfile
 from enum import Enum
 from pathlib import Path
+from typing import Tuple
 
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.datasets.mnist as mnist
+from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
 from colearn_examples.utils.data import shuffle_data
 from colearn_examples.utils.data import split_by_chunksizes
@@ -79,7 +81,7 @@ def prepare_learner(model_type: ModelType, data_loaders, steps_per_epoch=100,
     return learner
 
 
-def _make_loader(images, labels, batch_size):
+def _make_loader(images, labels, batch_size) -> PrefetchDataset:
     dataset = tf.data.Dataset.from_tensor_slices((images, labels))
 
     dataset = dataset.cache()
@@ -90,7 +92,20 @@ def _make_loader(images, labels, batch_size):
     return dataset
 
 
-def prepare_data_loaders(train_folder, train_ratio=0.9, batch_size=32, **kwargs):
+def prepare_data_loaders(train_folder,
+                         train_ratio=0.9,
+                         batch_size=32,
+                         **kwargs) -> Tuple[PrefetchDataset, PrefetchDataset]:
+    """
+    Load training data from folders and create train and test dataloader
+
+    :param train_folder: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param batch_size:
+    :param kwargs:
+    :return: Tuple of train_loader and test_loader
+    """
+
     images = pickle.load(open(Path(train_folder) / IMAGE_FL, "rb"))
     labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
 

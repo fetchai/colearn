@@ -5,11 +5,12 @@ from pathlib import Path
 import pickle
 import numpy as np
 import scipy.io as sio
+from typing import Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
-from torch.utils.data import TensorDataset
+from torch.utils.data import TensorDataset, DataLoader
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import KernelPCA
@@ -68,19 +69,34 @@ def prepare_learner(model_type: ModelType, data_loaders, learning_rate=0.001, st
     return learner
 
 
-def _make_loader(data, labels, batch_size, **loader_kwargs):
+def _make_loader(data, labels, batch_size, **loader_kwargs) -> DataLoader:
     # Create tensor dataset
     data_tensor = torch.FloatTensor(data)
     labels_tensor = torch.LongTensor(labels)
     dataset = TensorDataset(data_tensor, labels_tensor)
-    loader = torch.utils.data.DataLoader(
+    loader = DataLoader(
         dataset,
         batch_size=batch_size, shuffle=True, **loader_kwargs)
 
     return loader
 
 
-def prepare_data_loader(train_folder, train_ratio=0.8, batch_size=8, no_cuda=False, **kwargs):
+def prepare_data_loaders(train_folder: str,
+                        train_ratio: float = 0.8,
+                        batch_size: int = 8,
+                        no_cuda: bool = False,
+                        **kwargs) -> Tuple[DataLoader, DataLoader]:
+    """
+    Load training data from folders and create train and test dataloader
+
+    :param train_folder: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param batch_size:
+    :param no_cuda: Disable GPU computing
+    :param kwargs:
+    :return: Tuple of train_loader and test_loader
+    """
+
     cuda = not no_cuda and torch.cuda.is_available()
     loader_kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
