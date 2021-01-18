@@ -124,7 +124,7 @@ class NewPytorchLearner(MachineLearningInterface):
                     all_labels.append(labels)
                     all_outputs.append(output)
                 else:
-                    total_score += self.criterion(output, labels)
+                    total_score += self.criterion(output, labels).item()
         if batch_idx == 0:
             raise Exception("No batches in loader")
         if self.vote_criterion is None:
