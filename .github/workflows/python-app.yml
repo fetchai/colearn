@@ -37,5 +37,5 @@ jobs:
     - name: Install dependencies
       run: pip install tox
     - name: Run Tox style checks
-      run: tox -e flake8 -e mypy -e pylint
+      run: tox -e flake8 -e mypy -e pylint -e pytest
 
