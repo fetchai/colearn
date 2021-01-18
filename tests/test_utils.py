@@ -2,7 +2,7 @@ import pickle
 import random
 
 from colearn.utils.data import shuffle_data, split_by_chunksizes
-from pickle_tester import FileTester, get_pickle
+from .pickle_tester import FileTester, get_pickle
 
 
 def rand_list(size, size2):
