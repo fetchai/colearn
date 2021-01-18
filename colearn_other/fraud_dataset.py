@@ -25,13 +25,13 @@ class ModelType(Enum):
     SVM = 1
 
 
-def prepare_learner(model_type: ModelType, train_loader, test_loader, **kwargs):
+def prepare_learner(model_type: ModelType, data_loaders, **kwargs):
     if model_type == ModelType.SVM:
         return FraudLearner(
-            train_data=train_loader[0],
-            train_labels=train_loader[1],
-            test_data=test_loader[0],
-            test_labels=test_loader[1])
+            train_data=data_loaders[0][0],
+            train_labels=data_loaders[0][1],
+            test_data=data_loaders[1][0],
+            test_labels=data_loaders[1][1])
     else:
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
@@ -112,20 +112,15 @@ class FraudLearner(MachineLearningInterface):
             return 0
 
 
-def prepare_data_loader(data_folder, train=True, train_ratio=0.8, batch_size=32, **kwargs):
-    data = pickle.load(open(Path(data_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
+def prepare_data_loader(train_folder, train_ratio=0.8, batch_size=32, **kwargs):
+    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(data))
     assert (n_cases > 0), "There are no cases"
-    if train:
-        data = data[:n_cases]
-        labels = labels[:n_cases]
-    else:
-        data = data[n_cases:]
-        labels = labels[n_cases:]
 
-    return data, labels
+    # (train_data, train_labels), (test_data, test_labels)
+    return (data[:n_cases], labels[:n_cases]), (data[n_cases:], labels[n_cases:])
 
 
 def split_to_folders(

@@ -27,7 +27,7 @@ def prepare_model(model_type: ModelType):
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40,
+def prepare_learner(model_type: ModelType, data_loaders, learning_rate=0.001, steps_per_epoch=40,
                     vote_batches=10,
                     no_cuda=False, vote_using_auc=True, **kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
@@ -45,12 +45,11 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
         score_name = "loss"
 
     # Make n instances of NewPytorchLearner with model and torch dataloaders
-
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
     learner = NewPytorchLearner(
         model=model,
-        train_loader=train_loader,
-        test_loader=test_loader,
+        train_loader=data_loaders[0],
+        test_loader=data_loaders[1],
         device=device,
         optimizer=opt,
         criterion=nn.BCEWithLogitsLoss(
@@ -65,13 +64,28 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
     return learner
 
 
-def prepare_data_loader(data_folder, train=True, train_ratio=1.0, batch_size=8, no_cuda=False, **kwargs):
+def prepare_data_loader(train_folder, test_folder=None, train_ratio=0.96, batch_size=8, no_cuda=False, **kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
     loader_kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
-    return torch.utils.data.DataLoader(
-        XrayDataset(data_folder, train=True, train_ratio=train_ratio),
-        batch_size=batch_size, shuffle=True, **loader_kwargs)
+    if test_folder is not None:
+        train_loader = torch.utils.data.DataLoader(
+            XrayDataset(train_folder, train=True, train_ratio=1.0),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+        test_loader = torch.utils.data.DataLoader(
+            XrayDataset(test_folder, train=True, train_ratio=1.0),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+    else:
+        train_loader = torch.utils.data.DataLoader(
+            XrayDataset(train_folder, train=True, train_ratio=train_ratio),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+        test_loader = torch.utils.data.DataLoader(
+            XrayDataset(train_folder, train=False, train_ratio=train_ratio),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+    return train_loader, test_loader
 
 
 class TorchXrayConv2DModel(nn.Module):
@@ -209,10 +223,14 @@ def split_to_folders(
         data_split=None,
         shuffle_seed=None,
         output_folder=None,
+        train=True,
         **kwargs
 ):
     if output_folder is None:
-        output_folder = Path(tempfile.gettempdir()) / "train_fraud"
+        if train:
+            output_folder = Path(tempfile.gettempdir()) / "train_xray"
+        else:
+            output_folder = Path(tempfile.gettempdir()) / "test_xray"
 
     if not os.path.isdir(data_dir):
         raise Exception("Data dir does not exist: " + str(data_dir))

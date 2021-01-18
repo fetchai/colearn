@@ -2,7 +2,7 @@
 import argparse
 import os
 
-from colearn_examples_new.new_demo import main, TaskType
+from colearn_other.new_demo import main, TaskType
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
 parser.add_argument("-d", "--train_dir", default=None, help="Directory for training data")
@@ -19,7 +19,7 @@ parser.add_argument("-p", "--n_epochs", default=15, type=int)
 
 parser.add_argument("-v", "--vote_threshold", default=0.5, type=float)
 
-parser.add_argument("-r", "--train_ratio", default=0.8, type=float)
+parser.add_argument("-r", "--train_ratio", default=None, type=float)
 
 parser.add_argument("-s", "--seed", type=int, default=None)
 parser.add_argument("-l", "--learning_rate", type=float, default=None)
@@ -40,6 +40,8 @@ if args.learning_rate is not None:
     optional_learning_kwargs["learning_rate"] = args.learning_rate
 if args.batch_size is not None:
     optional_learning_kwargs["batch_size"] = args.batch_size
+if args.train_ratio is not None:
+    optional_learning_kwargs["train_ratio"] = args.train_ratio
 
 main(str_task_type=args.task,
      train_data_folder=args.train_dir,
@@ -50,5 +52,4 @@ main(str_task_type=args.task,
      vote_threshold=args.vote_threshold,
      seed=args.seed,
      shuffle_seed=args.seed,
-     train_ratio=args.train_ratio,
      **optional_learning_kwargs)

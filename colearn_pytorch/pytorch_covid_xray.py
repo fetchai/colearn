@@ -34,7 +34,7 @@ def prepare_model(model_type: ModelType):
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40,
+def prepare_learner(model_type: ModelType, data_loaders, learning_rate=0.001, steps_per_epoch=40,
                     vote_batches=10,
                     no_cuda=False, vote_on_accuracy=True, **kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
@@ -55,8 +55,8 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
     learner = NewPytorchLearner(
         model=model,
-        train_loader=train_loader,
-        test_loader=test_loader,
+        train_loader=data_loaders[0],
+        test_loader=data_loaders[1],
         device=device,
         optimizer=opt,
         criterion=torch.nn.NLLLoss(),
@@ -68,22 +68,7 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
     return learner
 
 
-def prepare_data_loader(data_folder, train=True, train_ratio=0.8, batch_size=8, no_cuda=False, **kwargs):
-    data = pickle.load(open(Path(data_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(data))
-    assert (n_cases > 0), "There are no cases"
-    if train:
-        data = data[:n_cases]
-        labels = labels[:n_cases]
-    else:
-        data = data[n_cases:]
-        labels = labels[n_cases:]
-
-    cuda = not no_cuda and torch.cuda.is_available()
-    loader_kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
-
+def _make_loader(data, labels, batch_size, **loader_kwargs):
     # Create tensor dataset
     data_tensor = torch.FloatTensor(data)
     labels_tensor = torch.LongTensor(labels)
@@ -93,6 +78,22 @@ def prepare_data_loader(data_folder, train=True, train_ratio=0.8, batch_size=8, 
         batch_size=batch_size, shuffle=True, **loader_kwargs)
 
     return loader
+
+
+def prepare_data_loader(train_folder, train_ratio=0.8, batch_size=8, no_cuda=False, **kwargs):
+    cuda = not no_cuda and torch.cuda.is_available()
+    loader_kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+
+    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(data))
+    assert (n_cases > 0), "There are no cases"
+
+    train_loader = _make_loader(data[:n_cases], labels[:n_cases], batch_size, **loader_kwargs)
+    test_loader = _make_loader(data[n_cases:], labels[n_cases:], batch_size, **loader_kwargs)
+
+    return train_loader, test_loader
 
 
 # define the neural net architecture in Pytorch

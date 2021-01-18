@@ -22,12 +22,12 @@ class ModelType(Enum):
 
 def prepare_model(model_type: ModelType, learning_rate):
     if model_type == ModelType.CONV2D:
-        return get_keras_cifar10_conv2D_model(learning_rate)
+        return _get_keras_cifar10_conv2D_model(learning_rate)
     else:
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def get_keras_cifar10_conv2D_model(learning_rate):
+def _get_keras_cifar10_conv2D_model(learning_rate):
     loss = "sparse_categorical_crossentropy"
     optimizer = tf.keras.optimizers.Adam
 
@@ -65,12 +65,12 @@ def get_keras_cifar10_conv2D_model(learning_rate):
     return model
 
 
-def prepare_learner(model_type: ModelType, train_loader, test_loader=None, steps_per_epoch=100,
+def prepare_learner(model_type: ModelType, data_loaders, steps_per_epoch=100,
                     vote_batches=10, learning_rate=0.001, **kwargs):
     learner = NewKerasLearner(
         model=prepare_model(model_type, learning_rate),
-        train_loader=train_loader,
-        test_loader=test_loader,
+        train_loader=data_loaders[0],
+        test_loader=data_loaders[1],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
@@ -79,19 +79,7 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, steps
     return learner
 
 
-def prepare_data_loader(data_folder, train=True, train_ratio=0.8, batch_size=32, **kwargs):
-    images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(images))
-    assert (n_cases > 0), "There are no cases"
-    if train:
-        images = images[:n_cases]
-        labels = labels[:n_cases]
-    else:
-        images = images[n_cases:]
-        labels = labels[n_cases:]
-
+def _make_loader(images, labels, batch_size):
     dataset = tf.data.Dataset.from_tensor_slices((images, labels))
 
     dataset = dataset.cache()
@@ -100,6 +88,17 @@ def prepare_data_loader(data_folder, train=True, train_ratio=0.8, batch_size=32,
     dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
     return dataset
+
+
+def prepare_data_loaders(train_folder, train_ratio=0.9, batch_size=32, **kwargs):
+    images = pickle.load(open(Path(train_folder) / IMAGE_FL, "rb"))
+    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(images))
+    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
+    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
+
+    return train_loader, test_loader
 
 
 def split_to_folders(

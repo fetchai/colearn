@@ -17,7 +17,6 @@ def main(str_task_type: str,
          n_learners=5,
          n_epochs=20,
          vote_threshold=0.5,
-         train_ratio=0.8,
          train_data_folder: str = None,
          test_data_folder: str = None,
          str_model_type: str = None,
@@ -43,7 +42,7 @@ def main(str_task_type: str,
             split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     elif task_type == TaskType.FRAUD:
         # noinspection PyUnresolvedReferences
-        from colearn_examples_new.fraud import (  # type: ignore [no-redef]
+        from colearn_other.fraud_dataset import (  # type: ignore [no-redef]
             split_to_folders, prepare_learner, prepare_data_loader, ModelType)
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
@@ -69,27 +68,17 @@ def main(str_task_type: str,
             train=False,
             **learning_kwargs
         )
-
-    learner_train_dataloaders = []
-    learner_test_dataloaders = []
-
-    for i in range(n_learners):
-        if test_data_folder is not None:
-            learner_train_dataloaders.append(
-                prepare_data_loader(train_data_folders[i], train=True, train_ratio=train_ratio, **learning_kwargs))
-            learner_test_dataloaders.append(
-                prepare_data_loader(test_data_folders[i], train=True, train_ratio=train_ratio, **learning_kwargs))
-        else:
-            learner_train_dataloaders.append(
-                prepare_data_loader(train_data_folders[i], train=True, **learning_kwargs))
-            learner_test_dataloaders.append(
-                prepare_data_loader(train_data_folders[i], train=False, **learning_kwargs))
+    else:
+        test_data_folders = [None] * n_learners
 
     all_learner_models = []
     for i in range(n_learners):
+        learner_dataloaders = prepare_data_loader(train_folder=train_data_folders[i],
+                                                  test_folder=test_data_folders[i],
+                                                  **learning_kwargs)
+
         all_learner_models.append(prepare_learner(model_type=model_type,
-                                                  train_loader=learner_train_dataloaders[i],
-                                                  test_loader=learner_test_dataloaders[i],
+                                                  data_loaders=learner_dataloaders,
                                                   **learning_kwargs))
 
     set_equal_weights(all_learner_models)
