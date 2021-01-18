@@ -1,5 +1,6 @@
 import os
 
+from typing_extensions import TypedDict
 import numpy as np
 import scipy.io as sio
 import torch.nn as nn
@@ -9,7 +10,6 @@ from sklearn.decomposition import KernelPCA
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import TensorDataset
 from torchsummary import summary
-from typing_extensions import TypedDict
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import plot_results, plot_votes

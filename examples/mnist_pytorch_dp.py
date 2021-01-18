@@ -1,10 +1,10 @@
+from typing_extensions import TypedDict
 import torch.nn as nn
 import torch.nn.functional as nn_func
 import torch.utils.data
 from opacus import PrivacyEngine
 from torchsummary import summary
 from torchvision import transforms, datasets
-from typing_extensions import TypedDict
 
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import plot_results, plot_votes
