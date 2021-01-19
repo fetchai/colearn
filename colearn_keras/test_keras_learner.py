@@ -20,7 +20,7 @@ def get_mock_dataloader() -> mock.Mock:
 
 @pytest.fixture
 def nkl():
-    """Returns a NewKeraslearner"""
+    """Returns a Keraslearner"""
     model = get_mock_model()
     dl = get_mock_dataloader()
     nkl = KerasLearner(model, dl)

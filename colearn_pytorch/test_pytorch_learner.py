@@ -49,7 +49,7 @@ def get_mock_criterion() -> Mock:
 
 @pytest.fixture
 def nkl():
-    """Returns a NewKeraslearner"""
+    """Returns a Pytorchlearner"""
     model = get_mock_model()
     dl = get_mock_dataloader()
     opt = get_mock_optimiser()
