@@ -5,6 +5,9 @@ from colearn.ml_interface import MachineLearningInterface
 
 
 class MLIFactory(abc.ABC):
+    """
+    Interface a class must implement to be used as a factory by the GRPC Server
+    """
 
     @abc.abstractmethod
     def get_models(self) -> Set[str]:
