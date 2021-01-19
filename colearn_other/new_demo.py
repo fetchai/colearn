@@ -7,12 +7,12 @@ from colearn_other.mli_factory import TaskType, mli_factory
 
 
 def main(str_task_type: str,
+         str_model_type: str,
          n_learners: int = 5,
          n_epochs: int = 20,
          vote_threshold: float = 0.5,
          train_data_folder: Optional[str] = None,
          test_data_folder: Optional[str] = None,
-         str_model_type: Optional[str] = None,
          **learning_kwargs):
     # Resolve task type
     task_type = TaskType[str_task_type]

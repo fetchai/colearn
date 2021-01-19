@@ -12,7 +12,7 @@ class TaskType(Enum):
 
 def mli_factory(str_task_type: str,
                 train_folder: str,
-                str_model_type: Optional[str] = None,
+                str_model_type: str,
                 test_folder: Optional[str] = None,
                 **learning_kwargs):
     # Resolve task type
@@ -42,11 +42,7 @@ def mli_factory(str_task_type: str,
         raise Exception("Task %s not part of the TaskType enum" % type)
 
     # Resolve model type
-    if str_model_type is not None:
-        model_type = ModelType[str_model_type]
-    else:
-        # Get first model if not specified
-        model_type = list(ModelType)[0]
+    model_type = ModelType[str_model_type]
 
     learner_dataloaders = prepare_data_loaders(train_folder=train_folder,
                                                test_folder=test_folder,
