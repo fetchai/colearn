@@ -10,8 +10,8 @@ import tensorflow as tf
 import tensorflow.keras.datasets.mnist as mnist
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
-from colearn_examples.utils.data import shuffle_data
-from colearn_examples.utils.data import split_by_chunksizes
+from colearn.utils.data import shuffle_data
+from colearn.utils.data import split_by_chunksizes
 from colearn_keras.new_keras_learner import NewKerasLearner
 
 IMAGE_FL = "images.pickle"
@@ -72,7 +72,7 @@ def prepare_learner(model_type: ModelType,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
-                    **kwargs):
+                    **_kwargs):
     learner = NewKerasLearner(
         model=_prepare_model(model_type, learning_rate),
         train_loader=data_loaders[0],
@@ -101,7 +101,7 @@ def _make_loader(images: np.array,
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32,
-                         **kwargs) -> Tuple[PrefetchDataset, PrefetchDataset]:
+                         **_kwargs) -> Tuple[PrefetchDataset, PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
 
@@ -127,7 +127,7 @@ def split_to_folders(
         data_split: Optional[List[float]] = None,
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
-        **kwargs
+        **_kwargs
 ):
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "mnist"

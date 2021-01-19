@@ -39,7 +39,7 @@ tox
 
 ## Running the demo
 ```bash
-bin/run_demo.py -t MNIST
+examples/run_demo.py -t MNIST
 ``` 
 For other demo options see [here](./demo.md)
 

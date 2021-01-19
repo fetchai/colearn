@@ -24,7 +24,7 @@ class MachineLearningInterface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
+    def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         """
         Tests the proposed weights and fills in the rest of the fields
         """

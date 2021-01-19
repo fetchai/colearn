@@ -1,16 +1,18 @@
-from colearn_examples.training import initial_result, collective_learning_round, set_equal_weights
-from colearn_examples.utils.plot import plot_results, plot_votes
-from colearn_examples.utils.results import Results
+from typing import Optional
+
+from colearn.training import initial_result, collective_learning_round, set_equal_weights
+from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.results import Results
 from colearn_other.mli_factory import TaskType, mli_factory
 
 
 def main(str_task_type: str,
-         n_learners=5,
-         n_epochs=20,
-         vote_threshold=0.5,
-         train_data_folder: str = None,
-         test_data_folder: str = None,
-         str_model_type: str = None,
+         n_learners: int = 5,
+         n_epochs: int = 20,
+         vote_threshold: float = 0.5,
+         train_data_folder: Optional[str] = None,
+         test_data_folder: Optional[str] = None,
+         str_model_type: Optional[str] = None,
          **learning_kwargs):
     # Resolve task type
     task_type = TaskType[str_task_type]
@@ -36,7 +38,7 @@ def main(str_task_type: str,
 
     # lOAD DATA
     train_data_folders = split_to_folders(
-        data_dir=train_data_folder,
+        data_dir=train_data_folder or "",
         n_learners=n_learners,
         train=True,
         **learning_kwargs)

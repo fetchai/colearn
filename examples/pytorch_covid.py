@@ -1,0 +1,168 @@
+import os
+
+from typing_extensions import TypedDict
+import numpy as np
+import scipy.io as sio
+import torch.nn as nn
+import torch.nn.functional as nn_func
+import torch.utils.data
+from sklearn.decomposition import KernelPCA
+from sklearn.preprocessing import MinMaxScaler
+from torch.utils.data import TensorDataset
+from torchsummary import summary
+
+from colearn.training import initial_result, collective_learning_round, set_equal_weights
+from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.results import Results
+from colearn_pytorch.utils import categorical_accuracy, prepare_data_split_list
+from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+
+"""
+COVID-XRAY training example using PyTorch
+
+Used dataset:
+- contains 478 normal samples, 478 covid samples and 478 pneumonia samples
+- Each sample is vector of 252 feature values extracted from xray mages
+
+What script does:
+- Loads XRAY dataset .mat files with normal, pneumonia and covid samples and normalizes them
+- Applies PCA to reduce 252 input features to 64 features
+- Randomly splits dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
+
+# define some constants
+n_learners = 5
+batch_size = 64
+seed = 42
+n_epochs = 50
+vote_threshold = 0.5
+train_fraction = 0.9
+learning_rate = 0.001
+input_width = 64
+n_classes = 3
+vote_batches = 2
+vote_on_accuracy = True
+
+no_cuda = False
+cuda = not no_cuda and torch.cuda.is_available()
+device = torch.device("cuda" if cuda else "cpu")
+DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+
+# Replace with path containing .mat files if necessary
+data_dir = '../../colearn/examples/covid'
+
+# Load data
+covid_data = sio.loadmat(os.path.join(data_dir, 'covid.mat'))['covid']
+normal_data = sio.loadmat(os.path.join(data_dir, 'normal.mat'))['normal']
+pneumonia_data = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))['pneumonia']
+
+data = np.concatenate((covid_data[:, :-1], normal_data[:, :-1], pneumonia_data[:, :-1]), axis=0).astype(np.float32)
+labels = np.concatenate((covid_data[:, -1], normal_data[:, -1], pneumonia_data[:, -1]), axis=0).astype(int)
+
+# Normalise data
+min_max_scaler = MinMaxScaler()
+data = min_max_scaler.fit_transform(data)
+
+transformer = KernelPCA(n_components=input_width, kernel='linear')
+data = transformer.fit_transform(data)
+
+# Create tensor dataset
+data_tensor = torch.FloatTensor(data)
+labels_tensor = torch.LongTensor(labels)
+dataset = TensorDataset(data_tensor, labels_tensor)
+
+# Split dataset to train and test part
+n_train = int(train_fraction * len(dataset))
+n_test = len(dataset) - n_train
+train_data, test_data = torch.utils.data.random_split(dataset, [n_train, n_test])
+
+# Split train set between learners
+parts = prepare_data_split_list(train_data, n_learners)
+learner_train_data = torch.utils.data.random_split(train_data, parts)
+learner_train_dataloaders = [torch.utils.data.DataLoader(
+    ds,
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
+
+# Split test set between learners
+parts = prepare_data_split_list(test_data, n_learners)
+learner_test_data = torch.utils.data.random_split(test_data, parts)
+learner_test_dataloaders = [torch.utils.data.DataLoader(
+    ds,
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
+
+
+# define the neural net architecture in Pytorch
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.fc1 = nn.Linear(input_width, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 32)
+        self.fc5 = nn.Linear(32, 16)
+        self.fc6 = nn.Linear(16, n_classes)
+
+    def forward(self, x):
+        x = nn_func.dropout(nn_func.relu(self.fc1(x)), 0.2)
+        x = nn_func.dropout(nn_func.relu(self.fc2(x)), 0.2)
+        x = nn_func.dropout(nn_func.relu(self.fc3(x)), 0.2)
+        x = nn_func.dropout(nn_func.relu(self.fc4(x)), 0.2)
+        x = nn_func.dropout(nn_func.relu(self.fc5(x)), 0.2)
+        x = self.fc6(x)
+
+        return nn_func.log_softmax(x, dim=1)
+
+
+if vote_on_accuracy:
+    learner_vote_kwargs = dict(
+        vote_criterion=categorical_accuracy,
+        minimise_criterion=False)
+    score_name = "categorical accuracy"
+else:
+    learner_vote_kwargs = {}
+    score_name = "loss"
+
+# Make n instances of NewPytorchLearner with model and torch dataloaders
+all_learner_models = []
+for i in range(n_learners):
+    model = Net()
+    opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    learner = NewPytorchLearner(
+        model=model,
+        train_loader=learner_train_dataloaders[i],
+        test_loader=learner_test_dataloaders[i],
+        device=device,
+        optimizer=opt,
+        criterion=torch.nn.NLLLoss(),
+        num_test_batches=vote_batches,
+        **learner_vote_kwargs  # type: ignore[arg-type]
+    )
+
+    all_learner_models.append(learner)
+
+# Ensure all learners starts with exactly same weights
+set_equal_weights(all_learner_models)
+
+# print a summary of the model architecture
+summary(all_learner_models[0].model, input_size=(input_width,))
+
+# Now we're ready to start collective learning
+# Get initial accuracy
+results = Results()
+results.data.append(initial_result(all_learner_models))
+
+# Do the training
+for epoch in range(n_epochs):
+    results.data.append(
+        collective_learning_round(all_learner_models,
+                                  vote_threshold, epoch)
+    )
+
+    plot_results(results, n_learners, score_name=score_name)
+    plot_votes(results)
+
+# Plot the final result with votes
+plot_results(results, n_learners, score_name=score_name)
+plot_votes(results, block=True)

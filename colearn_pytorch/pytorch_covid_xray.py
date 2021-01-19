@@ -1,25 +1,25 @@
-import tempfile
 import os
+import pickle
+import tempfile
 from enum import Enum
 from pathlib import Path
-import pickle
 from typing import Tuple, List, Optional
-from typing_extensions import TypedDict
+
 import numpy as np
 import scipy.io as sio
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
-from torch.utils.data import TensorDataset, DataLoader
-
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import KernelPCA
+from sklearn.preprocessing import MinMaxScaler
+from torch.utils.data import DataLoader
+from torch.utils.data import TensorDataset
+from typing_extensions import TypedDict
 
+from colearn.utils.data import shuffle_data
+from colearn.utils.data import split_by_chunksizes
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
-from colearn_examples_pytorch.utils import categorical_accuracy
-from colearn_examples.utils.data import shuffle_data
-from colearn_examples.utils.data import split_by_chunksizes
+from .utils import categorical_accuracy
 
 DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
@@ -43,7 +43,7 @@ def prepare_learner(model_type: ModelType,
                     vote_batches: int = 10,
                     no_cuda: bool = False,
                     vote_on_accuracy: bool = True,
-                    **kwargs):
+                    **_kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
@@ -94,7 +94,7 @@ def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.8,
                          batch_size: int = 8,
                          no_cuda: bool = False,
-                         **kwargs) -> Tuple[DataLoader, DataLoader]:
+                         **_kwargs) -> Tuple[DataLoader, DataLoader]:
     """
     Load training data from folders and create train and test dataloader
 
@@ -152,7 +152,7 @@ def split_to_folders(
         data_split: Optional[List[float]] = None,
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
-        **kwargs
+        **_kwargs
 ):
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "covid_xray"
