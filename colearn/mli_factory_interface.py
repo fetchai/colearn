@@ -4,7 +4,7 @@ from typing import Dict, Set
 from colearn.ml_interface import MachineLearningInterface
 
 
-class MLIFactory(abc.ABC):
+class MliFactory(abc.ABC):
     """
     Interface a class must implement to be used as a factory by the GRPC Server
     """
