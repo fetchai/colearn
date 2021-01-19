@@ -56,7 +56,7 @@ def main(str_task_type: str,
 
     # lOAD DATA
     train_data_folders = split_to_folders(
-        data_dir=train_data_folder,
+        data_dir=train_data_folder or "",
         n_learners=n_learners,
         train=True,
         **learning_kwargs)
@@ -74,8 +74,8 @@ def main(str_task_type: str,
     all_learner_models = []
     for i in range(n_learners):
         learner_dataloaders = prepare_data_loaders(train_folder=train_data_folders[i],
-                                                  test_folder=test_data_folders[i],
-                                                  **learning_kwargs)
+                                                   test_folder=test_data_folders[i],
+                                                   **learning_kwargs)
 
         all_learner_models.append(prepare_learner(model_type=model_type,
                                                   data_loaders=learner_dataloaders,

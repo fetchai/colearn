@@ -36,7 +36,7 @@ def prepare_learner(model_type: ModelType,
                     vote_batches: int = 10,
                     no_cuda: bool = False,
                     vote_using_auc: bool = True,
-                    **kwargs):
+                    **_kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
@@ -76,7 +76,7 @@ def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.96,
                          batch_size: int = 8,
                          no_cuda: bool = False,
-                         **kwargs) -> Tuple[DataLoader, DataLoader]:
+                         **_kwargs) -> Tuple[DataLoader, DataLoader]:
     """
     Load training data from folders and create train and test dataloader
 
@@ -170,7 +170,7 @@ class XrayDataset(Dataset):
                  seed=None,
                  width=128,
                  height=128,
-                 **kwargs):
+                 **_kwargs):
         """
         Args:
             data_dir (string): Path to the data directory.
@@ -256,7 +256,7 @@ def split_to_folders(
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
         train: bool = True,
-        **kwargs
+        **_kwargs
 ):
     if output_folder is None:
         if train:

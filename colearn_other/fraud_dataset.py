@@ -1,21 +1,20 @@
-from enum import Enum
-import tempfile
-from pathlib import Path
-from colearn_examples.utils.data import shuffle_data
-from colearn_examples.utils.data import split_by_chunksizes
 import os
 import pickle
-import numpy as np
+import tempfile
+from enum import Enum
+from pathlib import Path
 from typing import Optional, List, Tuple
-import sklearn
 
+import numpy as np
+import pandas as pd
+import sklearn
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
-
-import pandas as pd
+from colearn.utils.data import shuffle_data
+from colearn.utils.data import split_by_chunksizes
 
 DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
@@ -27,7 +26,7 @@ class ModelType(Enum):
 
 def prepare_learner(model_type: ModelType,
                     data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
-                    **kwargs):
+                    **_kwargs):
     if model_type == ModelType.SVM:
         return FraudLearner(
             train_data=data_loaders[0][0],
@@ -121,7 +120,7 @@ class FraudLearner(MachineLearningInterface):
 
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.8,
-                         **kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
+                         **_kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
     """
     Load training data from folders and create train and test arrays
 
@@ -147,7 +146,7 @@ def split_to_folders(
         data_split: Optional[List[float]] = None,
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
-        **kwargs):
+        **_kwargs):
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "fraud"
 
