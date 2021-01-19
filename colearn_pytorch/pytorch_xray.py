@@ -4,13 +4,15 @@ import tempfile
 from enum import Enum
 from glob import glob
 from pathlib import Path
+from typing import Tuple, Optional, List
+from typing_extensions import TypedDict
 
 import cv2
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
 from .utils import auc_from_logits
@@ -27,9 +29,14 @@ def prepare_model(model_type: ModelType):
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40,
-                    vote_batches=10,
-                    no_cuda=False, vote_using_auc=True, **kwargs):
+def prepare_learner(model_type: ModelType,
+                    data_loaders: Tuple[DataLoader, DataLoader],
+                    learning_rate: float = 0.001,
+                    steps_per_epoch: int = 40,
+                    vote_batches: int = 10,
+                    no_cuda: bool = False,
+                    vote_using_auc: bool = True,
+                    **kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
@@ -45,12 +52,11 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
         score_name = "loss"
 
     # Make n instances of NewPytorchLearner with model and torch dataloaders
-
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
     learner = NewPytorchLearner(
         model=model,
-        train_loader=train_loader,
-        test_loader=test_loader,
+        train_loader=data_loaders[0],
+        test_loader=data_loaders[1],
         device=device,
         optimizer=opt,
         criterion=nn.BCEWithLogitsLoss(
@@ -65,13 +71,46 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
     return learner
 
 
-def prepare_data_loader(data_folder, train=True, train_ratio=1.0, batch_size=8, no_cuda=False, **kwargs):
-    cuda = not no_cuda and torch.cuda.is_available()
-    loader_kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+def prepare_data_loaders(train_folder: str,
+                         test_folder: Optional[str] = None,
+                         train_ratio: float = 0.96,
+                         batch_size: int = 8,
+                         no_cuda: bool = False,
+                         **kwargs) -> Tuple[DataLoader, DataLoader]:
+    """
+    Load training data from folders and create train and test dataloader
 
-    return torch.utils.data.DataLoader(
-        XrayDataset(data_folder, train=True, train_ratio=train_ratio),
-        batch_size=batch_size, shuffle=True, **loader_kwargs)
+    :param train_folder: Path to training dataset
+    :param test_folder: Path to test dataset
+    :param train_ratio: When test_folder is not specified what portion of train_data should be used as test set
+    :param batch_size:
+    :param no_cuda: Disable GPU computing
+    :param kwargs:
+    :return: Tuple of train_loader and test_loader
+    """
+
+    cuda = not no_cuda and torch.cuda.is_available()
+    DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+    loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+
+    if test_folder is not None:
+        train_loader = DataLoader(
+            XrayDataset(train_folder, train=True, train_ratio=1.0),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+        test_loader = DataLoader(
+            XrayDataset(test_folder, train=True, train_ratio=1.0),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+    else:
+        train_loader = DataLoader(
+            XrayDataset(train_folder, train=True, train_ratio=train_ratio),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+        test_loader = DataLoader(
+            XrayDataset(train_folder, train=False, train_ratio=train_ratio),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+    return train_loader, test_loader
 
 
 class TorchXrayConv2DModel(nn.Module):
@@ -123,7 +162,14 @@ _________________________________________________________________"""
 class XrayDataset(Dataset):
     """X-ray dataset."""
 
-    def __init__(self, data_dir, transform=None, train=True, train_ratio=0.96, seed=None, width=128, height=128,
+    def __init__(self,
+                 data_dir,
+                 transform=None,
+                 train=True,
+                 train_ratio=0.96,
+                 seed=None,
+                 width=128,
+                 height=128,
                  **kwargs):
         """
         Args:
@@ -204,12 +250,12 @@ class XrayDataset(Dataset):
 # this is modified from the version in xray/data in order to keep the directory structure
 # e.g. when the data is in NORMAL and PNEU directories these will also be in each of the split dirs
 def split_to_folders(
-        data_dir,
-        n_learners,
-        data_split=None,
-        shuffle_seed=None,
-        output_folder=None,
-        train=True,
+        data_dir: str,
+        n_learners: int,
+        data_split: Optional[List[float]] = None,
+        shuffle_seed: Optional[int] = None,
+        output_folder: Optional[Path] = None,
+        train: bool = True,
         **kwargs
 ):
     if output_folder is None:
