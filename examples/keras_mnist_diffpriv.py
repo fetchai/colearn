@@ -5,7 +5,7 @@ from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdam
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import plot_results, plot_votes
 from colearn.utils.results import Results
-from colearn_keras.new_keras_learner import NewKerasLearner
+from colearn_keras.new_keras_learner import KerasLearner
 
 n_learners = 5
 n_epochs = 20
@@ -89,7 +89,7 @@ def get_model():
 
 all_learner_models = []
 for i in range(n_learners):
-    all_learner_models.append(NewKerasLearner(
+    all_learner_models.append(KerasLearner(
         model=get_model(),
         train_loader=train_datasets[i],
         test_loader=test_datasets[i],

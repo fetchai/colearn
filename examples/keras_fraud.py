@@ -6,7 +6,7 @@ import tensorflow as tf
 from colearn.training import set_equal_weights, initial_result, collective_learning_round
 from colearn.utils.plot import plot_results, plot_votes
 from colearn.utils.results import Results
-from colearn_keras.new_keras_learner import NewKerasLearner
+from colearn_keras.new_keras_learner import KerasLearner
 
 input_classes = 431
 n_classes = 1
@@ -75,7 +75,7 @@ all_learner_models = []
 for i in range(n_learners):
     model = get_model()
     all_learner_models.append(
-        NewKerasLearner(
+        KerasLearner(
             model=model,
             train_loader=train_datasets[i],
             test_loader=test_datasets[i],

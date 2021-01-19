@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from colearn.ml_interface import Weights
-from colearn_keras.new_keras_learner import NewKerasLearner
+from colearn_keras.new_keras_learner import KerasLearner
 
 
 def get_mock_model() -> mock.Mock:
@@ -23,7 +23,7 @@ def nkl():
     """Returns a NewKeraslearner"""
     model = get_mock_model()
     dl = get_mock_dataloader()
-    nkl = NewKerasLearner(model, dl)
+    nkl = KerasLearner(model, dl)
     return nkl
 
 

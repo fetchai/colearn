@@ -11,7 +11,7 @@ from tensorflow import keras
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 
 
-class NewKerasLearner(MachineLearningInterface):
+class KerasLearner(MachineLearningInterface):
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
                  test_loader: Optional[tf.data.Dataset] = None,
