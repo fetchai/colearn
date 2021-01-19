@@ -15,7 +15,7 @@ from colearn.training import initial_result, collective_learning_round, set_equa
 from colearn.utils.plot import plot_results, plot_votes
 from colearn.utils.results import Results
 from colearn_pytorch.utils import categorical_accuracy, prepare_data_split_list
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.new_pytorch_learner import PytorchLearner
 
 """
 COVID-XRAY training example using PyTorch
@@ -124,12 +124,12 @@ else:
     learner_vote_kwargs = {}
     score_name = "loss"
 
-# Make n instances of NewPytorchLearner with model and torch dataloaders
+# Make n instances of PytorchLearner with model and torch dataloaders
 all_learner_models = []
 for i in range(n_learners):
     model = Net()
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    learner = NewPytorchLearner(
+    learner = PytorchLearner(
         model=model,
         train_loader=learner_train_dataloaders[i],
         test_loader=learner_test_dataloaders[i],

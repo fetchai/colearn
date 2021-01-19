@@ -17,7 +17,7 @@ from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeig
 _DEFAULT_DEVICE = torch.device("cpu")
 
 
-class NewPytorchLearner(MachineLearningInterface):
+class PytorchLearner(MachineLearningInterface):
     def __init__(self, model: torch.nn.Module,
                  optimizer: torch.optim.Optimizer,
                  train_loader: torch.utils.data.DataLoader,

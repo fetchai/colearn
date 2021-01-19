@@ -9,7 +9,7 @@ from torchvision import transforms, datasets
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import plot_results, plot_votes
 from colearn.utils.results import Results
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.new_pytorch_learner import PytorchLearner
 
 # define some constants
 n_learners = 5
@@ -79,7 +79,7 @@ class Net(nn.Module):
         return nn_func.log_softmax(x, dim=1)
 
 
-# Make n instances of NewPytorchLearner with model and torch dataloaders
+# Make n instances of PytorchLearner with model and torch dataloaders
 all_learner_models = []
 for i in range(n_learners):
     model = Net()
@@ -93,7 +93,7 @@ for i in range(n_learners):
         max_grad_norm=max_grad_norm
     )
     privacy_engine.attach(opt)
-    learner = NewPytorchLearner(
+    learner = PytorchLearner(
         model=model,
         train_loader=learner_train_dataloaders[i],
         test_loader=learner_test_dataloaders[i],
