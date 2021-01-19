@@ -6,7 +6,7 @@ import torch.utils.data
 from torch.nn.modules.loss import _Loss
 
 from colearn.ml_interface import Weights
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner
 
 MODEL_PARAMETERS = [torch.tensor([3, 3]), torch.tensor([4, 4])]
 MODEL_PARAMETERS2 = [torch.tensor([5, 5]), torch.tensor([6, 6])]
@@ -49,15 +49,15 @@ def get_mock_criterion() -> Mock:
 
 @pytest.fixture
 def nkl():
-    """Returns a NewKeraslearner"""
+    """Returns a Pytorchlearner"""
     model = get_mock_model()
     dl = get_mock_dataloader()
     opt = get_mock_optimiser()
     crit = get_mock_criterion()
-    nkl = NewPytorchLearner(model=model, train_loader=dl,
-                            optimizer=opt, criterion=crit,
-                            num_train_batches=1,
-                            num_test_batches=1)
+    nkl = PytorchLearner(model=model, train_loader=dl,
+                         optimizer=opt, criterion=crit,
+                         num_train_batches=1,
+                         num_test_batches=1)
     return nkl
 
 
