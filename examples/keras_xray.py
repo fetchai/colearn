@@ -9,7 +9,7 @@ import tensorflow as tf
 from colearn.training import set_equal_weights, initial_result, collective_learning_round
 from colearn.utils.plot import plot_results, plot_votes
 from colearn.utils.results import Results
-from colearn_keras.new_keras_learner import KerasLearner
+from colearn_keras.keras_learner import KerasLearner
 
 width = 128
 height = 128

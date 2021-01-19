@@ -12,7 +12,7 @@ from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
 from colearn.utils.data import shuffle_data
 from colearn.utils.data import split_by_chunksizes
-from colearn_keras.new_keras_learner import KerasLearner
+from colearn_keras.keras_learner import KerasLearner
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
