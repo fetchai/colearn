@@ -12,7 +12,7 @@ parser.add_argument("-t", "--task", default="KERAS_MNIST",
                     help="Options are " + " ".join(str(x.name)
                                                    for x in TaskType))
 
-parser.add_argument("-m", "--model_type", default="CONV2D", type=str)
+parser.add_argument("-m", "--model_type", default=None, type=str)
 
 parser.add_argument("-n", "--n_learners", default=5, type=int)
 parser.add_argument("-p", "--n_epochs", default=15, type=int)
@@ -44,7 +44,6 @@ if args.train_ratio is not None:
     optional_learning_kwargs["train_ratio"] = args.train_ratio
 
 main(str_task_type=args.task,
-     str_model_type=args.model_type,
      train_data_folder=args.train_dir,
      test_data_folder=args.test_dir,
      n_learners=args.n_learners,
@@ -52,4 +51,5 @@ main(str_task_type=args.task,
      vote_threshold=args.vote_threshold,
      seed=args.seed,
      shuffle_seed=args.seed,
+     str_model_type=args.model_type,
      **optional_learning_kwargs)

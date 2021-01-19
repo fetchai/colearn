@@ -7,12 +7,12 @@ from colearn_other.mli_factory import TaskType, mli_factory
 
 
 def main(str_task_type: str,
-         str_model_type: str,
          n_learners: int = 5,
          n_epochs: int = 20,
          vote_threshold: float = 0.5,
          train_data_folder: Optional[str] = None,
          test_data_folder: Optional[str] = None,
+         str_model_type: Optional[str] = None,
          **learning_kwargs):
     # Resolve task type
     task_type = TaskType[str_task_type]
@@ -20,21 +20,25 @@ def main(str_task_type: str,
     # Load correct split to folders function
     # pylint: disable=C0415
     if task_type == TaskType.PYTORCH_XRAY:
-        from colearn_pytorch.pytorch_xray import split_to_folders
+        from colearn_pytorch.pytorch_xray import split_to_folders, ModelType
     elif task_type == TaskType.KERAS_MNIST:
         # noinspection PyUnresolvedReferences
-        from colearn_keras.keras_mnist import split_to_folders  # type: ignore[no-redef]
+        from colearn_keras.keras_mnist import split_to_folders, ModelType  # type: ignore[no-redef]
     elif task_type == TaskType.KERAS_CIFAR10:
         # noinspection PyUnresolvedReferences
-        from colearn_keras.keras_cifar10 import split_to_folders  # type: ignore[no-redef]
+        from colearn_keras.keras_cifar10 import split_to_folders, ModelType  # type: ignore[no-redef]
     elif task_type == TaskType.PYTORCH_COVID_XRAY:
         # noinspection PyUnresolvedReferences
-        from colearn_pytorch.pytorch_covid_xray import split_to_folders  # type: ignore[no-redef]
+        from colearn_pytorch.pytorch_covid_xray import split_to_folders, ModelType  # type: ignore[no-redef]
     elif task_type == TaskType.FRAUD:
         # noinspection PyUnresolvedReferences
-        from colearn_other.fraud_dataset import split_to_folders  # type: ignore [no-redef]
+        from colearn_other.fraud_dataset import split_to_folders, ModelType  # type: ignore [no-redef]
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
+
+    # Replace with default model type if not specified
+    if str_model_type is None:
+        str_model_type = ModelType(1).name
 
     # lOAD DATA
     train_data_folders = split_to_folders(
