@@ -10,13 +10,13 @@ class TaskType(Enum):
     KERAS_MNIST = 2
     KERAS_CIFAR10 = 3
     PYTORCH_COVID_XRAY = 4
+    FRAUD = 5
 
 
 def main(str_task_type: str,
          n_learners=5,
          n_epochs=20,
          vote_threshold=0.5,
-         train_ratio=0.8,
          train_data_folder: str = None,
          test_data_folder: str = None,
          str_model_type: str = None,
@@ -27,19 +27,23 @@ def main(str_task_type: str,
     # Load task
     # pylint: disable=C0415
     if task_type == TaskType.PYTORCH_XRAY:
-        from colearn_pytorch.pytorch_xray import split_to_folders, prepare_learner, prepare_data_loader, ModelType
+        from colearn_pytorch.pytorch_xray import split_to_folders, prepare_learner, prepare_data_loaders, ModelType
     elif task_type == TaskType.KERAS_MNIST:
         # noinspection PyUnresolvedReferences
         from colearn_keras.keras_mnist import (  # type: ignore[no-redef]
-            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
+            split_to_folders, prepare_learner, prepare_data_loaders, ModelType)
     elif task_type == TaskType.KERAS_CIFAR10:
         # noinspection PyUnresolvedReferences
         from colearn_keras.keras_cifar10 import (  # type: ignore[no-redef]
-            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
+            split_to_folders, prepare_learner, prepare_data_loaders, ModelType)
     elif task_type == TaskType.PYTORCH_COVID_XRAY:
         # noinspection PyUnresolvedReferences
         from colearn_pytorch.pytorch_covid_xray import (  # type: ignore[no-redef]
-            split_to_folders, prepare_learner, prepare_data_loader, ModelType)
+            split_to_folders, prepare_learner, prepare_data_loaders, ModelType)
+    elif task_type == TaskType.FRAUD:
+        # noinspection PyUnresolvedReferences
+        from colearn_other.fraud_dataset import (  # type: ignore [no-redef]
+            split_to_folders, prepare_learner, prepare_data_loaders, ModelType)
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
 
@@ -64,27 +68,17 @@ def main(str_task_type: str,
             train=False,
             **learning_kwargs
         )
-
-    learner_train_dataloaders = []
-    learner_test_dataloaders = []
-
-    for i in range(n_learners):
-        if test_data_folder is not None:
-            learner_train_dataloaders.append(
-                prepare_data_loader(train_data_folders[i], train=True, train_ratio=train_ratio, **learning_kwargs))
-            learner_test_dataloaders.append(
-                prepare_data_loader(test_data_folders[i], train=True, train_ratio=train_ratio, **learning_kwargs))
-        else:
-            learner_train_dataloaders.append(
-                prepare_data_loader(train_data_folders[i], train=True, **learning_kwargs))
-            learner_test_dataloaders.append(
-                prepare_data_loader(train_data_folders[i], train=False, **learning_kwargs))
+    else:
+        test_data_folders = [None] * n_learners
 
     all_learner_models = []
     for i in range(n_learners):
+        learner_dataloaders = prepare_data_loaders(train_folder=train_data_folders[i],
+                                                  test_folder=test_data_folders[i],
+                                                  **learning_kwargs)
+
         all_learner_models.append(prepare_learner(model_type=model_type,
-                                                  train_loader=learner_train_dataloaders[i],
-                                                  test_loader=learner_test_dataloaders[i],
+                                                  data_loaders=learner_dataloaders,
                                                   **learning_kwargs))
 
     set_equal_weights(all_learner_models)

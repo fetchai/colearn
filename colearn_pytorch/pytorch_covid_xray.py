@@ -3,13 +3,15 @@ import os
 from enum import Enum
 from pathlib import Path
 import pickle
+from typing import Tuple, List, Optional
+from typing_extensions import TypedDict
 import numpy as np
 import scipy.io as sio
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
-from torch.utils.data import TensorDataset
+from torch.utils.data import TensorDataset, DataLoader
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import KernelPCA
@@ -34,9 +36,14 @@ def prepare_model(model_type: ModelType):
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learning_rate=0.001, steps_per_epoch=40,
-                    vote_batches=10,
-                    no_cuda=False, vote_on_accuracy=True, **kwargs):
+def prepare_learner(model_type: ModelType,
+                    data_loaders: Tuple[DataLoader, DataLoader],
+                    learning_rate: float = 0.001,
+                    steps_per_epoch: int = 40,
+                    vote_batches: int = 10,
+                    no_cuda: bool = False,
+                    vote_on_accuracy: bool = True,
+                    **kwargs):
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
@@ -55,8 +62,8 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
     learner = NewPytorchLearner(
         model=model,
-        train_loader=train_loader,
-        test_loader=test_loader,
+        train_loader=data_loaders[0],
+        test_loader=data_loaders[1],
         device=device,
         optimizer=opt,
         criterion=torch.nn.NLLLoss(),
@@ -68,31 +75,51 @@ def prepare_learner(model_type: ModelType, train_loader, test_loader=None, learn
     return learner
 
 
-def prepare_data_loader(data_folder, train=True, train_ratio=0.8, batch_size=8, no_cuda=False, **kwargs):
-    data = pickle.load(open(Path(data_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(data))
-    assert (n_cases > 0), "There are no cases"
-    if train:
-        data = data[:n_cases]
-        labels = labels[:n_cases]
-    else:
-        data = data[n_cases:]
-        labels = labels[n_cases:]
-
-    cuda = not no_cuda and torch.cuda.is_available()
-    loader_kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
-
+def _make_loader(data: np.array,
+                 labels: np.array,
+                 batch_size: int,
+                 **loader_kwargs) -> DataLoader:
     # Create tensor dataset
     data_tensor = torch.FloatTensor(data)
     labels_tensor = torch.LongTensor(labels)
     dataset = TensorDataset(data_tensor, labels_tensor)
-    loader = torch.utils.data.DataLoader(
+    loader = DataLoader(
         dataset,
         batch_size=batch_size, shuffle=True, **loader_kwargs)
 
     return loader
+
+
+def prepare_data_loaders(train_folder: str,
+                         train_ratio: float = 0.8,
+                         batch_size: int = 8,
+                         no_cuda: bool = False,
+                         **kwargs) -> Tuple[DataLoader, DataLoader]:
+    """
+    Load training data from folders and create train and test dataloader
+
+    :param train_folder: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param batch_size:
+    :param no_cuda: Disable GPU computing
+    :param kwargs:
+    :return: Tuple of train_loader and test_loader
+    """
+
+    cuda = not no_cuda and torch.cuda.is_available()
+    DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+    loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+
+    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(data))
+    assert (n_cases > 0), "There are no cases"
+
+    train_loader = _make_loader(data[:n_cases], labels[:n_cases], batch_size, **loader_kwargs)
+    test_loader = _make_loader(data[n_cases:], labels[n_cases:], batch_size, **loader_kwargs)
+
+    return train_loader, test_loader
 
 
 # define the neural net architecture in Pytorch
@@ -120,11 +147,11 @@ class TorchCovidXrayPerceptronModel(nn.Module):
 # this is modified from the version in xray/data in order to keep the directory structure
 # e.g. when the data is in NORMAL and PNEU directories these will also be in each of the split dirs
 def split_to_folders(
-        data_dir,
-        n_learners,
-        data_split=None,
-        shuffle_seed=None,
-        output_folder=None,
+        data_dir: str,
+        n_learners: int,
+        data_split: Optional[List[float]] = None,
+        shuffle_seed: Optional[int] = None,
+        output_folder: Optional[Path] = None,
         **kwargs
 ):
     if output_folder is None:
