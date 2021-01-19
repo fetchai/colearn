@@ -26,7 +26,7 @@ There are three steps:
 In this tutorial we are going to see how to modify each step to use collective learning. 
 We'll end up with code like this:
 ```Python hl_lines="45 65 109"
-{!../colearn_examples_pytorch/new_pytorch_mnist.py!}
+{!../examples/pytorch_mnist.py!}
 ```
 
 The first thing is to modify the data loading code.

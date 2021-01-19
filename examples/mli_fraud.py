@@ -1,44 +1,20 @@
 import os
-import pickle
-import tempfile
-from enum import Enum
 from pathlib import Path
-from typing import Optional, List, Tuple
-
 import numpy as np
 import pandas as pd
 import sklearn
+
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
-from colearn.utils.data import shuffle_data
-from colearn.utils.data import split_by_chunksizes
-
-DATA_FL = "data.pickle"
-LABEL_FL = "labels.pickle"
+from colearn.training import initial_result, collective_learning_round, set_equal_weights
+from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.results import Results
 
 
-class ModelType(Enum):
-    SVM = 1
-
-
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
-                    **_kwargs):
-    if model_type == ModelType.SVM:
-        return FraudLearner(
-            train_data=data_loaders[0][0],
-            train_labels=data_loaders[0][1],
-            test_data=data_loaders[1][0],
-            test_labels=data_loaders[1][1])
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
-
-
-def _infinite_batch_sampler(data_size: int,
-                            batch_size: int):
+def infinite_batch_sampler(data_size, batch_size):
     while True:
         random_ind = np.random.permutation(np.arange(data_size))
         for i in range(0, data_size, batch_size):
@@ -46,11 +22,7 @@ def _infinite_batch_sampler(data_size: int,
 
 
 class FraudLearner(MachineLearningInterface):
-    def __init__(self,
-                 train_data: np.array,
-                 train_labels: np.array,
-                 test_data: np.array,
-                 test_labels: np.array,
+    def __init__(self, train_data, train_labels, test_data, test_labels,
                  batch_size: int = 10000,
                  steps_per_round: int = 1):
         self.steps_per_round = steps_per_round
@@ -61,13 +33,12 @@ class FraudLearner(MachineLearningInterface):
         self.test_labels = test_labels
 
         self.class_labels = np.unique(train_labels)
-        self.train_sampler = _infinite_batch_sampler(train_data.shape[0], batch_size)
+        self.train_sampler = infinite_batch_sampler(train_data.shape[0], batch_size)
 
         self.model = SGDClassifier(max_iter=1, verbose=0, loss="modified_huber")
         self.model.partial_fit(self.train_data[0:1], self.train_labels[0:1],
                                classes=self.class_labels)  # this needs to be called before predict
         self.vote_score = self.test(self.train_data, self.train_labels)
-        self.score_name = "mean_accuracy"
 
     def mli_propose_weights(self) -> Weights:
         current_weights = self.mli_get_current_weights()
@@ -82,7 +53,7 @@ class FraudLearner(MachineLearningInterface):
         self.set_weights(current_weights)
         return new_weights
 
-    def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
+    def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
@@ -118,41 +89,7 @@ class FraudLearner(MachineLearningInterface):
             return 0
 
 
-def prepare_data_loaders(train_folder: str,
-                         train_ratio: float = 0.8,
-                         **_kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
-    """
-    Load training data from folders and create train and test arrays
-
-    :param train_folder: Path to training dataset
-    :param train_ratio: What portion of train_data should be used as test set
-    :param kwargs:
-    :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
-    """
-
-    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(data))
-    assert (n_cases > 0), "There are no cases"
-
-    # (train_data, train_labels), (test_data, test_labels)
-    return (data[:n_cases], labels[:n_cases]), (data[n_cases:], labels[n_cases:])
-
-
-def split_to_folders(
-        data_dir: str,
-        n_learners: int,
-        data_split: Optional[List[float]] = None,
-        shuffle_seed: Optional[int] = None,
-        output_folder: Optional[Path] = None,
-        **_kwargs):
-    if output_folder is None:
-        output_folder = Path(tempfile.gettempdir()) / "fraud"
-
-    if data_split is None:
-        data_split = [1 / n_learners] * n_learners
-
+def fraud_preprocessing(data_dir, data_file, labels_file):
     train_identity = pd.read_csv(str(Path(data_dir) / "train_identity.csv"))
     train_transaction = pd.read_csv(str(Path(data_dir) / "train_transaction.csv"))
     # Combine the data and work with the whole dataset
@@ -192,25 +129,70 @@ def split_to_folders(
 
     data = scale(data)
 
-    [data, labels] = shuffle_data(
-        [data, labels], seed=shuffle_seed
-    )
+    np.save(data_file, data)
+    np.save(labels_file, labels)
+    return data, labels
 
-    [data, labels] = split_by_chunksizes(
-        [data, labels], data_split
-    )
 
-    local_output_dir = Path(output_folder)
+if __name__ == "__main__":
+    data_dir = '/home/emmasmith/Development/datasets/fraud'
+    train_fraction = 0.9
+    n_learners = 5
+    n_epochs = 7
+    vote_threshold = 0.5
 
-    dir_names = []
+    preprocessed_data_file = Path(data_dir) / "data.npy"
+    preprocessed_labels_file = Path(data_dir) / "labels.npy"
+
+    if os.path.isfile(preprocessed_data_file) and os.path.isfile(preprocessed_labels_file):
+        data: np.array = np.load(preprocessed_data_file)
+        labels: np.array = np.load(preprocessed_labels_file)
+    else:
+        data, labels = fraud_preprocessing(data_dir, preprocessed_data_file, preprocessed_labels_file)
+
+    n_datapoints = data.shape[0]
+    random_indices = np.random.permutation(np.arange(n_datapoints))
+    n_data_per_learner = n_datapoints // n_learners
+
+    learner_train_data, learner_train_labels, learner_test_data, learner_test_labels = [], [], [], []
     for i in range(n_learners):
-        dir_name = local_output_dir / str(i)
-        os.makedirs(str(dir_name), exist_ok=True)
+        start_ind = i * n_data_per_learner
+        stop_ind = (i + 1) * n_data_per_learner
+        n_train = int(n_data_per_learner * train_fraction)
 
-        pickle.dump(data[i], open(dir_name / DATA_FL, "wb"))
-        pickle.dump(labels[i], open(dir_name / LABEL_FL, "wb"))
+        learner_train_ind = random_indices[start_ind:start_ind + n_train]
+        learner_test_ind = random_indices[start_ind + n_train:stop_ind]
 
-        dir_names.append(dir_name)
+        learner_train_data.append(data[learner_train_ind])
+        learner_train_labels.append(labels[learner_train_ind])
+        learner_test_data.append(data[learner_test_ind])
+        learner_test_labels.append(labels[learner_test_ind])
 
-    print(dir_names)
-    return [str(x) for x in dir_names]
+    all_learner_models = []
+    for i in range(n_learners):
+        all_learner_models.append(
+            FraudLearner(
+                train_data=learner_train_data[i],
+                train_labels=learner_train_labels[i],
+                test_data=learner_test_data[i],
+                test_labels=learner_test_labels[i]
+            ))
+
+    set_equal_weights(all_learner_models)
+
+    results = Results()
+    # Get initial score
+    results.data.append(initial_result(all_learner_models))
+
+    for epoch in range(n_epochs):
+        results.data.append(
+            collective_learning_round(all_learner_models,
+                                      vote_threshold, epoch)
+        )
+
+        # then make an updating graph
+        plot_results(results, n_learners, score_name="accuracy")
+        plot_votes(results)
+
+    plot_results(results, n_learners, score_name="accuracy")
+    plot_votes(results, block=True)
