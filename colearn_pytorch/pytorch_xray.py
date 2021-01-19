@@ -14,7 +14,7 @@ import torch.nn as nn
 import torch.nn.functional as nn_func
 from torch.utils.data import Dataset, DataLoader
 
-from colearn_pytorch.new_pytorch_learner import PytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import auc_from_logits
 
 

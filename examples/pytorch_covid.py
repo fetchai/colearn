@@ -15,7 +15,7 @@ from colearn.training import initial_result, collective_learning_round, set_equa
 from colearn.utils.plot import plot_results, plot_votes
 from colearn.utils.results import Results
 from colearn_pytorch.utils import categorical_accuracy, prepare_data_split_list
-from colearn_pytorch.new_pytorch_learner import PytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner
 
 """
 COVID-XRAY training example using PyTorch

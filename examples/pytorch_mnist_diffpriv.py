@@ -9,7 +9,7 @@ from torchvision import transforms, datasets
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import plot_results, plot_votes
 from colearn.utils.results import Results
-from colearn_pytorch.new_pytorch_learner import PytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner
 
 # define some constants
 n_learners = 5

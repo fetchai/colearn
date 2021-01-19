@@ -18,7 +18,7 @@ from typing_extensions import TypedDict
 
 from colearn.utils.data import shuffle_data
 from colearn.utils.data import split_by_chunksizes
-from colearn_pytorch.new_pytorch_learner import PytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import categorical_accuracy
 
 DATA_FL = "data.pickle"

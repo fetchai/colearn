@@ -6,7 +6,7 @@ import torch.utils.data
 from torch.nn.modules.loss import _Loss
 
 from colearn.ml_interface import Weights
-from colearn_pytorch.new_pytorch_learner import PytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner
 
 MODEL_PARAMETERS = [torch.tensor([3, 3]), torch.tensor([4, 4])]
 MODEL_PARAMETERS2 = [torch.tensor([5, 5]), torch.tensor([6, 6])]
