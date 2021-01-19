@@ -6,7 +6,7 @@ from colearn_examples.utils.data import split_by_chunksizes
 import os
 import pickle
 import numpy as np
-from typing import Optional
+from typing import Optional, List, Tuple
 import sklearn
 
 from sklearn.linear_model import SGDClassifier
@@ -25,7 +25,9 @@ class ModelType(Enum):
     SVM = 1
 
 
-def prepare_learner(model_type: ModelType, data_loaders, **kwargs):
+def prepare_learner(model_type: ModelType,
+                    data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
+                    **kwargs):
     if model_type == ModelType.SVM:
         return FraudLearner(
             train_data=data_loaders[0][0],
@@ -36,7 +38,8 @@ def prepare_learner(model_type: ModelType, data_loaders, **kwargs):
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def infinite_batch_sampler(data_size, batch_size):
+def _infinite_batch_sampler(data_size: int,
+                            batch_size: int):
     while True:
         random_ind = np.random.permutation(np.arange(data_size))
         for i in range(0, data_size, batch_size):
@@ -44,7 +47,11 @@ def infinite_batch_sampler(data_size, batch_size):
 
 
 class FraudLearner(MachineLearningInterface):
-    def __init__(self, train_data, train_labels, test_data, test_labels,
+    def __init__(self,
+                 train_data: np.array,
+                 train_labels: np.array,
+                 test_data: np.array,
+                 test_labels: np.array,
                  batch_size: int = 10000,
                  steps_per_round: int = 1):
         self.steps_per_round = steps_per_round
@@ -55,7 +62,7 @@ class FraudLearner(MachineLearningInterface):
         self.test_labels = test_labels
 
         self.class_labels = np.unique(train_labels)
-        self.train_sampler = infinite_batch_sampler(train_data.shape[0], batch_size)
+        self.train_sampler = _infinite_batch_sampler(train_data.shape[0], batch_size)
 
         self.model = SGDClassifier(max_iter=1, verbose=0, loss="modified_huber")
         self.model.partial_fit(self.train_data[0:1], self.train_labels[0:1],
@@ -112,7 +119,18 @@ class FraudLearner(MachineLearningInterface):
             return 0
 
 
-def prepare_data_loader(train_folder, train_ratio=0.8, batch_size=32, **kwargs):
+def prepare_data_loaders(train_folder: str,
+                         train_ratio: float = 0.8,
+                         **kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
+    """
+    Load training data from folders and create train and test arrays
+
+    :param train_folder: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param kwargs:
+    :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
+    """
+
     data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
     labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
 
@@ -124,11 +142,11 @@ def prepare_data_loader(train_folder, train_ratio=0.8, batch_size=32, **kwargs):
 
 
 def split_to_folders(
-        data_dir,
-        n_learners,
-        data_split=None,
-        shuffle_seed=None,
-        output_folder=None,
+        data_dir: str,
+        n_learners: int,
+        data_split: Optional[List[float]] = None,
+        shuffle_seed: Optional[int] = None,
+        output_folder: Optional[Path] = None,
         **kwargs):
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "fraud"
