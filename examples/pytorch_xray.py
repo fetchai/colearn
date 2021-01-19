@@ -1,119 +1,48 @@
 import os
 import random as rand
 import tempfile
-from enum import Enum
 from glob import glob
 from pathlib import Path
-from typing import Tuple, Optional, List
 from typing_extensions import TypedDict
 
-import cv2
 import numpy as np
-import torch
+import cv2
 import torch.nn as nn
 import torch.nn.functional as nn_func
-from torch.utils.data import Dataset, DataLoader
+import torch.utils.data
+from torch.utils.data import Dataset
+from torchsummary import summary
 
+from colearn.training import initial_result, collective_learning_round, set_equal_weights
+from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.results import Results
+from colearn_pytorch.utils import auc_from_logits
 from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
-from .utils import auc_from_logits
+
+# define some constants
+n_learners = 5
+batch_size = 8
+seed = 42
+n_epochs = 15
+vote_threshold = 0.5
+learning_rate = 0.001
+height = 128
+width = 128
+channels = 1
+n_classes = 1
+
+steps_per_epoch = 10
+vote_batches = 13  # number of batches used for voting
+vote_using_auc = True
+
+no_cuda = False
+cuda = not no_cuda and torch.cuda.is_available()
+device = torch.device("cuda" if cuda else "cpu")
+DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 
-class ModelType(Enum):
-    CONV2D = 1
-
-
-def prepare_model(model_type: ModelType):
-    if model_type == ModelType.CONV2D:
-        return TorchXrayConv2DModel()
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
-
-
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[DataLoader, DataLoader],
-                    learning_rate: float = 0.001,
-                    steps_per_epoch: int = 40,
-                    vote_batches: int = 10,
-                    no_cuda: bool = False,
-                    vote_using_auc: bool = True,
-                    **_kwargs):
-    cuda = not no_cuda and torch.cuda.is_available()
-    device = torch.device("cuda" if cuda else "cpu")
-
-    model = prepare_model(model_type)
-
-    if vote_using_auc:
-        learner_vote_kwargs = dict(
-            vote_criterion=auc_from_logits,
-            minimise_criterion=False)
-        score_name = "auc"
-    else:
-        learner_vote_kwargs = {}
-        score_name = "loss"
-
-    # Make n instances of NewPytorchLearner with model and torch dataloaders
-    opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    learner = NewPytorchLearner(
-        model=model,
-        train_loader=data_loaders[0],
-        test_loader=data_loaders[1],
-        device=device,
-        optimizer=opt,
-        criterion=nn.BCEWithLogitsLoss(
-            # pos_weight=pos_weight,
-            reduction='mean'),
-        num_train_batches=steps_per_epoch,
-        num_test_batches=vote_batches,
-        score_name=score_name,
-        **learner_vote_kwargs  # type: ignore[arg-type]
-    )
-
-    return learner
-
-
-def prepare_data_loaders(train_folder: str,
-                         test_folder: Optional[str] = None,
-                         train_ratio: float = 0.96,
-                         batch_size: int = 8,
-                         no_cuda: bool = False,
-                         **_kwargs) -> Tuple[DataLoader, DataLoader]:
-    """
-    Load training data from folders and create train and test dataloader
-
-    :param train_folder: Path to training dataset
-    :param test_folder: Path to test dataset
-    :param train_ratio: When test_folder is not specified what portion of train_data should be used as test set
-    :param batch_size:
-    :param no_cuda: Disable GPU computing
-    :param kwargs:
-    :return: Tuple of train_loader and test_loader
-    """
-
-    cuda = not no_cuda and torch.cuda.is_available()
-    DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
-    loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
-
-    if test_folder is not None:
-        train_loader = DataLoader(
-            XrayDataset(train_folder, train=True, train_ratio=1.0),
-            batch_size=batch_size, shuffle=True, **loader_kwargs)
-
-        test_loader = DataLoader(
-            XrayDataset(test_folder, train=True, train_ratio=1.0),
-            batch_size=batch_size, shuffle=True, **loader_kwargs)
-    else:
-        train_loader = DataLoader(
-            XrayDataset(train_folder, train=True, train_ratio=train_ratio),
-            batch_size=batch_size, shuffle=True, **loader_kwargs)
-
-        test_loader = DataLoader(
-            XrayDataset(train_folder, train=False, train_ratio=train_ratio),
-            batch_size=batch_size, shuffle=True, **loader_kwargs)
-
-    return train_loader, test_loader
-
-
-class TorchXrayConv2DModel(nn.Module):
+class Net(nn.Module):
     """_________________________________________________________________
 Layer (type)                 Output Shape              Param #
 =================================================================
@@ -139,12 +68,12 @@ Non-trainable params: 192
 _________________________________________________________________"""
 
     def __init__(self):
-        super(TorchXrayConv2DModel, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, (3, 3), padding=1)
+        super(Net, self).__init__()
+        self.conv1 = nn.Conv2d(channels, 32, (3, 3), padding=1)
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, (3, 3), padding=1)
         self.bn2 = nn.BatchNorm2d(64)
-        self.fc1 = nn.Linear(64, 1)
+        self.fc1 = nn.Linear(64, n_classes)
 
     def forward(self, x):
         x = nn_func.relu(self.conv1(x))
@@ -162,32 +91,19 @@ _________________________________________________________________"""
 class XrayDataset(Dataset):
     """X-ray dataset."""
 
-    def __init__(self,
-                 data_dir,
-                 transform=None,
-                 train=True,
-                 train_ratio=0.96,
-                 seed=None,
-                 width=128,
-                 height=128,
-                 **_kwargs):
+    def __init__(self, data_dir, width=width, height=height, seed=seed, transform=None, train=True, train_ratio=0.96):
         """
         Args:
             data_dir (string): Path to the data directory.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-
         self.width, self.height = width, height
-        self.seed = seed
-
         self.cases = list(Path(data_dir).rglob('*.jp*'))  # list of filenames
         if len(self.cases) == 0:
-            raise Exception("No data found in path: " + str(data_dir))
+            raise Exception("No data foud in path: " + str(data_dir))
 
-        if self.seed is not None:
-            rand.seed(self.seed)
-
+        rand.seed(seed)
         rand.shuffle(self.cases)
 
         n_cases = int(train_ratio * len(self.cases))
@@ -250,20 +166,13 @@ class XrayDataset(Dataset):
 # this is modified from the version in xray/data in order to keep the directory structure
 # e.g. when the data is in NORMAL and PNEU directories these will also be in each of the split dirs
 def split_to_folders(
-        data_dir: str,
-        n_learners: int,
-        data_split: Optional[List[float]] = None,
-        shuffle_seed: Optional[int] = None,
-        output_folder: Optional[Path] = None,
-        train: bool = True,
-        **_kwargs
-):
-    if output_folder is None:
-        if train:
-            output_folder = Path(tempfile.gettempdir()) / "train_xray"
-        else:
-            output_folder = Path(tempfile.gettempdir()) / "test_xray"
+        data_dir,
+        n_learners,
+        data_split=None,
+        shuffle_seed=None,
+        output_folder=Path(tempfile.gettempdir()) / "xray",
 
+):
     if not os.path.isdir(data_dir):
         raise Exception("Data dir does not exist: " + str(data_dir))
 
@@ -311,3 +220,83 @@ def split_to_folders(
 
     print(dir_names)
     return dir_names
+
+
+# lOAD DATA
+full_train_data_folder = "/home/emmasmith/Development/datasets/chest_xray/train"
+full_test_data_folder = "/home/emmasmith/Development/datasets/chest_xray/test"
+train_data_folders = split_to_folders(
+    full_train_data_folder,
+    shuffle_seed=42,
+    n_learners=n_learners)
+
+test_data_folders = split_to_folders(
+    full_test_data_folder,
+    shuffle_seed=42,
+    n_learners=n_learners,
+    output_folder='/tmp/xray_test'
+)
+
+learner_train_dataloaders = []
+learner_test_dataloaders = []
+
+for i in range(n_learners):
+    learner_train_dataloaders.append(torch.utils.data.DataLoader(
+        XrayDataset(train_data_folders[i], train_ratio=1),
+        batch_size=batch_size, shuffle=True, **kwargs)
+    )
+    learner_test_dataloaders.append(torch.utils.data.DataLoader(
+        XrayDataset(test_data_folders[i], train_ratio=1),
+        batch_size=batch_size, shuffle=True, **kwargs)
+    )
+
+if vote_using_auc:
+    learner_vote_kwargs = dict(
+        vote_criterion=auc_from_logits,
+        minimise_criterion=False)
+    score_name = "auc"
+else:
+    learner_vote_kwargs = {}
+    score_name = "loss"
+
+# Make n instances of NewPytorchLearner with model and torch dataloaders
+all_learner_models = []
+for i in range(n_learners):
+    model = Net()
+    opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    learner = NewPytorchLearner(
+        model=model,
+        train_loader=learner_train_dataloaders[i],
+        test_loader=learner_test_dataloaders[i],
+        device=device,
+        optimizer=opt,
+        criterion=nn.BCEWithLogitsLoss(
+            reduction='mean'),
+        num_train_batches=steps_per_epoch,
+        num_test_batches=vote_batches,
+        **learner_vote_kwargs  # type: ignore[arg-type]
+    )
+
+    all_learner_models.append(learner)
+
+set_equal_weights(all_learner_models)
+
+# print a summary of the model architecture
+summary(all_learner_models[0].model, input_size=(1, width, height))
+
+# Now we're ready to start collective learning
+# Get initial accuracy
+results = Results()
+results.data.append(initial_result(all_learner_models))
+
+for epoch in range(n_epochs):
+    results.data.append(
+        collective_learning_round(all_learner_models,
+                                  vote_threshold, epoch)
+    )
+
+    plot_results(results, n_learners, score_name=score_name)
+    plot_votes(results)
+
+plot_results(results, n_learners, score_name=score_name)
+plot_votes(results, block=True)

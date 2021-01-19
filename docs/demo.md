@@ -18,14 +18,14 @@ There are three potential datasets for the demo
 
 Use the -h flag to see the options:
 ```bash
-bin/run_demo.py -h
+examples/run_demo.py -h
 ```
 
 ## Running MNIST
 The simplest task to run is MNIST because this doesn't require downloading the data. 
 This runs the MNIST task with five learners for 15 epochs.
 ```bash
-bin/run_demo.py -t MNIST -n 5 -e 15
+examples/run_demo.py -t MNIST -n 5 -e 15
 ```
 You should see a graph of the vote score and the test score (the score used here is area under the curve (AUC)).
 
@@ -38,9 +38,9 @@ In round one, learner 0 is selected to propose a new set of weights.
 The Fraud and X-ray datasets need to be downloaded from kaggle (this requires a kaggle account).
 To run the fraud dataset:
 ```bash
-bin/run_demo.py -t FRAUD -n 5 -e 15 -d ./data/fraud
+examples/run_demo.py -t FRAUD -n 5 -e 15 -d ./data/fraud
 ```
 To run the X-ray dataset:
 ```bash
-bin/run_demo.py -t XRAY -n 5 -e 15 -d ./data/xray
+examples/run_demo.py -t XRAY -n 5 -e 15 -d ./data/xray
 ```

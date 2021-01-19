@@ -62,7 +62,7 @@ class FraudSklearnLearner(MachineLearningInterface):
         self.set_weights(current_weights)
         return new_weights
 
-    def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
+    def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
@@ -129,7 +129,7 @@ Here's we're using accuracy, so the vote is true if the score increases.
 This method then resets the weights to the old values and returns the vote
 along with some scores for monitoring purposes.
 ```Python 
-    def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
+    def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 

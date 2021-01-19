@@ -26,7 +26,7 @@ There are three steps:
 In this tutorial we are going to see how to modify each step to use collective learning. 
 We'll end up with code like this:
 ```Python hl_lines="20 45 87"
-{!../colearn_examples_keras/mnist_keras_example.py!}
+{!../examples/keras_mnist.py!}
 ```
 
 The first thing is to modify the data loading code.
@@ -44,7 +44,7 @@ To make it easier to use the `MachineLearningInterface` with keras, we've define
 `KerasLearner` implements standard training and evaluation routines as well as the MachineLearningInterface methods.
 
 ```Python 
-{!../colearn_examples_keras/new_keras_learner.py!}
+{!../colearn_keras/new_keras_learner.py!}
 ```
 
 We create a set of KerasLearners by passing in the model and the datasets:
