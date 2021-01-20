@@ -10,10 +10,14 @@ This library is currently in development.
 ## Installation
 Setup an environment
 
-`pipenv --python 3.6 && pipenv shell`
+```bash
+pipenv --python 3.6 shell
+```
+
+Then do the installation
 
 ```bash
-pip install -e ./
+pip install -r requirements.txt -e ./
 ```
 Running the tests:
 ```

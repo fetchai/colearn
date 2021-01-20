@@ -52,4 +52,5 @@ coverage.xml
 *.db
 
 # mkdocs
+Pipfile
 site/

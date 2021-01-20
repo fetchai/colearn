@@ -25,22 +25,32 @@ The current framework will then be used mainly for model development and debuggi
 We invite all users to experiment with the framework, develop their own models, and provide feedback!
 
 ## Installation
-Setup an environment
-
-`pipenv --python 3.6 && pipenv shell`
+After cloning the repository:
 
 ```bash
-pip install -e ./
+git clone git@github.com:fetchai/colearn.git
 ```
-Running the tests:
+
+Set up the environment:
+
+```
+pipenv --python 3.6 shell
+```
+
+Then install the dependencies and the colearn repo:
+
+```bash
+pip install -r requirements.txt -e ./
+```
+To run the tests:
 ```
 tox
 ```
 
 ## Running the demo
 ```bash
-examples/run_demo.py -t MNIST
-``` 
+examples/run_demo.py
+```
 For other demo options see [here](./demo.md)
 
 ## Writing your own models
