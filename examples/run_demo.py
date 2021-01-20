@@ -2,7 +2,13 @@
 import argparse
 import os
 
-from colearn_other.new_demo import main, TaskType
+from colearn_other.demo import main, TaskType
+
+"""
+Collectie learning demo:
+
+Demo for running all available examples
+"""
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
 parser.add_argument("-d", "--train_dir", default=None, help="Directory for training data")

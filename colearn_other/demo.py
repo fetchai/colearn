@@ -14,6 +14,17 @@ def main(str_task_type: str,
          test_data_folder: Optional[str] = None,
          str_model_type: Optional[str] = None,
          **learning_kwargs):
+    """
+
+    :param str_task_type: String task type
+    :param n_learners: Number of learners
+    :param n_epochs: Number of epochs
+    :param vote_threshold: Minimum fraction of positive votes to accept new weights
+    :param train_data_folder: Path to training dataset
+    :param test_data_folder: Optional path to testing dataset
+    :param str_model_type: String model type
+    :param learning_kwargs: Learning parameters
+    """
     # Resolve task type
     task_type = TaskType[str_task_type]
 

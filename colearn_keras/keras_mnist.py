@@ -92,7 +92,7 @@ def prepare_learner(model_type: ModelType,
     :param vote_batches: Number of batches to get vote_accuracy
     :param learning_rate: Learning rate for optimiser
     :param _kwargs: Residual parameters not used by this function
-    :return:
+    :return: New instance of KerasLearner
     """
     learner = KerasLearner(
         model=_prepare_model(model_type, learning_rate),
@@ -113,7 +113,7 @@ def _make_loader(images: np.array,
     Converts array of images and labels to Tensorflow dataset
     :param images: Numpy array of input data
     :param labels:  Numpy array of output labels
-    :param batch_size: size of training batch
+    :param batch_size: Batch size
     :return: Shuffled Tensorflow prefetch dataset holding images and labels
     """
     dataset = tf.data.Dataset.from_tensor_slices((images, labels))
@@ -159,12 +159,12 @@ def split_to_folders(
 ):
     """
     Loads images with labels and splits them to specified number of subsets
-    :param n_learners: Number of splitted parts
+    :param n_learners: Number of parts for splitting
     :param data_split: List of percentage portions for each subset
     :param shuffle_seed: Seed for shuffling
     :param output_folder: Folder where splitted parts will be stored as numbered subfolders
     :param _kwargs: Residual parameters not used by this function
-    :return: List of folders with individual subsets
+    :return: List of folders containing individual subsets
     """
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "mnist"

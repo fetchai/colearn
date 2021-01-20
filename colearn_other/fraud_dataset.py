@@ -208,12 +208,12 @@ def split_to_folders(
     """
     Loads fraud dataset, preprocesses and splits it to specified number of subsets
     :param data_dir: Folder containing Fraud dataset .csv files
-    :param n_learners: Number of splitted parts
+    :param n_learners: Number of parts for splitting
     :param data_split:  List of percentage portions for each subset
     :param shuffle_seed: Seed for shuffling
     :param output_folder: Folder where splitted parts will be stored as numbered subfolders
     :param _kwargs: Residual parameters not used by this function
-    :return: List of folders with individual subsets
+    :return: List of folders containing individual subsets
     """
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "fraud"

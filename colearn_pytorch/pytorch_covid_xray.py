@@ -29,7 +29,13 @@ class ModelType(Enum):
     MULTILAYER_PERCEPTRON = 1
 
 
-def prepare_model(model_type: ModelType):
+def prepare_model(model_type: ModelType) -> nn.Module:
+    """
+    Creates a new instance of selected Keras model
+    :param model_type: Enum that represents selected model type
+    :return: New instance of Pytorch model
+    """
+
     if model_type == ModelType.MULTILAYER_PERCEPTRON:
         return TorchCovidXrayPerceptronModel()
     else:
@@ -43,7 +49,19 @@ def prepare_learner(model_type: ModelType,
                     vote_batches: int = 10,
                     no_cuda: bool = False,
                     vote_on_accuracy: bool = True,
-                    **_kwargs):
+                    **_kwargs) -> PytorchLearner:
+    """
+    Creates new instance of PytorchLearner
+    :param model_type: Enum that represents selected model type
+    :param data_loaders: Tuple of train_loader and test_loader
+    :param learning_rate: Learning rate for optimiser
+    :param steps_per_epoch: Number of batches per training epoch
+    :param vote_batches: Number of batches to get vote_accuracy
+    :param no_cuda: True = disable GPU computing
+    :param vote_on_accuracy: True = vote on accuracy metric, False = vote on loss
+    :param _kwargs: Residual parameters not used by this function
+    :return: New instance of PytorchLearner
+    """
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
@@ -79,6 +97,14 @@ def _make_loader(data: np.array,
                  labels: np.array,
                  batch_size: int,
                  **loader_kwargs) -> DataLoader:
+    """
+    Converts array of images and labels to Pytorch DataLoader
+    :param data: Numpy array of input data
+    :param labels: Numpy array of output labels
+    :param batch_size: Size of training batch
+    :param loader_kwargs: Arguments to be passed to DataLoader
+    :return: Shuffled Pytorch DataLoader holding data and labels
+    """
     # Create tensor dataset
     data_tensor = torch.FloatTensor(data)
     labels_tensor = torch.LongTensor(labels)
@@ -100,9 +126,9 @@ def prepare_data_loaders(train_folder: str,
 
     :param train_folder: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
-    :param batch_size:
+    :param batch_size: Batch size
     :param no_cuda: Disable GPU computing
-    :param kwargs:
+    :param _kwargs: Residual parameters not used by this function
     :return: Tuple of train_loader and test_loader
     """
 
@@ -153,7 +179,17 @@ def split_to_folders(
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
         **_kwargs
-):
+) -> List[str]:
+    """
+    Loads preprocessed images with labels from .mat files and splits them to specified number of subsets
+    :param data_dir: Directory containing .mat files
+    :param n_learners: Number of parts for splitting
+    :param data_split: List of percentage portions for each subset
+    :param shuffle_seed: Seed for shuffling
+    :param output_folder: Folder where splitted parts will be stored as numbered subfolders
+    :param _kwargs: Residual parameters not used by this function
+    :return: List of folders containing individual subsets
+    """
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "covid_xray"
 
