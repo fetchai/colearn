@@ -24,28 +24,11 @@ class ModelType(Enum):
     SVM = 1
 
 
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
-                    **_kwargs):
-    if model_type == ModelType.SVM:
-        return FraudLearner(
-            train_data=data_loaders[0][0],
-            train_labels=data_loaders[0][1],
-            test_data=data_loaders[1][0],
-            test_labels=data_loaders[1][1])
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
-
-
-def _infinite_batch_sampler(data_size: int,
-                            batch_size: int):
-    while True:
-        random_ind = np.random.permutation(np.arange(data_size))
-        for i in range(0, data_size, batch_size):
-            yield random_ind[i:i + batch_size]
-
-
 class FraudLearner(MachineLearningInterface):
+    """
+    Fraud dataset learner implementation of machine learning interface using Scikit-learn
+    """
+
     def __init__(self,
                  train_data: np.array,
                  train_labels: np.array,
@@ -53,6 +36,14 @@ class FraudLearner(MachineLearningInterface):
                  test_labels: np.array,
                  batch_size: int = 10000,
                  steps_per_round: int = 1):
+        """
+        :param train_data: np.array of training data
+        :param train_labels: np.array of training labels
+        :param test_data:  np.array of testing data
+        :param test_labels: np.array of testing labels
+        :param batch_size:  Batch size
+        :param steps_per_round:  Number of training batches per round
+        """
         self.steps_per_round = steps_per_round
         self.batch_size = batch_size
         self.train_data = train_data
@@ -70,6 +61,12 @@ class FraudLearner(MachineLearningInterface):
         self.score_name = "mean_accuracy"
 
     def mli_propose_weights(self) -> Weights:
+        """
+        Trains model on training set and returns new weights after training
+        - Current model is reverted to original state after training
+        :return: Weights after training
+        """
+
         current_weights = self.mli_get_current_weights()
 
         for _ in range(self.steps_per_round):
@@ -83,6 +80,12 @@ class FraudLearner(MachineLearningInterface):
         return new_weights
 
     def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
+        """
+        Tests given weights on training and test set and returns weights with score values
+        :param weights: Weights to be tested
+        :return: ProposedWeights - Weights with vote and test score
+        """
+
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
@@ -100,22 +103,77 @@ class FraudLearner(MachineLearningInterface):
                                )
 
     def mli_accept_weights(self, weights: Weights):
+        """
+        Updates the model with the proposed set of weights
+        :param weights: The new weights
+        """
         self.set_weights(weights)
         self.vote_score = self.test(self.train_data, self.train_labels)
 
     def mli_get_current_weights(self):
+        """
+        :return: The current weights of the model
+        """
+
         return Weights(weights=dict(coef_=self.model.coef_,
                                     intercept_=self.model.intercept_))
 
     def set_weights(self, weights: Weights):
+        """
+        Rewrites weight of current model
+        :param weights: Weights to be stored
+        """
+
         self.model.coef_ = weights.weights['coef_']
         self.model.intercept_ = weights.weights['intercept_']
 
-    def test(self, data, labels):
+    def test(self,
+             data: np.array,
+             labels: np.array) -> float:
+        """
+        Tests performance of the model on specified dataset
+        :param data: np.array of data
+        :param labels: np.array of labels
+        :return: Value of performance metric
+        """
         try:
             return self.model.score(data, labels)
         except sklearn.exceptions.NotFittedError:
             return 0
+
+
+def prepare_learner(model_type: ModelType,
+                    data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
+                    **_kwargs) -> FraudLearner:
+    """
+    Creates a new instance of FraudLearner
+    :param model_type: Enum that represents selected model type
+    :param data_loaders: Tuple of tuples (train_data, train_labels), (test_data, test_labels)
+    :param _kwargs: Residual parameters not used by this function
+    :return: Instance of FraudLearner
+    """
+    if model_type == ModelType.SVM:
+        return FraudLearner(
+            train_data=data_loaders[0][0],
+            train_labels=data_loaders[0][1],
+            test_data=data_loaders[1][0],
+            test_labels=data_loaders[1][1])
+    else:
+        raise Exception("Model %s not part of the ModelType enum" % model_type)
+
+
+def _infinite_batch_sampler(data_size: int,
+                            batch_size: int):
+    """
+    Generates random array of indices
+    :param data_size: Number of samples in dataset
+    :param batch_size: Batch size
+    :yield: Batch of random indices
+    """
+    while True:
+        random_ind = np.random.permutation(np.arange(data_size))
+        for i in range(0, data_size, batch_size):
+            yield random_ind[i:i + batch_size]
 
 
 def prepare_data_loaders(train_folder: str,
@@ -147,6 +205,16 @@ def split_to_folders(
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
         **_kwargs):
+    """
+    Loads fraud dataset, preprocesses and splits it to specified number of subsets
+    :param data_dir: Folder containing Fraud dataset .csv files
+    :param n_learners: Number of splitted parts
+    :param data_split:  List of percentage portions for each subset
+    :param shuffle_seed: Seed for shuffling
+    :param output_folder: Folder where splitted parts will be stored as numbered subfolders
+    :param _kwargs: Residual parameters not used by this function
+    :return: List of folders with individual subsets
+    """
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "fraud"
 

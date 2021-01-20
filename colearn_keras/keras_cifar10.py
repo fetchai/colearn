@@ -24,7 +24,7 @@ class ModelType(Enum):
 
 def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Model:
     """
-    Creates new instance of selected Keras model
+    Creates a new instance of selected Keras model
     :param model_type: Enum that represents selected model type
     :param learning_rate: Learning rate for optimiser
     :return: New instance of Keras model
