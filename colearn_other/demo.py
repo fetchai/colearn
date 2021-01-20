@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Sequence
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import plot_results, plot_votes
@@ -58,6 +58,7 @@ def main(str_task_type: str,
         train=True,
         **learning_kwargs)
 
+    test_data_folders: Sequence[Optional[str]]
     if test_data_folder is not None:
         test_data_folders = split_to_folders(
             data_dir=test_data_folder,

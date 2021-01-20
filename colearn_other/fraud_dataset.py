@@ -127,9 +127,7 @@ class FraudLearner(MachineLearningInterface):
         self.model.coef_ = weights.weights['coef_']
         self.model.intercept_ = weights.weights['intercept_']
 
-    def test(self,
-             data: np.array,
-             labels: np.array) -> float:
+    def test(self, data: np.array, labels: np.array) -> float:
         """
         Tests performance of the model on specified dataset
         :param data: np.array of data
@@ -163,7 +161,7 @@ def prepare_learner(model_type: ModelType,
 
 
 def _infinite_batch_sampler(data_size: int,
-                            batch_size: int):
+                            batch_size: int) -> np.array:
     """
     Generates random array of indices
     :param data_size: Number of samples in dataset
@@ -204,7 +202,7 @@ def split_to_folders(
         data_split: Optional[List[float]] = None,
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
-        **_kwargs):
+        **_kwargs) -> List[str]:
     """
     Loads fraud dataset, preprocesses and splits it to specified number of subsets
     :param data_dir: Folder containing Fraud dataset .csv files

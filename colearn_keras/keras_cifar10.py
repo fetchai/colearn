@@ -35,7 +35,7 @@ def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Mode
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def _get_keras_cifar10_conv2D_model(learning_rate: float):
+def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
     """
     2D Convolutional model for image recognition
     :param learning_rate: Learning rate for optimiser
@@ -83,7 +83,7 @@ def prepare_learner(model_type: ModelType,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
-                    **_kwargs):
+                    **_kwargs) -> KerasLearner:
     """
     Creates new instance of KerasLearner
     :param model_type: Enum that represents selected model type
@@ -156,7 +156,7 @@ def split_to_folders(
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
         **_kwargs
-):
+) -> List[str]:
     """
     Loads images with labels and splits them to specified number of subsets
     :param n_learners: Number of parts for splitting

@@ -42,7 +42,7 @@ def prepare_learner(model_type: ModelType,
                     vote_batches: int = 10,
                     no_cuda: bool = False,
                     vote_on_accuracy: bool = True,
-                    **_kwargs):
+                    **_kwargs) -> PytorchLearner:
     """
     Creates new instance of PytorchLearner
     :param model_type: Enum that represents selected model type
@@ -297,7 +297,7 @@ def split_to_folders(
         output_folder: Optional[Path] = None,
         train: bool = True,
         **_kwargs
-):
+) -> List[str]:
     """
     :param data_dir: Path to directory containing xray images
     :param n_learners: Number of parts for splitting
@@ -360,4 +360,4 @@ def split_to_folders(
             start_ind = stop_ind
 
     print(dir_names)
-    return dir_names
+    return [str(x) for x in dir_names]
