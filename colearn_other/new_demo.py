@@ -62,7 +62,8 @@ def main(str_task_type: str,
         all_learner_models.append(mli_factory(str_task_type=str_task_type,
                                               str_model_type=str_model_type,
                                               train_folder=train_data_folders[i],
-                                              test_folder=test_data_folders[i]
+                                              test_folder=test_data_folders[i],
+                                              **learning_kwargs
                                               ))
 
     set_equal_weights(all_learner_models)
