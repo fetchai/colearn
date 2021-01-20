@@ -14,7 +14,7 @@ import torch.nn as nn
 import torch.nn.functional as nn_func
 from torch.utils.data import Dataset, DataLoader
 
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import auc_from_logits
 
 
@@ -51,9 +51,9 @@ def prepare_learner(model_type: ModelType,
         learner_vote_kwargs = {}
         score_name = "loss"
 
-    # Make n instances of NewPytorchLearner with model and torch dataloaders
+    # Make n instances of PytorchLearner with model and torch dataloaders
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    learner = NewPytorchLearner(
+    learner = PytorchLearner(
         model=model,
         train_loader=data_loaders[0],
         test_loader=data_loaders[1],

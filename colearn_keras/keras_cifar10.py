@@ -12,7 +12,7 @@ from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
 from colearn.utils.data import shuffle_data
 from colearn.utils.data import split_by_chunksizes
-from colearn_keras.new_keras_learner import NewKerasLearner
+from colearn_keras.keras_learner import KerasLearner
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
@@ -94,7 +94,7 @@ def prepare_learner(model_type: ModelType,
     :param _kwargs: Residual parameters not used by this function
     :return:
     """
-    learner = NewKerasLearner(
+    learner = KerasLearner(
         model=_prepare_model(model_type, learning_rate),
         train_loader=data_loaders[0],
         test_loader=data_loaders[1],
