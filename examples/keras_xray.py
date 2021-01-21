@@ -1,4 +1,6 @@
+import argparse
 import os
+import sys
 import tempfile
 from glob import glob
 from pathlib import Path
@@ -10,6 +12,24 @@ from colearn.training import set_equal_weights, initial_result, collective_learn
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
 from colearn_keras.keras_learner import KerasLearner
+
+"""
+Xray training example using Tensorflow Keras
+
+Used dataset:
+- Xray, download from kaggle: https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia
+  The Chest X-Ray Images (Pneumonia) dataset consists of 5856 grayscale images of various sizes
+  in 2 classes (normal/pneumonia).
+
+What the script does:
+- Sets up the Keras model and some configuration parameters
+- Loads Xray dataset from data_dir
+- Randomly splits the train folder and the test folder between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+
+To Run: required argument is data_dir: Path to root folder containing data
+
+"""
 
 width = 128
 height = 128
@@ -118,8 +138,18 @@ def split_to_folders(
 
 
 # lOAD DATA
-full_train_data_folder = '/home/emmasmith/Development/datasets/chest_xray/train'
-full_test_data_folder = '/home/emmasmith/Development/datasets/chest_xray/test'
+parser = argparse.ArgumentParser()
+parser.add_argument("data_dir", help="Path to data directory", type=str)
+
+args = parser.parse_args()
+
+if not Path.is_dir(Path(args.data_dir)):
+    sys.exit(f"Data path provided: {args.data_dir} is not a valid path or not a directory")
+
+
+full_train_data_folder = os.path.join(args.data_dir, 'train')
+full_test_data_folder = os.path.join(args.data_dir, 'test')
+
 train_data_folders = split_to_folders(
     full_train_data_folder,
     shuffle_seed=42,
@@ -194,3 +224,5 @@ for epoch in range(n_epochs):
 
 plot.plot_results(results, n_learners)
 plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")

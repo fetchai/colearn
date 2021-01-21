@@ -169,3 +169,5 @@ for epoch in range(n_epochs):
 # Plot the final result with votes
 plot.plot_results(results)
 plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")

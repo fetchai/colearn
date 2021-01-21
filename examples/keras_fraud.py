@@ -1,4 +1,6 @@
+import argparse
 from pathlib import Path
+import sys
 
 import numpy as np
 import tensorflow as tf
@@ -7,6 +9,20 @@ from colearn.training import set_equal_weights, initial_result, collective_learn
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
 from colearn_keras.keras_learner import KerasLearner
+
+
+"""
+Fraud training example using Tensorflow Keras
+
+Used dataset:
+- Fraud, download from kaggle: https://www.kaggle.com/c/ieee-fraud-detection
+
+What script does:
+- Sets up the Keras model and some configuration parameters
+- Randomly splits the dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
+
 
 input_classes = 431
 n_classes = 1
@@ -44,7 +60,15 @@ def get_model():
     return model
 
 
-data_dir = '/home/emmasmith/Development/datasets/fraud'
+parser = argparse.ArgumentParser()
+parser.add_argument("data_dir", help="Path to data directory", type=str)
+
+args = parser.parse_args()
+
+if not Path.is_dir(Path(args.data_dir)):
+    sys.exit(f"Data path provided: {args.data_dir} is not a valid path or not a directory")
+
+data_dir = args.data_dir
 DATA_FL = "data.npy"
 LABEL_FL = "labels.npy"
 train_fraction = 0.9
@@ -104,3 +128,5 @@ for epoch in range(n_epochs):
 
 plot.plot_results(results)
 plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")

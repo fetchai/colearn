@@ -133,3 +133,5 @@ for epoch in range(n_epochs):
 if make_plot:
     plot.plot_results(results)
     plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")
