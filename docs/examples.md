@@ -3,6 +3,7 @@ This is a list of examples that we've implemented to show you how to use Collect
 
 ### Mnist
   Uses the standard [Mnist](https://en.wikipedia.org/wiki/MNIST_database) database of handwritten images
+  
 * [mnist_keras]({{ repo_root }}/examples/keras_mnist.py). 
   Uses the `KerasLearner` helper class. 
   Discussed in more detail [here](./intro_tutorial_keras.md).
@@ -13,12 +14,14 @@ This is a list of examples that we've implemented to show you how to use Collect
   The fraud dataset consists of information about credit card transactions. 
   The task is to predict whether transactions are fraudulent or not.
   The data needs to be downloaded from [Kaggle](https://www.kaggle.com/c/ieee-fraud-detection)
+
 * [fraud_mli]({{ repo_root }}/examples/mli_fraud.py).
   Uses the `MachineLearningInterface` directly and detects fraud in bank transactions.
 * [fraud_keras]({{ repo_root }}/examples/keras_fraud.py). 
   Loads data from numpy arrays and uses `KerasLearner`.
 ### Cifar10
   Uses the standard [Cifar10](https://en.wikipedia.org/wiki/CIFAR-10) database of images
+
 * [cifar_keras]({{ repo_root }}/examples/keras_cifar.py). 
   Uses the `KerasLearner` helper class.
 * [cifar_pytorch]({{ repo_root }}/examples/pytorch_cifar.py).
@@ -26,6 +29,7 @@ This is a list of examples that we've implemented to show you how to use Collect
 ### Xray
   A binary classification task that requires predicting pneumonia from images of chest X-rays. 
   The data need to be downloaded from [Kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
+
 * [xray_keras]({{ repo_root }}/examples/keras_xray.py). 
   Uses the `KerasLearner` helper class.
 * [xray_pytorch]({{ repo_root }}/examples/pytorch_xray.py). 
