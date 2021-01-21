@@ -23,7 +23,7 @@ Used dataset:
 
 What the script does:
 - Sets up the Keras model and some configuration parameters
-- Loads Xray dataset from torchvision.datasets
+- Loads Xray dataset from data_dir
 - Randomly splits the train folder and the test folder between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 
