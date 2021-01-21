@@ -24,4 +24,6 @@ jobs:
         pip install wheel
         pip install .[docs]
     - name: Push docs
-      run: mkdocs gh-deploy
+      run: |
+        git fetch origin gh-pages:gh-pages
+        mkdocs gh-deploy
