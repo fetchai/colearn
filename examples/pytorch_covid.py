@@ -12,7 +12,7 @@ from torch.utils.data import TensorDataset
 from torchsummary import summary
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
 from colearn_pytorch.utils import categorical_accuracy, prepare_data_split_list
 from colearn_pytorch.pytorch_learner import PytorchLearner
@@ -153,6 +153,9 @@ summary(all_learner_models[0].model, input_size=(input_width,))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name=score_name)
+
 # Do the training
 for epoch in range(n_epochs):
     results.data.append(
@@ -160,9 +163,9 @@ for epoch in range(n_epochs):
                                   vote_threshold, epoch)
     )
 
-    plot_results(results, n_learners, score_name=score_name)
-    plot_votes(results)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
 # Plot the final result with votes
-plot_results(results, n_learners, score_name=score_name)
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)

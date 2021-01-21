@@ -2,7 +2,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
 from colearn_keras.keras_learner import KerasLearner
 
@@ -88,16 +88,17 @@ set_equal_weights(all_learner_models)
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name=all_learner_models[0].criterion)
+
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
                                   vote_threshold, epoch)
     )
 
-    plot_results(results, n_learners, block=False,
-                 score_name=all_learner_models[0].criterion)
-    plot_votes(results, block=False)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
-plot_results(results, n_learners, block=False,
-             score_name=all_learner_models[0].criterion)
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)

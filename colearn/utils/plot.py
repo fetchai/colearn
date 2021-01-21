@@ -5,56 +5,56 @@ import numpy as np
 from colearn.utils.results import Results
 
 
-class ResultsPlot:
+class ColearnPlot:
     def __init__(self, n_learners: int, score_name: str = "user-defined score"):
         self.score_name = score_name
         self.n_learners = n_learners
-        self.results_axes = None
-        self.votes_axes = None
+        self.results_axes: mpl_ax.Axes = plt.subplot(2, 1, 1, label="sub1")
+        self.votes_axes: mpl_ax.Axes = plt.subplot(2, 1, 2, label="sub2")
 
     def _process_statistics(self, results: Results):
-        results.h_test_accuracies = []
-        results.h_vote_accuracies = []
+        results.h_test_scores = []
+        results.h_vote_scores = []
 
-        results.mean_test_accuracies = []
-        results.mean_vote_accuracies = []
+        results.mean_test_scores = []
+        results.mean_vote_scores = []
 
-        results.max_test_accuracies = []
-        results.max_vote_accuracies = []
+        results.max_test_scores = []
+        results.max_vote_scores = []
 
         for r in range(len(results.data)):
-            results.mean_test_accuracies.append(
+            results.mean_test_scores.append(
                 np.mean(np.array(results.data[r].test_scores))
             )
-            results.mean_vote_accuracies.append(
+            results.mean_vote_scores.append(
                 np.mean(np.array(results.data[r].vote_scores))
             )
-            results.max_test_accuracies.append(np.max(np.array(results.data[r].test_scores)))
-            results.max_vote_accuracies.append(np.max(np.array(results.data[r].vote_scores)))
+            results.max_test_scores.append(np.max(np.array(results.data[r].test_scores)))
+            results.max_vote_scores.append(np.max(np.array(results.data[r].vote_scores)))
 
         # gather individual scores
         for i in range(self.n_learners):
-            results.h_test_accuracies.append([])
-            results.h_vote_accuracies.append([])
+            results.h_test_scores.append([])
+            results.h_vote_scores.append([])
 
             for r in range(len(results.data)):
-                results.h_test_accuracies[i].append(results.data[r].test_scores[i])
-                results.h_vote_accuracies[i].append(results.data[r].vote_scores[i])
+                results.h_test_scores[i].append(results.data[r].test_scores[i])
+                results.h_vote_scores[i].append(results.data[r].vote_scores[i])
 
-        results.highest_test_accuracy = np.max(np.array(results.h_test_accuracies))
-        results.highest_vote_accuracy = np.max(np.array(results.h_vote_accuracies))
+        results.highest_test_score = np.max(np.array(results.h_test_scores))
+        results.highest_vote_score = np.max(np.array(results.h_vote_scores))
 
-        results.highest_mean_test_accuracy = np.max(results.mean_test_accuracies)
-        results.highest_mean_vote_accuracy = np.max(results.mean_vote_accuracies)
+        results.highest_mean_test_score = np.max(results.mean_test_scores)
+        results.highest_mean_vote_score = np.max(results.mean_vote_scores)
 
-        results.current_mean_test_accuracy = results.mean_test_accuracies[-1]
-        results.current_mean_vote_accuracy = results.mean_vote_accuracies[-1]
+        results.current_mean_test_score = results.mean_test_scores[-1]
+        results.current_mean_vote_score = results.mean_vote_scores[-1]
 
-        results.current_max_test_accuracy = results.max_test_accuracies[-1]
-        results.current_max_vote_accuracy = results.max_vote_accuracies[-1]
+        results.current_max_test_score = results.max_test_scores[-1]
+        results.current_max_vote_score = results.max_vote_scores[-1]
 
-        results.mean_mean_test_accuracy = np.mean(np.array(results.h_test_accuracies))
-        results.mean_mean_vote_accuracy = np.mean(np.array(results.h_vote_accuracies))
+        results.mean_mean_test_score = np.mean(np.array(results.h_test_scores))
+        results.mean_mean_vote_score = np.mean(np.array(results.h_vote_scores))
 
     def plot_results(self, results, block=False):
         # Prepare data for plotting
@@ -63,51 +63,47 @@ class ResultsPlot:
         plt.ion()
         plt.show(block=False)
 
-        if self.results_axes is None:
-            self.results_axes = plt.subplot(2, 1, 1, label="sub1")
-
-        assert isinstance(self.results_axes, mpl_ax.Axes)  # gets rid of IDE errors
         self.results_axes.clear()
 
         self.results_axes.set_xlabel("training epoch")
         self.results_axes.set_ylabel(self.score_name)
 
-        self.results_axes.set_xlim(-0.5, len(results.mean_test_accuracies) - 0.5)
-        self.results_axes.set_xticks(np.arange(0, len(results.mean_test_accuracies), step=1))
+        self.results_axes.set_xlim(-0.5, len(results.mean_test_scores) - 0.5)
+        self.results_axes.set_xticks(np.arange(0, len(results.mean_test_scores), step=1))
 
-        epochs = range(len(results.mean_test_accuracies))
+        epochs = range(len(results.mean_test_scores))
 
         for i in range(self.n_learners):
             self.results_axes.plot(
                 epochs,
-                results.h_test_accuracies[i],
+                results.h_test_scores[i],
                 "b--",
                 alpha=0.5,
                 label=f"test {self.score_name}",
             )
             self.results_axes.plot(
                 epochs,
-                results.h_vote_accuracies[i],
+                results.h_vote_scores[i],
                 "r--",
                 alpha=0.5,
                 label=f"vote {self.score_name}",
             )
 
-        (line_mean_test_acc,) = self.results_axes.plot(
+        (line_mean_test_score,) = self.results_axes.plot(
             epochs,
-            results.mean_test_accuracies,
+            results.mean_test_scores,
             "b",
             linewidth=3,
             label=f"mean test {self.score_name}",
         )
-        (line_mean_vote_acc,) = self.results_axes.plot(
+        (line_mean_vote_score,) = self.results_axes.plot(
             epochs,
-            results.mean_vote_accuracies,
+            results.mean_vote_scores,
             "r",
             linewidth=3,
             label=f"mean vote {self.score_name}",
         )
-        self.results_axes.legend(handles=[line_mean_test_acc, line_mean_vote_acc])
+        self.results_axes.legend(handles=[line_mean_test_score, line_mean_vote_score])
 
         if block is False:
             plt.draw()
@@ -119,9 +115,6 @@ class ResultsPlot:
         plt.ion()
         plt.show(block=False)
 
-        if self.votes_axes is None:
-            self.votes_axes = plt.subplot(2, 1, 2, label="sub2")
-        assert isinstance(self.votes_axes, mpl_ax.Axes)  # gets rid of IDE errors
         self.votes_axes.clear()
 
         results_list = results.data
