@@ -44,7 +44,7 @@ We invite all users to experiment with the framework, develop their own models, 
    For more installation options see [Installation](./installation.md)
 3. Run one of the examples:
     ```bash
-    examples/pytorch_mnist.py
+    python examples/pytorch_mnist.py
     ``` 
     For other examples see [Examples](./examples.md).
 
