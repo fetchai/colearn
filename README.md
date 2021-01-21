@@ -8,17 +8,27 @@ This library is currently in development.
 
 
 ## Installation
-Setup an environment
+1. Download the source code from github:
+   ```bash
+   git clone https://github.com/fetchai/colearn.git && cd colearn
+   ```
+1. Create and launch a clean virtual environment with Python 3.7. 
+   (This library has currently only been tested with Python 3.7).
+   ```bash
+   pipenv --python 3.7 && pipenv shell
+   ```
 
-`pipenv --python 3.6 && pipenv shell`
+2. Install the package from source:
+    ```bash
+    pip install -e .[all]
+    ```
+3. Run one of the examples:
+    ```bash
+    examples/pytorch_mnist.py
+    ``` 
+   
+For more instructions, see the documentation at [fetchai.github.io/colearn/](https://fetchai.github.io/colearn/)
 
-```bash
-pip install -e ./
-```
-Running the tests:
-```
-tox
-```
 
 ## Documentation
 To run the documentation, first install mkdocs and plugins:
@@ -32,7 +42,6 @@ Then run:
 ```
 mkdocs serve
 ```
-Documentation will be hosted somewhere soon!
 
 
 ### Current Version

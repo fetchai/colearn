@@ -22,7 +22,13 @@ class ModelType(Enum):
     CONV2D = 1
 
 
-def prepare_model(model_type: ModelType):
+def prepare_model(model_type: ModelType) -> nn.Module:
+    """
+    Creates a new instance of selected Keras model
+    :param model_type: Enum that represents selected model type
+    :return: New instance of Pytorch model
+    """
+
     if model_type == ModelType.CONV2D:
         return TorchXrayConv2DModel()
     else:
@@ -35,21 +41,32 @@ def prepare_learner(model_type: ModelType,
                     steps_per_epoch: int = 40,
                     vote_batches: int = 10,
                     no_cuda: bool = False,
-                    vote_using_auc: bool = True,
-                    **_kwargs):
+                    vote_on_accuracy: bool = True,
+                    **_kwargs) -> PytorchLearner:
+    """
+    Creates new instance of PytorchLearner
+    :param model_type: Enum that represents selected model type
+    :param data_loaders: Tuple of train_loader and test_loader
+    :param learning_rate: Learning rate for optimiser
+    :param steps_per_epoch: Number of batches per training epoch
+    :param vote_batches: Number of batches to get vote_score
+    :param no_cuda: True = disable GPU computing
+    :param vote_on_accuracy: True = vote on accuracy metric, False = vote on loss
+    :param _kwargs: Residual parameters not used by this function
+    :return: New instance of PytorchLearner
+    """
+
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
     model = prepare_model(model_type)
 
-    if vote_using_auc:
+    if vote_on_accuracy:
         learner_vote_kwargs = dict(
             vote_criterion=auc_from_logits,
             minimise_criterion=False)
-        score_name = "auc"
     else:
         learner_vote_kwargs = {}
-        score_name = "loss"
 
     # Make n instances of PytorchLearner with model and torch dataloaders
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -64,7 +81,6 @@ def prepare_learner(model_type: ModelType,
             reduction='mean'),
         num_train_batches=steps_per_epoch,
         num_test_batches=vote_batches,
-        score_name=score_name,
         **learner_vote_kwargs  # type: ignore[arg-type]
     )
 
@@ -163,21 +179,25 @@ class XrayDataset(Dataset):
     """X-ray dataset."""
 
     def __init__(self,
-                 data_dir,
+                 data_dir: str,
                  transform=None,
-                 train=True,
-                 train_ratio=0.96,
-                 seed=None,
-                 width=128,
-                 height=128,
+                 train: bool = True,
+                 train_ratio: float = 0.96,
+                 seed: Optional[int] = None,
+                 width: int = 128,
+                 height: int = 128,
                  **_kwargs):
         """
-        Args:
-            data_dir (string): Path to the data directory.
-            transform (callable, optional): Optional transform to be applied
-                on a sample.
+        :param data_dir (string): Path to the data directory.
+        :param transform (callable, optional): Optional transform to be applied
+        :param train: True = data_dir contains train set, False = data_dir contains test set
+        :param train_ratio: What fraction of samples from data_dir will be used as train set
+                            Rest of samples will be used as test set
+        :param seed: Shuffling seed
+        :param width: Resize images width
+        :param height: Resize images height
+        :param _kwargs: Residual parameters not used by this function
         """
-
         self.width, self.height = width, height
         self.seed = seed
 
@@ -213,9 +233,16 @@ class XrayDataset(Dataset):
         self.transform = transform
 
     def __len__(self):
+        """
+        :return: Number of available samples
+        """
         return len(self.cases)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx) -> Tuple[np.array, np.array]:
+        """
+        :param idx: Array of indices
+        :return: batch of samples as tuple (data, labels)
+        """
         if torch.is_tensor(idx):
             idx = idx.tolist()
         else:
@@ -238,7 +265,17 @@ class XrayDataset(Dataset):
         return sample
 
     @staticmethod
-    def to_rgb_normalize_and_resize(filename, width, height):
+    def to_rgb_normalize_and_resize(
+            filename: str,
+            width: int,
+            height: int) -> np.array:
+        """
+        Loads, resize and normalize image
+        :param filename: Path to image
+        :param width: Output width
+        :param height: Output height
+        :return: Resized and normalizes image as np.array
+        """
         img = cv2.imread(str(filename))
         img = cv2.resize(img, (width, height))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -257,7 +294,17 @@ def split_to_folders(
         output_folder: Optional[Path] = None,
         train: bool = True,
         **_kwargs
-):
+) -> List[str]:
+    """
+    :param data_dir: Path to directory containing xray images
+    :param n_learners: Number of parts for splitting
+    :param data_split:  List of percentage portions for each subset
+    :param shuffle_seed: Seed for shuffling
+    :param output_folder: Folder where splitted parts will be stored as numbered subfolders
+    :param train: True = is training set, False = is test set
+    :param _kwargs: Residual parameters not used by this function
+    :return:
+    """
     if output_folder is None:
         if train:
             output_folder = Path(tempfile.gettempdir()) / "train_xray"
@@ -310,4 +357,4 @@ def split_to_folders(
             start_ind = stop_ind
 
     print(dir_names)
-    return dir_names
+    return [str(x) for x in dir_names]

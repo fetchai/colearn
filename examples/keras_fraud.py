@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from colearn.training import set_equal_weights, initial_result, collective_learning_round
-from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
 from colearn_keras.keras_learner import KerasLearner
 
@@ -113,6 +113,9 @@ results = Results()
 # Get initial score
 results.data.append(initial_result(all_learner_models))
 
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name="loss")
+
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
@@ -120,10 +123,10 @@ for epoch in range(n_epochs):
     )
 
     # then make an updating graph
-    plot_results(results, n_learners, block=False, score_name="loss")
-    plot_votes(results, block=False)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
-plot_results(results, n_learners, block=False, score_name="loss")
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)
 
 print("Colearn Example Finished!")

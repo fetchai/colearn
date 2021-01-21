@@ -28,9 +28,9 @@ Here we have a very minimal driver that doesn't use networking or a blockchain. 
 This is the code that implements one round of voting:
 
 ```python
-def run_one_epoch(epoch_index: int, learners: Sequence[MachineLearningInterface],
+def run_one_round(round_index: int, learners: Sequence[MachineLearningInterface],
                   vote_threshold=0.5):
-    proposer = epoch_index % len(learners)
+    proposer = round_index % len(learners)
     new_weights = learners[proposer].mli_propose_weights()
 
     prop_weights_list = [ln.mli_test_weights(new_weights) for ln in learners]

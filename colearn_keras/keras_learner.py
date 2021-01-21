@@ -12,6 +12,10 @@ from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeig
 
 
 class KerasLearner(MachineLearningInterface):
+    """
+    Tensorflow Keras learner implementation of machine learning interface
+    """
+
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
                  test_loader: Optional[tf.data.Dataset] = None,
@@ -19,14 +23,21 @@ class KerasLearner(MachineLearningInterface):
                  criterion: str = 'loss',
                  model_fit_kwargs: Optional[dict] = None,
                  model_evaluate_kwargs: Optional[dict] = None):
-
+        """
+        :param model: Keras model used for training
+        :param train_loader: Training dataset
+        :param test_loader: Optional test set. Subset of training set will be used if not specified.
+        :param minimise_criterion: Boolean - True to minimise value of criterion, False to maximise
+        :param criterion: Function to measure model performance
+        :param model_fit_kwargs: Arguments to be passed on model.fit function call
+        :param model_evaluate_kwargs: Arguments to be passed on model.evaluate function call
+        """
         self.model: keras.Model = model
         self.train_loader: tf.data.Dataset = train_loader
         self.test_loader: Optional[tf.data.Dataset] = test_loader
         self.minimise_criterion: bool = minimise_criterion
         self.criterion = criterion
         self.model_fit_kwargs = model_fit_kwargs or {}
-        self.score_name = criterion
 
         if model_fit_kwargs:
             # check that these are valid kwargs for model fit
@@ -49,6 +60,11 @@ class KerasLearner(MachineLearningInterface):
         self.vote_score: float = self.test(self.train_loader)
 
     def mli_propose_weights(self) -> Weights:
+        """
+        Trains model on training set and returns new weights after training
+        - Current model is reverted to original state after training
+        :return: Weights after training
+        """
         current_weights = self.mli_get_current_weights()
         self.train()
         new_weights = self.mli_get_current_weights()
@@ -56,6 +72,11 @@ class KerasLearner(MachineLearningInterface):
         return new_weights
 
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
+        """
+        Tests given weights on training and test set and returns weights with score values
+        :param weights: Weights to be tested
+        :return: ProposedWeights - Weights with vote and test score
+        """
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
@@ -75,25 +96,49 @@ class KerasLearner(MachineLearningInterface):
                                )
 
     def vote(self, new_score) -> bool:
+        """
+        Compares current model score with proposed model score and returns vote
+        :param new_score: Proposed score
+        :return: bool positive or negative vote
+        """
         if self.minimise_criterion:
             return new_score <= self.vote_score
         else:
             return new_score >= self.vote_score
 
     def mli_accept_weights(self, weights: Weights):
+        """
+        Updates the model with the proposed set of weights
+        :param weights: The new weights
+        """
         self.set_weights(weights)
         self.vote_score = self.test(self.train_loader)
 
     def mli_get_current_weights(self) -> Weights:
+        """
+        :return: The current weights of the model
+        """
         return Weights(weights=self.model.get_weights())
 
     def set_weights(self, weights: Weights):
+        """
+        Rewrites weight of current model
+        :param weights: Weights to be stored
+        """
         self.model.set_weights(weights.weights)
 
     def train(self):
+        """
+        Trains the model on the training dataset
+        """
         self.model.fit(self.train_loader, **self.model_fit_kwargs)
 
     def test(self, loader: tf.data.Dataset) -> float:
+        """
+        Tests performance of the model on specified dataset
+        :param loader: Dataset for testing
+        :return: Value of performance metric
+        """
         result = self.model.evaluate(x=loader, return_dict=True,
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]

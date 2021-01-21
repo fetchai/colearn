@@ -24,26 +24,35 @@ Future releases will use similar interfaces so that learners built with the curr
 The current framework will then be used mainly for model development and debugging.
 We invite all users to experiment with the framework, develop their own models, and provide feedback!
 
-## Installation
-Setup an environment
+## Getting Started
+1. Download the source code from github:
+   ```bash
+   git clone https://github.com/fetchai/colearn.git && cd colearn
+   ```
+1. Create and launch a clean virtual environment with Python 3.7. 
+   (This library has currently only been tested with Python 3.7).
+   ```bash
+   pipenv --python 3.7 && pipenv shell
+   ```
 
-`pipenv --python 3.6 && pipenv shell`
-
-```bash
-pip install -e ./
-```
-Running the tests:
-```
-tox
-```
-
-## Running the demo
-```bash
-examples/run_demo.py -t MNIST
-``` 
-For other demo options see [here](./demo.md)
+2. Install the package from source:
+    ```bash
+    pip install -e .[all]
+    ```
+   For more installation options see [Installation](./installation.md)
+3. Run one of the examples:
+    ```bash
+    examples/pytorch_mnist.py
+    ``` 
+    For other examples see [Examples](./examples.md).
 
 ## Writing your own models
 We encourage users to try out the system by writing their own models. 
 Models need to implement the collective learning interface, which provides functions for training and voting on updates.
 More instructions can be found in the Getting Started section.
+
+## Running the tests
+Tests can be run with:
+```
+tox
+```

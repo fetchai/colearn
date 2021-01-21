@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Optional
+from colearn.ml_interface import MachineLearningInterface
 
 
 class TaskType(Enum):
@@ -14,7 +15,16 @@ def mli_factory(str_task_type: str,
                 train_folder: str,
                 str_model_type: str,
                 test_folder: Optional[str] = None,
-                **learning_kwargs):
+                **learning_kwargs) -> MachineLearningInterface:
+    """
+    MachineLearningInterface factory
+    :param str_task_type: String task type
+    :param train_folder: Path to training set
+    :param str_model_type: String model type
+    :param test_folder: Optional path to test set
+    :param learning_kwargs: Learning parameters to be passed to dataloader and model
+    :return: Specific instance of MachineLearningInterface
+    """
     # Resolve task type
     task_type = TaskType[str_task_type]
 
