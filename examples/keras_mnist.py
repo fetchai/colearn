@@ -114,3 +114,5 @@ for epoch in range(n_epochs):
 plot_results(results, n_learners, block=False,
              score_name=all_learner_models[0].criterion)
 plot_votes(results, block=True)
+
+print("Colearn Example Finished!")
