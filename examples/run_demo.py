@@ -4,7 +4,7 @@ import os
 from typing import Optional, Sequence
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.plot import ResultsPlot
 from colearn.utils.results import Results
 from colearn_other.mli_factory import TaskType, mli_factory
 
@@ -167,14 +167,16 @@ set_equal_weights(all_learner_models)
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+plot = ResultsPlot(n_learners, score_name)
+
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
                                   vote_threshold, epoch)
     )
 
-    plot_results(results, n_learners, score_name=score_name)
-    plot_votes(results)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
-plot_results(results, n_learners, score_name=score_name)
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)
