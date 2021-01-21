@@ -23,7 +23,7 @@ examples/run_demo.py -h
 Arguments to run the demo:
 ```
 --data_dir:       Directory containing training data, not required for MNIST and CIFAR10
---test_dir:       Optional directory containing test data - fraction of the training set will be used as a test set when not specified
+--test_dir:       Optional directory containing test data. A fraction of the training set will be used as a test set when not specified
 --task:           Type of task for machine learning: KERAS_MNIST, KERAS_CIFAR10, FRAUD, PYTORCH_XRAY, PYTORCH_COVID_XRAY
 --model_type:     Type of machine learning model, default model will be used if not specified
 --n_learners:     Number of individual learners
