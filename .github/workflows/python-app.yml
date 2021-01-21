@@ -27,13 +27,13 @@ jobs:
       with:		
          # This path is specific to Ubuntu		
          path: ${{ env.pythonLocation}}		
-         # Look to see if there is a cache hit for the corresponding requirements file		
-         key: ${{ env.pythonLocation}}-${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}		
+         # Look to see if there is a cache hit for the corresponding setup file
+         key: ${{ env.pythonLocation}}-${{ runner.os }}-pip-${{ hashFiles('setup.py') }}
          restore-keys: |		
            ${{ runner.os }}-pip-		
            ${{ runner.os }}-		
-    - name: Install pip dependencies		
-      run: pip install -r requirements.txt
+    - name: Install colearn with pip
+      run: pip install .[all]
     - name: Install dependencies
       run: pip install tox
     - name: Run Tox style checks
