@@ -8,6 +8,7 @@ examples_deps = ['pandas',
                  'sklearn',
                  'scikit-learn',
                  'torchsummary',
+                 'torchvision',
                  'scipy',
                  'opencv-python']
 

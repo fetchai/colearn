@@ -11,7 +11,6 @@ setuptools~=50.3.2
 torch~=1.7.0
 opencv-python~=4.4.0.44
 torchsummary~=1.5.1
-torchvision
 # opacus~=0.10.1
 scipy~=1.5.2
 pydantic~=1.7.3

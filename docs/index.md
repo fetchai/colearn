@@ -6,7 +6,7 @@ This blockchain-mediated collective learning system enables multiple stakeholder
 and without revealing their dataset to the other stakeholders. This library is currently in development. 
 
 ## How collective learning works
-A group of *learners* come together, each of whom have their own datasets and want to collaborate on training a machine learning model over a set number of rounds. We refer
+A group of *learners* comes together, each of whom have their own datasets and want to collaborate on training a machine learning model over a set number of rounds. We refer
 to this as an 'experiment'.
 In each round of collective learning:
 
@@ -40,7 +40,6 @@ We invite all users to experiment with the framework, develop their own models, 
 2. Install the package from source:
     ```bash
     pip install -e .[all]
-    pip install -r requirements.txt
     ```
    For more installation options see [Installation](./installation.md)
 3. Run one of the examples:
