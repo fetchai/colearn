@@ -23,7 +23,7 @@ examples/run_demo.py -h
 
 ## Running MNIST
 The simplest task to run is MNIST because this doesn't require downloading the data. 
-This runs the MNIST task with five learners for 15 epochs.
+This runs the MNIST task with five learners for 15 rounds.
 ```bash
 examples/run_demo.py -t MNIST -n 5 -e 15
 ```

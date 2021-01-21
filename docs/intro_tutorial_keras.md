@@ -76,10 +76,10 @@ Then a new round begins.
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-for epoch in range(n_epochs):
+for round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round)
     )
 
     plot_results(results, n_learners, block=False,
