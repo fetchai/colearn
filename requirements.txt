@@ -15,3 +15,5 @@ torchsummary~=1.5.1
 scipy~=1.5.2
 pydantic~=1.7.3
 scikit-image~=0.17.2
+tensorflow_datasets==4.2.0
+tensorflow_privacy==0.5.1
