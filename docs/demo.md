@@ -10,7 +10,7 @@ There are five potential datasets for the demo
 * PYTORCH_XRAY is Pytorch implementation of a binary classification task that requires predicting pneumonia from images of chest X-rays. 
   The data need to be downloaded from [kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
 * PYTORCH_COVID_XRAY is Pytorch implementation of a 3 class classification task that requires predicting no finding, covid or pneumonia from images of chest X-rays. 
-  The data need to be downloaded from this [google-drive](https://drive.google.com/drive/folders/1A_u3qWVRHlv7qh_7b5tniXvbfX83VwWN?usp=sharing)
+  This dataset is currently unavailable.
 * FRAUD The fraud dataset consists of information about credit card transactions, and the task is to predict whether 
   transactions are fraudulent or not. 
   The data need to be downloaded from [kaggle](https://www.kaggle.com/c/ieee-fraud-detection)
@@ -22,7 +22,7 @@ examples/run_demo.py -h
 
 Arguments to run the demo:
 ```
---train_dir:      Directory containing train data, not required for MNIST and CIFAR10
+--data_dir:      Directory containing train data, not required for MNIST and CIFAR10
 --test_dir:       Optional directory containing test data
                   The fraction of the training set will be used as a test set when not specified
 --task:           Type of task for machine learning
@@ -56,18 +56,13 @@ To run the CIFAR10 dataset:
 ```bash
 examples/run_demo.py --task KERAS_CIFAR10 --n_learners 5 --n_epochs 15
 ```
-The Covid X-ray datasets need to be downloaded from google drive, please see the link above.
-To run the Covid X-ray dataset:
-```bash
-examples/run_demo.py --task PYTORCH_COVID_XRAY --n_learners 5 -n_epochs 15 -train_dir ./data/xray
-```
 The Fraud and X-ray datasets need to be downloaded from kaggle (this requires a kaggle account).
 To run the fraud dataset:
 ```bash
-examples/run_demo.py --task FRAUD --n_learners 5 --n_epochs 15 --train_dir ./data/fraud
+examples/run_demo.py --task FRAUD --n_learners 5 --n_epochs 15 --data_dir ./data/fraud
 ```
 To run the X-ray dataset:
 ```bash
-examples/run_demo.py --task PYTORCH_XRAY --n_learners 5 -n_epochs 15 -train_dir ./data/xray
+examples/run_demo.py --task PYTORCH_XRAY --n_learners 5 -n_epochs 15 -data_dir ./data/xray
 ```
 
