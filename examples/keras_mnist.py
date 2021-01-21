@@ -6,6 +6,19 @@ from colearn.utils.plot import plot_results, plot_votes
 from colearn.utils.results import Results
 from colearn_keras.keras_learner import KerasLearner
 
+"""
+MNIST training example using Keras
+
+Used dataset:
+- MNIST is set of 60 000 black and white hand written digits images of size 28x28x1 in 10 classes
+
+What script does:
+- Loads MNIST dataset from Keras
+- Sets up a Keras learner
+- Randomly splits dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
+
 n_learners = 5
 vote_threshold = 0.5
 vote_batches = 2
