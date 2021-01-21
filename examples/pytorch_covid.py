@@ -33,11 +33,11 @@ What script does:
 
 # define some constants
 n_learners = 5
-batch_size = 64
+batch_size = 32
 seed = 42
 n_epochs = 50
 vote_threshold = 0.5
-train_fraction = 0.9
+train_fraction = 0.8
 learning_rate = 0.001
 input_width = 64
 n_classes = 3
