@@ -4,7 +4,7 @@ name: Fetch AI Collective Learning Interface - Update Docs
 
 on:
   push:
-    branches: [ master, update_docs ]
+    branches: [ master ]
 
 jobs:
   update_docs:
