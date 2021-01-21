@@ -18,13 +18,13 @@ Xray training example using Tensorflow Keras
 
 Used dataset:
 - Xray, download from kaggle: https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia
-  The Chest X-Ray Images (Pneumonia) dataset consists of 5856 grayscale images of various sizes 
-  in 2 classes (normal/pneumonia).    
+  The Chest X-Ray Images (Pneumonia) dataset consists of 5856 grayscale images of various sizes
+  in 2 classes (normal/pneumonia).
 
 What the script does:
 - Sets up the Keras model and some configuration parameters
 - Loads Xray dataset from torchvision.datasets
-- Randomly splits the train folder and the test folder between multiple learners 
+- Randomly splits the train folder and the test folder between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 
 To Run: required argument is data_dir: Path to root folder containing data
@@ -223,4 +223,3 @@ plot_results(results, n_learners, score_name=all_learner_models[0].criterion)
 plot_votes(results, block=True)
 
 print("Colearn Example Finished!")
-
