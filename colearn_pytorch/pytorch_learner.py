@@ -18,6 +18,10 @@ _DEFAULT_DEVICE = torch.device("cpu")
 
 
 class PytorchLearner(MachineLearningInterface):
+    """
+    Pytorch learner implementation of machine learning interface
+    """
+
     def __init__(self, model: torch.nn.Module,
                  optimizer: torch.optim.Optimizer,
                  train_loader: torch.utils.data.DataLoader,
@@ -27,8 +31,20 @@ class PytorchLearner(MachineLearningInterface):
                  minimise_criterion=True,
                  vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,
                  num_train_batches: Optional[int] = None,
-                 num_test_batches: Optional[int] = None,
-                 score_name: str = "score"):
+                 num_test_batches: Optional[int] = None):
+        """
+        :param model: Pytorch model used for training
+        :param optimizer: Training optimizer
+        :param train_loader: Train dataset
+        :param test_loader: Optional test dataset - subset of training set will be used if not specified
+        :param device: Pytorch device - CPU or GPU
+        :param criterion: Loss function
+        :param minimise_criterion: True to minimise value of criterion, False to maximise
+        :param vote_criterion: Function to measure model performance for voting
+        :param num_train_batches: Number of training batches
+        :param num_test_batches: Number of testing batches
+        """
+
         # Model has to be on same device as data
         self.model: torch.nn.Module = model.to(device)
         self.optimizer: torch.optim.Optimizer = optimizer
@@ -42,19 +58,31 @@ class PytorchLearner(MachineLearningInterface):
         self.vote_criterion = vote_criterion
 
         self.vote_score = self.test(self.train_loader)
-        self.score_name = score_name
 
     def mli_get_current_weights(self) -> Weights:
+        """
+        :return: The current weights of the model
+        """
+
         w = Weights(weights=[x.clone() for x in self.model.parameters()])
         return w
 
     def set_weights(self, weights: Weights):
+        """
+        Rewrites weight of current model
+        :param weights: Weights to be stored
+        """
+
         with torch.no_grad():
             for new_param, old_param in zip(weights.weights,
                                             self.model.parameters()):
                 old_param.set_(new_param)
 
     def train(self):
+        """
+        Trains the model on the training dataset
+        """
+
         self.model.train()
 
         for batch_idx, (data, labels) in enumerate(self.train_loader):
@@ -73,6 +101,12 @@ class PytorchLearner(MachineLearningInterface):
             self.optimizer.step()
 
     def mli_propose_weights(self) -> Weights:
+        """
+        Trains model on training set and returns new weights after training
+        - Current model is reverted to original state after training
+        :return: Weights after training
+        """
+
         current_weights = self.mli_get_current_weights()
         self.train()
         new_weights = self.mli_get_current_weights()
@@ -80,6 +114,12 @@ class PytorchLearner(MachineLearningInterface):
         return new_weights
 
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
+        """
+        Tests given weights on training and test set and returns weights with score values
+        :param weights: Weights to be tested
+        :return: ProposedWeights - Weights with vote and test score
+        """
+
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
@@ -99,12 +139,24 @@ class PytorchLearner(MachineLearningInterface):
                                )
 
     def vote(self, new_score) -> bool:
+        """
+        Compares current model score with proposed model score and returns vote
+        :param new_score: Proposed score
+        :return: bool positive or negative vote
+        """
+
         if self.minimise_criterion:
             return new_score <= self.vote_score
         else:
             return new_score >= self.vote_score
 
     def test(self, loader: torch.utils.data.DataLoader) -> float:
+        """
+        Tests performance of the model on specified dataset
+        :param loader: Dataset for testing
+        :return: Value of performance metric
+        """
+
         if not self.criterion:
             raise Exception("Criterion is unspecified so test method cannot be used")
 
@@ -133,5 +185,10 @@ class PytorchLearner(MachineLearningInterface):
             return self.vote_criterion(torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0))
 
     def mli_accept_weights(self, weights: Weights):
+        """
+        Updates the model with the proposed set of weights
+        :param weights: The new weights
+        """
+
         self.set_weights(weights)
         self.vote_score = self.test(self.train_loader)
