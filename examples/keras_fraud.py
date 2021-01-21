@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -44,7 +45,16 @@ def get_model():
     return model
 
 
-data_dir = '/home/emmasmith/Development/datasets/fraud'
+parser = argparse.ArgumentParser()
+parser.add_argument("data_dir", help="Path to data directory", type=str)
+
+args = parser.parse_args()
+
+if not Path.is_dir(Path(args.data_dir)):
+    print(f"Data path provided: {args.data_dir} is not a valid path or not a directory")
+    exit()
+
+data_dir = args.data_dir
 DATA_FL = "data.npy"
 LABEL_FL = "labels.npy"
 train_fraction = 0.9
@@ -101,3 +111,5 @@ for epoch in range(n_epochs):
 
 plot_results(results, n_learners, block=False, score_name="loss")
 plot_votes(results, block=True)
+
+print("Colearn Example Finished!")
