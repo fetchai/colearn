@@ -20,10 +20,10 @@ from colearn.utils.results import Results
 Fraud training example using Sklearn by directly implementing MachineLearningInterface
 
 Used dataset:
-- Fraud, download from kaggle: https://www.kaggle.com/c/ieee-fraud-detection 
+- Fraud, download from kaggle: https://www.kaggle.com/c/ieee-fraud-detection
 
 What script does:
-- Implements the Machine Learning Interface 
+- Implements the Machine Learning Interface
 - Randomly splits the dataset between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 """

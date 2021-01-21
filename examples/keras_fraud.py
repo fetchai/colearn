@@ -15,10 +15,10 @@ from colearn_keras.keras_learner import KerasLearner
 Fraud training example using Tensorflow Keras
 
 Used dataset:
-- Fraud, download from kaggle: https://www.kaggle.com/c/ieee-fraud-detection 
+- Fraud, download from kaggle: https://www.kaggle.com/c/ieee-fraud-detection
 
 What script does:
-- Sets up the Keras model and some configuration parameters 
+- Sets up the Keras model and some configuration parameters
 - Randomly splits the dataset between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 """
