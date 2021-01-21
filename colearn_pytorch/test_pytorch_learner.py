@@ -2,6 +2,7 @@ from unittest.mock import Mock, create_autospec
 
 import pytest
 import torch
+import torch.tensor
 import torch.utils.data
 from torch.nn.modules.loss import _Loss
 
