@@ -2,10 +2,12 @@
 
 Colearn is a library that enables privacy-preserving decentralized machine learning tasks on the FET network.
 
-This blockchain-mediated collective learning system enables multiple stakeholders to build a shared machine learning model without needing to rely on a central authority. This library is currently in development. 
+This blockchain-mediated collective learning system enables multiple stakeholders to build a shared machine learning model without needing to rely on a central authority,
+and without revealing their dataset to the other stakeholders. This library is currently in development. 
 
 ## How collective learning works
-A group of *learners* come together, each of whom have their own datasets and want to collaborate on training a machine learning model.
+A group of *learners* come together, each of whom have their own datasets and want to collaborate on training a machine learning model over a set number of rounds. We refer
+to this as an 'experiment'.
 In each round of collective learning:
 
 1.  One learner is selected to train the model and propose a new set of model weights.
@@ -18,8 +20,8 @@ For more information on the Collective Learning Protocol see [here](about.md).
 
 ### Current Version
 
-We have released *v.0.1* of Colearn Machine Learning Interface, the first version of an interface that will allow developers to prepare for future releases. 
-Together with the interface we provide a simple backend for local experiments. This is the first backend with upcoming blockchain ledger based backends to follow.  
+We have released *v.0.1* of the Colearn Machine Learning Interface, the first version of an interface that allows developers to define their own model architectures that can then be used in collective learning. 
+Together with the interface we provide a simple backend for local experiments. This is a prototype backend with upcoming blockchain ledger based backends to follow.  
 Future releases will use similar interfaces so that learners built with the current system will work on a different backend that integrates a distributed ledger and provides other improvements.
 The current framework will then be used mainly for model development and debugging.
 We invite all users to experiment with the framework, develop their own models, and provide feedback!
@@ -31,6 +33,7 @@ Setup an environment
 
 ```bash
 pip install -e ./
+pip install -r requirements.txt
 ```
 Running the tests:
 ```
@@ -39,7 +42,7 @@ tox
 
 ## Running the demo
 ```bash
-examples/run_demo.py -t MNIST
+examples/run_demo.py -t KERAS_MNIST
 ``` 
 For other demo options see [here](./demo.md)
 
