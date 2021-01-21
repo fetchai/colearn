@@ -12,6 +12,8 @@ examples_deps = ['opacus~=0.10',
                  'pandas~=1.1',
                  'scikit-learn~=0.23',
                  'scipy~=1.5',
+                 'tensorflow_datasets~=4.2',
+                 'tensorflow-privacy~=0.5',
                  'torchsummary~=1.5',
                  'torchvision~=0.8']
 
