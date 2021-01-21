@@ -19,3 +19,9 @@ To install all the extras, including the ones required for the examples, use:
 ```
 pip install .[all]
 ```
+
+If you are developing the colearn library then install it in editable mode so that new
+changes are effective immediately:
+```
+pip install -e .[all]
+```
