@@ -58,7 +58,6 @@ class FraudLearner(MachineLearningInterface):
         self.model.partial_fit(self.train_data[0:1], self.train_labels[0:1],
                                classes=self.class_labels)  # this needs to be called before predict
         self.vote_score = self.test(self.train_data, self.train_labels)
-        self.score_name = "mean_accuracy"
 
     def mli_propose_weights(self) -> Weights:
         """

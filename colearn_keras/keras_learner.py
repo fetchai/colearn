@@ -38,7 +38,6 @@ class KerasLearner(MachineLearningInterface):
         self.minimise_criterion: bool = minimise_criterion
         self.criterion = criterion
         self.model_fit_kwargs = model_fit_kwargs or {}
-        self.score_name = criterion
 
         if model_fit_kwargs:
             # check that these are valid kwargs for model fit

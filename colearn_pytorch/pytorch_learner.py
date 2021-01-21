@@ -31,8 +31,7 @@ class PytorchLearner(MachineLearningInterface):
                  minimise_criterion=True,
                  vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,
                  num_train_batches: Optional[int] = None,
-                 num_test_batches: Optional[int] = None,
-                 score_name: str = "score"):
+                 num_test_batches: Optional[int] = None):
         """
         :param model: Pytorch model used for training
         :param optimizer: Training optimizer
@@ -44,7 +43,6 @@ class PytorchLearner(MachineLearningInterface):
         :param vote_criterion: Function to measure model performance for voting
         :param num_train_batches: Number of training batches
         :param num_test_batches: Number of testing batches
-        :param score_name: Name of performance metric for voting
         """
 
         # Model has to be on same device as data
@@ -60,7 +58,6 @@ class PytorchLearner(MachineLearningInterface):
         self.vote_criterion = vote_criterion
 
         self.vote_score = self.test(self.train_loader)
-        self.score_name = score_name
 
     def mli_get_current_weights(self) -> Weights:
         """

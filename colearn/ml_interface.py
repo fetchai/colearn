@@ -16,8 +16,6 @@ class ProposedWeights(BaseModel):
 
 
 class MachineLearningInterface(abc.ABC):
-    score_name: str = "score"
-
     @abc.abstractmethod
     def mli_propose_weights(self) -> Weights:
         """

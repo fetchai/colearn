@@ -32,18 +32,35 @@ def main(str_task_type: str,
     # pylint: disable=C0415
     if task_type == TaskType.PYTORCH_XRAY:
         from colearn_pytorch.pytorch_xray import split_to_folders, ModelType
+        if "vote_on_accuracy" in learning_kwargs:
+            if learning_kwargs["vote_on_accuracy"]:
+                score_name = "auc"
+            else:
+                score_name = "loss"
+        else:
+            score_name = "auc"
     elif task_type == TaskType.KERAS_MNIST:
         # noinspection PyUnresolvedReferences
         from colearn_keras.keras_mnist import split_to_folders, ModelType  # type: ignore[no-redef]
+        score_name = "categorical_accuracy"
     elif task_type == TaskType.KERAS_CIFAR10:
         # noinspection PyUnresolvedReferences
         from colearn_keras.keras_cifar10 import split_to_folders, ModelType  # type: ignore[no-redef]
+        score_name = "categorical_accuracy"
     elif task_type == TaskType.PYTORCH_COVID_XRAY:
         # noinspection PyUnresolvedReferences
         from colearn_pytorch.pytorch_covid_xray import split_to_folders, ModelType  # type: ignore[no-redef]
+        if "vote_on_accuracy" in learning_kwargs:
+            if learning_kwargs["vote_on_accuracy"]:
+                score_name = "categorical_accuracy"
+            else:
+                score_name = "loss"
+        else:
+            score_name = "categorical_accuracy"
     elif task_type == TaskType.FRAUD:
         # noinspection PyUnresolvedReferences
         from colearn_other.fraud_dataset import split_to_folders, ModelType  # type: ignore [no-redef]
+        score_name = "accuracy"
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
 
@@ -79,7 +96,6 @@ def main(str_task_type: str,
                                               ))
 
     set_equal_weights(all_learner_models)
-    score_name = all_learner_models[0].score_name
 
     # Now we're ready to start collective learning
     # Get initial accuracy

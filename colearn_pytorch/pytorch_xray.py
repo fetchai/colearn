@@ -65,10 +65,8 @@ def prepare_learner(model_type: ModelType,
         learner_vote_kwargs = dict(
             vote_criterion=auc_from_logits,
             minimise_criterion=False)
-        score_name = "auc"
     else:
         learner_vote_kwargs = {}
-        score_name = "loss"
 
     # Make n instances of PytorchLearner with model and torch dataloaders
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -83,7 +81,6 @@ def prepare_learner(model_type: ModelType,
             reduction='mean'),
         num_train_batches=steps_per_epoch,
         num_test_batches=vote_batches,
-        score_name=score_name,
         **learner_vote_kwargs  # type: ignore[arg-type]
     )
 
