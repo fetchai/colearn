@@ -1,13 +1,16 @@
 # How to run the demo
 
 You can try collective learning for yourself using the simple demo in `./bin/run_demo.py`. 
-This demo creates n learners for one of three learning tasks, and co-ordinates the collective learning between them.
+This demo creates n learners for one of five learning tasks and co-ordinates the collective learning between them.
 
-There are three potential datasets for the demo
+There are five potential datasets for the demo
 
 * KERAS_MNIST is the Tensorflow implementation of standard handwritten digits recognition dataset
+* KERAS_CIFAR10 is the Tensorflow implementation of standard image recognition dataset
 * PYTORCH_XRAY is Pytorch implementation of a binary classification task that requires predicting pneumonia from images of chest X-rays. 
   The data need to be downloaded from [kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
+* PYTORCH_COVID_XRAY is Pytorch implementation of a 3 class classification task that requires predicting no finding, covid or pneumonia from images of chest X-rays. 
+  The data need to be downloaded from this [google-drive](https://drive.google.com/drive/folders/1A_u3qWVRHlv7qh_7b5tniXvbfX83VwWN?usp=sharing)
 * FRAUD The fraud dataset consists of information about credit card transactions, and the task is to predict whether 
   transactions are fraudulent or not. 
   The data need to be downloaded from [kaggle](https://www.kaggle.com/c/ieee-fraud-detection)
@@ -21,13 +24,13 @@ Arguments to run the demo:
 ```
 --train_dir:      Directory containing train data, not required for MNIST and CIFAR10
 --test_dir:       Optional directory containing test data
-                  Fraction of training set will be used as test set when not specified
+                  The fraction of the training set will be used as a test set when not specified
 --task:           Type of task for machine learning
 --model_type:     Type of machine learning model, default model will be used if not specified
 --n_learners:     Number of individual learners
 --n_epochs:       Number of training epochs
---vote_threshold: Minimum fraction of positive votes to accept new model
---train_ratio:    Fraction of training dataset to be used as testset when no testset is specified
+--vote_threshold: Minimum fraction of positive votes to accept the new model
+--train_ratio:    Fraction of training dataset to be used as test-set when no test-set is specified
 --seed:           Seed for initialising model and shuffling datasets
 --learning_rate:  Learning rate for optimiser
 --batch_size:     Size of training batch
@@ -39,14 +42,25 @@ This runs the MNIST task with five learners for 15 epochs.
 ```bash
 examples/run_demo.py --task KERAS_MNIST --n_learners 5 --n_epochs 15
 ```
-You should see a graph of the vote score and the test score (the score used here is area under the curve (AUC)).
+You should see a graph of the vote score and the test score (the score used here is categorical accuracy).
+New model is accepted (blue star) if amount of possitive votes (yellow color) is higher than 0.5. 
+New model is rejected (orange cross) if amount of negative votes (purple color) is lower than 0.5. 
 
 ![Alt text](images/mnist_plot.png?raw=true "Collective learning graph")
 
-As you can see, there are five learners, and intially they perform poorly.
+As you can see, there are five learners, and initially they perform poorly.
 In round one, learner 0 is selected to propose a new set of weights.
 
 ## Other datasets
+To run the CIFAR10 dataset:
+```bash
+examples/run_demo.py --task KERAS_CIFAR10 --n_learners 5 --n_epochs 15
+```
+The Covid X-ray datasets need to be downloaded from google drive, please see the link above.
+To run the Covid X-ray dataset:
+```bash
+examples/run_demo.py --task PYTORCH_COVID_XRAY --n_learners 5 -n_epochs 15 -train_dir ./data/xray
+```
 The Fraud and X-ray datasets need to be downloaded from kaggle (this requires a kaggle account).
 To run the fraud dataset:
 ```bash
@@ -56,3 +70,4 @@ To run the X-ray dataset:
 ```bash
 examples/run_demo.py --task PYTORCH_XRAY --n_learners 5 -n_epochs 15 -train_dir ./data/xray
 ```
+
