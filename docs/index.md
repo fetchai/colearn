@@ -40,6 +40,7 @@ We invite all users to experiment with the framework, develop their own models, 
 2. Install the package from source:
     ```bash
     pip install -e .[all]
+    pip install -r requirements.txt
     ```
    For more installation options see [Installation](./installation.md)
 3. Run one of the examples:
