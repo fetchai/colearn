@@ -9,8 +9,8 @@ from colearn.ml_interface import Weights
 from colearn_pytorch.pytorch_learner import PytorchLearner
 
 # torch does not correctly type-hint its tensor class so pylint fails
-MODEL_PARAMETERS = [torch.tensor([3, 3]), torch.tensor([4, 4])]  # pylint: disable not-callable
-MODEL_PARAMETERS2 = [torch.tensor([5, 5]), torch.tensor([6, 6])]  # pylint: disable not-callable
+MODEL_PARAMETERS = [torch.tensor([3, 3]), torch.tensor([4, 4])]  # pylint: disable=not-callable
+MODEL_PARAMETERS2 = [torch.tensor([5, 5]), torch.tensor([6, 6])]  # pylint: disable=not-callable
 BATCH_SIZE = 2
 TRAIN_BATCHES = 1
 TEST_BATCHES = 1
@@ -27,7 +27,7 @@ def get_mock_model() -> Mock:
 def get_mock_dataloader() -> Mock:
     dl = create_autospec(torch.utils.data.DataLoader, instance=True)
     dl.__len__ = Mock(return_value=100)
-    # pylint: disable not-callable
+    # pylint: disable=not-callable
     dl.__iter__.return_value = [(torch.tensor([0, 0]),
                                  torch.tensor([0])),
                                 (torch.tensor([1, 1]),
@@ -43,7 +43,7 @@ def get_mock_optimiser() -> Mock:
 def get_mock_criterion() -> Mock:
     crit = create_autospec(_Loss, instance=True)
 
-    # pylint: disable not-callable
+    # pylint: disable=not-callable
     crit.return_value = torch.tensor(LOSS)
     crit.return_value.backward = Mock()  # type: ignore[assignment]
 
