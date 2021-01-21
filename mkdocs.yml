@@ -15,6 +15,7 @@ nav:
   - Colearn: 'index.md'
   - Collective Learning Protocol: 'about.md'
   - Getting Started:
+      - Installation: 'installation.md'
       - Keras: 'intro_tutorial_keras.md'
       - PyTorch: 'intro_tutorial_pytorch.md'
       - The MachineLearningInterface: 'intro_tutorial_mli.md'

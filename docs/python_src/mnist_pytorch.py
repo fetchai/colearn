@@ -8,7 +8,7 @@ import torch.nn.functional as nn_func
 # define some constants
 batch_size = 64
 seed = 42
-n_epochs = 20
+n_rounds = 20
 train_fraction = 0.9
 learning_rate = 0.001
 height = 28
@@ -56,7 +56,7 @@ opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
 criterion = torch.nn.NLLLoss()
 
 # Train and evaluate the model
-for epoch in range(n_epochs):
+for round in range(n_rounds):
     # train model
     model.train()
 
@@ -87,4 +87,4 @@ for epoch in range(n_epochs):
             output = model(data)
             total_score += criterion(output, labels)
     avg_loss = float(total_score / (num_test_batches * batch_size))
-    print(f"Average loss at epoch {epoch} is {avg_loss}")
+    print(f"Average loss at round {round} is {avg_loss}")

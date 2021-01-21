@@ -1,7 +1,7 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
-n_epochs = 20
+n_rounds = 20
 width = 28
 height = 28
 n_classes = 10
@@ -47,7 +47,7 @@ model.compile(
     optimizer=opt)
 
 # Train and evaluate model
-for epoch in range(n_epochs):
+for round in range(n_rounds):
     model.fit(train_dataset, steps_per_epoch=40)
     result = model.evaluate(x=test_dataset, return_dict=True, steps=10)
-    print(f"Performance at epoch {epoch} is {result}")
+    print(f"Performance at round {round} is {result}")
