@@ -10,7 +10,7 @@ from sklearn.preprocessing import scale
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
 
 
@@ -184,6 +184,9 @@ if __name__ == "__main__":
     # Get initial score
     results.data.append(initial_result(all_learner_models))
 
+    plot = ColearnPlot(n_learners=n_learners,
+                       score_name="accuracy")
+
     for epoch in range(n_epochs):
         results.data.append(
             collective_learning_round(all_learner_models,
@@ -191,8 +194,8 @@ if __name__ == "__main__":
         )
 
         # then make an updating graph
-        plot_results(results, n_learners, score_name="accuracy")
-        plot_votes(results)
+        plot.plot_results(results)
+        plot.plot_votes(results)
 
-    plot_results(results, n_learners, score_name="accuracy")
-    plot_votes(results, block=True)
+    plot.plot_results(results)
+    plot.plot_votes(results, block=True)

@@ -12,21 +12,21 @@ class PlusOneLearner(MachineLearningInterface):
 
     def mli_test_weights(self, weights) -> ProposedWeights:
         if weights.weights > self.current_value:
-            test_accuracy = 1.0
-            vote_accuracy = 1.0
+            test_score = 1.0
+            vote_score = 1.0
             vote = True
         elif weights == self.current_value:
-            test_accuracy = 0.5
-            vote_accuracy = 0.5
+            test_score = 0.5
+            vote_score = 0.5
             vote = False
         else:
-            test_accuracy = 0.0
-            vote_accuracy = 0.0
+            test_score = 0.0
+            vote_score = 0.0
             vote = False
 
         result = ProposedWeights(weights=weights,
-                                 vote_score=vote_accuracy,
-                                 test_score=test_accuracy,
+                                 vote_score=vote_score,
+                                 test_score=test_score,
                                  vote=vote
                                  )
 
