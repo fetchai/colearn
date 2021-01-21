@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from colearn.ml_interface import ProposedWeights, MachineLearningInterface
-from colearn.standalone_driver import run_one_epoch
+from colearn.standalone_driver import run_one_train_round
 from colearn.utils.results import Result
 
 
@@ -23,29 +23,29 @@ def initial_result(learners: Sequence[MachineLearningInterface]):
 
 
 def collective_learning_round(learners: Sequence[MachineLearningInterface], vote_threshold,
-                              epoch):
+                              train_round):
     print("Doing collective learning round")
     result = Result()
 
-    proposed_weights_list, vote = run_one_epoch(epoch, learners,
+    proposed_weights_list, vote = run_one_train_round(train_round, learners,
                                                 vote_threshold)
     result.vote = vote
     result.votes = [pw.vote for pw in proposed_weights_list]
     result.vote_scores = [pw.vote_score for pw in
                           proposed_weights_list]
     result.test_scores = [pw.test_score for pw in proposed_weights_list]
-    result.block_proposer = epoch % len(learners)
+    result.block_proposer = train_round % len(learners)
 
     return result
 
 
-def individual_training_round(learners: Sequence[MachineLearningInterface], epoch):
+def individual_training_round(learners: Sequence[MachineLearningInterface], train_round):
     print("Doing individual training pass")
     result = Result()
 
     # train all models
     for i, learner in enumerate(learners):
-        print(f"Training learner #{i} epoch {epoch}")
+        print(f"Training learner #{i} train round {train_round}")
         weights = learner.mli_propose_weights()
         proposed_weights = learner.mli_test_weights(weights)
         learner.mli_accept_weights(weights)

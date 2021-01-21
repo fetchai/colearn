@@ -3,14 +3,14 @@ from typing import List, Sequence
 from colearn.ml_interface import MachineLearningInterface
 
 
-def run(n_epochs: int, learners: List[MachineLearningInterface]):
-    for i in range(n_epochs):
-        run_one_epoch(i, learners)
+def run(n_train_rounds: int, learners: List[MachineLearningInterface]):
+    for i in range(n_train_rounds):
+        run_one_train_round(i, learners)
 
 
-def run_one_epoch(epoch_index: int, learners: Sequence[MachineLearningInterface],
+def run_one_train_round(train_round_index: int, learners: Sequence[MachineLearningInterface],
                   vote_threshold=0.5):
-    proposer = epoch_index % len(learners)
+    proposer = train_round_index % len(learners)
     new_weights = learners[proposer].mli_propose_weights()
 
     prop_weights_list = [ln.mli_test_weights(new_weights) for ln in learners]
