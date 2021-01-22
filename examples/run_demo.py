@@ -29,7 +29,7 @@ parser.add_argument("-m", "--model_type", default=None, type=str,
                     help="Type of machine learning model, default model will be used if not specified")
 
 parser.add_argument("-n", "--n_learners", default=5, type=int, help="Number of learners")
-parser.add_argument("-p", "--n_epochs", default=15, type=int, help="Number of training epochs")
+parser.add_argument("-p", "--n_rounds", default=15, type=int, help="Number of training rounds")
 
 parser.add_argument("-v", "--vote_threshold", default=0.5, type=float,
                     help="Minimum fraction of positive votes to accept new model")
@@ -50,7 +50,7 @@ n_learners = args.n_learners
 test_data_folder = args.test_dir
 train_data_folder = args.data_dir
 vote_threshold = args.vote_threshold
-n_epochs = args.n_epochs
+n_rounds = args.n_rounds
 
 # Generate seed
 if args.seed is None:
@@ -161,10 +161,10 @@ results.data.append(initial_result(all_learner_models))
 plot = ColearnPlot(n_learners=n_learners,
                    score_name=score_name)
 
-for epoch in range(n_epochs):
+for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round_index)
     )
 
     plot.plot_results(results)
