@@ -62,6 +62,6 @@ examples/run_demo.py --task FRAUD --n_learners 5 --n_rounds 15 --data_dir ./data
 ```
 To run the X-ray dataset:
 ```bash
-examples/run_demo.py --task PYTORCH_XRAY --n_learners 5 -n_rounds 15 -data_dir ./data/xray
+examples/run_demo.py --task PYTORCH_XRAY --n_learners 5 --n_rounds 15 --data_dir ./data/xray
 ```
 
