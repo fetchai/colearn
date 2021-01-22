@@ -13,7 +13,7 @@ from torchsummary import summary
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
-from colearn.utils.results import Results
+from colearn.utils.results import Results, print_results
 from colearn_pytorch.utils import categorical_accuracy, prepare_data_split_list
 from colearn_pytorch.pytorch_learner import PytorchLearner
 
@@ -162,6 +162,7 @@ for curr_round in range(n_rounds):
         collective_learning_round(all_learner_models,
                                   vote_threshold, curr_round)
     )
+    print_results(results)
 
     plot.plot_results(results)
     plot.plot_votes(results)

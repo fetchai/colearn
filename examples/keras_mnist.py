@@ -3,7 +3,7 @@ import tensorflow_datasets as tfds
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
-from colearn.utils.results import Results
+from colearn.utils.results import Results, print_results
 from colearn_keras.keras_learner import KerasLearner
 
 """
@@ -110,6 +110,7 @@ for curr_round in range(n_rounds):
                                   vote_threshold, curr_round)
     )
 
+    print_results(results)
     plot.plot_results(results)
     plot.plot_votes(results)
 

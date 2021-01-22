@@ -1,5 +1,6 @@
 import matplotlib.axes._axes as mpl_ax
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import numpy as np
 
 from colearn.utils.results import Results
@@ -129,7 +130,11 @@ class ColearnPlot:
 
         # draw gridlines
         self.votes_axes.set_xticks(range(n_epochs))
-        self.votes_axes.set_yticklabels([""] + ["Learner " + str(i) for i in range(n_learners)])
+
+        ticks = [""] + ["Learner " + str(i) for i in range(n_learners)] + [""]
+        ticks_loc = self.votes_axes.get_yticks().tolist()
+        self.votes_axes.yaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
+        self.votes_axes.set_yticklabels(ticks)
 
         pos_xs = []
         pos_ys = []
