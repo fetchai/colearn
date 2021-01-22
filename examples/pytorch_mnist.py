@@ -1,3 +1,5 @@
+import os
+
 from typing_extensions import TypedDict
 import torch.nn as nn
 import torch.nn.functional as nn_func
@@ -26,7 +28,9 @@ What script does:
 # define some constants
 n_learners = 5
 batch_size = 64
-n_epochs = 20
+
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+n_epochs = 10 if not testing_mode else 1
 vote_threshold = 0.5
 train_fraction = 0.9
 learning_rate = 0.001

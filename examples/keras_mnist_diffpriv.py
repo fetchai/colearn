@@ -1,3 +1,6 @@
+import os
+import sys
+
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
@@ -8,7 +11,9 @@ from colearn.utils.results import Results
 from colearn_keras.keras_learner import KerasLearner
 
 n_learners = 5
-n_epochs = 20
+
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+n_epochs = 20 if not testing_mode else 1
 vote_threshold = 0.5
 
 width = 28

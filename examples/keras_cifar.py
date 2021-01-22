@@ -1,3 +1,5 @@
+import os
+
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -19,7 +21,8 @@ What script does:
 """
 
 n_learners = 5
-n_epochs = 20
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+n_epochs = 20 if not testing_mode else 1
 make_plot = True
 vote_threshold = 0.5
 

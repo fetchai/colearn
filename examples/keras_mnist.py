@@ -1,3 +1,5 @@
+import os
+
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -23,7 +25,8 @@ n_learners = 5
 vote_threshold = 0.5
 vote_batches = 2
 
-n_epochs = 20
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+n_epochs = 20 if not testing_mode else 1
 width = 28
 height = 28
 n_classes = 10
