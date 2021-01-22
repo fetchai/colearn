@@ -35,7 +35,7 @@ What script does:
 n_learners = 5
 batch_size = 32
 seed = 42
-n_epochs = 50
+n_rounds = 50
 vote_threshold = 0.5
 train_fraction = 0.8
 learning_rate = 0.001
@@ -157,10 +157,10 @@ plot = ColearnPlot(n_learners=n_learners,
                    score_name=score_name)
 
 # Do the training
-for epoch in range(n_epochs):
+for curr_round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, curr_round)
     )
 
     plot.plot_results(results)

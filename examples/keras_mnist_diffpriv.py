@@ -8,7 +8,7 @@ from colearn.utils.results import Results
 from colearn_keras.keras_learner import KerasLearner
 
 n_learners = 5
-n_epochs = 20
+n_rounds = 20
 vote_threshold = 0.5
 
 width = 28
@@ -107,10 +107,10 @@ results.data.append(initial_result(all_learner_models))
 plot = ColearnPlot(n_learners=n_learners,
                    score_name=all_learner_models[0].criterion)
 
-for epoch in range(n_epochs):
+for curr_round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, curr_round)
     )
 
     plot.plot_results(results)

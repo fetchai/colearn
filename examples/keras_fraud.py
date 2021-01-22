@@ -73,7 +73,7 @@ DATA_FL = "data.npy"
 LABEL_FL = "labels.npy"
 train_fraction = 0.9
 n_learners = 5
-n_epochs = 7
+n_rounds = 7
 vote_threshold = 0.5
 steps_per_epoch = 1
 
@@ -116,10 +116,10 @@ results.data.append(initial_result(all_learner_models))
 plot = ColearnPlot(n_learners=n_learners,
                    score_name="loss")
 
-for epoch in range(n_epochs):
+for curr_round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, curr_round)
     )
 
     # then make an updating graph

@@ -27,7 +27,7 @@ What script does:
 n_learners = 5
 batch_size = 64
 seed = 42
-n_epochs = 20
+n_rounds = 20
 vote_threshold = 0.5
 train_fraction = 0.9
 learning_rate = 0.001
@@ -95,7 +95,7 @@ if vote_on_accuracy:
     learner_vote_kwargs = dict(
         vote_criterion=categorical_accuracy,
         minimise_criterion=False)
-    score_name = "categroical accuracy"
+    score_name = "Categorical accuracy"
 else:
     learner_vote_kwargs = {}
     score_name = "loss"
@@ -133,10 +133,10 @@ plot = ColearnPlot(n_learners=n_learners,
                    score_name=score_name)
 
 # Do the training
-for epoch in range(n_epochs):
+for curr_round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, curr_round)
     )
 
     plot.plot_results(results)

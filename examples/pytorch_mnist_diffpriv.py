@@ -15,7 +15,7 @@ from colearn_pytorch.pytorch_learner import PytorchLearner
 n_learners = 5
 batch_size = 64
 seed = 42
-n_epochs = 10
+n_rounds = 10
 vote_threshold = 0.5
 train_fraction = 0.9
 learning_rate = 0.001
@@ -117,10 +117,10 @@ plot = ColearnPlot(n_learners=n_learners,
                    score_name="loss")
 
 score_name = "loss"
-for epoch in range(n_epochs):
+for curr_round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, curr_round)
     )
 
     plot.plot_results(results)

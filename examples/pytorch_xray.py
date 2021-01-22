@@ -44,7 +44,7 @@ To Run: required argument is data_dir: Path to root folder containing data
 n_learners = 5
 batch_size = 8
 seed = 42
-n_epochs = 15
+n_rounds = 15
 vote_threshold = 0.5
 learning_rate = 0.001
 height = 128
@@ -322,10 +322,10 @@ results.data.append(initial_result(all_learner_models))
 plot = ColearnPlot(n_learners=n_learners,
                    score_name=score_name)
 
-for epoch in range(n_epochs):
+for curr_round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, curr_round)
     )
 
     plot.plot_results(results)
