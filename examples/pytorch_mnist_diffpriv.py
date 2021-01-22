@@ -7,7 +7,7 @@ from torchsummary import summary
 from torchvision import transforms, datasets
 
 from colearn.training import initial_result, collective_learning_round
-from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
 from colearn_pytorch.pytorch_learner import PytorchLearner
 
@@ -113,6 +113,9 @@ summary(all_learner_models[0].model, input_size=(width, height))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name="loss")
+
 score_name = "loss"
 for epoch in range(n_epochs):
     results.data.append(
@@ -120,8 +123,10 @@ for epoch in range(n_epochs):
                                   vote_threshold, epoch)
     )
 
-    plot_results(results, n_learners, score_name=score_name)
-    plot_votes(results)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
-plot_results(results, n_learners, score_name=score_name)
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")

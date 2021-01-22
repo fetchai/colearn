@@ -89,7 +89,7 @@ def prepare_learner(model_type: ModelType,
     :param model_type: Enum that represents selected model type
     :param data_loaders: Tuple of train_loader and test_loader
     :param steps_per_epoch: Number of batches per training epoch
-    :param vote_batches: Number of batches to get vote_accuracy
+    :param vote_batches: Number of batches to get vote_score
     :param learning_rate: Learning rate for optimiser
     :param _kwargs: Residual parameters not used by this function
     :return: New instance of KerasLearner

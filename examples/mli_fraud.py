@@ -1,5 +1,8 @@
+import argparse
 import os
 from pathlib import Path
+import sys
+
 import numpy as np
 import pandas as pd
 import sklearn
@@ -10,8 +13,20 @@ from sklearn.preprocessing import scale
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
+
+"""
+Fraud training example using Sklearn by directly implementing MachineLearningInterface
+
+Used dataset:
+- Fraud, download from kaggle: https://www.kaggle.com/c/ieee-fraud-detection
+
+What the script does:
+- Implements the Machine Learning Interface
+- Randomly splits the dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
 
 
 def infinite_batch_sampler(data_size, batch_size):
@@ -135,7 +150,16 @@ def fraud_preprocessing(data_dir, data_file, labels_file):
 
 
 if __name__ == "__main__":
-    data_dir = '/home/emmasmith/Development/datasets/fraud'
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("data_dir", help="Path to data directory", type=str)
+
+    args = parser.parse_args()
+
+    if not Path.is_dir(Path(args.data_dir)):
+        sys.exit(f"Data path provided: {args.data_dir} is not a valid path or not a directory")
+
+    data_dir = args.data_dir
     train_fraction = 0.9
     n_learners = 5
     n_epochs = 7
@@ -184,6 +208,9 @@ if __name__ == "__main__":
     # Get initial score
     results.data.append(initial_result(all_learner_models))
 
+    plot = ColearnPlot(n_learners=n_learners,
+                       score_name="accuracy")
+
     for epoch in range(n_epochs):
         results.data.append(
             collective_learning_round(all_learner_models,
@@ -191,8 +218,10 @@ if __name__ == "__main__":
         )
 
         # then make an updating graph
-        plot_results(results, n_learners, score_name="accuracy")
-        plot_votes(results)
+        plot.plot_results(results)
+        plot.plot_votes(results)
 
-    plot_results(results, n_learners, score_name="accuracy")
-    plot_votes(results, block=True)
+    plot.plot_results(results)
+    plot.plot_votes(results, block=True)
+
+    print("Colearn Example Finished!")

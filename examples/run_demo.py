@@ -4,7 +4,7 @@ import os
 from typing import Optional, Sequence
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
 from colearn_other.mli_factory import TaskType, mli_factory
 
@@ -14,7 +14,7 @@ Collective learning demo:
 Demo for running all available examples
 
 Arguments:
---train_dir:      Directory containing train data, not required for MNIST and CIFAR10
+--data_dir:      Directory containing train data, not required for MNIST and CIFAR10
 --test_dir:       Optional directory containing test data
                   Fraction of training set will be used as test set when not specified
 --task:           Type of task for machine learning
@@ -29,7 +29,7 @@ Arguments:
 """
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
-parser.add_argument("-d", "--train_dir", default=None, help="Directory for training data")
+parser.add_argument("-d", "--data_dir", default=None, help="Directory for training data")
 parser.add_argument("-e", "--test_dir", default=None, help="Directory for test data")
 
 parser.add_argument("-t", "--task", default="KERAS_MNIST",
@@ -57,7 +57,7 @@ str_task_type = args.task
 str_model_type = args.model_type
 n_learners = args.n_learners
 test_data_folder = args.test_dir
-train_data_folder = args.train_dir
+train_data_folder = args.data_dir
 vote_threshold = args.vote_threshold
 n_epochs = args.n_epochs
 
@@ -167,14 +167,17 @@ set_equal_weights(all_learner_models)
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name=score_name)
+
 for epoch in range(n_epochs):
     results.data.append(
         collective_learning_round(all_learner_models,
                                   vote_threshold, epoch)
     )
 
-    plot_results(results, n_learners, score_name=score_name)
-    plot_votes(results)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
-plot_results(results, n_learners, score_name=score_name)
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)

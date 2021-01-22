@@ -49,7 +49,7 @@ def prepare_learner(model_type: ModelType,
     :param data_loaders: Tuple of train_loader and test_loader
     :param learning_rate: Learning rate for optimiser
     :param steps_per_epoch: Number of batches per training epoch
-    :param vote_batches: Number of batches to get vote_accuracy
+    :param vote_batches: Number of batches to get vote_score
     :param no_cuda: True = disable GPU computing
     :param vote_on_accuracy: True = vote on accuracy metric, False = vote on loss
     :param _kwargs: Residual parameters not used by this function

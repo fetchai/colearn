@@ -12,7 +12,7 @@ from torch.utils.data import TensorDataset
 from torchsummary import summary
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
+from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results
 from colearn_pytorch.utils import categorical_accuracy, prepare_data_split_list
 from colearn_pytorch.pytorch_learner import PytorchLearner
@@ -33,11 +33,11 @@ What script does:
 
 # define some constants
 n_learners = 5
-batch_size = 64
+batch_size = 32
 seed = 42
 n_epochs = 50
 vote_threshold = 0.5
-train_fraction = 0.9
+train_fraction = 0.8
 learning_rate = 0.001
 input_width = 64
 n_classes = 3
@@ -153,6 +153,9 @@ summary(all_learner_models[0].model, input_size=(input_width,))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name=score_name)
+
 # Do the training
 for epoch in range(n_epochs):
     results.data.append(
@@ -160,9 +163,11 @@ for epoch in range(n_epochs):
                                   vote_threshold, epoch)
     )
 
-    plot_results(results, n_learners, score_name=score_name)
-    plot_votes(results)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
 # Plot the final result with votes
-plot_results(results, n_learners, score_name=score_name)
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")
