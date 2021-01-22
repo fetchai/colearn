@@ -12,31 +12,21 @@ from colearn_other.mli_factory import TaskType, mli_factory
 Collective learning demo:
 
 Demo for running all available examples
-
-Arguments:
---data_dir:      Directory containing train data, not required for MNIST and CIFAR10
---test_dir:       Optional directory containing test data
-                  Fraction of training set will be used as test set when not specified
---task:           Type of task for machine learning
---model_type:     Type of machine learning model, default model will be used if not specified
---n_learners:     Number of individual learners
---n_epochs:       Number of training epochs
---vote_threshold: Minimum fraction of positive votes to accept new model
---train_ratio:    Fraction of training dataset to be used as testset when no testset is specified
---seed:           Seed for initialising model and shuffling datasets
---learning_rate:  Learning rate for optimiser
---batch_size:     Size of training batch
 """
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
-parser.add_argument("-d", "--data_dir", default=None, help="Directory for training data")
-parser.add_argument("-e", "--test_dir", default=None, help="Directory for test data")
+parser.add_argument("-d", "--data_dir", default=None,
+                    help="Directory containing train data, not required for MNIST and CIFAR10")
+parser.add_argument("-e", "--test_dir", default=None,
+                    help="Optional directory containing test data. "
+                         "Fraction of training set will be used as test set when not specified")
 
 parser.add_argument("-t", "--task", default="KERAS_MNIST",
-                    help="Options are " + " ".join(str(x.name)
-                                                   for x in TaskType))
+                    help="Type of task for machine learning, options are " + " ".join(str(x.name)
+                                                                                      for x in TaskType))
 
-parser.add_argument("-m", "--model_type", default=None, type=str)
+parser.add_argument("-m", "--model_type", default=None, type=str,
+                    help="Type of machine learning model, default model will be used if not specified")
 
 parser.add_argument("-n", "--n_learners", default=5, type=int, help="Number of learners")
 parser.add_argument("-p", "--n_epochs", default=15, type=int, help="Number of training epochs")
@@ -45,9 +35,10 @@ parser.add_argument("-v", "--vote_threshold", default=0.5, type=float,
                     help="Minimum fraction of positive votes to accept new model")
 
 parser.add_argument("-r", "--train_ratio", default=None, type=float,
-                    help="Fraction of training dataset to be used as testset when no testset is specified")
+                    help="Fraction of training dataset to be used as test set when no test set is specified")
 
-parser.add_argument("-s", "--seed", type=int, default=None)
+parser.add_argument("-s", "--seed", type=int, default=None,
+                    help="Seed for initialising model and shuffling datasets")
 parser.add_argument("-l", "--learning_rate", type=float, default=None, help="Learning rate for optimiser")
 parser.add_argument("-b", "--batch_size", type=int, default=None, help="Size of training batch")
 
