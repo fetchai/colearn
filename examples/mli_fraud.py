@@ -162,7 +162,7 @@ if __name__ == "__main__":
     data_dir = args.data_dir
     train_fraction = 0.9
     n_learners = 5
-    n_epochs = 7
+    n_rounds = 7
     vote_threshold = 0.5
 
     preprocessed_data_file = Path(data_dir) / "data.npy"
@@ -211,10 +211,10 @@ if __name__ == "__main__":
     plot = ColearnPlot(n_learners=n_learners,
                        score_name="accuracy")
 
-    for epoch in range(n_epochs):
+    for round_index in range(n_rounds):
         results.data.append(
             collective_learning_round(all_learner_models,
-                                      vote_threshold, epoch)
+                                      vote_threshold, round_index)
         )
         print_results(results)
 
