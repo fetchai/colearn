@@ -117,10 +117,10 @@ plot = ColearnPlot(n_learners=n_learners,
                    score_name="loss")
 
 score_name = "loss"
-for curr_round in range(n_rounds):
+for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, curr_round)
+                                  vote_threshold, round_index)
     )
     print_results(results)
 
