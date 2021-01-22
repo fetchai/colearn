@@ -16,7 +16,7 @@ The detailed steps of a round updating a global model *M* are as follows:
    - If not the learner votes to reject
 3. The total votes are tallied
    - If more than some threshold (typically 50%) of learners approve then *M'* becomes the new global model. If not, *M* continues to be global model
-4. A new round begins. There is typically a finite number of rounds in an experiment
+4. A new round begins.
 
 By using a decentralized ledger (a blockchain) this learning process can be run in a completely decentralized, secure and auditable way. Further security can be provided by using [differential privacy](https://en.wikipedia.org/wiki/Differential_privacy) to avoid exposing your private data set when generating an update.
 
