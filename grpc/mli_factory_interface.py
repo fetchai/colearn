@@ -17,36 +17,36 @@ class MliFactory(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_datasets(self) -> Set[str]:
+    def get_dataloaders(self) -> Set[str]:
         """
-        Returns the set of datasets this factory produces
+        Returns the set of dataloaders this factory understands
         """
         pass
 
     @abc.abstractmethod
     def get_compatibilities(self) -> Dict[str, Set[str]]:
         """
-        A model is compatible with a dataset if they can be used together to
+        A model is compatible with a dataloader if they can be used together to
         construct a MachineLearningInterface with the get_MLI function.
 
         Returns a dictionary that defines which model is compatible
-        with which datasets.
+        with which dataloader.
         """
         pass
 
     @abc.abstractmethod
     def get_mli(self,
                 model_name: str, model_params: str,
-                dataset_name: str, dataset_params: str) -> MachineLearningInterface:
+                dataloader_name: str, dataset_params: str) -> MachineLearningInterface:
         """
         @param model_name: name of a model, must be in the set return by get_models
-        @param model_params: optional, user defined parameters for the model
-        @param dataset_name: name of a dataset:
-            - must be in the set returned by get_datasets
+        @param model_params: user defined parameters for the model
+        @param dataloader_name: name of a dataloader to be used:
+            - must be in the set returned by get_dataloaders
             - must be compatible with model_name as defined by get_compatibilities
-        @param dataset_params: optional, user defined parameters for the dataset
+        @param dataset_params: user defined parameters for the dataset
         @return: Instance of MachineLearningInterface
         Constructs an object that implements MachineLearningInterface whose
-        underlying model is model_name and dataset is dataset_name.
+        underlying model is model_name and dataset is loaded by dataloader_name.
         """
         pass

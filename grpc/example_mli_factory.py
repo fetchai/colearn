@@ -12,29 +12,29 @@ class ExampleMliFactory(MliFactory):
 
     def __init__(self):
         self.models = set(str(task) for task in TaskType)
-        self.datasets = set(str(task) for task in TaskType)
+        self.dataloaders = set(str(task) for task in TaskType)
         self.compatibilities = {task: set(task) for task in TaskType}
 
     def get_models(self) -> Set[str]:
         return self.models
 
-    def get_datasets(self) -> Set[str]:
-        return self.datasets
+    def get_dataloaders(self) -> Set[str]:
+        return self.dataloaders
 
     def get_compatibilities(self) -> Dict[str, Set[str]]:
         return self.compatibilities
 
-    def get_mli(self, model_name: str, model_params: str, dataset_name: str,
+    def get_mli(self, model_name: str, model_params: str, dataloader_name: str,
                 dataset_params: str) -> MachineLearningInterface:
         if model_name not in self.models:
             raise Exception(f"Model {model_name} is not a valid model. "
                             f"Available models are: {self.models}")
-        if dataset_name not in self.datasets:
-            raise Exception(f"Dataset {dataset_name} is not a valid dataset. "
-                            f"Available datasets are: {self.datasets}")
-        if dataset_name not in self.compatibilities[model_name]:
-            raise Exception(f"Dataset {dataset_name} is not compatible with {model_name}."
-                            f"Compatible datasets are: {self.compatibilities[model_name]}")
+        if dataloader_name not in self.dataloaders:
+            raise Exception(f"Dataloader {dataloader_name} is not a valid dataloader. "
+                            f"Available dataloaders are: {self.dataloaders}")
+        if dataloader_name not in self.compatibilities[model_name]:
+            raise Exception(f"Dataloader {dataloader_name} is not compatible with {model_name}."
+                            f"Compatible dataloaders are: {self.compatibilities[model_name]}")
 
         data_config = json.loads(dataset_params)
 
