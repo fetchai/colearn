@@ -1,22 +1,21 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Sequence
 
 import pytest
 
 REPO_ROOT = Path(__file__).absolute().parent.parent
 EXAMPLES_DIR = REPO_ROOT / "examples"
 
-COLEARN_DATA_DIR = Path(os.getenv("COLEARN_DATA_DIR",
-                                  REPO_ROOT / ".." / "datasets"))
+COLEARN_DATA_DIR = Path(
+    os.getenv("COLEARN_DATA_DIR",
+              os.path.expanduser(os.path.join('~', 'datasets'))))
 
 TFDS_DATA_DIR = os.getenv("TFDS_DATA_DIR",
                           str(COLEARN_DATA_DIR / "tensorflow_datasets"))
 PYTORCH_DATA_DIR = os.getenv("PYTORCH_DATA_DIR",
                              str(COLEARN_DATA_DIR / "pytorch_datasets"))
-
-print("env stuff", COLEARN_DATA_DIR, TFDS_DATA_DIR, PYTORCH_DATA_DIR)
 
 FRAUD_DATA_DIR = COLEARN_DATA_DIR / "ieee-fraud-detection"
 XRAY_DATA_DIR = COLEARN_DATA_DIR / "chest_xray"
@@ -49,14 +48,14 @@ def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str,
     if script in IGNORED:
         pytest.skip(f"Example {script} marked as IGNORED")
 
-    output = subprocess.run(["python", EXAMPLES_DIR / script] + cmd_line,
-                            env=env,
-                            timeout=20 * 60
-                            )
-
-    output.check_returncode()
+    full_cmd: Sequence = ["python", str(EXAMPLES_DIR / script)] + cmd_line
+    subprocess.run(full_cmd,
+                   env=env,
+                   timeout=20 * 60,
+                   check=True
+                   )
 
 
 def test_all_examples_included():
-    examples_list = set(x.name for x in EXAMPLES_DIR.glob('*'))
-    assert examples_list == set([x[0] for x in EXAMPLES_WITH_KWARGS])
+    examples_list = {x.name for x in EXAMPLES_DIR.glob('*')}
+    assert examples_list == {x[0] for x in EXAMPLES_WITH_KWARGS}

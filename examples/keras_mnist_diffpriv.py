@@ -1,5 +1,4 @@
 import os
-import sys
 
 import tensorflow as tf
 import tensorflow_datasets as tfds
@@ -12,7 +11,7 @@ from colearn_keras.keras_learner import KerasLearner
 
 n_learners = 5
 
-testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", "0"))  # for testing
 n_rounds = 20 if not testing_mode else 1
 vote_threshold = 0.5
 
