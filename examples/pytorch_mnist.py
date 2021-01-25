@@ -47,8 +47,9 @@ DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memor
 kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # Load the data and split for each learner.
-train_root = '/tmp/mnist'
-data = datasets.MNIST(train_root, transform=transforms.ToTensor(), download=True)
+DATA_DIR = os.environ.get('PYTORCH_DATA_DIR',
+                          os.path.expanduser(os.path.join('~', 'pytorch_datasets')))
+data = datasets.MNIST(DATA_DIR, transform=transforms.ToTensor(), download=True)
 n_train = int(train_fraction * len(data))
 n_test = len(data) - n_train
 train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])
