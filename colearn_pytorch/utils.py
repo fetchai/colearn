@@ -1,3 +1,5 @@
+from typing import List
+
 import torch
 from sklearn.metrics import roc_auc_score
 
@@ -40,7 +42,7 @@ def categorical_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
     return correct / labels.shape[0]
 
 
-def prepare_data_split_list(data, n):
+def prepare_data_split_list(data, n: int) -> List[int]:
     """
     Create list of sizes for splitting
 

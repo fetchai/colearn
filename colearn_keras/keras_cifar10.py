@@ -12,7 +12,7 @@ from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
 from colearn.utils.data import shuffle_data
 from colearn.utils.data import split_by_chunksizes
-from colearn_keras.new_keras_learner import NewKerasLearner
+from colearn_keras.keras_learner import KerasLearner
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
@@ -23,13 +23,24 @@ class ModelType(Enum):
 
 
 def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Model:
+    """
+    Creates a new instance of selected Keras model
+    :param model_type: Enum that represents selected model type
+    :param learning_rate: Learning rate for optimiser
+    :return: New instance of Keras model
+    """
     if model_type == ModelType.CONV2D:
         return _get_keras_cifar10_conv2D_model(learning_rate)
     else:
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def _get_keras_cifar10_conv2D_model(learning_rate: float):
+def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
+    """
+    2D Convolutional model for image recognition
+    :param learning_rate: Learning rate for optimiser
+    :return: Return instance of Keras model
+    """
     loss = "sparse_categorical_crossentropy"
     optimizer = tf.keras.optimizers.Adam
 
@@ -72,8 +83,18 @@ def prepare_learner(model_type: ModelType,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
-                    **_kwargs):
-    learner = NewKerasLearner(
+                    **_kwargs) -> KerasLearner:
+    """
+    Creates new instance of KerasLearner
+    :param model_type: Enum that represents selected model type
+    :param data_loaders: Tuple of train_loader and test_loader
+    :param steps_per_epoch: Number of batches per training epoch
+    :param vote_batches: Number of batches to get vote_score
+    :param learning_rate: Learning rate for optimiser
+    :param _kwargs: Residual parameters not used by this function
+    :return: New instance of KerasLearner
+    """
+    learner = KerasLearner(
         model=_prepare_model(model_type, learning_rate),
         train_loader=data_loaders[0],
         test_loader=data_loaders[1],
@@ -88,6 +109,13 @@ def prepare_learner(model_type: ModelType,
 def _make_loader(images: np.array,
                  labels: np.array,
                  batch_size: int) -> PrefetchDataset:
+    """
+    Converts array of images and labels to Tensorflow dataset
+    :param images: Numpy array of input data
+    :param labels: Numpy array of output labels
+    :param batch_size: Batch size
+    :return: Shuffled Tensorflow prefetch dataset holding images and labels
+    """
     dataset = tf.data.Dataset.from_tensor_slices((images, labels))
 
     dataset = dataset.cache()
@@ -108,7 +136,7 @@ def prepare_data_loaders(train_folder: str,
     :param train_folder: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
     :param batch_size:
-    :param kwargs:
+    :param kwargs: Residual parameters not used by this function
     :return: Tuple of train_loader and test_loader
     """
 
@@ -128,7 +156,16 @@ def split_to_folders(
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
         **_kwargs
-):
+) -> List[str]:
+    """
+    Loads images with labels and splits them to specified number of subsets
+    :param n_learners: Number of parts for splitting
+    :param data_split: List of percentage portions for each subset
+    :param shuffle_seed: Seed for shuffling
+    :param output_folder: Folder where splitted parts will be stored as numbered subfolders
+    :param _kwargs: Residual parameters not used by this function
+    :return: List of folders containing individual subsets
+    """
     if output_folder is None:
         output_folder = Path(tempfile.gettempdir()) / "cifar10"
 

@@ -2,9 +2,9 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
-from colearn.utils.results import Results
-from colearn_keras.new_keras_learner import NewKerasLearner
+from colearn.utils.plot import ColearnPlot
+from colearn.utils.results import Results, print_results
+from colearn_keras.keras_learner import KerasLearner
 
 """
 CIFAR10 training example using Tensorflow Keras
@@ -19,7 +19,7 @@ What script does:
 """
 
 n_learners = 5
-n_epochs = 20
+n_rounds = 20
 make_plot = True
 vote_threshold = 0.5
 
@@ -100,7 +100,7 @@ def get_model():
 
 all_learner_models = []
 for i in range(n_learners):
-    all_learner_models.append(NewKerasLearner(
+    all_learner_models.append(KerasLearner(
         model=get_model(),
         train_loader=train_datasets[i],
         test_loader=test_datasets[i],
@@ -116,19 +116,23 @@ results = Results()
 # Get initial score
 results.data.append(initial_result(all_learner_models))
 
-for epoch in range(n_epochs):
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name=all_learner_models[0].criterion)
+
+for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round_index)
     )
 
+    print_results(results)
     if make_plot:
         # then make an updating graph
-        plot_results(results, n_learners, block=False,
-                     score_name=all_learner_models[0].criterion)
-        plot_votes(results, block=False)
+        plot.plot_results(results)
+        plot.plot_votes(results)
 
 if make_plot:
-    plot_results(results, n_learners, block=False,
-                 score_name=all_learner_models[0].criterion)
-    plot_votes(results, block=True)
+    plot.plot_results(results)
+    plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")

@@ -44,14 +44,14 @@ To make it easier to use the `MachineLearningInterface` with keras, we've define
 `KerasLearner` implements standard training and evaluation routines as well as the MachineLearningInterface methods.
 
 ```Python 
-{!../colearn_keras/new_keras_learner.py!}
+{!../colearn_keras/keras_learner.py!}
 ```
 
 We create a set of KerasLearners by passing in the model and the datasets:
 ```Python
 all_learner_models = []
 for i in range(n_learners):
-    all_learner_models.append(NewKerasLearner(
+    all_learner_models.append(KerasLearner(
         model=get_model(),
         train_loader=train_datasets[i],
         test_loader=test_datasets[i],
@@ -76,10 +76,10 @@ Then a new round begins.
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-for epoch in range(n_epochs):
+for round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round)
     )
 
     plot_results(results, n_learners, block=False,

@@ -17,11 +17,11 @@ See the other tutorials for details of how to do that.
 There are four methods that need to be implemented:
 
 1. `propose_weights` causes the model to do some training and then return a
-   new set of weights that are propsed to the other learners. 
+   new set of weights that are proposed to the other learners. 
    This method shouldn't charge the current weights of the model - that
    only happens when `accept_weights` is called.
 2. `test_weights` - the models takes some new weights and returns a vote on whether the new weights are an improvement. 
-   As in propse_weights, this shouldn't change the current weights of the model - 
+   As in propose_weights, this shouldn't change the current weights of the model - 
    that only happens when `accept_weights` is called.
 3. `accept_weights` - the models accepts some weights that have been voted on and approved by the set of learners. 
     The old weighs of the model are discarded and replaced by the new weights.
@@ -125,7 +125,7 @@ It tests the model and votes based on whether the score that it is monitoring ha
 The vote score can be any metric that you like.
 You could use loss, accuracy, mean squared error or any custom metric.
 If the vote score is the loss then the model would only vote True if the score has decreased.
-Here's we're using accuracy, so the vote is true if the score increases.
+Here we're using accuracy, so the vote is true if the score increases.
 This method then resets the weights to the old values and returns the vote
 along with some scores for monitoring purposes.
 ```Python 
@@ -201,10 +201,10 @@ Then a new round begins.
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-for epoch in range(n_epochs):
+for round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round)
     )
 
     plot_results(results, n_learners, block=False,

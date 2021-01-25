@@ -43,7 +43,7 @@ To make it easier to use the `MachineLearningInterface` with pytorch, we've defi
 `PytorchLearner` implements standard training and evaluation routines as well as the MachineLearningInterface methods.
 
 ```Python 
-{!../colearn_pytorch/new_pytorch_learner.py!}
+{!../colearn_pytorch/pytorch_learner.py!}
 ```
 
 We create a set of PytorchLearners by passing in the model and the datasets:
@@ -52,7 +52,7 @@ all_learner_models = []
 for i in range(n_learners):
     model = Net()
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    learner = NewPytorchLearner(
+    learner = PytorchLearner(
         model=model,
         train_loader=learner_train_dataloaders[i],
         test_loader=learner_test_dataloaders[i],
@@ -82,10 +82,10 @@ Then a new round begins.
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-for epoch in range(n_epochs):
+for round in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round)
     )
     
     plot_results(results, n_learners, score_name=score_name)

@@ -2,15 +2,28 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
-from colearn.utils.results import Results
-from colearn_keras.new_keras_learner import NewKerasLearner
+from colearn.utils.plot import ColearnPlot
+from colearn.utils.results import Results, print_results
+from colearn_keras.keras_learner import KerasLearner
+
+"""
+MNIST training example using Keras
+
+Used dataset:
+- MNIST is set of 60 000 black and white hand written digits images of size 28x28x1 in 10 classes
+
+What script does:
+- Loads MNIST dataset from Keras
+- Sets up a Keras learner
+- Randomly splits dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
 
 n_learners = 5
 vote_threshold = 0.5
 vote_batches = 2
 
-n_epochs = 20
+n_rounds = 20
 width = 28
 height = 28
 n_classes = 10
@@ -73,7 +86,7 @@ def get_model():
 
 all_learner_models = []
 for i in range(n_learners):
-    all_learner_models.append(NewKerasLearner(
+    all_learner_models.append(KerasLearner(
         model=get_model(),
         train_loader=train_datasets[i],
         test_loader=test_datasets[i],
@@ -88,16 +101,20 @@ set_equal_weights(all_learner_models)
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-for epoch in range(n_epochs):
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name=all_learner_models[0].criterion)
+
+for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round_index)
     )
 
-    plot_results(results, n_learners, block=False,
-                 score_name=all_learner_models[0].criterion)
-    plot_votes(results, block=False)
+    print_results(results)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
-plot_results(results, n_learners, block=False,
-             score_name=all_learner_models[0].criterion)
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")

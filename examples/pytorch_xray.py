@@ -1,5 +1,7 @@
+import argparse
 import os
 import random as rand
+import sys
 import tempfile
 from glob import glob
 from pathlib import Path
@@ -14,16 +16,35 @@ from torch.utils.data import Dataset
 from torchsummary import summary
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
-from colearn.utils.results import Results
+from colearn.utils.plot import ColearnPlot
+from colearn.utils.results import Results, print_results
 from colearn_pytorch.utils import auc_from_logits
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner
+
+"""
+Xray training example using Pytorch
+
+Used dataset:
+- Xray, download from kaggle: https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia
+  The Chest X-Ray Images (Pneumonia) dataset consists of 5856 grayscale images of various sizes
+  in 2 classes (normal/pneumonia).
+
+What the script does:
+- Sets up the Torch model and some configuration parameters
+- Loads Xray dataset from data_dir
+- Randomly splits the train folder and the test folder between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+
+To Run: required argument is data_dir: Path to root folder containing data
+
+"""
+
 
 # define some constants
 n_learners = 5
 batch_size = 8
 seed = 42
-n_epochs = 15
+n_rounds = 15
 vote_threshold = 0.5
 learning_rate = 0.001
 height = 128
@@ -223,8 +244,17 @@ def split_to_folders(
 
 
 # lOAD DATA
-full_train_data_folder = "/home/emmasmith/Development/datasets/chest_xray/train"
-full_test_data_folder = "/home/emmasmith/Development/datasets/chest_xray/test"
+parser = argparse.ArgumentParser()
+parser.add_argument("data_dir", help="Path to data directory", type=str)
+
+args = parser.parse_args()
+
+if not Path.is_dir(Path(args.data_dir)):
+    sys.exit(f"Data path provided: {args.data_dir} is not a valid path or not a directory")
+
+full_train_data_folder = os.path.join(args.data_dir, 'train')
+full_test_data_folder = os.path.join(args.data_dir, 'test')
+
 train_data_folders = split_to_folders(
     full_train_data_folder,
     shuffle_seed=42,
@@ -259,12 +289,12 @@ else:
     learner_vote_kwargs = {}
     score_name = "loss"
 
-# Make n instances of NewPytorchLearner with model and torch dataloaders
+# Make n instances of PytorchLearner with model and torch dataloaders
 all_learner_models = []
 for i in range(n_learners):
     model = Net()
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    learner = NewPytorchLearner(
+    learner = PytorchLearner(
         model=model,
         train_loader=learner_train_dataloaders[i],
         test_loader=learner_test_dataloaders[i],
@@ -289,14 +319,20 @@ summary(all_learner_models[0].model, input_size=(1, width, height))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-for epoch in range(n_epochs):
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name=score_name)
+
+for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round_index)
     )
+    print_results(results)
 
-    plot_results(results, n_learners, score_name=score_name)
-    plot_votes(results)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
-plot_results(results, n_learners, score_name=score_name)
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")

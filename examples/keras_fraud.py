@@ -1,12 +1,26 @@
+import argparse
 from pathlib import Path
+import sys
 
 import numpy as np
 import tensorflow as tf
 
 from colearn.training import set_equal_weights, initial_result, collective_learning_round
-from colearn.utils.plot import plot_results, plot_votes
-from colearn.utils.results import Results
-from colearn_keras.new_keras_learner import NewKerasLearner
+from colearn.utils.plot import ColearnPlot
+from colearn.utils.results import Results, print_results
+from colearn_keras.keras_learner import KerasLearner
+
+"""
+Fraud training example using Tensorflow Keras
+
+Used dataset:
+- Fraud, download from kaggle: https://www.kaggle.com/c/ieee-fraud-detection
+
+What script does:
+- Sets up the Keras model and some configuration parameters
+- Randomly splits the dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
 
 input_classes = 431
 n_classes = 1
@@ -44,12 +58,20 @@ def get_model():
     return model
 
 
-data_dir = '/home/emmasmith/Development/datasets/fraud'
+parser = argparse.ArgumentParser()
+parser.add_argument("data_dir", help="Path to data directory", type=str)
+
+args = parser.parse_args()
+
+if not Path.is_dir(Path(args.data_dir)):
+    sys.exit(f"Data path provided: {args.data_dir} is not a valid path or not a directory")
+
+data_dir = args.data_dir
 DATA_FL = "data.npy"
 LABEL_FL = "labels.npy"
 train_fraction = 0.9
 n_learners = 5
-n_epochs = 7
+n_rounds = 7
 vote_threshold = 0.5
 steps_per_epoch = 1
 
@@ -75,7 +97,7 @@ all_learner_models = []
 for i in range(n_learners):
     model = get_model()
     all_learner_models.append(
-        NewKerasLearner(
+        KerasLearner(
             model=model,
             train_loader=train_datasets[i],
             test_loader=test_datasets[i],
@@ -89,15 +111,21 @@ results = Results()
 # Get initial score
 results.data.append(initial_result(all_learner_models))
 
-for epoch in range(n_epochs):
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name="loss")
+
+for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round_index)
     )
+    print_results(results)
 
     # then make an updating graph
-    plot_results(results, n_learners, block=False, score_name="loss")
-    plot_votes(results, block=False)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
-plot_results(results, n_learners, block=False, score_name="loss")
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")

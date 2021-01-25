@@ -6,10 +6,10 @@ from torchsummary import summary
 from torchvision import transforms, datasets
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
-from colearn.utils.plot import plot_results, plot_votes
-from colearn.utils.results import Results
+from colearn.utils.plot import ColearnPlot
+from colearn.utils.results import Results, print_results
 from colearn_pytorch.utils import categorical_accuracy
-from colearn_pytorch.new_pytorch_learner import NewPytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner
 
 """
 CIFAR10 training example using PyTorch
@@ -27,7 +27,7 @@ What script does:
 n_learners = 5
 batch_size = 64
 seed = 42
-n_epochs = 20
+n_rounds = 20
 vote_threshold = 0.5
 train_fraction = 0.9
 learning_rate = 0.001
@@ -95,17 +95,17 @@ if vote_on_accuracy:
     learner_vote_kwargs = dict(
         vote_criterion=categorical_accuracy,
         minimise_criterion=False)
-    score_name = "categroical accuracy"
+    score_name = "Categorical accuracy"
 else:
     learner_vote_kwargs = {}
     score_name = "loss"
 
-# Make n instances of NewPytorchLearner with model and torch dataloaders
+# Make n instances of PytorchLearner with model and torch dataloaders
 all_learner_models = []
 for i in range(n_learners):
     model = Net()
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    learner = NewPytorchLearner(
+    learner = PytorchLearner(
         model=model,
         train_loader=learner_train_dataloaders[i],
         test_loader=learner_test_dataloaders[i],
@@ -129,16 +129,22 @@ summary(all_learner_models[0].model, input_size=(channels, width, height))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
+plot = ColearnPlot(n_learners=n_learners,
+                   score_name=score_name)
+
 # Do the training
-for epoch in range(n_epochs):
+for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round_index)
     )
+    print_results(results)
 
-    plot_results(results, n_learners, score_name=score_name)
-    plot_votes(results)
+    plot.plot_results(results)
+    plot.plot_votes(results)
 
 # Plot the final result with votes
-plot_results(results, n_learners, score_name=score_name)
-plot_votes(results, block=True)
+plot.plot_results(results)
+plot.plot_votes(results, block=True)
+
+print("Colearn Example Finished!")

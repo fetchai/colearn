@@ -54,3 +54,5 @@ venv/
 
 # mkdocs
 site/
+
+Pipfile
