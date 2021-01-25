@@ -8,9 +8,8 @@ import tensorflow as tf
 
 from colearn.training import set_equal_weights, initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
-from colearn.utils.results import Results
+from colearn.utils.results import Results, print_results
 from colearn_keras.keras_learner import KerasLearner
-
 
 """
 Fraud training example using Tensorflow Keras
@@ -23,7 +22,6 @@ What script does:
 - Randomly splits the dataset between multiple learners
 - Does multiple rounds of learning process and displays plot with results
 """
-
 
 input_classes = 431
 n_classes = 1
@@ -76,7 +74,7 @@ train_fraction = 0.9
 n_learners = 5
 
 testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
-n_epochs = 7 if not testing_mode else 1
+n_rounds = 7 if not testing_mode else 1
 
 vote_threshold = 0.5
 steps_per_epoch = 1
@@ -120,11 +118,12 @@ results.data.append(initial_result(all_learner_models))
 plot = ColearnPlot(n_learners=n_learners,
                    score_name="loss")
 
-for epoch in range(n_epochs):
+for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round_index)
     )
+    print_results(results)
 
     # then make an updating graph
     plot.plot_results(results)

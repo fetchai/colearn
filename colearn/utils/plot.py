@@ -1,5 +1,6 @@
 import matplotlib.axes._axes as mpl_ax
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import numpy as np
 
 from colearn.utils.results import Results
@@ -65,24 +66,24 @@ class ColearnPlot:
 
         self.results_axes.clear()
 
-        self.results_axes.set_xlabel("training epoch")
+        self.results_axes.set_xlabel("training round")
         self.results_axes.set_ylabel(self.score_name)
 
         self.results_axes.set_xlim(-0.5, len(results.mean_test_scores) - 0.5)
         self.results_axes.set_xticks(np.arange(0, len(results.mean_test_scores), step=1))
 
-        epochs = range(len(results.mean_test_scores))
+        rounds = range(len(results.mean_test_scores))
 
         for i in range(self.n_learners):
             self.results_axes.plot(
-                epochs,
+                rounds,
                 results.h_test_scores[i],
                 "b--",
                 alpha=0.5,
                 label=f"test {self.score_name}",
             )
             self.results_axes.plot(
-                epochs,
+                rounds,
                 results.h_vote_scores[i],
                 "r--",
                 alpha=0.5,
@@ -90,14 +91,14 @@ class ColearnPlot:
             )
 
         (line_mean_test_score,) = self.results_axes.plot(
-            epochs,
+            rounds,
             results.mean_test_scores,
             "b",
             linewidth=3,
             label=f"mean test {self.score_name}",
         )
         (line_mean_vote_score,) = self.results_axes.plot(
-            epochs,
+            rounds,
             results.mean_vote_scores,
             "r",
             linewidth=3,
@@ -125,11 +126,15 @@ class ColearnPlot:
         self.votes_axes.matshow(data, aspect="auto", vmin=0, vmax=1)
 
         n_learners = data.shape[0]
-        n_epochs = data.shape[1]
+        n_rounds = data.shape[1]
 
         # draw gridlines
-        self.votes_axes.set_xticks(range(n_epochs))
-        self.votes_axes.set_yticklabels([""] + ["Learner " + str(i) for i in range(n_learners)])
+        self.votes_axes.set_xticks(range(n_rounds))
+
+        ticks = [""] + ["Learner " + str(i) for i in range(n_learners)] + [""]
+        ticks_loc = self.votes_axes.get_yticks().tolist()
+        self.votes_axes.yaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
+        self.votes_axes.set_yticklabels(ticks)
 
         pos_xs = []
         pos_ys = []
@@ -145,11 +150,11 @@ class ColearnPlot:
 
         self.votes_axes.scatter(pos_xs, pos_ys, marker="*", s=150, label="Positive overall vote")
         self.votes_axes.scatter(neg_xs, neg_ys, marker="X", s=150, label="Negative overall vote")
-        self.votes_axes.set_xlabel("training epoch")
+        self.votes_axes.set_xlabel("training round")
         self.votes_axes.legend()
 
         # Gridlines based on minor ticks
-        self.votes_axes.set_xticks(np.arange(-0.5, n_epochs, 1), minor=True)
+        self.votes_axes.set_xticks(np.arange(-0.5, n_rounds, 1), minor=True)
         self.votes_axes.set_yticks(np.arange(-0.5, n_learners, 1), minor=True)
         self.votes_axes.grid(which="minor", color="w", linestyle="-", linewidth=2)
 

@@ -14,7 +14,7 @@ from sklearn.preprocessing import scale
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
-from colearn.utils.results import Results
+from colearn.utils.results import Results, print_results
 
 """
 Fraud training example using Sklearn by directly implementing MachineLearningInterface
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     n_learners = 5
 
     testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
-    n_epochs = 7 if not testing_mode else 1
+    n_rounds = 7 if not testing_mode else 1
 
     vote_threshold = 0.5
 
@@ -214,11 +214,12 @@ if __name__ == "__main__":
     plot = ColearnPlot(n_learners=n_learners,
                        score_name="accuracy")
 
-    for epoch in range(n_epochs):
+    for round_index in range(n_rounds):
         results.data.append(
             collective_learning_round(all_learner_models,
-                                      vote_threshold, epoch)
+                                      vote_threshold, round_index)
         )
+        print_results(results)
 
         # then make an updating graph
         plot.plot_results(results)

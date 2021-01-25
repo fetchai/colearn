@@ -27,7 +27,7 @@ Arguments to run the demo:
 --task:           Type of task for machine learning: KERAS_MNIST, KERAS_CIFAR10, FRAUD, PYTORCH_XRAY, PYTORCH_COVID_XRAY
 --model_type:     Type of machine learning model, default model will be used if not specified
 --n_learners:     Number of individual learners
---n_epochs:       Number of training epochs
+--n_rounds:       Number of training rounds
 --vote_threshold: Minimum fraction of positive votes to accept the new model
 --train_ratio:    Fraction of training dataset to be used as test-set when no test-set is specified
 --seed:           Seed for initialising model and shuffling datasets
@@ -39,7 +39,7 @@ Arguments to run the demo:
 The simplest task to run is MNIST because this doesn't require downloading the data. 
 This runs the MNIST task with five learners for 15 rounds.
 ```bash
-examples/run_demo.py --task KERAS_MNIST --n_learners 5 --n_epochs 15
+examples/run_demo.py --task KERAS_MNIST --n_learners 5 --n_rounds 15
 ```
 You should see a graph of the vote score and the test score (the score used here is categorical accuracy).
 New model is accepted (blue star) if amount of possitive votes (yellow color) is higher than 0.5. 
@@ -53,15 +53,15 @@ In round one, learner 0 is selected to propose a new set of weights.
 ## Other datasets
 To run the CIFAR10 dataset:
 ```bash
-examples/run_demo.py --task KERAS_CIFAR10 --n_learners 5 --n_epochs 15
+examples/run_demo.py --task KERAS_CIFAR10 --n_learners 5 --n_rounds 15
 ```
 The Fraud and X-ray datasets need to be downloaded from kaggle (this requires a kaggle account).
 To run the fraud dataset:
 ```bash
-examples/run_demo.py --task FRAUD --n_learners 5 --n_epochs 15 --data_dir ./data/fraud
+examples/run_demo.py --task FRAUD --n_learners 5 --n_rounds 15 --data_dir ./data/fraud
 ```
 To run the X-ray dataset:
 ```bash
-examples/run_demo.py --task PYTORCH_XRAY --n_learners 5 -n_epochs 15 -data_dir ./data/xray
+examples/run_demo.py --task PYTORCH_XRAY --n_learners 5 --n_rounds 15 --data_dir ./data/xray
 ```
 

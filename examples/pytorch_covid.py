@@ -13,7 +13,7 @@ from torchsummary import summary
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
-from colearn.utils.results import Results
+from colearn.utils.results import Results, print_results
 from colearn_pytorch.utils import categorical_accuracy, prepare_data_split_list
 from colearn_pytorch.pytorch_learner import PytorchLearner
 
@@ -37,7 +37,7 @@ batch_size = 32
 seed = 42
 
 testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
-n_epochs = 50 if not testing_mode else 1
+n_rounds = 50 if not testing_mode else 1
 
 vote_threshold = 0.5
 train_fraction = 0.8
@@ -160,11 +160,12 @@ plot = ColearnPlot(n_learners=n_learners,
                    score_name=score_name)
 
 # Do the training
-for epoch in range(n_epochs):
+for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
-                                  vote_threshold, epoch)
+                                  vote_threshold, round_index)
     )
+    print_results(results)
 
     plot.plot_results(results)
     plot.plot_votes(results)
