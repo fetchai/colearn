@@ -44,7 +44,10 @@ To Run: required argument is data_dir: Path to root folder containing data
 n_learners = 5
 batch_size = 8
 seed = 42
-n_epochs = 15
+
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+n_epochs = 15 if not testing_mode else 1
+
 vote_threshold = 0.5
 learning_rate = 0.001
 height = 128

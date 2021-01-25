@@ -1,37 +1,38 @@
-import logging
 import os
 import subprocess
 from pathlib import Path
+from typing import List, Dict
 
 import pytest
 
-this_dir = Path(__file__).absolute().parent
-examples_dir = this_dir / ".." / "examples"
+REPO_ROOT = Path(__file__).absolute().parent.parent
+EXAMPLES_DIR = REPO_ROOT / "examples"
 
-MY_DATASETS = this_dir / ".." / ".." / "datasets"
-# MY_DATASETS = Path("/pvc-data/")
+COLEARN_DATA_DIR = Path(os.getenv("COLEARN_DATA_DIR",
+                                  REPO_ROOT / ".." / "datasets"))
 
-TFDS_DATA_DIR = os.getenv("TFDS_DATA_DIR", str(MY_DATASETS / "tensorflow_datasets"))
-PYTORCH_DATA_DIR = os.getenv("PYTORCH_DATA_DIR", str(MY_DATASETS / "pytorch_datasets"))
+TFDS_DATA_DIR = os.getenv("TFDS_DATA_DIR",
+                          str(COLEARN_DATA_DIR / "tensorflow_datasets"))
+PYTORCH_DATA_DIR = os.getenv("PYTORCH_DATA_DIR",
+                             str(COLEARN_DATA_DIR / "pytorch_datasets"))
 
-logger = logging.getLogger()
-logger.info(f"MY_DATASETS {MY_DATASETS}")
-logger.info(f"TFDS_DATA_DIR {TFDS_DATA_DIR}")
-logger.info(f"PYTORCH_DATA_DIR {PYTORCH_DATA_DIR}")
+print("env stuff", COLEARN_DATA_DIR, TFDS_DATA_DIR, PYTORCH_DATA_DIR)
 
+FRAUD_DATA_DIR = COLEARN_DATA_DIR / "ieee-fraud-detection"
+XRAY_DATA_DIR = COLEARN_DATA_DIR / "chest_xray"
 
 EXAMPLES_WITH_KWARGS = [
     ("keras_cifar.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("keras_fraud.py", [str(MY_DATASETS / "ieee-fraud-detection")], {}),
+    ("keras_fraud.py", [FRAUD_DATA_DIR], {}),
     ("keras_mnist.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
     ("keras_mnist_diffpriv.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("keras_xray.py", [str(MY_DATASETS / "chest_xray")], {}),
-    ("mli_fraud.py", [str(MY_DATASETS / "ieee-fraud-detection")], {}),
+    ("keras_xray.py", [XRAY_DATA_DIR], {}),
+    ("mli_fraud.py", [FRAUD_DATA_DIR], {}),
     ("pytorch_cifar.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
-    ("pytorch_covid.py", [str(MY_DATASETS / "covid")], {}),
-    ("pytorch_mnist.py", [],  {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
+    ("pytorch_covid.py", [str(COLEARN_DATA_DIR / "covid")], {}),
+    ("pytorch_mnist.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
     ("pytorch_mnist_diffpriv.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
-    ("pytorch_xray.py", [str(MY_DATASETS / "chest_xray")], {}),
+    ("pytorch_xray.py", [XRAY_DATA_DIR], {}),
     ("run_demo.py", [], {})
 ]
 
@@ -39,31 +40,23 @@ IGNORED = ["run_demo.py", ]
 
 
 @pytest.mark.parametrize("script,cmd_line,test_env", EXAMPLES_WITH_KWARGS)
-def test_a_colearn_example(script, cmd_line, test_env):
+def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str, str]):
     env = os.environ
-    env["MPLBACKEND"] = "agg"
-    env["COLEARN_EXAMPLES_TEST"] = "1"
+    env["MPLBACKEND"] = "agg"  # disable interacitve plotting
+    env["COLEARN_EXAMPLES_TEST"] = "1"  # enables test mode, which sets n_rounds=1
     env.update(test_env)
 
-    print(script)
     if script in IGNORED:
-        print(f"Ignored {script}")
         pytest.skip(f"Example {script} marked as IGNORED")
 
-    output = subprocess.run(["python", examples_dir / script] + cmd_line,
-                            capture_output=True,
+    output = subprocess.run(["python", EXAMPLES_DIR / script] + cmd_line,
                             env=env,
-                            timeout=20*60
+                            timeout=20 * 60
                             )
-    try:
-        output.check_returncode()
-    except subprocess.CalledProcessError:
-        print("FAIL")
-        print(output.stdout,
-              output.stderr)
-        raise
+
+    output.check_returncode()
 
 
 def test_all_examples_included():
-    examples_list = set(x.name for x in examples_dir.glob('*'))
-    assert examples_list == set([ x[0] for x in EXAMPLES_WITH_KWARGS])
+    examples_list = set(x.name for x in EXAMPLES_DIR.glob('*'))
+    assert examples_list == set([x[0] for x in EXAMPLES_WITH_KWARGS])

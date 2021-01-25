@@ -35,7 +35,10 @@ What script does:
 n_learners = 5
 batch_size = 32
 seed = 42
-n_epochs = 50
+
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+n_epochs = 50 if not testing_mode else 1
+
 vote_threshold = 0.5
 train_fraction = 0.8
 learning_rate = 0.001

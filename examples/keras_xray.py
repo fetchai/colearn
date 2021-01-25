@@ -42,7 +42,10 @@ l_rate = 0.001
 batch_size = 8
 
 n_learners = 5
-n_epochs = 15
+
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+n_epochs = 15 if not testing_mode else 1
+
 vote_threshold = 0.5
 
 

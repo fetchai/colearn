@@ -1,4 +1,5 @@
 import argparse
+import os
 from pathlib import Path
 import sys
 
@@ -73,7 +74,10 @@ DATA_FL = "data.npy"
 LABEL_FL = "labels.npy"
 train_fraction = 0.9
 n_learners = 5
-n_epochs = 7
+
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+n_epochs = 7 if not testing_mode else 1
+
 vote_threshold = 0.5
 steps_per_epoch = 1
 

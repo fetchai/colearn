@@ -162,7 +162,10 @@ if __name__ == "__main__":
     data_dir = args.data_dir
     train_fraction = 0.9
     n_learners = 5
-    n_epochs = 7
+
+    testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", False))  # for testing
+    n_epochs = 7 if not testing_mode else 1
+
     vote_threshold = 0.5
 
     preprocessed_data_file = Path(data_dir) / "data.npy"
