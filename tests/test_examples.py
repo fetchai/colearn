@@ -21,7 +21,7 @@ FRAUD_DATA_DIR = COLEARN_DATA_DIR / "ieee-fraud-detection"
 XRAY_DATA_DIR = COLEARN_DATA_DIR / "chest_xray"
 COVID_DATA_DIR = COLEARN_DATA_DIR / "covid"
 
-STANDARD_DEMO_ARGS = ["-p", "1", "-n", "3"]
+STANDARD_DEMO_ARGS: List[str] = ["-p", "1", "-n", "3"]
 
 EXAMPLES_WITH_KWARGS = [
     ("keras_cifar.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
@@ -35,14 +35,14 @@ EXAMPLES_WITH_KWARGS = [
     ("pytorch_mnist.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
     ("pytorch_mnist_diffpriv.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
     ("pytorch_xray.py", [XRAY_DATA_DIR], {}),
-    ("run_demo.py", ["-t", "PYTORCH_XRAY", "-d", XRAY_DATA_DIR / "train"] + STANDARD_DEMO_ARGS, {}),
+    ("run_demo.py", ["-t", "PYTORCH_XRAY", "-d", str(XRAY_DATA_DIR / "train")] + STANDARD_DEMO_ARGS, {}),
     ("run_demo.py", ["-t", "KERAS_MNIST"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
     ("run_demo.py", ["-t", "KERAS_CIFAR10"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("run_demo.py", ["-t", "PYTORCH_COVID_XRAY", "-d", COVID_DATA_DIR] + STANDARD_DEMO_ARGS, {}),
-    ("run_demo.py", ["-t", "FRAUD", "-d", FRAUD_DATA_DIR] + STANDARD_DEMO_ARGS, {})
+    ("run_demo.py", ["-t", "PYTORCH_COVID_XRAY", "-d", str(COVID_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
+    ("run_demo.py", ["-t", "FRAUD", "-d", str(FRAUD_DATA_DIR)] + STANDARD_DEMO_ARGS, {})
 ]
 
-IGNORED = []
+IGNORED: List[str] = []
 
 
 @pytest.mark.parametrize("script,cmd_line,test_env", EXAMPLES_WITH_KWARGS)
