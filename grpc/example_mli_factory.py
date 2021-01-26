@@ -11,9 +11,9 @@ from grpc.mli_factory_interface import MliFactory
 class ExampleMliFactory(MliFactory):
 
     def __init__(self):
-        self.models = set(str(task) for task in TaskType)
-        self.dataloaders = set(str(task) for task in TaskType)
-        self.compatibilities = {task: set(task) for task in TaskType}
+        self.models = set(task.name for task in TaskType)
+        self.dataloaders = set(task.name for task in TaskType)
+        self.compatibilities = {task.name: {task.name} for task in TaskType}
 
     def get_models(self) -> Set[str]:
         return self.models
@@ -43,11 +43,14 @@ class ExampleMliFactory(MliFactory):
 
         model_config = json.loads(model_params)
         model_type = model_config["model_type"]
+        model_config.pop('model_type', None)
 
-        entire_config = data_config.update(model_config)
+
+        # Join both configs into one big config
+        data_config.update(model_config)
 
         return mli_factory(str_task_type=model_name,
                            train_folder=train_folder,
                            str_model_type=model_type,
                            test_folder=test_folder,
-                           **entire_config)
+                           **model_config)
