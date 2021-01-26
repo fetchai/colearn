@@ -45,7 +45,6 @@ class ExampleMliFactory(MliFactory):
         model_type = model_config["model_type"]
         model_config.pop('model_type', None)
 
-
         # Join both configs into one big config
         data_config.update(model_config)
 

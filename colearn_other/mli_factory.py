@@ -10,9 +10,6 @@ class TaskType(Enum):
     PYTORCH_COVID_XRAY = 4
     FRAUD = 5
 
-    def __str__(self):
-        return str(self.value)
-
 
 def mli_factory(str_task_type: str,
                 train_folder: str,
