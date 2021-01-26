@@ -19,6 +19,9 @@ PYTORCH_DATA_DIR = os.getenv("PYTORCH_DATA_DIR",
 
 FRAUD_DATA_DIR = COLEARN_DATA_DIR / "ieee-fraud-detection"
 XRAY_DATA_DIR = COLEARN_DATA_DIR / "chest_xray"
+COVID_DATA_DIR = COLEARN_DATA_DIR / "covid"
+
+STANDARD_DEMO_ARGS = ["-p", "1", "-n", "3"]
 
 EXAMPLES_WITH_KWARGS = [
     ("keras_cifar.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
@@ -28,17 +31,22 @@ EXAMPLES_WITH_KWARGS = [
     ("keras_xray.py", [XRAY_DATA_DIR], {}),
     ("mli_fraud.py", [FRAUD_DATA_DIR], {}),
     ("pytorch_cifar.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
-    ("pytorch_covid.py", [str(COLEARN_DATA_DIR / "covid")], {}),
+    ("pytorch_covid.py", [COVID_DATA_DIR], {}),
     ("pytorch_mnist.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
     ("pytorch_mnist_diffpriv.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
     ("pytorch_xray.py", [XRAY_DATA_DIR], {}),
-    ("run_demo.py", [], {})
+    ("run_demo.py", ["-t", "PYTORCH_XRAY", "-d", XRAY_DATA_DIR / "train"] + STANDARD_DEMO_ARGS, {}),
+    ("run_demo.py", ["-t", "KERAS_MNIST"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    ("run_demo.py", ["-t", "KERAS_CIFAR10"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    ("run_demo.py", ["-t", "PYTORCH_COVID_XRAY", "-d", COVID_DATA_DIR] + STANDARD_DEMO_ARGS, {}),
+    ("run_demo.py", ["-t", "FRAUD", "-d", FRAUD_DATA_DIR] + STANDARD_DEMO_ARGS, {})
 ]
 
-IGNORED = ["run_demo.py", ]
+IGNORED = []
 
 
 @pytest.mark.parametrize("script,cmd_line,test_env", EXAMPLES_WITH_KWARGS)
+@pytest.mark.slow
 def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str, str]):
     env = os.environ
     env["MPLBACKEND"] = "agg"  # disable interacitve plotting
