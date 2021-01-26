@@ -3,7 +3,7 @@ from typing import Set, Dict
 
 from colearn.ml_interface import MachineLearningInterface
 from colearn_other.mli_factory import TaskType, mli_factory
-from grpc.mli_factory_interface import MliFactory
+from colearn_grpc.mli_factory_interface import MliFactory
 
 
 # TODO Add Documentation

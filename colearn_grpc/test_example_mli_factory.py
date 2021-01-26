@@ -6,7 +6,7 @@ from colearn_keras.keras_mnist import ModelType, split_to_folders
 from colearn_keras.keras_learner import KerasLearner
 
 
-from grpc.example_mli_factory import ExampleMliFactory
+from colearn_grpc.example_mli_factory import ExampleMliFactory
 
 
 @pytest.fixture
