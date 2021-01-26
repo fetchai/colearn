@@ -1,56 +1,7 @@
-from unittest.mock import Mock, create_autospec
-
 import json
 import pytest
 
-# import torch
-# import torch.utils.data
-# from torch.nn.modules.loss import _Loss
-#
-# from colearn.ml_interface import Weights
-# from colearn_pytorch.pytorch_learner import PytorchLearner
-#
-## torch does not correctly type-hint its tensor class so pylint fails
-# MODEL_PARAMETERS = [torch.tensor([3, 3]), torch.tensor([4, 4])]  # pylint: disable=not-callable
-# MODEL_PARAMETERS2 = [torch.tensor([5, 5]), torch.tensor([6, 6])]  # pylint: disable=not-callable
-# BATCH_SIZE = 2
-# TRAIN_BATCHES = 1
-# TEST_BATCHES = 1
-# LOSS = 12
-#
-#
-# def get_mock_model() -> Mock:
-#    model = create_autospec(torch.nn.Module, instance=True, spec_set=True)
-#    model.parameters.return_value = [x.clone() for x in MODEL_PARAMETERS]
-#    model.to.return_value = model
-#    return model
-#
-#
-# def get_mock_dataloader() -> Mock:
-#    dl = create_autospec(torch.utils.data.DataLoader, instance=True)
-#    dl.__len__ = Mock(return_value=100)
-#    # pylint: disable=not-callable
-#    dl.__iter__.return_value = [(torch.tensor([0, 0]),
-#                                 torch.tensor([0])),
-#                                (torch.tensor([1, 1]),
-#                                 torch.tensor([1]))]
-#    dl.batch_size = BATCH_SIZE
-#    return dl
-#
-#
-# def get_mock_optimiser() -> Mock:
-#    return Mock()
-#
-#
-# def get_mock_criterion() -> Mock:
-#    crit = create_autospec(_Loss, instance=True)
-#
-#    # pylint: disable=not-callable
-#    crit.return_value = torch.tensor(LOSS)
-#    crit.return_value.backward = Mock()  # type: ignore[assignment]
-#
-#    return crit
-from colearn_other.mli_factory import TaskType, mli_factory
+from colearn_other.mli_factory import TaskType
 from colearn_keras.keras_mnist import ModelType, split_to_folders
 from colearn_keras.keras_learner import KerasLearner
 
