@@ -10,6 +10,7 @@ from colearn.training import set_equal_weights, initial_result, collective_learn
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_keras.keras_learner import KerasLearner
+from colearn_other.fraud_dataset import fraud_preprocessing
 
 """
 Fraud training example using Tensorflow Keras
@@ -68,8 +69,6 @@ if not Path.is_dir(Path(args.data_dir)):
     sys.exit(f"Data path provided: {args.data_dir} is not a valid path or not a directory")
 
 data_dir = args.data_dir
-DATA_FL = "data.npy"
-LABEL_FL = "labels.npy"
 train_fraction = 0.9
 n_learners = 5
 
@@ -79,8 +78,16 @@ n_rounds = 7 if not testing_mode else 1
 vote_threshold = 0.5
 steps_per_epoch = 1
 
-fraud_data: np.array = np.load(Path(data_dir) / DATA_FL)
-labels = np.load(Path(data_dir) / LABEL_FL)
+
+preprocessed_data_file = Path(data_dir) / "data.npy"
+preprocessed_labels_file = Path(data_dir) / "labels.npy"
+
+if os.path.isfile(preprocessed_data_file) and os.path.isfile(preprocessed_labels_file):
+    fraud_data: np.array = np.load(preprocessed_data_file)
+    labels: np.array = np.load(preprocessed_labels_file)
+else:
+    fraud_data, labels = fraud_preprocessing(data_dir, preprocessed_data_file, preprocessed_labels_file)
+
 n_datapoints = fraud_data.shape[0]
 random_indices = np.random.permutation(np.arange(n_datapoints))
 n_train = int(n_datapoints * train_fraction)
