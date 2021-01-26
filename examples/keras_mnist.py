@@ -7,6 +7,7 @@ from colearn.training import initial_result, collective_learning_round, set_equa
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_keras.keras_learner import KerasLearner
+from colearn_keras.utils import normalize_img
 
 """
 MNIST training example using Keras
@@ -39,11 +40,6 @@ train_datasets = [train_dataset.shard(num_shards=n_learners, index=i) for i in r
 
 test_dataset = tfds.load('mnist', split='test', as_supervised=True)
 test_datasets = [test_dataset.shard(num_shards=n_learners, index=i) for i in range(n_learners)]
-
-
-def normalize_img(image, label):
-    """Normalizes images: `uint8` -> `float32`."""
-    return tf.cast(image, tf.float32) / 255., label
 
 
 for i in range(n_learners):

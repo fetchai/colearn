@@ -1,6 +1,8 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
+from colearn_keras.utils import normalize_img
+
 n_rounds = 20
 width = 28
 height = 28
@@ -11,12 +13,6 @@ batch_size = 64
 # Load the data
 train_dataset = tfds.load('mnist', split='train', as_supervised=True)
 test_dataset = tfds.load('mnist', split='test', as_supervised=True)
-
-
-def normalize_img(image, label):
-    """Normalizes images: `uint8` -> `float32`."""
-    return tf.cast(image, tf.float32) / 255., label
-
 
 train_dataset = train_dataset.map(normalize_img,
                                   num_parallel_calls=tf.data.experimental.AUTOTUNE)
