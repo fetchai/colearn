@@ -8,14 +8,24 @@ import pytest
 REPO_ROOT = Path(__file__).absolute().parent.parent
 EXAMPLES_DIR = REPO_ROOT / "examples"
 
-COLEARN_DATA_DIR = Path(
-    os.getenv("COLEARN_DATA_DIR",
-              os.path.expanduser(os.path.join('~', 'datasets'))))
+GITHUB_ACTION = bool(os.getenv("GITHUB_ACTION", ""))
 
-TFDS_DATA_DIR = os.getenv("TFDS_DATA_DIR",
-                          str(COLEARN_DATA_DIR / "tensorflow_datasets"))
-PYTORCH_DATA_DIR = os.getenv("PYTORCH_DATA_DIR",
-                             str(COLEARN_DATA_DIR / "pytorch_datasets"))
+if GITHUB_ACTION:
+    COLEARN_DATA_DIR = Path("/pvc-data/")
+    TFDS_DATA_DIR = COLEARN_DATA_DIR / "tensorflow_datasets"
+    PYTORCH_DATA_DIR = COLEARN_DATA_DIR / "pytorch_datasets"
+
+else:
+    COLEARN_DATA_DIR = Path(
+        os.getenv("COLEARN_DATA_DIR",
+                  os.path.expanduser(os.path.join('~', 'datasets'))))
+
+    TFDS_DATA_DIR = os.getenv("TFDS_DATA_DIR",
+                              os.path.expanduser(os.path.join('~', "tensorflow_datasets")))
+    PYTORCH_DATA_DIR = os.getenv("PYTORCH_DATA_DIR",
+                                 os.path.expanduser(os.path.join('~', "pytorch_datasets")))
+
+assert COLEARN_DATA_DIR.is_dir(), f"Datasets directory does not exist, please check value of COLEARN_DATA_DIR envvar {COLEARN_DATA_DIR}"
 
 FRAUD_DATA_DIR = COLEARN_DATA_DIR / "ieee-fraud-detection"
 XRAY_DATA_DIR = COLEARN_DATA_DIR / "chest_xray"

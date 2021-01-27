@@ -7,15 +7,18 @@ on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron:  '0 8 * * 5'
+  push:
+    branches: [ examples_test ]  # for debugging
 
 
 jobs:
   code_quality_checks_pytest:
 
     continue-on-error: False
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    
+    runs-on: self-hosted
+    timeout-minutes: 30
+    env:
+      GITHUB_ACTION: true
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.7
@@ -28,4 +31,4 @@ jobs:
         pip install wheel
         pip install tox
     - name: Run Tox Pytest
-      run: tox -e pytest -e docs
+      run: tox -e pytest -e pytest-slow

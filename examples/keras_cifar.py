@@ -22,7 +22,7 @@ What script does:
 """
 
 n_learners = 5
-testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", "0"))  # for testing
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
 n_rounds = 20 if not testing_mode else 1
 
 make_plot = True

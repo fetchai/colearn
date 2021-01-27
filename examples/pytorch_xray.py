@@ -45,7 +45,7 @@ n_learners = 5
 batch_size = 8
 seed = 42
 
-testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", "0"))  # for testing
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
 n_rounds = 15 if not testing_mode else 1
 
 vote_threshold = 0.5

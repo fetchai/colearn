@@ -72,7 +72,7 @@ data_dir = args.data_dir
 train_fraction = 0.9
 n_learners = 5
 
-testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", "0"))  # for testing
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
 n_rounds = 7 if not testing_mode else 1
 
 vote_threshold = 0.5
