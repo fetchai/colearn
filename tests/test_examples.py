@@ -20,12 +20,12 @@ else:
         os.getenv("COLEARN_DATA_DIR",
                   os.path.expanduser(os.path.join('~', 'datasets'))))
 
-    TFDS_DATA_DIR = os.getenv("TFDS_DATA_DIR",
-                              os.path.expanduser(os.path.join('~', "tensorflow_datasets")))
-    PYTORCH_DATA_DIR = os.getenv("PYTORCH_DATA_DIR",
-                                 os.path.expanduser(os.path.join('~', "pytorch_datasets")))
+    TFDS_DATA_DIR = Path(os.getenv("TFDS_DATA_DIR",
+                                   os.path.expanduser(os.path.join('~', "tensorflow_datasets"))))
+    PYTORCH_DATA_DIR = Path(os.getenv("PYTORCH_DATA_DIR",
+                                      os.path.expanduser(os.path.join('~', "pytorch_datasets"))))
 
-assert COLEARN_DATA_DIR.is_dir(), f"Datasets directory does not exist, please check value of COLEARN_DATA_DIR envvar {COLEARN_DATA_DIR}"
+# assert COLEARN_DATA_DIR.is_dir(), f"Datasets directory does not exist, please check value of COLEARN_DATA_DIR envvar {COLEARN_DATA_DIR}"
 
 FRAUD_DATA_DIR = COLEARN_DATA_DIR / "ieee-fraud-detection"
 XRAY_DATA_DIR = COLEARN_DATA_DIR / "chest_xray"
