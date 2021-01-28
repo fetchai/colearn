@@ -12,20 +12,18 @@ GITHUB_ACTION = bool(os.getenv("GITHUB_ACTION", ""))
 
 if GITHUB_ACTION:
     COLEARN_DATA_DIR = Path("/pvc-data/")
-    TFDS_DATA_DIR = COLEARN_DATA_DIR / "tensorflow_datasets"
-    PYTORCH_DATA_DIR = COLEARN_DATA_DIR / "pytorch_datasets"
+    TFDS_DATA_DIR = str(COLEARN_DATA_DIR / "tensorflow_datasets")
+    PYTORCH_DATA_DIR = str(COLEARN_DATA_DIR / "pytorch_datasets")
 
 else:
     COLEARN_DATA_DIR = Path(
         os.getenv("COLEARN_DATA_DIR",
                   os.path.expanduser(os.path.join('~', 'datasets'))))
 
-    TFDS_DATA_DIR = Path(os.getenv("TFDS_DATA_DIR",
-                                   os.path.expanduser(os.path.join('~', "tensorflow_datasets"))))
-    PYTORCH_DATA_DIR = Path(os.getenv("PYTORCH_DATA_DIR",
-                                      os.path.expanduser(os.path.join('~', "pytorch_datasets"))))
-
-# assert COLEARN_DATA_DIR.is_dir(), f"Datasets directory does not exist, please check value of COLEARN_DATA_DIR envvar {COLEARN_DATA_DIR}"
+    TFDS_DATA_DIR = os.getenv("TFDS_DATA_DIR",
+                              str(os.path.expanduser(os.path.join('~', "tensorflow_datasets"))))
+    PYTORCH_DATA_DIR = os.getenv("PYTORCH_DATA_DIR",
+                                 str(os.path.expanduser(os.path.join('~', "pytorch_datasets"))))
 
 FRAUD_DATA_DIR = COLEARN_DATA_DIR / "ieee-fraud-detection"
 XRAY_DATA_DIR = COLEARN_DATA_DIR / "chest_xray"
@@ -62,11 +60,13 @@ def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str,
     env["MPLBACKEND"] = "agg"  # disable interacitve plotting
     env["COLEARN_EXAMPLES_TEST"] = "1"  # enables test mode, which sets n_rounds=1
     env.update(test_env)
+    print("Additional envvars:", test_env)
 
     if script in IGNORED:
         pytest.skip(f"Example {script} marked as IGNORED")
 
     full_cmd: Sequence = ["python", str(EXAMPLES_DIR / script)] + cmd_line
+    print("Full command", full_cmd)
     subprocess.run(full_cmd,
                    env=env,
                    timeout=20 * 60,
