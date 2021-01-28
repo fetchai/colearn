@@ -22,21 +22,18 @@ def test_setup(factory):
 
 
 def test_model_names(factory):
-    print("Models: ", factory.get_models())
-    print("Data  : ", factory.get_dataloaders())
-    print("Compat: ", factory.get_compatibilities())
     for task in TaskType:
-        assert task.name in factory.get_models()
+        assert task.name in factory.get_models().keys()
 
 
 def test_dataloader_names(factory):
     for task in TaskType:
-        assert task.name in factory.get_dataloaders()
+        assert task.name in factory.get_dataloaders().keys()
 
 
 def test_compatibilities(factory):
     for task in TaskType:
-        assert task.name in factory.get_models()
+        assert task.name in factory.get_models().keys()
         assert task.name in factory.get_compatibilities()[task.name]
 
 
@@ -51,6 +48,7 @@ def mnist_config():
         'train_folder': folders[0],
         'test_folder': "",
     }
+
 
 def test_get_mnist(factory, mnist_config):
 

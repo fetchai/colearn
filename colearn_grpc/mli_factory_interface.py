@@ -1,5 +1,5 @@
 import abc
-from typing import Dict, Set
+from typing import Dict, Set, Any
 
 from colearn.ml_interface import MachineLearningInterface
 
@@ -10,16 +10,18 @@ class MliFactory(abc.ABC):
     """
 
     @abc.abstractmethod
-    def get_models(self) -> Set[str]:
+    def get_models(self) -> Dict[str, Dict[str, Any]]:
         """
-        Returns the set of models this factory produces
+        Returns the models this factory produces.
+        The key is the name of the model and the values are their default parameters
         """
         pass
 
     @abc.abstractmethod
-    def get_dataloaders(self) -> Set[str]:
+    def get_dataloaders(self) -> Dict[str, Dict[str, Any]]:
         """
-        Returns the set of dataloaders this factory understands
+        Returns the dataloaders this factory produces.
+        The key is the name of the dataloader and the values are their default parameters
         """
         pass
 
