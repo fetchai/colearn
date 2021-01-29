@@ -1,4 +1,5 @@
 import json
+from inspect import signature
 from typing import Set, Dict, Any
 
 from colearn.ml_interface import MachineLearningInterface
@@ -13,6 +14,14 @@ class ExampleMliFactory(MliFactory):
     def __init__(self):
         self.models = {task.name: {} for task in TaskType}
         self.dataloaders = {task.name: {} for task in TaskType}
+
+        from colearn_keras.keras_mnist import prepare_data_loaders
+
+        self.dataloaders[TaskType.KERAS_MNIST.name] = \
+            {param.name: param.default
+             for param in signature(prepare_data_loaders).parameters.values()
+             if param.default != param.empty}
+
         self.compatibilities = {task.name: {task.name} for task in TaskType}
 
     def get_models(self) -> Dict[str, Dict[str, Any]]:

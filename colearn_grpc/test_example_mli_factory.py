@@ -30,6 +30,8 @@ def test_dataloader_names(factory):
     for task in TaskType:
         assert task.name in factory.get_dataloaders().keys()
 
+    assert len(factory.get_dataloaders()[TaskType.KERAS_MNIST.name]) > 0
+
 
 def test_compatibilities(factory):
     for task in TaskType:
