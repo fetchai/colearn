@@ -16,8 +16,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 from typing_extensions import TypedDict
 
-from colearn.utils.data import shuffle_data
-from colearn.utils.data import split_by_chunksizes
+from colearn.utils.data import split_list_into_fractions
 from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import categorical_accuracy
 
@@ -208,13 +207,10 @@ def split_to_folders(
     transformer = KernelPCA(n_components=64, kernel='linear')
     data = transformer.fit_transform(data)
 
-    [data, labels] = shuffle_data(
-        [data, labels], seed=shuffle_seed
-    )
-
-    [data, labels] = split_by_chunksizes(
-        [data, labels], data_split
-    )
+    n_datapoints = data.shape[0]
+    np.random.seed(shuffle_seed)
+    random_indices = np.random.permutation(np.arange(n_datapoints))
+    split_indices = split_list_into_fractions(random_indices, data_split)
 
     local_output_dir = Path(output_folder)
 
@@ -223,8 +219,11 @@ def split_to_folders(
         dir_name = local_output_dir / str(i)
         os.makedirs(str(dir_name), exist_ok=True)
 
-        pickle.dump(data[i], open(dir_name / DATA_FL, "wb"))
-        pickle.dump(labels[i], open(dir_name / LABEL_FL, "wb"))
+        learner_data = data[split_indices[i]]
+        learner_labels = labels[split_indices[i]]
+
+        pickle.dump(learner_data, open(dir_name / DATA_FL, "wb"))
+        pickle.dump(learner_labels, open(dir_name / LABEL_FL, "wb"))
 
         dir_names.append(dir_name)
 

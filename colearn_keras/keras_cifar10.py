@@ -7,12 +7,12 @@ from typing import Tuple, List, Optional
 
 import numpy as np
 import tensorflow as tf
-import tensorflow.keras.datasets.cifar10 as cifar10
+import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
-from colearn.utils.data import shuffle_data
-from colearn.utils.data import split_by_chunksizes
+from colearn.utils.data import split_list_into_fractions
 from colearn_keras.keras_learner import KerasLearner
+from colearn_keras.utils import normalize_img
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
@@ -136,7 +136,7 @@ def prepare_data_loaders(train_folder: str,
     :param train_folder: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
     :param batch_size:
-    :param kwargs: Residual parameters not used by this function
+    :param _kwargs: Residual parameters not used by this function
     :return: Tuple of train_loader and test_loader
     """
 
@@ -172,21 +172,19 @@ def split_to_folders(
     if data_split is None:
         data_split = [1 / n_learners] * n_learners
 
-    # Load CIFAR10
-    (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
-    all_images = np.concatenate([train_images, test_images], axis=0)
-    all_labels = np.concatenate([train_labels, test_labels], axis=0)
+    # Load CIFAR10 from tfds
+    train_dataset = tfds.load('cifar10', split='train+test', as_supervised=True)
+    n_datapoints = len(train_dataset)
+    train_dataset = train_dataset.map(normalize_img).batch(n_datapoints)
 
-    # Normalization
-    all_images = all_images.astype("float32") / 255.0
+    # there is only one batch in the iterator, and this contains all the data
+    all_data = next(iter(tfds.as_numpy(train_dataset)))
+    all_images = all_data[0]
+    all_labels = all_data[1]
 
-    [all_images, all_labels] = shuffle_data(
-        [all_images, all_labels], seed=shuffle_seed
-    )
-
-    [all_images_lists, all_labels_lists] = split_by_chunksizes(
-        [all_images, all_labels], data_split
-    )
+    np.random.seed(shuffle_seed)
+    random_indices = np.random.permutation(np.arange(n_datapoints))
+    split_indices = split_list_into_fractions(random_indices, data_split)
 
     local_output_dir = Path(output_folder)
 
@@ -195,8 +193,11 @@ def split_to_folders(
         dir_name = local_output_dir / str(i)
         os.makedirs(str(dir_name), exist_ok=True)
 
-        pickle.dump(all_images_lists[i], open(dir_name / IMAGE_FL, "wb"))
-        pickle.dump(all_labels_lists[i], open(dir_name / LABEL_FL, "wb"))
+        learner_images = all_images[split_indices[i]]
+        learner_labels = all_labels[split_indices[i]]
+
+        pickle.dump(learner_images, open(dir_name / IMAGE_FL, "wb"))
+        pickle.dump(learner_labels, open(dir_name / LABEL_FL, "wb"))
 
         dir_names.append(dir_name)
 

@@ -1,3 +1,5 @@
+import os
+
 from typing_extensions import TypedDict
 import torch.nn as nn
 import torch.nn.functional as nn_func
@@ -26,7 +28,9 @@ What script does:
 # define some constants
 n_learners = 5
 batch_size = 64
-n_rounds = 20
+
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
+n_rounds = 20 if not testing_mode else 1
 vote_threshold = 0.5
 train_fraction = 0.9
 learning_rate = 0.001
@@ -43,8 +47,9 @@ DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memor
 kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # Load the data and split for each learner.
-train_root = '/tmp/mnist'
-data = datasets.MNIST(train_root, transform=transforms.ToTensor(), download=True)
+DATA_DIR = os.environ.get('PYTORCH_DATA_DIR',
+                          os.path.expanduser(os.path.join('~', 'pytorch_datasets')))
+data = datasets.MNIST(DATA_DIR, transform=transforms.ToTensor(), download=True)
 n_train = int(train_fraction * len(data))
 n_test = len(data) - n_train
 train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])

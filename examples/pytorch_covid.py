@@ -1,6 +1,8 @@
+import argparse
 import os
+import sys
+from pathlib import Path
 
-from typing_extensions import TypedDict
 import numpy as np
 import scipy.io as sio
 import torch.nn as nn
@@ -10,12 +12,13 @@ from sklearn.decomposition import KernelPCA
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import TensorDataset
 from torchsummary import summary
+from typing_extensions import TypedDict
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
-from colearn_pytorch.utils import categorical_accuracy, prepare_data_split_list
 from colearn_pytorch.pytorch_learner import PytorchLearner
+from colearn_pytorch.utils import categorical_accuracy, prepare_data_split_list
 
 """
 COVID-XRAY training example using PyTorch
@@ -35,7 +38,10 @@ What script does:
 n_learners = 5
 batch_size = 32
 seed = 42
-n_rounds = 50
+
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
+n_rounds = 50 if not testing_mode else 1
+
 vote_threshold = 0.5
 train_fraction = 0.8
 learning_rate = 0.001
@@ -50,13 +56,18 @@ device = torch.device("cuda" if cuda else "cpu")
 DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
 kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
-# Replace with path containing .mat files if necessary
-data_dir = '../../colearn/examples/covid'
+# lOAD DATA
+parser = argparse.ArgumentParser()
+parser.add_argument("data_dir", help="Path to data directory", type=str)
 
-# Load data
-covid_data = sio.loadmat(os.path.join(data_dir, 'covid.mat'))['covid']
-normal_data = sio.loadmat(os.path.join(data_dir, 'normal.mat'))['normal']
-pneumonia_data = sio.loadmat(os.path.join(data_dir, 'pneumonia.mat'))['pneumonia']
+args = parser.parse_args()
+
+if not Path.is_dir(Path(args.data_dir)):
+    sys.exit(f"Data path provided: {args.data_dir} is not a valid path or not a directory")
+
+covid_data = sio.loadmat(os.path.join(args.data_dir, 'covid.mat'))['covid']
+normal_data = sio.loadmat(os.path.join(args.data_dir, 'normal.mat'))['normal']
+pneumonia_data = sio.loadmat(os.path.join(args.data_dir, 'pneumonia.mat'))['pneumonia']
 
 data = np.concatenate((covid_data[:, :-1], normal_data[:, :-1], pneumonia_data[:, :-1]), axis=0).astype(np.float32)
 labels = np.concatenate((covid_data[:, -1], normal_data[:, -1], pneumonia_data[:, -1]), axis=0).astype(int)

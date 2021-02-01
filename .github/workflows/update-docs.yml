@@ -1,6 +1,6 @@
 # This workflow will install Python dependencies, build and push the docs
 
-name: Fetch AI Collective Learning Interface - Update Docs
+name: Update Docs
 
 on:
   push:
