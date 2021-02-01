@@ -194,7 +194,15 @@ def prepare_data_loaders(train_folder: str,
     return (data[:n_cases], labels[:n_cases]), (data[n_cases:], labels[n_cases:])
 
 
-def fraud_preprocessing(data_dir, data_file, labels_file):
+def fraud_preprocessing(data_dir, use_cache=True):
+    preprocessed_data_file = Path(data_dir) / "data.npy"
+    preprocessed_labels_file = Path(data_dir) / "labels.npy"
+
+    if use_cache and os.path.isfile(preprocessed_data_file) and os.path.isfile(preprocessed_labels_file):
+        fraud_data: np.array = np.load(preprocessed_data_file)
+        labels: np.array = np.load(preprocessed_labels_file)
+        return fraud_data, labels
+
     train_identity = pd.read_csv(str(Path(data_dir) / "train_identity.csv"))
     train_transaction = pd.read_csv(str(Path(data_dir) / "train_transaction.csv"))
     # Combine the data and work with the whole dataset
@@ -234,8 +242,8 @@ def fraud_preprocessing(data_dir, data_file, labels_file):
 
     data = scale(data)
 
-    np.save(data_file, data)
-    np.save(labels_file, labels)
+    np.save(preprocessed_data_file, data)
+    np.save(preprocessed_labels_file, labels)
     return data, labels
 
 
@@ -262,14 +270,7 @@ def split_to_folders(
     if data_split is None:
         data_split = [1 / n_learners] * n_learners
 
-    preprocessed_data_file = Path(data_dir) / "data.npy"
-    preprocessed_labels_file = Path(data_dir) / "labels.npy"
-
-    if os.path.isfile(preprocessed_data_file) and os.path.isfile(preprocessed_labels_file):
-        data: np.array = np.load(preprocessed_data_file)
-        labels: np.array = np.load(preprocessed_labels_file)
-    else:
-        data, labels = fraud_preprocessing(data_dir, preprocessed_data_file, preprocessed_labels_file)
+    data, labels = fraud_preprocessing(data_dir)
 
     n_datapoints = data.shape[0]
     np.random.seed(shuffle_seed)

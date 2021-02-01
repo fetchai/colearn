@@ -106,6 +106,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("data_dir", help="Path to data directory", type=str)
+    parser.add_argument("--use_cache", help="Use cached preprocessed data", type=bool, default=True)
 
     args = parser.parse_args()
 
@@ -121,14 +122,7 @@ if __name__ == "__main__":
 
     vote_threshold = 0.5
 
-    preprocessed_data_file = Path(data_dir) / "data.npy"
-    preprocessed_labels_file = Path(data_dir) / "labels.npy"
-
-    if os.path.isfile(preprocessed_data_file) and os.path.isfile(preprocessed_labels_file):
-        data: np.array = np.load(preprocessed_data_file)
-        labels: np.array = np.load(preprocessed_labels_file)
-    else:
-        data, labels = fraud_preprocessing(data_dir, preprocessed_data_file, preprocessed_labels_file)
+    data, labels = fraud_preprocessing(data_dir, args.use_cache)
 
     n_datapoints = data.shape[0]
     random_indices = np.random.permutation(np.arange(n_datapoints))
