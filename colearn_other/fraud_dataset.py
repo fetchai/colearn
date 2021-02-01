@@ -13,8 +13,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
-from colearn.utils.data import shuffle_data
-from colearn.utils.data import split_by_chunksizes
+from colearn.utils.data import split_list_into_fractions
 
 DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
@@ -78,7 +77,7 @@ class FraudLearner(MachineLearningInterface):
         self.set_weights(current_weights)
         return new_weights
 
-    def mli_test_weights(self, weights: Weights, eval_config: Optional[dict] = None) -> ProposedWeights:
+    def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         """
         Tests given weights on training and test set and returns weights with score values
         :param weights: Weights to be tested
@@ -181,7 +180,7 @@ def prepare_data_loaders(train_folder: str,
 
     :param train_folder: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
-    :param kwargs:
+    :param _kwargs:
     :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
     """
 
@@ -195,28 +194,14 @@ def prepare_data_loaders(train_folder: str,
     return (data[:n_cases], labels[:n_cases]), (data[n_cases:], labels[n_cases:])
 
 
-def split_to_folders(
-        data_dir: str,
-        n_learners: int,
-        data_split: Optional[List[float]] = None,
-        shuffle_seed: Optional[int] = None,
-        output_folder: Optional[Path] = None,
-        **_kwargs) -> List[str]:
-    """
-    Loads fraud dataset, preprocesses and splits it to specified number of subsets
-    :param data_dir: Folder containing Fraud dataset .csv files
-    :param n_learners: Number of parts for splitting
-    :param data_split:  List of percentage portions for each subset
-    :param shuffle_seed: Seed for shuffling
-    :param output_folder: Folder where splitted parts will be stored as numbered subfolders
-    :param _kwargs: Residual parameters not used by this function
-    :return: List of folders containing individual subsets
-    """
-    if output_folder is None:
-        output_folder = Path(tempfile.gettempdir()) / "fraud"
+def fraud_preprocessing(data_dir, use_cache=True):
+    preprocessed_data_file = Path(data_dir) / "data.npy"
+    preprocessed_labels_file = Path(data_dir) / "labels.npy"
 
-    if data_split is None:
-        data_split = [1 / n_learners] * n_learners
+    if use_cache and os.path.isfile(preprocessed_data_file) and os.path.isfile(preprocessed_labels_file):
+        fraud_data: np.array = np.load(preprocessed_data_file)
+        labels: np.array = np.load(preprocessed_labels_file)
+        return fraud_data, labels
 
     train_identity = pd.read_csv(str(Path(data_dir) / "train_identity.csv"))
     train_transaction = pd.read_csv(str(Path(data_dir) / "train_transaction.csv"))
@@ -257,13 +242,40 @@ def split_to_folders(
 
     data = scale(data)
 
-    [data, labels] = shuffle_data(
-        [data, labels], seed=shuffle_seed
-    )
+    np.save(preprocessed_data_file, data)
+    np.save(preprocessed_labels_file, labels)
+    return data, labels
 
-    [data, labels] = split_by_chunksizes(
-        [data, labels], data_split
-    )
+
+def split_to_folders(
+        data_dir: str,
+        n_learners: int,
+        data_split: Optional[List[float]] = None,
+        shuffle_seed: Optional[int] = None,
+        output_folder: Optional[Path] = None,
+        **_kwargs) -> List[str]:
+    """
+    Loads fraud dataset, preprocesses and splits it to specified number of subsets
+    :param data_dir: Folder containing Fraud dataset .csv files
+    :param n_learners: Number of parts for splitting
+    :param data_split:  List of percentage portions for each subset
+    :param shuffle_seed: Seed for shuffling
+    :param output_folder: Folder where splitted parts will be stored as numbered subfolders
+    :param _kwargs: Residual parameters not used by this function
+    :return: List of folders containing individual subsets
+    """
+    if output_folder is None:
+        output_folder = Path(tempfile.gettempdir()) / "fraud"
+
+    if data_split is None:
+        data_split = [1 / n_learners] * n_learners
+
+    data, labels = fraud_preprocessing(data_dir)
+
+    n_datapoints = data.shape[0]
+    np.random.seed(shuffle_seed)
+    random_indices = np.random.permutation(np.arange(n_datapoints))
+    split_indices = split_list_into_fractions(random_indices, data_split)
 
     local_output_dir = Path(output_folder)
 
@@ -272,8 +284,11 @@ def split_to_folders(
         dir_name = local_output_dir / str(i)
         os.makedirs(str(dir_name), exist_ok=True)
 
-        pickle.dump(data[i], open(dir_name / DATA_FL, "wb"))
-        pickle.dump(labels[i], open(dir_name / LABEL_FL, "wb"))
+        learner_data = data[split_indices[i]]
+        learner_labels = labels[split_indices[i]]
+
+        pickle.dump(learner_data, open(dir_name / DATA_FL, "wb"))
+        pickle.dump(learner_labels, open(dir_name / LABEL_FL, "wb"))
 
         dir_names.append(dir_name)
 

@@ -12,6 +12,7 @@ from colearn.training import set_equal_weights, initial_result, collective_learn
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_keras.keras_learner import KerasLearner
+from colearn_keras.utils import normalize_img
 
 """
 Xray training example using Tensorflow Keras
@@ -42,7 +43,10 @@ l_rate = 0.001
 batch_size = 8
 
 n_learners = 5
-n_rounds = 15
+
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
+n_rounds = 15 if not testing_mode else 1
+
 vote_threshold = 0.5
 
 
@@ -163,12 +167,6 @@ test_data_folders = split_to_folders(
 )
 
 train_datasets, test_datasets = [], []
-
-
-def normalize_img(image, label):
-    """Normalizes images: `uint8` -> `float32`."""
-    return tf.cast(image, tf.float32) / 255., label
-
 
 for i in range(n_learners):
     train_datasets.append(tf.keras.preprocessing.image_dataset_from_directory(

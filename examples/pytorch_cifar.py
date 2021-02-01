@@ -1,3 +1,5 @@
+import os
+
 from typing_extensions import TypedDict
 import torch.nn as nn
 import torch.nn.functional as nn_func
@@ -27,7 +29,8 @@ What script does:
 n_learners = 5
 batch_size = 64
 seed = 42
-n_rounds = 20
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
+n_rounds = 20 if not testing_mode else 1
 vote_threshold = 0.5
 train_fraction = 0.9
 learning_rate = 0.001
@@ -46,10 +49,11 @@ kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {
 
 # Load the data and split for each learner.
 # Using a torch-native dataloader makes this much easier
-train_root = '/tmp/cifar10'
 transform = transforms.Compose([
     transforms.ToTensor()])
-data = datasets.CIFAR10(train_root, transform=transform, download=True)
+DATA_DIR = os.environ.get('PYTORCH_DATA_DIR',
+                          os.path.expanduser(os.path.join('~', 'pytorch_datasets')))
+data = datasets.CIFAR10(DATA_DIR, transform=transform, download=True)
 n_train = int(train_fraction * len(data))
 n_test = len(data) - n_train
 train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])

@@ -1,3 +1,5 @@
+import os
+
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -5,6 +7,7 @@ from colearn.training import initial_result, collective_learning_round, set_equa
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_keras.keras_learner import KerasLearner
+from colearn_keras.utils import normalize_img
 
 """
 CIFAR10 training example using Tensorflow Keras
@@ -19,7 +22,9 @@ What script does:
 """
 
 n_learners = 5
-n_rounds = 20
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
+n_rounds = 20 if not testing_mode else 1
+
 make_plot = True
 vote_threshold = 0.5
 
@@ -40,12 +45,6 @@ train_datasets = tfds.load('cifar10',
 test_datasets = tfds.load('cifar10',
                           split=tfds.even_splits('test', n=n_learners),
                           as_supervised=True)
-
-
-def normalize_img(image, label):
-    """Normalizes images: `uint8` 0-255 -> `float32` 0.0-1.0"""
-    return tf.cast(image, tf.float32) / 255., label
-
 
 for i in range(n_learners):
     ds_train = train_datasets[i].map(
