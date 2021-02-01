@@ -10,7 +10,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
-from colearn.utils.data import split_list_into_fractions
+from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.utils import normalize_img
 
@@ -140,8 +140,10 @@ def prepare_data_loaders(train_folder: str,
     :return: Tuple of train_loader and test_loader
     """
 
-    images = pickle.load(open(Path(train_folder) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+    data_folder = get_data(train_folder)
+
+    images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
+    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(images))
     train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
