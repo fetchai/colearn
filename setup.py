@@ -9,6 +9,7 @@ docs_deps = ["mkdocs",
              "markdown-include"]
 examples_deps = ['opacus~=0.10.0',
                  'opencv-python~=4.4.0',
+                 'google-cloud-storage~=1.35.0',
                  'pandas~=1.1.0',
                  'scikit-learn~=0.23.0',
                  'scipy~=1.5.0',
