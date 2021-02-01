@@ -15,8 +15,9 @@ class ExampleMliFactory(MliFactory):
         self.models = {task.name: {} for task in TaskType}
         self.dataloaders = {task.name: {} for task in TaskType}
 
-        from colearn_keras.keras_mnist import prepare_data_loaders
+        from colearn_keras.keras_mnist import prepare_data_loaders, ModelType
 
+        self.models[TaskType.KERAS_MNIST.name] = {"model_type": ModelType(1).name}
         self.dataloaders[TaskType.KERAS_MNIST.name] = \
             {param.name: param.default
              for param in signature(prepare_data_loaders).parameters.values()
