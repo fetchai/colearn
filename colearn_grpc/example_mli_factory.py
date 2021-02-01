@@ -48,8 +48,7 @@ class ExampleMliFactory(MliFactory):
         data_config = self.dataloaders[dataloader_name]  # Default parameters
         data_config.update(json.loads(dataset_params))
 
-        train_folder = data_config["train_folder"]
-        test_folder = data_config["test_folder"]
+        train_folder = data_config["location"]
 
         model_config = self.models[model_name]  # Default parameters
         model_config.update(json.loads(model_params))
@@ -62,5 +61,4 @@ class ExampleMliFactory(MliFactory):
         return mli_factory(str_task_type=model_name,
                            train_folder=train_folder,
                            str_model_type=model_type,
-                           test_folder=test_folder,
                            **model_config)
