@@ -62,4 +62,4 @@ class ExampleMliFactory(MliFactory):
         return mli_factory(str_task_type=model_name,
                            train_folder=train_folder,
                            str_model_type=model_type,
-                           **model_config)
+                           **data_config)
