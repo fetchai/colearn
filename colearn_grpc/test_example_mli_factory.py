@@ -15,17 +15,20 @@ def factory() -> ExampleMliFactory:
     return ExampleMliFactory()
 
 
+@pytest.mark.slow
 def test_setup(factory):
     assert len(factory.get_models()) > 0
     assert len(factory.get_dataloaders()) > 0
     assert len(factory.get_compatibilities()) > 0
 
 
+@pytest.mark.slow
 def test_model_names(factory):
     for task in TaskType:
         assert task.name in factory.get_models().keys()
 
 
+@pytest.mark.slow
 def test_dataloader_names(factory):
     for task in TaskType:
         assert task.name in factory.get_dataloaders().keys()
@@ -33,6 +36,7 @@ def test_dataloader_names(factory):
     assert len(factory.get_dataloaders()[TaskType.KERAS_MNIST.name]) > 0
 
 
+@pytest.mark.slow
 def test_compatibilities(factory):
     for task in TaskType:
         assert task.name in factory.get_models().keys()
@@ -52,12 +56,13 @@ def mnist_config():
     }
 
 
+@pytest.mark.slow
 def test_get_mnist(factory, mnist_config):
 
     model_params = json.dumps({'model_type': mnist_config['model_type']})
 
     dataset_params = json.dumps(
-        {'train_folder': mnist_config['train_folder'],
+        {'location': mnist_config['train_folder'],
          'test_folder': mnist_config['test_folder']
          })
 
@@ -67,4 +72,4 @@ def test_get_mnist(factory, mnist_config):
         dataloader_name=mnist_config['task_type'].name,
         dataset_params=dataset_params)
 
-    assert type(mli) == KerasLearner
+    assert isinstance(mli, KerasLearner)

@@ -9,7 +9,6 @@ docs_deps = ["mkdocs",
              "markdown-include"]
 examples_deps = ['opacus~=0.10.0',
                  'opencv-python~=4.4.0',
-                 'google-cloud-storage~=1.35.0',
                  'pandas~=1.1.0',
                  'scikit-learn~=0.23.0',
                  'scipy~=1.5.0',
@@ -39,6 +38,7 @@ setuptools.setup(
     ],
     python_requires='~=3.7',
     install_requires=['matplotlib~=3.3.0',
+                      'google-cloud-storage~=1.35.0',
                       'pydantic~=1.7.0',
                       'numpy~=1.16.0'
                       ],
