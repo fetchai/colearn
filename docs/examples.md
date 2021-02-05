@@ -13,7 +13,8 @@ This is a list of examples that we've implemented to show you how to use Collect
 ### Fraud
   The fraud dataset consists of information about credit card transactions. 
   The task is to predict whether transactions are fraudulent or not.
-  The data needs to be downloaded from [Kaggle](https://www.kaggle.com/c/ieee-fraud-detection)
+  The data needs to be downloaded from [Kaggle](https://www.kaggle.com/c/ieee-fraud-detection), 
+  and the data directory passed in with the flag `--data_dir`. 
 
 * [fraud_mli]({{ repo_root }}/examples/mli_fraud.py).
   Uses the `MachineLearningInterface` directly and detects fraud in bank transactions.
@@ -28,7 +29,8 @@ This is a list of examples that we've implemented to show you how to use Collect
   Uses the `PytorchLearner` helper class.
 ### Xray
   A binary classification task that requires predicting pneumonia from images of chest X-rays. 
-  The data need to be downloaded from [Kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
+  The data need to be downloaded from [Kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia), 
+  and the data directory passed in with the flag `--data_dir`
 
 * [xray_keras]({{ repo_root }}/examples/keras_xray.py). 
   Uses the `KerasLearner` helper class.

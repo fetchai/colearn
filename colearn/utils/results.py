@@ -1,4 +1,5 @@
 from typing import List
+import numpy as np
 
 
 class Result:
@@ -21,23 +22,19 @@ class Results:
         self.mean_test_scores = []
         self.mean_vote_scores = []
 
-        self.max_test_scores = []
-        self.max_vote_scores = []
+    def process_statistics(self):
+        self.h_test_scores = []
+        self.h_vote_scores = []
 
-        self.highest_test_score = 0
-        self.highest_vote_score = 0
+        n_rounds = len(self.data)
+        self.mean_test_scores = [np.mean(np.array(self.data[r].test_scores)) for r in range(n_rounds)]
+        self.mean_vote_scores = [np.mean(np.array(self.data[r].vote_scores)) for r in range(n_rounds)]
 
-        self.highest_mean_test_score = 0
-        self.highest_mean_vote_score = 0
-
-        self.current_mean_test_score = 0
-        self.current_mean_vote_score = 0
-
-        self.current_max_test_score = 0
-        self.current_max_vote_score = 0
-
-        self.mean_mean_test_score = 0
-        self.mean_mean_vote_score = 0
+        # gather individual scores
+        n_learners = len(self.data[0].vote_scores)
+        for i in range(n_learners):
+            self.h_test_scores.append([self.data[r].test_scores[i] for r in range(n_rounds)])
+            self.h_vote_scores.append([self.data[r].vote_scores[i] for r in range(n_rounds)])
 
 
 def print_results(results: Results):
