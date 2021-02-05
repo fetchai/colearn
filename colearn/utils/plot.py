@@ -96,12 +96,10 @@ class ColearnPlot:
         n_learners = votes_array.shape[0]
         n_rounds = votes_array.shape[1]
 
-        # draw gridlines
         self.votes_axes.set_xticks(range(n_rounds))
 
-        ticks = [""] + ["Learner " + str(i) for i in range(n_learners)] + [""]
-        ticks_loc = self.votes_axes.get_yticks().tolist()
-        self.votes_axes.yaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
+        ticks = ["Learner " + str(i) for i in range(n_learners)]
+        self.votes_axes.set_yticks(range(n_learners))
         self.votes_axes.set_yticklabels(ticks)
 
         pos_xs = []
