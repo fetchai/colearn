@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
@@ -7,15 +9,31 @@ from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 
+"""
+An example of using collective learning with a random forest by directly implementing the MachineLearningInterface
+
+Used dataset:
+- iris dataset from sklearn
+
+What the script does:
+- Implements the Machine Learning Interface
+- Randomly splits the dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
+
 
 class IrisLearner(MachineLearningInterface):
-    def __init__(self, train_data, train_labels, test_data, test_labels):
+    def __init__(self, train_data, train_labels, test_data, test_labels,
+                 initial_trees=1, trees_to_add=2):
         self.train_data = train_data
         self.train_labels = train_labels
         self.test_data = test_data
         self.test_labels = test_labels
 
-        self.model = RandomForestClassifier(n_estimators=1, warm_start=True)
+        self.initial_trees = initial_trees
+        self.trees_to_add = trees_to_add
+
+        self.model = RandomForestClassifier(n_estimators=self.initial_trees, warm_start=True)
         self.model.fit(train_data, train_labels)
         self.vote_score = self.test(self.train_data, self.train_labels)
 
@@ -24,8 +42,10 @@ class IrisLearner(MachineLearningInterface):
 
         # increase n_estimators
         params = self.model.get_params()
-        print("PARAMETERS", params)
-        self.model.set_params(n_estimators=params["n_estimators"] + 2)
+        params["n_estimators"] = params["n_estimators"] + self.trees_to_add
+        self.model.set_params(**params)
+
+        # Fit model
         self.model.fit(self.train_data, self.train_labels)
 
         new_weights = self.mli_get_current_weights()
@@ -72,16 +92,14 @@ class IrisLearner(MachineLearningInterface):
         return self.model.score(data_array, labels_array)
 
 
-iris = datasets.load_iris()
-data, labels = iris.data, iris.target
-
 train_fraction = 0.9
 n_learners = 5
-
-n_rounds = 7
-
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
+n_rounds = 20 if not testing_mode else 1
 vote_threshold = 0.5
 
+iris = datasets.load_iris()
+data, labels = iris.data, iris.target
 n_datapoints = data.shape[0]
 random_indices = np.random.permutation(np.arange(n_datapoints))
 n_data_per_learner = n_datapoints // n_learners
