@@ -15,12 +15,28 @@ examples_deps = ['opacus~=0.10.0',
                  'tensorflow_datasets~=4.2.0',
                  'tensorflow-privacy~=0.5.0',
                  'torchsummary~=1.5.0',
-                 'torchvision~=0.8.0']
+                 'torchvision~=0.8.0',
+                 ]
 
-all_deps = keras_deps + pytorch_deps + examples_deps
+grpc_deps = ['grpcio',
+             'prometheus_client==0.9.0',
+             'click'
+            ]
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+minimal_deps = ['matplotlib~=3.3.0',
+                'google-cloud-storage~=1.35.0',
+                'pydantic~=1.7.0',
+                'numpy~=1.16.0'
+                ]
+
+all_deps = keras_deps + pytorch_deps + examples_deps + grpc_deps
+
+long_description = ""
+try:
+    with open("README.md", "r") as fh:
+        long_description = fh.read()
+except FileNotFoundError:
+    print("README.md ile not found, no long description available")
 
 setuptools.setup(
     name="colearn-interface-fetch-ai",
@@ -37,17 +53,14 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='~=3.7',
-    install_requires=['matplotlib~=3.3.0',
-                      'google-cloud-storage~=1.35.0',
-                      'pydantic~=1.7.0',
-                      'numpy~=1.16.0'
-                      ],
+    install_requires=minimal_deps,
     tests_require=["tox~=3.20.0"],
     extras_require={
         'keras': keras_deps,
         'pytorch': pytorch_deps,
         'docs': docs_deps,
         'examples': examples_deps,
-        'all': all_deps
+        'all': all_deps,
+        'grpc': examples_deps+grpc_deps, 
     },
 )

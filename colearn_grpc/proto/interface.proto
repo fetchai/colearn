@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package contract_learn.grpc;
+
+message RequestMLSetup {
+    string dataset_loader_name = 1;
+    string dataset_loader_parameters = 2;
+    string model_arch_name = 3;
+    string model_parameters = 4;
+};
+
+enum MLSetupStatus {
+    UNDEFINED = 0;
+    SUCCESS = 1;
+    ERROR = 2;
+};
+
+message ResponseMLSetup {
+    MLSetupStatus status = 1;
+    string description = 2;
+};
+
+message Weights {
+    bytes weights = 1;
+};
+
+message ProposedWeights {
+    Weights weights = 1;
+    float vote_score = 2;
+    float test_score = 3;
+    bool vote = 4;
+    map<string, float> evaluation_results = 5;
+};
+
+message RequestStatus {
+};
+
+enum SystemStatus {
+    WORKING=0;
+    NO_MODEL=1;
+    INTERNAL_ERROR=2;
+    UNKNOWN=3;
+}
+
+message ResponseStatus {
+    SystemStatus status = 1;
+};
+
+message DatasetLoaderSpec {
+    string name = 1;
+    string default_parameters = 2; // JSON encoded default parameters
+};
+
+message ModelArchSpec {
+    string name = 1;
+    string default_parameters = 2; // JSON encoded default parameters for the model arch.
+};
+
+message ResponseSupportedSystem {
+    repeated DatasetLoaderSpec datasets = 1;
+    repeated ModelArchSpec models = 2;
+    map<int32, int32> compatibility = 3;
+};
+
+service GRPCLearner {
+    rpc QuerySupportedSystem(google.protobuf.Empty) returns (ResponseSupportedSystem);
+    rpc MLSetup(RequestMLSetup) returns (ResponseMLSetup);
+    rpc ProposeWeights(google.protobuf.Empty) returns (stream Weights);
+    rpc TestWeights(Weights) returns (ProposedWeights);
+    rpc SetWeights(Weights) returns (google.protobuf.Empty);
+    rpc StatusStream(stream RequestStatus) returns (stream ResponseStatus);
+};
