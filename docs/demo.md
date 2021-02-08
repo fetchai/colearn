@@ -43,7 +43,7 @@ examples/run_demo.py --task KERAS_MNIST --n_learners 5 --n_rounds 15
 ```
 You should see a graph of the vote score and the test score (the score used here is categorical accuracy).
 The new model is accepted if the fraction of positive votes (green colour) is higher than 0.5. 
-The new model is rejected if fraction of negative votes (red color) is lower than 0.5. 
+The new model is rejected if the fraction of negative votes (red color) is lower than 0.5. 
 
 ![Alt text](images/mnist_plot.png?raw=true "Collective learning graph")
 
