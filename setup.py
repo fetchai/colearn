@@ -61,6 +61,6 @@ setuptools.setup(
         'docs': docs_deps,
         'examples': examples_deps,
         'all': all_deps,
-        'grpc': examples_deps+grpc_deps, 
+        'grpc': grpc_deps, 
     },
 )
