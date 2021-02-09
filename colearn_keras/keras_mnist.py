@@ -9,6 +9,8 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
+from tensorflow.python.keras.applications.resnet import ResNet50
+from tensorflow.python.keras.layers import Dropout
 
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_keras.keras_learner import KerasLearner
@@ -20,6 +22,7 @@ LABEL_FL = "labels.pickle"
 
 class ModelType(Enum):
     CONV2D = 1
+    RESNET = 2  # Useful for testing large models. It doesn't fit MNIST well!
 
 
 def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Model:
@@ -30,12 +33,14 @@ def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Mode
     :return: New instance of Keras model
     """
     if model_type == ModelType.CONV2D:
-        return _get_keras_mnist_conv2D_model(learning_rate)
+        return _get_keras_mnist_conv2d_model(learning_rate)
+    if model_type == ModelType.RESNET:
+        return _get_keras_mnist_resnet_model(learning_rate)
     else:
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
-def _get_keras_mnist_conv2D_model(learning_rate: float) -> tf.keras.Model:
+def _get_keras_mnist_conv2d_model(learning_rate: float) -> tf.keras.Model:
     """
     2D Convolutional model for image recognition
     :param learning_rate: Learning rate for optimiser
@@ -75,6 +80,41 @@ def _get_keras_mnist_conv2D_model(learning_rate: float) -> tf.keras.Model:
         loss=loss,
         metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
         optimizer=opt)
+
+    return model
+
+
+def _get_keras_mnist_resnet_model(learning_rate: float) -> tf.keras.Model:
+    rows = 28
+    cols = 28
+    channels = 1
+    new_channels = 3
+    padding = 2
+    n_classes = 10
+
+    input_img = tf.keras.Input(
+        shape=(rows, cols, channels), name="Input"
+    )
+    x = tf.keras.layers.ZeroPadding2D(padding=padding)(input_img)
+    x = tf.keras.layers.Flatten()(x)
+    x = tf.keras.layers.RepeatVector(new_channels)(x)  # mnist only has one channel so duplicate inputs
+    x = tf.keras.layers.Reshape((rows + padding * 2, cols + padding * 2, new_channels))(x)  # who knows if this works
+
+    # model = Sequential()
+    resnet = ResNet50(include_top=False, input_tensor=x)
+
+    x = resnet.output
+    x = tf.keras.layers.GlobalAveragePooling2D()(x)
+    x = Dropout(0.7)(x)
+    x = tf.keras.layers.Dense(n_classes, activation='softmax')(x)
+
+    model = tf.keras.Model(inputs=input_img, outputs=x)
+
+    model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
+                  loss='sparse_categorical_crossentropy',
+                  metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
+                  )
+
     return model
 
 
