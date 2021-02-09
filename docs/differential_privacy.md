@@ -4,7 +4,8 @@ Differential privacy (DP) is one such definition.
 First we need to have three concepts: the _database_ is a collection of data about _individuals_ (for example, their medical records), and we want to make a _query_ about that data (for example "How much does smoking increase someone's risk of cancer?").
 DP says that privacy is preserved if the result of the query cannot be used to determine if any particular individual is present in the database.
 
-So if person A has their medical data in a database and query that we want to make on that database is "How much does smoking increase someone's risk of cancer" then the result of that query shouldn't disclose whether or not person A's details are in the database.
+So if person A has their medical data in a database, and the query that we want to make on that database is 
+"How much does smoking increase someone's risk of cancer" then the result of that query shouldn't disclose whether or not person A's details are in the database.
 
 From this comes the idea of _sensitivity_ of a query. 
 The _sensitivity_ of a query determines how much the result of the query depends on an individual's data. 
@@ -12,8 +13,8 @@ For example, the query "How much does smoking increase the risk of cancer for ad
 
 ## Epsilon-differential privacy
 EDP is a scheme for preserving differential privacy. 
-In EDP, all queries have random noise added to them so they are no longer deterministic.
-So if the query was "What fraction of people in the database are male" and the true result is 0.5 then the results of calling this query three times might be 0.53, 0.49 and 0.51. 
+In EDP all queries have random noise added to them, so they are no longer deterministic.
+So if the query was "What fraction of people in the database are male", and the true result is 0.5 then the results of calling this query three times might be 0.53, 0.49 and 0.51. 
 This makes it harder to tell if an individual's data is in the database, because the effect of adding a person can't be distinguished from the effect of the random noise.
 Intuitively this is a bit like blurring an image: adding noise obscures personal information.
 The amount of personal information that is revealed isn't zero, but it is guaranteed to be below a certain threshold.
