@@ -60,7 +60,7 @@ message ModelArchSpec {
 
 message ResponseSupportedSystem {
     repeated DatasetLoaderSpec datasets = 1;
-    repeated ModelArchSpec models = 2;
+    repeated ModelArchSpec model_architectures = 2;
     map<int32, int32> compatibility = 3;
 };
 

@@ -68,7 +68,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         try:
             model_to_index = {}
             for index, (name, params) in enumerate(self.mli_factory.get_models().items()):
-                m = response.models.add()
+                m = response.model_architectures.add()
                 m.name = name
                 m.default_parameters = json.dumps(params)
                 model_to_index[name] = index
