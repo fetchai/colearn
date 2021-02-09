@@ -6,21 +6,20 @@ import tempfile
 from glob import glob
 from pathlib import Path
 
-from PIL import Image
-from typing_extensions import TypedDict
-
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as nn_func
 import torch.utils.data
+from PIL import Image
 from torch.utils.data import Dataset
 from torchsummary import summary
+from typing_extensions import TypedDict
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
-from colearn_pytorch.utils import auc_from_logits
 from colearn_pytorch.pytorch_learner import PytorchLearner
+from colearn_pytorch.utils import auc_from_logits
 
 """
 Xray training example using Pytorch
@@ -46,7 +45,7 @@ batch_size = 8
 seed = 42
 
 testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
-n_rounds = 5 if not testing_mode else 1
+n_rounds = 15 if not testing_mode else 1
 
 vote_threshold = 0.5
 learning_rate = 0.001
@@ -182,9 +181,9 @@ class XrayDataset(Dataset):
         img = Image.open(str(filename))
         img = img.resize((width, height))
         img = img.convert('L')  # convert to greyscale
-        npimg = np.array(img.getdata()).reshape((1, img.size[0], img.size[1])) / 255
+        img = np.array(img.getdata()).reshape((1, img.size[0], img.size[1])) / 255
 
-        return npimg
+        return img
 
 
 # this is modified from the version in xray/data in order to keep the directory structure
