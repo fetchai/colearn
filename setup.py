@@ -18,15 +18,15 @@ examples_deps = ['opacus~=0.10.0',
                  'torchvision~=0.8.0',
                  ]
 
-grpc_deps = ['grpcio',
-             'prometheus_client==0.9.0',
-             'click'
+grpc_deps = ['grpcio~=1.35.0',
+             'prometheus_client==0.9.0'
             ]
 
 minimal_deps = ['matplotlib~=3.3.0',
                 'google-cloud-storage~=1.35.0',
                 'pydantic~=1.7.0',
-                'numpy~=1.16.0'
+                'numpy~=1.16.0',
+                'click==7.1.2'
                 ]
 
 all_deps = keras_deps + pytorch_deps + examples_deps + grpc_deps

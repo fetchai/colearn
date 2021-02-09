@@ -1,6 +1,5 @@
-import grpc
 from concurrent import futures
-
+import grpc
 
 from colearn_grpc.mli_factory_interface import MliFactory
 
@@ -13,7 +12,7 @@ from colearn.utils.logging import get_logger
 _logger = get_logger(__name__)
 
 
-class GRPCServer(object):
+class GRPCServer:
     """
         This is a wrapper class, which simplify the usage of GRPCLearnerServer.
         It requires a port, ml_factory and supported_system, out of which builds GRPCLearnerServer

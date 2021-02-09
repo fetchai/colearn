@@ -1,11 +1,11 @@
-import grpc
 import json
 import pickle
 from threading import Lock
+import grpc
 from google.protobuf import empty_pb2
+from prometheus_client import Counter, Summary
 
 from colearn_grpc.mli_factory_interface import MliFactory
-from prometheus_client import Counter, Summary
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
@@ -83,7 +83,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 for dataloader_name in data_loaders:
                     response.compatibility[model_to_index[model_name]] = dataloader_to_index[dataloader_name]
 
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in QuerySupportedSystem: {ex} {type(ex)}")
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(str(ex))
@@ -107,7 +107,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 response.status = ipb2.MLSetupStatus.SUCCESS
             else:
                 response.status = ipb2.MLSetupStatus.ERROR
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Failed to create model: {ex} {type(ex)}")
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(str(ex))
@@ -141,7 +141,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             w.weights = encode_weights(weights)
             _logger.debug("Training done!")
             yield w
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in ProposeWeights: {ex} {type(ex)}")
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(str(ex))
@@ -166,7 +166,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             pw.test_score = proposed_weights.test_score
             pw.vote = proposed_weights.vote
             _logger.debug("Testing done!")
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in TestWeights: {ex} {type(ex)}")
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(str(ex))
@@ -184,7 +184,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         try:
             weights = decode_weights(request.weights)
             self.learner.mli_accept_weights(weights)
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in SetWeights: {ex} {type(ex)}")
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(str(ex))

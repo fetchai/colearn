@@ -39,8 +39,8 @@ def default_logging_config(logger):  # pylint: disable=redefined-outer-name
     return logger
 
 
-_log_levels = {}
-_loggers = {}
+_log_levels = {}  # pylint: disable=W0603  # type: ignore
+_loggers = {}  # pylint: disable=W0603  # type: ignore
 
 
 def _set_logger_level(logger, log_level):
@@ -56,7 +56,7 @@ def _update_log_level(logger_name, logger):
 
 
 def get_logger(name, name_length=1):
-    global _loggers
+    global _loggers  # pylint: disable=W0603
     splitted = name.split(".")
     logger_name = ".".join(splitted[-name_length:])
     logger = logging.getLogger(logger_name)
@@ -67,7 +67,7 @@ def get_logger(name, name_length=1):
 
 
 def set_log_levels(config):
-    global _log_levels, _loggers
+    global _log_levels, _loggers  # pylint: disable=W0603
     _log_levels = {**config}
     for name, logger in _loggers.items():
         _update_log_level(name, logger)
