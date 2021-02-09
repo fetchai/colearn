@@ -6,7 +6,6 @@ WORKDIR /app
 
 RUN apt update && \
     apt upgrade -y --no-install-recommends && \
-    DEBIAN_FRONTEND="noninteractive" apt install --autoremove -y python3-opencv --no-install-recommends && \
     apt autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
