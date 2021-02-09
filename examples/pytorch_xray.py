@@ -5,10 +5,11 @@ import sys
 import tempfile
 from glob import glob
 from pathlib import Path
+
+from PIL import Image
 from typing_extensions import TypedDict
 
 import numpy as np
-import cv2
 import torch.nn as nn
 import torch.nn.functional as nn_func
 import torch.utils.data
@@ -39,14 +40,13 @@ To Run: required argument is data_dir: Path to root folder containing data
 
 """
 
-
 # define some constants
 n_learners = 5
 batch_size = 8
 seed = 42
 
 testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
-n_rounds = 15 if not testing_mode else 1
+n_rounds = 5 if not testing_mode else 1
 
 vote_threshold = 0.5
 learning_rate = 0.001
@@ -179,12 +179,12 @@ class XrayDataset(Dataset):
 
     @staticmethod
     def to_rgb_normalize_and_resize(filename, width, height):
-        img = cv2.imread(str(filename))
-        img = cv2.resize(img, (width, height))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        img = img.astype(np.float32) / 255.
+        img = Image.open(str(filename))
+        img = img.resize((width, height))
+        img = img.convert('L')  # convert to greyscale
+        npimg = np.array(img.getdata()).reshape((1, img.size[0], img.size[1])) / 255
 
-        return img
+        return npimg
 
 
 # this is modified from the version in xray/data in order to keep the directory structure
