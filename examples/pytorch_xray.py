@@ -5,21 +5,21 @@ import sys
 import tempfile
 from glob import glob
 from pathlib import Path
-from typing_extensions import TypedDict
 
 import numpy as np
-import cv2
 import torch.nn as nn
 import torch.nn.functional as nn_func
 import torch.utils.data
+from PIL import Image
 from torch.utils.data import Dataset
 from torchsummary import summary
+from typing_extensions import TypedDict
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
-from colearn_pytorch.utils import auc_from_logits
 from colearn_pytorch.pytorch_learner import PytorchLearner
+from colearn_pytorch.utils import auc_from_logits
 
 """
 Xray training example using Pytorch
@@ -38,7 +38,6 @@ What the script does:
 To Run: required argument is data_dir: Path to root folder containing data
 
 """
-
 
 # define some constants
 n_learners = 5
@@ -179,10 +178,10 @@ class XrayDataset(Dataset):
 
     @staticmethod
     def to_rgb_normalize_and_resize(filename, width, height):
-        img = cv2.imread(str(filename))
-        img = cv2.resize(img, (width, height))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        img = img.astype(np.float32) / 255.
+        img = Image.open(str(filename))
+        img = img.resize((width, height))
+        img = img.convert('L')  # convert to greyscale
+        img = np.array(img.getdata()).reshape((1, img.size[0], img.size[1])) / 255
 
         return img
 

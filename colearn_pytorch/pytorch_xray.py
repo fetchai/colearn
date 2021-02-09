@@ -5,14 +5,14 @@ from enum import Enum
 from glob import glob
 from pathlib import Path
 from typing import Tuple, Optional, List
-from typing_extensions import TypedDict
 
-import cv2
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
+from PIL import Image
 from torch.utils.data import Dataset, DataLoader
+from typing_extensions import TypedDict
 
 from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import auc_from_logits
@@ -276,10 +276,10 @@ class XrayDataset(Dataset):
         :param height: Output height
         :return: Resized and normalizes image as np.array
         """
-        img = cv2.imread(str(filename))
-        img = cv2.resize(img, (width, height))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        img = img.astype(np.float32) / 255.
+        img = Image.open(str(filename))
+        img = img.resize((width, height))
+        img = img.convert('L')  # convert to greyscale
+        img = np.array(img.getdata()).reshape((1, img.size[0], img.size[1])) / 255
 
         return img
 
