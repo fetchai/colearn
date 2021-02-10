@@ -1,12 +1,12 @@
 import json
 import pickle
 from threading import Lock
+
 import grpc
-from prometheus_client import Counter, Summary
 from google.protobuf import empty_pb2
+from prometheus_client import Counter, Summary
 
 from colearn_grpc.mli_factory_interface import MliFactory
-
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
 from colearn_grpc.logging import get_logger

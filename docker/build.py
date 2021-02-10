@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 import os
-import sys
-import shutil
 import subprocess
 import argparse
 
-PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-ML_LEARNER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'ml.Dockerfile'))
-DOCKER_REGISTRY_URL = 'gcr.io/fetch-ai-sandbox'
+PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))  # pylint: disable=W0603
+ML_LEARNER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'ml.Dockerfile'))  # pylint: disable=W0603
+DOCKER_REGISTRY_URL = 'gcr.io/fetch-ai-sandbox'  # pylint: disable=W0603
 
 
 def parse_commandline():
@@ -78,7 +76,6 @@ def docker_build_multistage(dockerfile, stage, image_tag, no_cache=False, cache_
 
     if publish:
         image_tag_remote = '{}/{}'.format(DOCKER_REGISTRY_URL, image_tag)
-        image_tag_remote_latest = '{}:latest'.format(image_tag_remote.split(':')[0])
         cmd = [
             'docker',
             'tag',
@@ -97,6 +94,7 @@ def docker_build_multistage(dockerfile, stage, image_tag, no_cache=False, cache_
         print('Publishing docker image {} ...'.format(image_tag_remote))
         print('Publishing docker image {} ...complete'.format(image_tag_remote))
 
+
 def main():
     args = parse_commandline()
 
@@ -109,7 +107,8 @@ def main():
         version = args.tag
 
     docker_build_multistage(dockerfile=ML_LEARNER_PATH, stage='base', image_tag=f"ml-learner:{version}",
-                                no_cache=args.no_cache, publish=args.publish)
+                            no_cache=args.no_cache, publish=args.publish)
+
 
 if __name__ == '__main__':
     main()
