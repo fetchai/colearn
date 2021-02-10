@@ -1,4 +1,4 @@
 -e .
 -e .[grpc]
 -e .[keras]
--e .[examples]
+-e .[pytorch]
