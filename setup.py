@@ -25,7 +25,7 @@ grpc_deps = ['grpcio~=1.35.0',
              'prometheus_client==0.9.0',
              'click'
             ]
-all_deps = keras_deps + pytorch_deps
+all_deps = keras_deps + pytorch_deps + grpc_deps
 
 long_description = ""
 try:

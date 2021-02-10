@@ -7,7 +7,7 @@ from colearn_grpc.example_mli_factory import ExampleMliFactory
 
 
 from colearn_grpc.grpc_server import GRPCServer
-from colearn.utils.logging import set_log_levels, get_logger
+from colearn_grpc.logging import set_log_levels, get_logger
 
 
 _logger = get_logger(__name__)

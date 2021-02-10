@@ -9,7 +9,7 @@ from colearn_grpc.mli_factory_interface import MliFactory
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
-from colearn.utils.logging import get_logger
+from colearn_grpc.logging import get_logger
 
 _logger = get_logger(__name__)
 _count_propose = Counter("contract_learner_grpc_server_propose",
@@ -149,7 +149,6 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         finally:
             self._learner_mutex.release()
 
-    # TODO evaluation config
     @_time_test.time()
     def TestWeights(self, request, context):
         _count_test.inc()

@@ -6,7 +6,7 @@ from colearn_grpc.mli_factory_interface import MliFactory
 from colearn_grpc.grpc_learner_server import GRPCLearnerServer
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
 
-from colearn.utils.logging import get_logger
+from colearn_grpc.logging import get_logger
 
 
 _logger = get_logger(__name__)

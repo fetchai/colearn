@@ -71,4 +71,4 @@ ignored-modules=aiohttp,defusedxml,imgaug,google,gym,fetch,librosa,matplotlib,
     memory_profiler,numpy,oef,opacus,
     openapi_core,pandas,PIL,psutil,pydantic,pytest,tensorflow,tensorflow_datasets,tensorflow_core,
     tensorflow_privacy,temper,torch,torchvision,torchsummary,tqdm,typing_extensions,
-    scipy,skimage,sklearn,vyper,web3
+    scipy,skimage,sklearn,vyper,web3,click,grpcio,prometheus_client

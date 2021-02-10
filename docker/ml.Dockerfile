@@ -18,6 +18,7 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
 COPY ./ ./colearn
 
 RUN cd ./colearn && \
+    pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir -e .[keras] && \
     pip3 install --no-cache-dir -e .[grpc]
 
