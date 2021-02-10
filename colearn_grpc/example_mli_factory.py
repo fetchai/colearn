@@ -16,7 +16,7 @@ class ExampleMliFactory(MliFactory):
         self.dataloaders = {task.name: {} for task in TaskType}
 
         # TODO Currently only KERAS_MNIST(2DConv) is supported
-        self.models[TaskType.KERAS_MNIST.name] = {"model_type": ModelType(1).name}
+        self.models[TaskType.KERAS_MNIST.name] = {"model_type": ModelType(2).name}
         self.dataloaders[TaskType.KERAS_MNIST.name] = \
             {param.name: param.default
              for param in signature(prepare_data_loaders).parameters.values()
