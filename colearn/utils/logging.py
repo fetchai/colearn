@@ -39,8 +39,8 @@ def default_logging_config(logger):  # pylint: disable=redefined-outer-name
     return logger
 
 
-_log_levels = {}  # pylint: disable=W0603  # type: ignore
-_loggers = {}  # pylint: disable=W0603  # type: ignore
+_log_levels = {}  # type: ignore  # pylint: disable=W0603
+_loggers = {}  # type: ignore  # pylint: disable=W0603
 
 
 def _set_logger_level(logger, log_level):
