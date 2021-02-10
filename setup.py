@@ -20,7 +20,6 @@ docs_deps = [
     "mkdocs-material-extensions",
     "markdown-include",
 ]
-                 ]
 
 grpc_deps = ['grpcio~=1.35.0',
              'prometheus_client==0.9.0'
@@ -62,7 +61,7 @@ setuptools.setup(
         'keras': keras_deps,
         'pytorch': pytorch_deps,
         'docs': docs_deps,
-        'all': all_deps
-        'grpc': grpc_deps, 
+        'all': all_deps,
+        'grpc': grpc_deps
     },
 )
