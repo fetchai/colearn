@@ -15,20 +15,17 @@ def factory() -> ExampleMliFactory:
     return ExampleMliFactory()
 
 
-@pytest.mark.slow
 def test_setup(factory):
     assert len(factory.get_models()) > 0
     assert len(factory.get_dataloaders()) > 0
     assert len(factory.get_compatibilities()) > 0
 
 
-@pytest.mark.slow
 def test_model_names(factory):
     for task in TaskType:
         assert task.name in factory.get_models().keys()
 
 
-@pytest.mark.slow
 def test_dataloader_names(factory):
     for task in TaskType:
         assert task.name in factory.get_dataloaders().keys()
@@ -36,7 +33,6 @@ def test_dataloader_names(factory):
     assert len(factory.get_dataloaders()[TaskType.KERAS_MNIST.name]) > 0
 
 
-@pytest.mark.slow
 def test_compatibilities(factory):
     for task in TaskType:
         assert task.name in factory.get_models().keys()
@@ -56,7 +52,6 @@ def mnist_config():
     }
 
 
-@pytest.mark.slow
 def test_get_mnist(factory, mnist_config):
 
     model_params = json.dumps({'model_type': mnist_config['model_type']})

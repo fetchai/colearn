@@ -158,8 +158,7 @@ set_equal_weights(all_learner_models)
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-plot = ColearnPlot(n_learners=n_learners,
-                   score_name=score_name)
+plot = ColearnPlot(score_name=score_name)
 
 for round_index in range(n_rounds):
     results.data.append(
