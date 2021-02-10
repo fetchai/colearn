@@ -14,7 +14,7 @@ First we are going to define the model architecture, then
 we are going to load the data and configure the model, and then we will run Collective Learning.
 
 A standard script for machine learning with Keras looks like the one below
-```Python hl_lines="11 31 49"
+```Python 
 {!python_src/mnist_keras.py!}
 ```
 There are three steps:
@@ -25,7 +25,7 @@ There are three steps:
 
 In this tutorial we are going to see how to modify each step to use collective learning. 
 We'll end up with code like this:
-```Python hl_lines="20 45 87"
+```Python 
 {!../examples/keras_mnist.py!}
 ```
 
