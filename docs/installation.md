@@ -15,7 +15,7 @@ pip install .[keras]
 pip install .[pytorch]
 ```
 
-To install all the extras, including the ones required for the examples, use:
+To install both the keras and pytorch extras use:
 ```
 pip install .[all]
 ```
