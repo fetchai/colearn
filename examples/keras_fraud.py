@@ -115,8 +115,7 @@ results = Results()
 # Get initial score
 results.data.append(initial_result(all_learner_models))
 
-plot = ColearnPlot(n_learners=n_learners,
-                   score_name="loss")
+plot = ColearnPlot(score_name="loss")
 
 for round_index in range(n_rounds):
     results.data.append(

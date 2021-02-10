@@ -164,8 +164,7 @@ summary(all_learner_models[0].model, input_size=(input_width,))
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-plot = ColearnPlot(n_learners=n_learners,
-                   score_name=score_name)
+plot = ColearnPlot(score_name=score_name)
 
 # Do the training
 for round_index in range(n_rounds):
