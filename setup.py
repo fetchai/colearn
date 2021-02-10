@@ -7,7 +7,7 @@ keras_deps = [
 ]
 pytorch_deps = [
     'opacus~=0.10.0',
-    'opencv-python~=4.4.0',
+    'Pillow~=8.0.1',
     'scipy~=1.5.0',
     'torch~=1.7.0',
     'torchsummary~=1.5.0',
