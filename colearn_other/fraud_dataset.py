@@ -174,6 +174,7 @@ def _infinite_batch_sampler(data_size: int,
             yield random_ind[i:i + batch_size]
 
 
+@FactoryRegistry.register_dataloader("FRAUD")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.8,
                          **_kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:

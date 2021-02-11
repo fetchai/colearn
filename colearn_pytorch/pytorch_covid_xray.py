@@ -114,6 +114,7 @@ def _make_loader(data: np.array,
     return loader
 
 
+@FactoryRegistry.register_dataloader("PYTORCH_COVID_XRAY")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.8,
                          batch_size: int = 8,

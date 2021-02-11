@@ -25,8 +25,7 @@ def test_model_names(factory):
     for task in TaskType:
         assert task.name in factory.get_models().keys()
     print(factory.get_models())
-    assert str(factory.get_models()) == ""
-    assert len(factory.get_registry().model_architectures) == 1
+    assert len(factory.get_registry().model_architectures) == 5
 
 
 def test_dataloader_names(factory):
@@ -35,7 +34,7 @@ def test_dataloader_names(factory):
 
     assert len(factory.get_dataloaders()[TaskType.KERAS_MNIST.name]) > 0
 
-    assert len(factory.get_registry().dataloaders) == 1
+    assert len(factory.get_registry().dataloaders) == 5
 
 
 def test_compatibilities(factory):

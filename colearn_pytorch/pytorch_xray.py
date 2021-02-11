@@ -89,6 +89,7 @@ def prepare_learner(model_type: ModelType,
     return learner
 
 
+@FactoryRegistry.register_dataloader("PYTORCH_XRAY")
 def prepare_data_loaders(train_folder: str,
                          test_folder: Optional[str] = None,
                          train_ratio: float = 0.96,

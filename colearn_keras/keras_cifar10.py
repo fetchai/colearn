@@ -128,6 +128,7 @@ def _make_loader(images: np.array,
     return dataset
 
 
+@FactoryRegistry.register_dataloader("KERAS_CIFAR10")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32,
