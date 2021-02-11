@@ -39,6 +39,11 @@ class ExampleMliFactory(MliFactory):
 
     def get_mli(self, model_name: str, model_params: str, dataloader_name: str,
                 dataset_params: str) -> MachineLearningInterface:
+
+        print("Call to get_mli")
+        print(f"model_name {model_name} -> params: {model_params}")
+        print(f"dataloader_name {dataloader_name} -> params: {dataset_params}")
+
         if model_name not in self.models:
             raise Exception(f"Model {model_name} is not a valid model. "
                             f"Available models are: {self.models}")
