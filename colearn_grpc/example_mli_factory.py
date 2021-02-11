@@ -24,7 +24,9 @@ class ExampleMliFactory(MliFactory):
         # TODO Currently only KERAS_MNIST(2DConv) is supported
         self.models["KERAS_MNIST"]["model_type"] = ModelType(1).name
 
-        self.compatibilities = {task.name: {task.name} for task in TaskType}
+        self.compatibilities = {name: dataloader_names
+                                for name, (_, dataloader_names)
+                                in FactoryRegistry.model_architectures.items()}
 
     def get_models(self) -> Dict[str, Dict[str, Any]]:
         return self.models
