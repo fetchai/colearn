@@ -13,6 +13,7 @@ from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.utils import normalize_img
+from colearn_grpc.factory_registry import FactoryRegistry
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
@@ -78,6 +79,7 @@ def _get_keras_mnist_conv2D_model(learning_rate: float) -> tf.keras.Model:
     return model
 
 
+@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST"])
 def prepare_learner(model_type: ModelType,
                     data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
@@ -126,6 +128,7 @@ def _make_loader(images: np.array,
     return dataset
 
 
+@FactoryRegistry.register_dataloader("Keras_MNIST")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32,

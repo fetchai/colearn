@@ -15,6 +15,7 @@ from torch.utils.data import Dataset, DataLoader
 from typing_extensions import TypedDict
 
 from colearn_pytorch.pytorch_learner import PytorchLearner
+from colearn_grpc.factory_registry import FactoryRegistry
 from .utils import auc_from_logits
 
 
@@ -35,6 +36,7 @@ def prepare_model(model_type: ModelType) -> nn.Module:
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
+@FactoryRegistry.register_model_architecture("PYTORCH_XRAY", ["PYTORCH_XRAY"])
 def prepare_learner(model_type: ModelType,
                     data_loaders: Tuple[DataLoader, DataLoader],
                     learning_rate: float = 0.001,

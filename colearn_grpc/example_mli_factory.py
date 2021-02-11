@@ -1,26 +1,28 @@
 import json
 from inspect import signature
-from typing import Set, Dict, Any
+from typing import Set, Dict, Any, Callable
 
 from colearn.ml_interface import MachineLearningInterface
 from colearn_grpc.mli_factory_interface import MliFactory
 from colearn_keras.keras_mnist import prepare_data_loaders, ModelType
+from colearn_keras.keras_cifar10 import prepare_data_loaders, ModelType
+from colearn_pytorch.pytorch_xray import prepare_data_loaders, ModelType
+from colearn_pytorch.pytorch_covid_xray import prepare_data_loaders, ModelType
+from colearn_other.fraud_dataset import prepare_data_loaders, ModelType
 from colearn_other.mli_factory import TaskType, mli_factory
+
+from colearn_grpc.factory_registry import FactoryRegistry
 
 
 # TODO Add Documentation
 class ExampleMliFactory(MliFactory):
 
     def __init__(self):
-        self.models = {task.name: {} for task in TaskType}
-        self.dataloaders = {task.name: {} for task in TaskType}
+        self.models = {name: params for name, (params, _) in FactoryRegistry.model_architectures.items()}
+        self.dataloaders = {name: params for name, params in FactoryRegistry.dataloaders.items()}
 
         # TODO Currently only KERAS_MNIST(2DConv) is supported
-        self.models[TaskType.KERAS_MNIST.name] = {"model_type": ModelType(1).name}
-        self.dataloaders[TaskType.KERAS_MNIST.name] = \
-            {param.name: param.default
-             for param in signature(prepare_data_loaders).parameters.values()
-             if param.default != param.empty}
+        self.models["KERAS_MNIST"]["model_type"] = ModelType(1).name
 
         self.compatibilities = {task.name: {task.name} for task in TaskType}
 
@@ -66,3 +68,6 @@ class ExampleMliFactory(MliFactory):
                            train_folder=train_folder,
                            str_model_type=model_type,
                            **data_config)
+
+    def get_registry(self):
+        return FactoryRegistry

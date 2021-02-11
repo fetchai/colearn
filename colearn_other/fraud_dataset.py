@@ -12,6 +12,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
+from colearn_grpc.factory_registry import FactoryRegistry
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 from colearn.utils.data import split_list_into_fractions
 
@@ -138,6 +139,7 @@ class FraudLearner(MachineLearningInterface):
             return 0
 
 
+@FactoryRegistry.register_model_architecture("FRAUD", ["FRAUD"])
 def prepare_learner(model_type: ModelType,
                     data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
                     **_kwargs) -> FraudLearner:

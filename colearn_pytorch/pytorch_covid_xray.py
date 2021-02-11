@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 from typing_extensions import TypedDict
 
+from colearn_grpc.factory_registry import FactoryRegistry
 from colearn.utils.data import split_list_into_fractions
 from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import categorical_accuracy
@@ -41,6 +42,7 @@ def prepare_model(model_type: ModelType) -> nn.Module:
         raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
+@FactoryRegistry.register_model_architecture("PYTORCH_COVID_XRAY", ["PYTORCH_COVID_XRAY"])
 def prepare_learner(model_type: ModelType,
                     data_loaders: Tuple[DataLoader, DataLoader],
                     learning_rate: float = 0.001,
