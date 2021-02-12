@@ -30,6 +30,17 @@ This library is currently in development.
 For more instructions, see the documentation at [fetchai.github.io/colearn/](https://fetchai.github.io/colearn/)
 
 
+## Build image
+
+To build ML server image and push to google cloud use the following command:
+```
+cd docker
+python3 ./build.py --publish --allow_dirty
+# Check this worked correctly
+docker images
+```
+
+
 ## Documentation
 To run the documentation, first install mkdocs and plugins:
 ```bash
