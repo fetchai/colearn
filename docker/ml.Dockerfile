@@ -19,8 +19,7 @@ COPY ./ ./colearn
 
 RUN cd ./colearn && \
     pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir -e .[keras] && \
-    pip3 install --no-cache-dir -e .[grpc]
+    pip3 install --no-cache-dir -e .[all]
 
 RUN groupadd -g 999 appuser && \
     useradd -r -u 999 -g appuser appuser

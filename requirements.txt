@@ -1,3 +1,2 @@
 -e .
--e .[grpc]
--e .[keras]
+-e .[all]
