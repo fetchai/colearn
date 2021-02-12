@@ -23,7 +23,7 @@ class ExampleMliFactory(MliFactory):
 
         # TODO Currently only KERAS_MNIST(2DConv) is supported
         #import colearn_keras.keras_mnist as Keras_Mnist
-        self.models["KERAS_MNIST"]["model_type"] = "CONV2D"
+        #self.models["KERAS_MNIST"]["model_type"] = "CONV2D"
 
         self.compatibilities = {name: dataloader_names
                                 for name, (_, _, dataloader_names)
@@ -71,16 +71,13 @@ class ExampleMliFactory(MliFactory):
         data_loaders = prepare_data_loaders(**data_config)
 
 
-
         model_config = self.models[model_name]  # Default parameters
         model_config.update(json.loads(model_params))
         # model_type will allow you to choose different architectures for different tasks
         # eventually we will get rid of it, but for now only the first model_type is supported
         # and the name of the architecture is just the task
-        model_type = model_config["model_type"]
-        model_config.pop('model_type', None)  # Required because model_type is passed as argument as well
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
-        return prepare_learner(model_type=model_type, data_loaders=data_loaders, **model_config)
+        return prepare_learner(data_loaders=data_loaders, **model_config)
 
         ## Join both configs into one big config
         #data_config.update(model_config)
