@@ -1,17 +1,18 @@
 import json
-from inspect import signature
-from typing import Set, Dict, Any, Callable
+from typing import Set, Dict, Any
 
 from colearn.ml_interface import MachineLearningInterface
 from colearn_grpc.mli_factory_interface import MliFactory
-from colearn_keras.keras_mnist import prepare_data_loaders, ModelType
-from colearn_keras.keras_cifar10 import prepare_data_loaders, ModelType
-from colearn_pytorch.pytorch_xray import prepare_data_loaders, ModelType
-from colearn_pytorch.pytorch_covid_xray import prepare_data_loaders, ModelType
-from colearn_other.fraud_dataset import prepare_data_loaders, ModelType
-from colearn_other.mli_factory import TaskType, mli_factory
-
 from colearn_grpc.factory_registry import FactoryRegistry
+
+# noinspection PyUnresolvedReferences
+
+# pylint: disable=W0611
+import colearn_keras.keras_mnist  # type:ignore # noqa: F401
+import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
+import colearn_other.fraud_dataset  # type:ignore # noqa: F401
 
 
 # TODO Add Documentation
@@ -20,10 +21,6 @@ class ExampleMliFactory(MliFactory):
     def __init__(self):
         self.models = {name: params for name, (_, params, _) in FactoryRegistry.model_architectures.items()}
         self.dataloaders = {name: params for name, (_, params) in FactoryRegistry.dataloaders.items()}
-
-        # TODO Currently only KERAS_MNIST(2DConv) is supported
-        #import colearn_keras.keras_mnist as Keras_Mnist
-        #self.models["KERAS_MNIST"]["model_type"] = "CONV2D"
 
         self.compatibilities = {name: dataloader_names
                                 for name, (_, _, dataloader_names)
@@ -55,37 +52,16 @@ class ExampleMliFactory(MliFactory):
             raise Exception(f"Dataloader {dataloader_name} is not compatible with {model_name}."
                             f"Compatible dataloaders are: {self.compatibilities[model_name]}")
 
-
-
         data_config = self.dataloaders[dataloader_name]  # Default parameters
-        print("1", data_config)
-
         data_config.update(json.loads(dataset_params))
-        print("2", data_config)
 
         # TODO Names should match between colearn and contract_learn
         data_config["train_folder"] = data_config["location"]
-        print("3", data_config)
-
         prepare_data_loaders = FactoryRegistry.dataloaders[dataloader_name][0]
         data_loaders = prepare_data_loaders(**data_config)
 
-
         model_config = self.models[model_name]  # Default parameters
         model_config.update(json.loads(model_params))
-        # model_type will allow you to choose different architectures for different tasks
-        # eventually we will get rid of it, but for now only the first model_type is supported
-        # and the name of the architecture is just the task
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
+
         return prepare_learner(data_loaders=data_loaders, **model_config)
-
-        ## Join both configs into one big config
-        #data_config.update(model_config)
-
-        #return mli_factory(str_task_type=model_name,
-        #                   train_folder=train_folder,
-        #                   str_model_type=model_type,
-        #                   **data_config)
-
-    def get_registry(self):
-        return FactoryRegistry
