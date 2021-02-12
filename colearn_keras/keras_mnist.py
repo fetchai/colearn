@@ -80,8 +80,8 @@ def _get_keras_mnist_conv2D_model(learning_rate: float) -> tf.keras.Model:
 
 
 @FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST"])
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+                    model_type: ModelType,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
@@ -96,6 +96,9 @@ def prepare_learner(model_type: ModelType,
     :param _kwargs: Residual parameters not used by this function
     :return: New instance of KerasLearner
     """
+    if isinstance(model_type, str):
+        model_type = ModelType[model_type]
+
     learner = KerasLearner(
         model=_prepare_model(model_type, learning_rate),
         train_loader=data_loaders[0],

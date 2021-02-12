@@ -9,15 +9,15 @@ def _get_defaults(to_call: Callable) -> Dict[str, Any]:
 
 
 class FactoryRegistry:
-    dataloaders: Dict[str, Dict[str, Any]] = {}
-    model_architectures: Dict[str, Tuple[Dict[str, Any], List[str]]] = {}
+    dataloaders: Dict[str, Tuple[Callable, Dict[str, Any]]] = {}
+    model_architectures: Dict[str, Tuple[Callable, Dict[str, Any], List[str]]] = {}
 
     @classmethod
     def register_dataloader(cls, name: str):
         def wrap(dataloader: Callable):
             if name in cls.dataloaders:
                 print(f"Warning: {name} already registered. Replacing with {dataloader.__name__}")
-            cls.dataloaders[name] = _get_defaults(dataloader)
+            cls.dataloaders[name] = (dataloader, _get_defaults(dataloader))
             return dataloader
         return wrap
 
@@ -26,7 +26,7 @@ class FactoryRegistry:
         def wrap(model_arch_creator: Callable):
             if name in cls.model_architectures:
                 print(f"Warning: {name} already registered. Replacing with {model_arch_creator.__name__}")
-            cls.model_architectures[name] = (_get_defaults(model_arch_creator), compatibilities)
+            cls.model_architectures[name] = (model_arch_creator, _get_defaults(model_arch_creator), compatibilities)
 
             return model_arch_creator
         return wrap
