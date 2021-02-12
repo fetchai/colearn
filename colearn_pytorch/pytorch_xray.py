@@ -37,8 +37,7 @@ def prepare_model(model_type: ModelType) -> nn.Module:
 
 
 @FactoryRegistry.register_model_architecture("PYTORCH_XRAY", ["PYTORCH_XRAY"])
-def prepare_learner(
-                    data_loaders: Tuple[DataLoader, DataLoader],
+def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
                     str_model_type: str = ModelType(1).name,
                     learning_rate: float = 0.001,
                     steps_per_epoch: int = 40,
@@ -48,7 +47,7 @@ def prepare_learner(
                     **_kwargs) -> PytorchLearner:
     """
     Creates new instance of PytorchLearner
-    :param str_model_type: String that represents a model type from above
+    :param str_model_type: String that represents a model type from ModelType enum
     :param data_loaders: Tuple of train_loader and test_loader
     :param learning_rate: Learning rate for optimiser
     :param steps_per_epoch: Number of batches per training epoch

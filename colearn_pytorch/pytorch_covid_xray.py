@@ -43,8 +43,8 @@ def prepare_model(model_type: ModelType) -> nn.Module:
 
 
 @FactoryRegistry.register_model_architecture("PYTORCH_COVID_XRAY", ["PYTORCH_COVID_XRAY"])
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[DataLoader, DataLoader],
+def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
+                    str_model_type: str = ModelType(1).name,
                     learning_rate: float = 0.001,
                     steps_per_epoch: int = 40,
                     vote_batches: int = 10,
@@ -53,8 +53,8 @@ def prepare_learner(model_type: ModelType,
                     **_kwargs) -> PytorchLearner:
     """
     Creates new instance of PytorchLearner
-    :param model_type: Enum that represents selected model type
     :param data_loaders: Tuple of train_loader and test_loader
+    :param str_model_type: Enum that represents selected modelModelType enum
     :param learning_rate: Learning rate for optimiser
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_score
@@ -66,6 +66,7 @@ def prepare_learner(model_type: ModelType,
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
+    model_type = ModelType[str_model_type]
     model = prepare_model(model_type)
 
     if vote_on_accuracy:

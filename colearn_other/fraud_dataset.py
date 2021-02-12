@@ -140,16 +140,17 @@ class FraudLearner(MachineLearningInterface):
 
 
 @FactoryRegistry.register_model_architecture("FRAUD", ["FRAUD"])
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
+def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
+                    str_model_type: str = ModelType(1).name,
                     **_kwargs) -> FraudLearner:
     """
     Creates a new instance of FraudLearner
-    :param model_type: Enum that represents selected model type
     :param data_loaders: Tuple of tuples (train_data, train_labels), (test_data, test_labels)
+    :param str_model_type: String that represents a model type from ModelType enum
     :param _kwargs: Residual parameters not used by this function
     :return: Instance of FraudLearner
     """
+    model_type = ModelType[str_model_type]
     if model_type == ModelType.SVM:
         return FraudLearner(
             train_data=data_loaders[0][0],

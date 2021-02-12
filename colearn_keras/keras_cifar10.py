@@ -80,15 +80,15 @@ def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
 
 
 @FactoryRegistry.register_model_architecture("KERAS_CIFAR10", ["KERAS_CIFAR10"])
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+                    str_model_type: str = ModelType(1).name,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
                     **_kwargs) -> KerasLearner:
     """
     Creates new instance of KerasLearner
-    :param model_type: Enum that represents selected model type
+    :param str_model_type: String that represents a model type from ModelType enum
     :param data_loaders: Tuple of train_loader and test_loader
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_score
@@ -96,6 +96,7 @@ def prepare_learner(model_type: ModelType,
     :param _kwargs: Residual parameters not used by this function
     :return: New instance of KerasLearner
     """
+    model_type = ModelType[str_model_type]
     learner = KerasLearner(
         model=_prepare_model(model_type, learning_rate),
         train_loader=data_loaders[0],

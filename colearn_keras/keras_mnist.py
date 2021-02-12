@@ -88,7 +88,7 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
                     **_kwargs) -> KerasLearner:
     """
     Creates new instance of KerasLearner
-    :param str_model_type: String that represents a model type from above
+    :param str_model_type: String that represents a model type from ModelType enum
     :param data_loaders: Tuple of train_loader and test_loader
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_accuracy
