@@ -5,8 +5,7 @@ from colearn.ml_interface import MachineLearningInterface
 from colearn_grpc.mli_factory_interface import MliFactory
 from colearn_grpc.factory_registry import FactoryRegistry
 
-# noinspection PyUnresolvedReferences
-
+# These are imported to they are registered in the FactoryRegistry and are available here
 # pylint: disable=W0611
 import colearn_keras.keras_mnist  # type:ignore # noqa: F401
 import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
