@@ -103,8 +103,7 @@ results = Results()
 # Get initial score
 results.data.append(initial_result(all_learner_models))
 
-plot = ColearnPlot(n_learners=n_learners,
-                   score_name=all_learner_models[0].criterion)
+plot = ColearnPlot(score_name=all_learner_models[0].criterion)
 
 for round_index in range(n_rounds):
     results.data.append(

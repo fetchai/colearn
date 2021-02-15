@@ -14,7 +14,7 @@ First we are going to define the model architecture, then
 we are going to load the data and configure the model, and then we will run Collective Learning.
 
 A standard script for machine learning with Pytorch looks like the one below
-```Python hl_lines="24 34 58"
+```Python 
 {!python_src/mnist_pytorch.py!}
 ```
 There are three steps:
@@ -25,7 +25,7 @@ There are three steps:
 
 In this tutorial we are going to see how to modify each step to use collective learning. 
 We'll end up with code like this:
-```Python hl_lines="45 65 109"
+```Python 
 {!../examples/pytorch_mnist.py!}
 ```
 
@@ -96,5 +96,3 @@ plot_results(results, n_learners, score_name=score_name)
 plot_votes(results, block=True)
 
 ```
-
-Simple!

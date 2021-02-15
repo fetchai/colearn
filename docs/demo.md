@@ -10,7 +10,7 @@ There are five potential datasets for the demo
 * PYTORCH_XRAY is Pytorch implementation of a binary classification task that requires predicting pneumonia from images of chest X-rays. 
   The data need to be downloaded from [kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
 * PYTORCH_COVID_XRAY is Pytorch implementation of a 3 class classification task that requires predicting no finding, covid or pneumonia from images of chest X-rays. 
-  This dataset is currently unavailable.
+  This dataset is not currently publicly available.
 * FRAUD The fraud dataset consists of information about credit card transactions, and the task is to predict whether 
   transactions are fraudulent or not. 
   The data need to be downloaded from [kaggle](https://www.kaggle.com/c/ieee-fraud-detection)
@@ -36,14 +36,14 @@ Arguments to run the demo:
 ```
 
 ## Running MNIST
-The simplest task to run is MNIST because this doesn't require downloading the data. 
-This runs the MNIST task with five learners for 15 rounds.
+The simplest task to run is MNIST because the data are downloaded automatically from `tensorflow_datasets`.
+The command below runs the MNIST task with five learners for 15 rounds.
 ```bash
 examples/run_demo.py --task KERAS_MNIST --n_learners 5 --n_rounds 15
 ```
 You should see a graph of the vote score and the test score (the score used here is categorical accuracy).
-New model is accepted (blue star) if amount of possitive votes (yellow color) is higher than 0.5. 
-New model is rejected (orange cross) if amount of negative votes (purple color) is lower than 0.5. 
+The new model is accepted if the fraction of positive votes (green colour) is higher than 0.5. 
+The new model is rejected if the fraction of negative votes (red color) is lower than 0.5. 
 
 ![Alt text](images/mnist_plot.png?raw=true "Collective learning graph")
 
