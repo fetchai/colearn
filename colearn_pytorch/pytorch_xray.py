@@ -350,7 +350,6 @@ def split_to_folders(
 
             # make symlinks to required files in directory
             for fl in cases_subset:
-                case_type = None
                 if 'NORMAL' in str(fl):
                     case_type = "NORMAL"
                 elif 'PNEUMONIA' in str(fl):
