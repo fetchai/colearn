@@ -22,6 +22,7 @@ What the script does:
 """
 
 
+# Define the class that implements the MLI
 class IrisLearner(MachineLearningInterface):
     def __init__(self, train_data, train_labels, test_data, test_labels,
                  initial_trees=1, trees_to_add=2):
@@ -98,6 +99,7 @@ testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
 n_rounds = 20 if not testing_mode else 1
 vote_threshold = 0.5
 
+# Load and split the data
 iris = datasets.load_iris()
 data, labels = iris.data, iris.target
 n_datapoints = data.shape[0]
@@ -118,6 +120,7 @@ for i in range(n_learners):
     learner_test_data.append(data[learner_test_ind])
     learner_test_labels.append(labels[learner_test_ind])
 
+# Make n_learners learners each with a separate part of the dataset
 all_learner_models = []
 for i in range(n_learners):
     all_learner_models.append(
@@ -128,9 +131,9 @@ for i in range(n_learners):
             test_labels=learner_test_labels[i]
         ))
 
+# Do collective learning
 results = Results()
-# Get initial score
-results.data.append(initial_result(all_learner_models))
+results.data.append(initial_result(all_learner_models))  # Get initial score
 
 plot = ColearnPlot(n_learners=n_learners,
                    score_name="accuracy")
