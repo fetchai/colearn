@@ -135,8 +135,7 @@ for i in range(n_learners):
 results = Results()
 results.data.append(initial_result(all_learner_models))  # Get initial score
 
-plot = ColearnPlot(n_learners=n_learners,
-                   score_name="accuracy")
+plot = ColearnPlot(score_name="accuracy")
 
 for round_index in range(n_rounds):
     results.data.append(
