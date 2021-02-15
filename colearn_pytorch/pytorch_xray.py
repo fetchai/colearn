@@ -327,8 +327,6 @@ def split_to_folders(
 
     subdirs = glob(os.path.join(data_dir, "*", ""))
     for subdir in subdirs:
-        subdir_name = os.path.basename(os.path.split(subdir)[0])
-
         cases = list(Path(subdir).rglob("*.jp*"))
 
         if len(cases) == 0:
@@ -345,12 +343,23 @@ def split_to_folders(
 
             cases_subset = [cases[j] for j in random_indices[start_ind:stop_ind]]
 
-            dir_name = local_output_dir / str(i) / subdir_name
-            os.makedirs(str(dir_name))
+            # Prepare output directories
+            dir_name = local_output_dir / str(i)
+            os.makedirs(str(dir_name / "NORMAL"), exist_ok=True)
+            os.makedirs(str(dir_name / "PNEUMONIA"), exist_ok=True)
 
             # make symlinks to required files in directory
             for fl in cases_subset:
-                link_name = dir_name / os.path.basename(fl)
+                case_type = None
+                if 'NORMAL' in str(fl):
+                    case_type = "NORMAL"
+                elif 'PNEUMONIA' in str(fl):
+                    case_type = "PNEUMONIA"
+                else:
+                    print(fl, " - has invalid category")
+                    continue
+
+                link_name = dir_name / case_type / os.path.basename(fl)
                 # print(link_name)
                 os.symlink(fl, link_name)
 
