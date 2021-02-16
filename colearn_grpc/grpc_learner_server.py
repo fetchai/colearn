@@ -99,7 +99,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             self.learner = self.mli_factory.get_mli(
                 model_name=request.model_arch_name,
                 model_params=request.model_parameters,
-                dataloader_name=request.data_loader_loader_name,
+                dataloader_name=request.dataset_loader_name,
                 dataset_params=request.dataset_loader_parameters
             )
             _logger.debug("ML MODEL CREATED")
