@@ -2,7 +2,7 @@ import json
 import pytest
 
 from colearn_other.mli_factory import TaskType
-from colearn_keras.keras_mnist import ModelType, split_to_folders
+from colearn_keras.keras_mnist import split_to_folders
 from colearn_keras.keras_learner import KerasLearner
 
 
@@ -47,7 +47,6 @@ def mnist_config():
 
     return {
         'task_type': TaskType.KERAS_MNIST,
-        'model_type': ModelType(1).name,
         'train_folder': folders[0],
         'test_folder': "",
     }
@@ -55,7 +54,7 @@ def mnist_config():
 
 def test_get_mnist(factory, mnist_config):
 
-    model_params = json.dumps({'model_type': mnist_config['model_type']})
+    model_params = json.dumps({"steps_per_epoch": 20})
 
     dataset_params = json.dumps(
         {'location': mnist_config['train_folder'],
@@ -67,5 +66,7 @@ def test_get_mnist(factory, mnist_config):
         model_params=model_params,
         dataloader_name=mnist_config['task_type'].name,
         dataset_params=dataset_params)
+
+    assert mli.model_fit_kwargs["steps_per_epoch"] == 20
 
     assert isinstance(mli, KerasLearner)

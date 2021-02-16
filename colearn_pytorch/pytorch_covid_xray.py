@@ -1,7 +1,6 @@
 import os
 import pickle
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Tuple, List, Optional
 
@@ -25,26 +24,8 @@ DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
 
 
-class ModelType(Enum):
-    MULTILAYER_PERCEPTRON = 1
-
-
-def prepare_model(model_type: ModelType) -> nn.Module:
-    """
-    Creates a new instance of selected Keras model
-    :param model_type: Enum that represents selected model type
-    :return: New instance of Pytorch model
-    """
-
-    if model_type == ModelType.MULTILAYER_PERCEPTRON:
-        return TorchCovidXrayPerceptronModel()
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
-
-
 @FactoryRegistry.register_model_architecture("PYTORCH_COVID_XRAY", ["PYTORCH_COVID_XRAY"])
 def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
-                    str_model_type: str = ModelType(1).name,
                     learning_rate: float = 0.001,
                     steps_per_epoch: int = 40,
                     vote_batches: int = 10,
@@ -54,7 +35,6 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
     """
     Creates new instance of PytorchLearner
     :param data_loaders: Tuple of train_loader and test_loader
-    :param str_model_type: Enum that represents selected modelModelType enum
     :param learning_rate: Learning rate for optimiser
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_score
@@ -66,8 +46,7 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
-    model_type = ModelType[str_model_type]
-    model = prepare_model(model_type)
+    model = TorchCovidXrayPerceptronModel()
 
     if vote_on_accuracy:
         learner_vote_kwargs = dict(

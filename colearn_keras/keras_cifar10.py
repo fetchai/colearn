@@ -1,7 +1,6 @@
 import os
 import pickle
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Tuple, List, Optional
 
@@ -17,23 +16,6 @@ from colearn_grpc.factory_registry import FactoryRegistry
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
-
-
-class ModelType(Enum):
-    CONV2D = 1
-
-
-def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Model:
-    """
-    Creates a new instance of selected Keras model
-    :param model_type: Enum that represents selected model type
-    :param learning_rate: Learning rate for optimiser
-    :return: New instance of Keras model
-    """
-    if model_type == ModelType.CONV2D:
-        return _get_keras_cifar10_conv2D_model(learning_rate)
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
 def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
@@ -81,14 +63,12 @@ def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
 
 @FactoryRegistry.register_model_architecture("KERAS_CIFAR10", ["KERAS_CIFAR10"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
-                    str_model_type: str = ModelType(1).name,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
                     **_kwargs) -> KerasLearner:
     """
     Creates new instance of KerasLearner
-    :param str_model_type: String that represents a model type from ModelType enum
     :param data_loaders: Tuple of train_loader and test_loader
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_score
@@ -96,9 +76,8 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
     :param _kwargs: Residual parameters not used by this function
     :return: New instance of KerasLearner
     """
-    model_type = ModelType[str_model_type]
     learner = KerasLearner(
-        model=_prepare_model(model_type, learning_rate),
+        model=_get_keras_cifar10_conv2D_model(learning_rate),
         train_loader=data_loaders[0],
         test_loader=data_loaders[1],
         criterion="sparse_categorical_accuracy",

@@ -25,9 +25,6 @@ parser.add_argument("-t", "--task", default="KERAS_MNIST",
                     help="Type of task for machine learning, options are " + " ".join(str(x.name)
                                                                                       for x in TaskType))
 
-parser.add_argument("-m", "--model_type", default=None, type=str,
-                    help="Type of machine learning model, default model will be used if not specified")
-
 parser.add_argument("-n", "--n_learners", default=5, type=int, help="Number of learners")
 parser.add_argument("-p", "--n_rounds", default=15, type=int, help="Number of training rounds")
 
@@ -45,7 +42,6 @@ parser.add_argument("-b", "--batch_size", type=int, default=None, help="Size of 
 args = parser.parse_args()
 
 str_task_type = args.task
-str_model_type = args.model_type
 n_learners = args.n_learners
 test_data_folder = args.test_dir
 train_data_folder = args.data_dir
@@ -74,7 +70,7 @@ task_type = TaskType[str_task_type]
 # Load correct split to folders function and resolve score_name for accuracy plot
 # pylint: disable=C0415, C0412
 if task_type == TaskType.PYTORCH_XRAY:
-    from colearn_pytorch.pytorch_xray import split_to_folders, ModelType
+    from colearn_pytorch.pytorch_xray import split_to_folders
 
     if "vote_on_accuracy" in learning_kwargs:
         if learning_kwargs["vote_on_accuracy"]:
@@ -86,19 +82,19 @@ if task_type == TaskType.PYTORCH_XRAY:
 
 elif task_type == TaskType.KERAS_MNIST:
     # noinspection PyUnresolvedReferences
-    from colearn_keras.keras_mnist import split_to_folders, ModelType  # type: ignore[no-redef, misc]
+    from colearn_keras.keras_mnist import split_to_folders  # type: ignore[no-redef, misc]
 
     score_name = "categorical_accuracy"
 
 elif task_type == TaskType.KERAS_CIFAR10:
     # noinspection PyUnresolvedReferences
-    from colearn_keras.keras_cifar10 import split_to_folders, ModelType  # type: ignore[no-redef, misc]
+    from colearn_keras.keras_cifar10 import split_to_folders  # type: ignore[no-redef, misc]
 
     score_name = "categorical_accuracy"
 
 elif task_type == TaskType.PYTORCH_COVID_XRAY:
     # noinspection PyUnresolvedReferences
-    from colearn_pytorch.pytorch_covid_xray import split_to_folders, ModelType  # type: ignore[no-redef, misc]
+    from colearn_pytorch.pytorch_covid_xray import split_to_folders  # type: ignore[no-redef, misc]
 
     if "vote_on_accuracy" in learning_kwargs:
         if learning_kwargs["vote_on_accuracy"]:
@@ -110,16 +106,12 @@ elif task_type == TaskType.PYTORCH_COVID_XRAY:
 
 elif task_type == TaskType.FRAUD:
     # noinspection PyUnresolvedReferences
-    from colearn_other.fraud_dataset import split_to_folders, ModelType  # type: ignore [no-redef, misc]
+    from colearn_other.fraud_dataset import split_to_folders  # type: ignore [no-redef, misc]
 
     score_name = "accuracy"
 
 else:
     raise Exception("Task %s not part of the TaskType enum" % type)
-
-# Replace with default model type if not specified
-if str_model_type is None:
-    str_model_type = ModelType(1).name
 
 # Load training data
 train_data_folders = split_to_folders(
@@ -144,7 +136,6 @@ else:
 all_learner_models = []
 for i in range(n_learners):
     all_learner_models.append(mli_factory(str_task_type=str_task_type,
-                                          str_model_type=str_model_type,
                                           train_folder=train_data_folders[i],
                                           test_folder=test_data_folders[i],
                                           **learning_kwargs

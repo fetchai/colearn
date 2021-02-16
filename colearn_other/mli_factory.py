@@ -13,14 +13,12 @@ class TaskType(Enum):
 
 def mli_factory(str_task_type: str,
                 train_folder: str,
-                str_model_type: str,
                 test_folder: Optional[str] = None,
                 **learning_kwargs) -> MachineLearningInterface:
     """
     MachineLearningInterface factory
     :param str_task_type: String task type
     :param train_folder: Path to training set
-    :param str_model_type: String model type
     :param test_folder: Optional path to test set
     :param learning_kwargs: Learning parameters to be passed to dataloader and model
     :return: Specific instance of MachineLearningInterface
@@ -56,6 +54,5 @@ def mli_factory(str_task_type: str,
                                                **learning_kwargs)
 
     learner = prepare_learner(data_loaders=learner_dataloaders,
-                              str_model_type=str_model_type,
                               **learning_kwargs)
     return learner

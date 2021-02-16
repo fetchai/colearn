@@ -1,7 +1,6 @@
 import os
 import pickle
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Optional, List, Tuple
 
@@ -18,10 +17,6 @@ from colearn.utils.data import split_list_into_fractions
 
 DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
-
-
-class ModelType(Enum):
-    SVM = 1
 
 
 class FraudLearner(MachineLearningInterface):
@@ -141,7 +136,6 @@ class FraudLearner(MachineLearningInterface):
 
 @FactoryRegistry.register_model_architecture("FRAUD", ["FRAUD"])
 def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
-                    str_model_type: str = ModelType(1).name,
                     **_kwargs) -> FraudLearner:
     """
     Creates a new instance of FraudLearner
@@ -150,15 +144,12 @@ def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.arra
     :param _kwargs: Residual parameters not used by this function
     :return: Instance of FraudLearner
     """
-    model_type = ModelType[str_model_type]
-    if model_type == ModelType.SVM:
-        return FraudLearner(
-            train_data=data_loaders[0][0],
-            train_labels=data_loaders[0][1],
-            test_data=data_loaders[1][0],
-            test_labels=data_loaders[1][1])
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
+    return FraudLearner(
+        train_data=data_loaders[0][0],
+        train_labels=data_loaders[0][1],
+        test_data=data_loaders[1][0],
+        test_labels=data_loaders[1][1]
+    )
 
 
 def _infinite_batch_sampler(data_size: int,
