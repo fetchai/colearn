@@ -21,10 +21,18 @@ docs_deps = [
     "markdown-include",
 ]
 
-all_deps = keras_deps + pytorch_deps
+grpc_deps = ['grpcio~=1.35.0',
+             'prometheus_client==0.9.0',
+             'click'
+            ]
+all_deps = keras_deps + pytorch_deps + grpc_deps
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+long_description = ""
+try:
+    with open("README.md", "r") as fh:
+        long_description = fh.read()
+except FileNotFoundError:
+    print("README.md ile not found, no long description available")
 
 setuptools.setup(
     name="colearn-interface-fetch-ai",
@@ -54,6 +62,7 @@ setuptools.setup(
         'keras': keras_deps,
         'pytorch': pytorch_deps,
         'docs': docs_deps,
-        'all': all_deps
+        'all': all_deps,
+        'grpc': grpc_deps
     },
 )
