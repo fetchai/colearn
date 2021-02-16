@@ -140,7 +140,6 @@ def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.arra
     """
     Creates a new instance of FraudLearner
     :param data_loaders: Tuple of tuples (train_data, train_labels), (test_data, test_labels)
-    :param str_model_type: String that represents a model type from ModelType enum
     :param _kwargs: Residual parameters not used by this function
     :return: Instance of FraudLearner
     """
