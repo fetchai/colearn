@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0finterface.proto\x12\x13\x63ontract_learn.grpc\x1a\x1bgoogle/protobuf/empty.proto\"\x83\x01\n\x0eRequestMLSetup\x12\x1b\n\x13\x64\x61taset_loader_name\x18\x01 \x01(\t\x12!\n\x19\x64\x61taset_loader_parameters\x18\x02 \x01(\t\x12\x17\n\x0fmodel_arch_name\x18\x03 \x01(\t\x12\x18\n\x10model_parameters\x18\x04 \x01(\t\"Z\n\x0fResponseMLSetup\x12\x32\n\x06status\x18\x01 \x01(\x0e\x32\".contract_learn.grpc.MLSetupStatus\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\"G\n\x0bWeightsPart\x12\x0f\n\x07weights\x18\x01 \x01(\x0c\x12\x12\n\nbyte_index\x18\x02 \x01(\r\x12\x13\n\x0btotal_bytes\x18\x03 \x01(\x04\"G\n\x0fProposedWeights\x12\x12\n\nvote_score\x18\x01 \x01(\x02\x12\x12\n\ntest_score\x18\x02 \x01(\x02\x12\x0c\n\x04vote\x18\x03 \x01(\x08\"\x0f\n\rRequestStatus\"C\n\x0eResponseStatus\x12\x31\n\x06status\x18\x01 \x01(\x0e\x32!.contract_learn.grpc.SystemStatus\"=\n\x11\x44\x61tasetLoaderSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"9\n\rModelArchSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"\xa2\x02\n\x17ResponseSupportedSystem\x12\x38\n\x08\x64\x61tasets\x18\x01 \x03(\x0b\x32&.contract_learn.grpc.DatasetLoaderSpec\x12?\n\x13model_architectures\x18\x02 \x03(\x0b\x32\".contract_learn.grpc.ModelArchSpec\x12V\n\rcompatibility\x18\x03 \x03(\x0b\x32?.contract_learn.grpc.ResponseSupportedSystem.CompatibilityEntry\x1a\x34\n\x12\x43ompatibilityEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*6\n\rMLSetupStatus\x12\r\n\tUNDEFINED\x10\x00\x12\x0b\n\x07SUCCESS\x10\x01\x12\t\n\x05\x45RROR\x10\x02*J\n\x0cSystemStatus\x12\x0b\n\x07WORKING\x10\x00\x12\x0c\n\x08NO_MODEL\x10\x01\x12\x12\n\x0eINTERNAL_ERROR\x10\x02\x12\x0b\n\x07UNKNOWN\x10\x03\x32\x8f\x04\n\x0bGRPCLearner\x12\\\n\x14QuerySupportedSystem\x12\x16.google.protobuf.Empty\x1a,.contract_learn.grpc.ResponseSupportedSystem\x12T\n\x07MLSetup\x12#.contract_learn.grpc.RequestMLSetup\x1a$.contract_learn.grpc.ResponseMLSetup\x12L\n\x0eProposeWeights\x12\x16.google.protobuf.Empty\x1a .contract_learn.grpc.WeightsPart0\x01\x12W\n\x0bTestWeights\x12 .contract_learn.grpc.WeightsPart\x1a$.contract_learn.grpc.ProposedWeights(\x01\x12H\n\nSetWeights\x12 .contract_learn.grpc.WeightsPart\x1a\x16.google.protobuf.Empty(\x01\x12[\n\x0cStatusStream\x12\".contract_learn.grpc.RequestStatus\x1a#.contract_learn.grpc.ResponseStatus(\x01\x30\x01\x62\x06proto3'
+  serialized_pb=b'\n\x0finterface.proto\x12\x13\x63ontract_learn.grpc\x1a\x1bgoogle/protobuf/empty.proto\"\x83\x01\n\x0eRequestMLSetup\x12\x1b\n\x13\x64\x61taset_loader_name\x18\x01 \x01(\t\x12!\n\x19\x64\x61taset_loader_parameters\x18\x02 \x01(\t\x12\x17\n\x0fmodel_arch_name\x18\x03 \x01(\t\x12\x18\n\x10model_parameters\x18\x04 \x01(\t\"Z\n\x0fResponseMLSetup\x12\x32\n\x06status\x18\x01 \x01(\x0e\x32\".contract_learn.grpc.MLSetupStatus\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\"\x1a\n\x07Weights\x12\x0f\n\x07weights\x18\x01 \x01(\x0c\"\x89\x02\n\x0fProposedWeights\x12-\n\x07weights\x18\x01 \x01(\x0b\x32\x1c.contract_learn.grpc.Weights\x12\x12\n\nvote_score\x18\x02 \x01(\x02\x12\x12\n\ntest_score\x18\x03 \x01(\x02\x12\x0c\n\x04vote\x18\x04 \x01(\x08\x12W\n\x12\x65valuation_results\x18\x05 \x03(\x0b\x32;.contract_learn.grpc.ProposedWeights.EvaluationResultsEntry\x1a\x38\n\x16\x45valuationResultsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02:\x02\x38\x01\"\x0f\n\rRequestStatus\"C\n\x0eResponseStatus\x12\x31\n\x06status\x18\x01 \x01(\x0e\x32!.contract_learn.grpc.SystemStatus\"=\n\x11\x44\x61tasetLoaderSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"9\n\rModelArchSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"\xa6\x02\n\x17ResponseSupportedSystem\x12<\n\x0c\x64\x61ta_loaders\x18\x01 \x03(\x0b\x32&.contract_learn.grpc.DatasetLoaderSpec\x12?\n\x13model_architectures\x18\x02 \x03(\x0b\x32\".contract_learn.grpc.ModelArchSpec\x12V\n\rcompatibility\x18\x03 \x03(\x0b\x32?.contract_learn.grpc.ResponseSupportedSystem.CompatibilityEntry\x1a\x34\n\x12\x43ompatibilityEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*6\n\rMLSetupStatus\x12\r\n\tUNDEFINED\x10\x00\x12\x0b\n\x07SUCCESS\x10\x01\x12\t\n\x05\x45RROR\x10\x02*J\n\x0cSystemStatus\x12\x0b\n\x07WORKING\x10\x00\x12\x0c\n\x08NO_MODEL\x10\x01\x12\x12\n\x0eINTERNAL_ERROR\x10\x02\x12\x0b\n\x07UNKNOWN\x10\x03\x32\xff\x03\n\x0bGRPCLearner\x12\\\n\x14QuerySupportedSystem\x12\x16.google.protobuf.Empty\x1a,.contract_learn.grpc.ResponseSupportedSystem\x12T\n\x07MLSetup\x12#.contract_learn.grpc.RequestMLSetup\x1a$.contract_learn.grpc.ResponseMLSetup\x12H\n\x0eProposeWeights\x12\x16.google.protobuf.Empty\x1a\x1c.contract_learn.grpc.Weights0\x01\x12Q\n\x0bTestWeights\x12\x1c.contract_learn.grpc.Weights\x1a$.contract_learn.grpc.ProposedWeights\x12\x42\n\nSetWeights\x12\x1c.contract_learn.grpc.Weights\x1a\x16.google.protobuf.Empty\x12[\n\x0cStatusStream\x12\".contract_learn.grpc.RequestStatus\x1a#.contract_learn.grpc.ResponseStatus(\x01\x30\x01\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -50,8 +50,8 @@ _MLSETUPSTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=942,
-  serialized_end=996,
+  serialized_start=1096,
+  serialized_end=1150,
 )
 _sym_db.RegisterEnumDescriptor(_MLSETUPSTATUS)
 
@@ -86,8 +86,8 @@ _SYSTEMSTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=998,
-  serialized_end=1072,
+  serialized_start=1152,
+  serialized_end=1226,
 )
 _sym_db.RegisterEnumDescriptor(_SYSTEMSTATUS)
 
@@ -194,32 +194,18 @@ _RESPONSEMLSETUP = _descriptor.Descriptor(
 )
 
 
-_WEIGHTSPART = _descriptor.Descriptor(
-  name='WeightsPart',
-  full_name='contract_learn.grpc.WeightsPart',
+_WEIGHTS = _descriptor.Descriptor(
+  name='Weights',
+  full_name='contract_learn.grpc.Weights',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='weights', full_name='contract_learn.grpc.WeightsPart.weights', index=0,
+      name='weights', full_name='contract_learn.grpc.Weights.weights', index=0,
       number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='byte_index', full_name='contract_learn.grpc.WeightsPart.byte_index', index=1,
-      number=2, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='total_bytes', full_name='contract_learn.grpc.WeightsPart.total_bytes', index=2,
-      number=3, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -236,9 +222,47 @@ _WEIGHTSPART = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=295,
-  serialized_end=366,
+  serialized_end=321,
 )
 
+
+_PROPOSEDWEIGHTS_EVALUATIONRESULTSENTRY = _descriptor.Descriptor(
+  name='EvaluationResultsEntry',
+  full_name='contract_learn.grpc.ProposedWeights.EvaluationResultsEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='contract_learn.grpc.ProposedWeights.EvaluationResultsEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='contract_learn.grpc.ProposedWeights.EvaluationResultsEntry.value', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=533,
+  serialized_end=589,
+)
 
 _PROPOSEDWEIGHTS = _descriptor.Descriptor(
   name='ProposedWeights',
@@ -249,30 +273,44 @@ _PROPOSEDWEIGHTS = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='vote_score', full_name='contract_learn.grpc.ProposedWeights.vote_score', index=0,
-      number=1, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
+      name='weights', full_name='contract_learn.grpc.ProposedWeights.weights', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='test_score', full_name='contract_learn.grpc.ProposedWeights.test_score', index=1,
+      name='vote_score', full_name='contract_learn.grpc.ProposedWeights.vote_score', index=1,
       number=2, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='vote', full_name='contract_learn.grpc.ProposedWeights.vote', index=2,
-      number=3, type=8, cpp_type=7, label=1,
+      name='test_score', full_name='contract_learn.grpc.ProposedWeights.test_score', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='vote', full_name='contract_learn.grpc.ProposedWeights.vote', index=3,
+      number=4, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='evaluation_results', full_name='contract_learn.grpc.ProposedWeights.evaluation_results', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
-  nested_types=[],
+  nested_types=[_PROPOSEDWEIGHTS_EVALUATIONRESULTSENTRY, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -281,8 +319,8 @@ _PROPOSEDWEIGHTS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=368,
-  serialized_end=439,
+  serialized_start=324,
+  serialized_end=589,
 )
 
 
@@ -306,8 +344,8 @@ _REQUESTSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=441,
-  serialized_end=456,
+  serialized_start=591,
+  serialized_end=606,
 )
 
 
@@ -338,8 +376,8 @@ _RESPONSESTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=458,
-  serialized_end=525,
+  serialized_start=608,
+  serialized_end=675,
 )
 
 
@@ -377,8 +415,8 @@ _DATASETLOADERSPEC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=527,
-  serialized_end=588,
+  serialized_start=677,
+  serialized_end=738,
 )
 
 
@@ -416,8 +454,8 @@ _MODELARCHSPEC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=590,
-  serialized_end=647,
+  serialized_start=740,
+  serialized_end=797,
 )
 
 
@@ -455,8 +493,8 @@ _RESPONSESUPPORTEDSYSTEM_COMPATIBILITYENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=888,
-  serialized_end=940,
+  serialized_start=1042,
+  serialized_end=1094,
 )
 
 _RESPONSESUPPORTEDSYSTEM = _descriptor.Descriptor(
@@ -468,7 +506,7 @@ _RESPONSESUPPORTEDSYSTEM = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='datasets', full_name='contract_learn.grpc.ResponseSupportedSystem.datasets', index=0,
+      name='data_loaders', full_name='contract_learn.grpc.ResponseSupportedSystem.data_loaders', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -500,19 +538,22 @@ _RESPONSESUPPORTEDSYSTEM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=650,
-  serialized_end=940,
+  serialized_start=800,
+  serialized_end=1094,
 )
 
 _RESPONSEMLSETUP.fields_by_name['status'].enum_type = _MLSETUPSTATUS
+_PROPOSEDWEIGHTS_EVALUATIONRESULTSENTRY.containing_type = _PROPOSEDWEIGHTS
+_PROPOSEDWEIGHTS.fields_by_name['weights'].message_type = _WEIGHTS
+_PROPOSEDWEIGHTS.fields_by_name['evaluation_results'].message_type = _PROPOSEDWEIGHTS_EVALUATIONRESULTSENTRY
 _RESPONSESTATUS.fields_by_name['status'].enum_type = _SYSTEMSTATUS
 _RESPONSESUPPORTEDSYSTEM_COMPATIBILITYENTRY.containing_type = _RESPONSESUPPORTEDSYSTEM
-_RESPONSESUPPORTEDSYSTEM.fields_by_name['datasets'].message_type = _DATASETLOADERSPEC
+_RESPONSESUPPORTEDSYSTEM.fields_by_name['data_loaders'].message_type = _DATASETLOADERSPEC
 _RESPONSESUPPORTEDSYSTEM.fields_by_name['model_architectures'].message_type = _MODELARCHSPEC
 _RESPONSESUPPORTEDSYSTEM.fields_by_name['compatibility'].message_type = _RESPONSESUPPORTEDSYSTEM_COMPATIBILITYENTRY
 DESCRIPTOR.message_types_by_name['RequestMLSetup'] = _REQUESTMLSETUP
 DESCRIPTOR.message_types_by_name['ResponseMLSetup'] = _RESPONSEMLSETUP
-DESCRIPTOR.message_types_by_name['WeightsPart'] = _WEIGHTSPART
+DESCRIPTOR.message_types_by_name['Weights'] = _WEIGHTS
 DESCRIPTOR.message_types_by_name['ProposedWeights'] = _PROPOSEDWEIGHTS
 DESCRIPTOR.message_types_by_name['RequestStatus'] = _REQUESTSTATUS
 DESCRIPTOR.message_types_by_name['ResponseStatus'] = _RESPONSESTATUS
@@ -537,19 +578,27 @@ ResponseMLSetup = _reflection.GeneratedProtocolMessageType('ResponseMLSetup', (_
   })
 _sym_db.RegisterMessage(ResponseMLSetup)
 
-WeightsPart = _reflection.GeneratedProtocolMessageType('WeightsPart', (_message.Message,), {
-  'DESCRIPTOR' : _WEIGHTSPART,
+Weights = _reflection.GeneratedProtocolMessageType('Weights', (_message.Message,), {
+  'DESCRIPTOR' : _WEIGHTS,
   '__module__' : 'interface_pb2'
-  # @@protoc_insertion_point(class_scope:contract_learn.grpc.WeightsPart)
+  # @@protoc_insertion_point(class_scope:contract_learn.grpc.Weights)
   })
-_sym_db.RegisterMessage(WeightsPart)
+_sym_db.RegisterMessage(Weights)
 
 ProposedWeights = _reflection.GeneratedProtocolMessageType('ProposedWeights', (_message.Message,), {
+
+  'EvaluationResultsEntry' : _reflection.GeneratedProtocolMessageType('EvaluationResultsEntry', (_message.Message,), {
+    'DESCRIPTOR' : _PROPOSEDWEIGHTS_EVALUATIONRESULTSENTRY,
+    '__module__' : 'interface_pb2'
+    # @@protoc_insertion_point(class_scope:contract_learn.grpc.ProposedWeights.EvaluationResultsEntry)
+    })
+  ,
   'DESCRIPTOR' : _PROPOSEDWEIGHTS,
   '__module__' : 'interface_pb2'
   # @@protoc_insertion_point(class_scope:contract_learn.grpc.ProposedWeights)
   })
 _sym_db.RegisterMessage(ProposedWeights)
+_sym_db.RegisterMessage(ProposedWeights.EvaluationResultsEntry)
 
 RequestStatus = _reflection.GeneratedProtocolMessageType('RequestStatus', (_message.Message,), {
   'DESCRIPTOR' : _REQUESTSTATUS,
@@ -595,6 +644,7 @@ _sym_db.RegisterMessage(ResponseSupportedSystem)
 _sym_db.RegisterMessage(ResponseSupportedSystem.CompatibilityEntry)
 
 
+_PROPOSEDWEIGHTS_EVALUATIONRESULTSENTRY._options = None
 _RESPONSESUPPORTEDSYSTEM_COMPATIBILITYENTRY._options = None
 
 _GRPCLEARNER = _descriptor.ServiceDescriptor(
@@ -604,8 +654,8 @@ _GRPCLEARNER = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1075,
-  serialized_end=1602,
+  serialized_start=1229,
+  serialized_end=1740,
   methods=[
   _descriptor.MethodDescriptor(
     name='QuerySupportedSystem',
@@ -633,7 +683,7 @@ _GRPCLEARNER = _descriptor.ServiceDescriptor(
     index=2,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
-    output_type=_WEIGHTSPART,
+    output_type=_WEIGHTS,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
@@ -642,7 +692,7 @@ _GRPCLEARNER = _descriptor.ServiceDescriptor(
     full_name='contract_learn.grpc.GRPCLearner.TestWeights',
     index=3,
     containing_service=None,
-    input_type=_WEIGHTSPART,
+    input_type=_WEIGHTS,
     output_type=_PROPOSEDWEIGHTS,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
@@ -652,7 +702,7 @@ _GRPCLEARNER = _descriptor.ServiceDescriptor(
     full_name='contract_learn.grpc.GRPCLearner.SetWeights',
     index=4,
     containing_service=None,
-    input_type=_WEIGHTSPART,
+    input_type=_WEIGHTS,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,

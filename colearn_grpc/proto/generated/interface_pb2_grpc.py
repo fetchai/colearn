@@ -3,7 +3,7 @@
 import grpc
 
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-from . import interface_pb2 as interface__pb2
+import colearn_grpc.proto.generated.interface_pb2 as interface__pb2
 
 
 class GRPCLearnerStub(object):
@@ -28,16 +28,16 @@ class GRPCLearnerStub(object):
         self.ProposeWeights = channel.unary_stream(
                 '/contract_learn.grpc.GRPCLearner/ProposeWeights',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=interface__pb2.WeightsPart.FromString,
+                response_deserializer=interface__pb2.Weights.FromString,
                 )
-        self.TestWeights = channel.stream_unary(
+        self.TestWeights = channel.unary_unary(
                 '/contract_learn.grpc.GRPCLearner/TestWeights',
-                request_serializer=interface__pb2.WeightsPart.SerializeToString,
+                request_serializer=interface__pb2.Weights.SerializeToString,
                 response_deserializer=interface__pb2.ProposedWeights.FromString,
                 )
-        self.SetWeights = channel.stream_unary(
+        self.SetWeights = channel.unary_unary(
                 '/contract_learn.grpc.GRPCLearner/SetWeights',
-                request_serializer=interface__pb2.WeightsPart.SerializeToString,
+                request_serializer=interface__pb2.Weights.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.StatusStream = channel.stream_stream(
@@ -68,13 +68,13 @@ class GRPCLearnerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def TestWeights(self, request_iterator, context):
+    def TestWeights(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def SetWeights(self, request_iterator, context):
+    def SetWeights(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -102,16 +102,16 @@ def add_GRPCLearnerServicer_to_server(servicer, server):
             'ProposeWeights': grpc.unary_stream_rpc_method_handler(
                     servicer.ProposeWeights,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=interface__pb2.WeightsPart.SerializeToString,
+                    response_serializer=interface__pb2.Weights.SerializeToString,
             ),
-            'TestWeights': grpc.stream_unary_rpc_method_handler(
+            'TestWeights': grpc.unary_unary_rpc_method_handler(
                     servicer.TestWeights,
-                    request_deserializer=interface__pb2.WeightsPart.FromString,
+                    request_deserializer=interface__pb2.Weights.FromString,
                     response_serializer=interface__pb2.ProposedWeights.SerializeToString,
             ),
-            'SetWeights': grpc.stream_unary_rpc_method_handler(
+            'SetWeights': grpc.unary_unary_rpc_method_handler(
                     servicer.SetWeights,
-                    request_deserializer=interface__pb2.WeightsPart.FromString,
+                    request_deserializer=interface__pb2.Weights.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'StatusStream': grpc.stream_stream_rpc_method_handler(
@@ -176,12 +176,12 @@ class GRPCLearner(object):
             metadata=None):
         return grpc.experimental.unary_stream(request, target, '/contract_learn.grpc.GRPCLearner/ProposeWeights',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            interface__pb2.WeightsPart.FromString,
+            interface__pb2.Weights.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def TestWeights(request_iterator,
+    def TestWeights(request,
             target,
             options=(),
             channel_credentials=None,
@@ -191,14 +191,14 @@ class GRPCLearner(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(request_iterator, target, '/contract_learn.grpc.GRPCLearner/TestWeights',
-            interface__pb2.WeightsPart.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/TestWeights',
+            interface__pb2.Weights.SerializeToString,
             interface__pb2.ProposedWeights.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def SetWeights(request_iterator,
+    def SetWeights(request,
             target,
             options=(),
             channel_credentials=None,
@@ -208,8 +208,8 @@ class GRPCLearner(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(request_iterator, target, '/contract_learn.grpc.GRPCLearner/SetWeights',
-            interface__pb2.WeightsPart.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/SetWeights',
+            interface__pb2.Weights.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
