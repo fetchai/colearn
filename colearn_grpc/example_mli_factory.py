@@ -1,3 +1,4 @@
+import copy
 import json
 from typing import Set, Dict, Any
 
@@ -52,7 +53,7 @@ class ExampleMliFactory(MliFactory):
             raise Exception(f"Dataloader {dataloader_name} is not compatible with {model_name}."
                             f"Compatible dataloaders are: {self.compatibilities[model_name]}")
 
-        data_config = self.dataloaders[dataloader_name]  # Default parameters
+        data_config = copy.deepcopy(self.dataloaders[dataloader_name])  # Default parameters
         data_config.update(json.loads(dataset_params))
 
         # TODO Names should match between colearn and contract_learn
@@ -60,7 +61,7 @@ class ExampleMliFactory(MliFactory):
         prepare_data_loaders = FactoryRegistry.dataloaders[dataloader_name][0]
         data_loaders = prepare_data_loaders(**data_config)
 
-        model_config = self.models[model_name]  # Default parameters
+        model_config = copy.deepcopy(self.models[model_name])  # Default parameters
         model_config.update(json.loads(model_params))
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
 

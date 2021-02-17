@@ -58,7 +58,7 @@ def test_get_mnist(factory, mnist_config):
 
     dataset_params = json.dumps(
         {'location': mnist_config['train_folder'],
-         'test_folder': mnist_config['test_folder']
+         'test_folder': mnist_config['test_folder'],
          })
 
     mli = factory.get_mli(
@@ -70,3 +70,41 @@ def test_get_mnist(factory, mnist_config):
     assert mli.model_fit_kwargs["steps_per_epoch"] == 20
 
     assert isinstance(mli, KerasLearner)
+
+
+def test_triple_mnist(factory, mnist_config):
+
+    default_params = json.dumps({})
+
+    dataset_params = json.dumps(
+        {'location': mnist_config['train_folder'],
+         'test_folder': mnist_config['test_folder']
+         })
+
+    mli = factory.get_mli(
+        model_name=mnist_config['task_type'].name,
+        model_params=default_params,
+        dataloader_name=mnist_config['task_type'].name,
+        dataset_params=dataset_params)
+
+    default_steps = mli.model_fit_kwargs["steps_per_epoch"]
+
+    model_params = json.dumps({"steps_per_epoch": 40})
+
+    mli = factory.get_mli(
+        model_name=mnist_config['task_type'].name,
+        model_params=model_params,
+        dataloader_name=mnist_config['task_type'].name,
+        dataset_params=dataset_params)
+
+    assert isinstance(mli, KerasLearner)
+    assert mli.model_fit_kwargs["steps_per_epoch"] == 40
+
+    mli = factory.get_mli(
+        model_name=mnist_config['task_type'].name,
+        model_params=default_params,
+        dataloader_name=mnist_config['task_type'].name,
+        dataset_params=dataset_params)
+
+    assert isinstance(mli, KerasLearner)
+    assert mli.model_fit_kwargs["steps_per_epoch"] == default_steps
