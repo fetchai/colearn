@@ -30,18 +30,19 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
         bytes_sum += len(weights_part.weights)
         print("bytes_sum", bytes_sum, first_weights_part.total_bytes)
 
-    full_weights = bytes(full_weights)
+    weights_bytes = bytes(full_weights)
     if decode:
-        return decode_weights(full_weights)
+        return decode_weights(weights_bytes)
     else:
-        return Weights(weights=full_weights)
+        return Weights(weights=weights_bytes)
 
 
 def weights_to_iterator(input_weights: Weights, encode=True) -> Iterator[WeightsPart]:
+    enc_weights: bytes
     if encode:
-        enc_weights: bytes = encode_weights(input_weights)
+        enc_weights = encode_weights(input_weights)
     else:
-        enc_weights: bytes = input_weights.weights
+        enc_weights = input_weights.weights
 
     part_size = 4 * 10 ** 6
     total_size = len(enc_weights)

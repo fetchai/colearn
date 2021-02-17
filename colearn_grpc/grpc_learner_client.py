@@ -2,6 +2,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 from threading import Lock
+from typing import Optional
 
 import grpc
 from google.protobuf import empty_pb2
@@ -45,11 +46,11 @@ class GRPCLearnerClient(MachineLearningInterface):
         self._health_check_time = health_check_time
         self._active = True
         self._mu = Lock()
-        self._check_queue = Queue()
+        self._check_queue: Queue = Queue()
         self.current_state = ipb2.SystemStatus.UNKNOWN
         self._state_mu = Lock()
         self.channel = None
-        self.stub = None
+        self.stub: ipb2_grpc.GRPCLearnerStub
 
     def start(self) -> bool:
         retries = 100
@@ -68,7 +69,7 @@ class GRPCLearnerClient(MachineLearningInterface):
                 _logger.info(f"Successfully connected to {self.address}!")
                 return True
                 # TODO Update the api
-            except Exception as e:
+            except Exception as e:  # pylint: disable=W0703
                 ex = e
                 time.sleep(5)
 
@@ -163,13 +164,16 @@ class GRPCLearnerClient(MachineLearningInterface):
 
         except grpc.RpcError as ex:
             _logger.exception(f"Failed to train_model: {ex}")
-            return None
+            return Weights(weights=None)
 
     # TODO: check status codes
     @_time_test.time()
     def mli_test_weights(self, weights: Weights = None) -> ProposedWeights:
         try:
-            response = self.stub.TestWeights(weights_to_iterator(weights, encode=False))
+            if weights:
+                response = self.stub.TestWeights(weights_to_iterator(weights, encode=False))
+            else:
+                raise Exception("mli_test_weights(None) is not currently supported")
 
             return ProposedWeights(
                 weights=weights,
@@ -179,7 +183,7 @@ class GRPCLearnerClient(MachineLearningInterface):
             )
         except grpc.RpcError as ex:
             _logger.exception(f"Failed to test_model: {ex}")
-            return None
+            return ProposedWeights(weights=None, vote_score=0, test_score=0, vote=False)
 
     @_time_accept.time()
     def mli_accept_weights(self, weights: Weights):
