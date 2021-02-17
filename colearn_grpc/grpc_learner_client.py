@@ -2,7 +2,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 from threading import Lock
-from typing import Optional
 
 import grpc
 from google.protobuf import empty_pb2

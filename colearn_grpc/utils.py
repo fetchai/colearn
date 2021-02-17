@@ -5,6 +5,8 @@ from typing import Iterator
 from colearn.ml_interface import Weights
 from colearn_grpc.proto.generated.interface_pb2 import WeightsPart
 
+WEIGHTS_PART_SIZE_BYTES = 4 * 10 ** 6
+
 
 def encode_weights(w: Weights) -> bytes:
     return pickle.dumps(w)
@@ -34,17 +36,22 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
     if decode:
         return decode_weights(weights_bytes)
     else:
+        # On the client side we can't necessarily unpickle the Weights object because the relevant libraries might not
+        # be importable. But we need to return a Weights object to match the MLI. So we wrap the pickled Weights in
+        # another Weights object.
         return Weights(weights=weights_bytes)
 
 
 def weights_to_iterator(input_weights: Weights, encode=True) -> Iterator[WeightsPart]:
-    enc_weights: bytes
+    enc_weights: bytes  # this is a pickled Weights object
     if encode:
         enc_weights = encode_weights(input_weights)
     else:
+        # On the client side input_weights is a wrapper around a pickled Weights object - see note
+        # in iterator_to_weights
         enc_weights = input_weights.weights
 
-    part_size = 4 * 10 ** 6
+    part_size = WEIGHTS_PART_SIZE_BYTES
     total_size = len(enc_weights)
     total_parts = ceil(total_size / part_size)
 
