@@ -1,17 +1,15 @@
 import json
-import pickle
-from math import ceil
 from threading import Lock
 
 import grpc
 from google.protobuf import empty_pb2
 from prometheus_client import Counter, Summary
 
-from colearn_grpc.mli_factory_interface import MliFactory
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
 from colearn_grpc.logging import get_logger
-from colearn_grpc.utils import iterator_to_weights
+from colearn_grpc.mli_factory_interface import MliFactory
+from colearn_grpc.utils import iterator_to_weights, weights_to_iterator
 
 _logger = get_logger(__name__)
 _count_propose = Counter("contract_learner_grpc_server_propose",
@@ -38,14 +36,6 @@ _time_test = Summary("contract_learner_grpc_server_test_time",
                      "This metric measures the time it takes to test a given weight")
 _time_set = Summary("contract_learner_grpc_server_set_time",
                     "This metric measures the time it takes to accept a weight")
-
-
-def encode_weights(w):
-    return pickle.dumps(w)
-
-
-def decode_weights(w):
-    return pickle.loads(w)
 
 
 class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
@@ -140,18 +130,10 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             _logger.debug("Start training...")
             weights = self.learner.mli_propose_weights()
             _logger.debug("Training done!")
-            enc_weights = encode_weights(weights)
 
-            part_size = 4 * 10 ** 6
-            total_size = len(enc_weights)
-            total_parts = ceil(total_size / part_size)
-
-            for i in range(total_parts):
-                w = ipb2.WeightsPart()
-                w.byte_index = i * part_size
-                w.total_bytes = total_size
-                w.weights = enc_weights[i * part_size: (i + 1) * part_size]
-                yield w
+            weights_part_iterator = weights_to_iterator(weights)
+            for wp in weights_part_iterator:
+                yield wp
 
         except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in ProposeWeights: {ex} {type(ex)}")

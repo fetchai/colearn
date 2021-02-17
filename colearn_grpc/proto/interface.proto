@@ -22,10 +22,6 @@ message ResponseMLSetup {
     string description = 2;
 };
 
-message Weights {
-    bytes weights = 1;
-};
-
 message WeightsPart {
     bytes weights = 1;
     uint32 byte_index = 2;

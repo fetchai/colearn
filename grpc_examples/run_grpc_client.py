@@ -41,7 +41,7 @@ def main():
     print("SETUP: ", response)
     weights = ml_system.mli_propose_weights()
     # print(len(weights.weights))
-    # print(pickle.loads(weights.weights))
+    print(len((pickle.loads(weights.weights)).weights))
 
     test = ml_system.mli_test_weights(weights)
     print(test.vote, test.vote_score, test.test_score)

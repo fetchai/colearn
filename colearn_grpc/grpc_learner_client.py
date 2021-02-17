@@ -1,6 +1,5 @@
 import time
 from concurrent.futures import ThreadPoolExecutor
-from math import ceil
 from queue import Queue
 from threading import Lock
 
@@ -12,7 +11,7 @@ import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
 from colearn.ml_interface import MachineLearningInterface, ProposedWeights, Weights
 from colearn_grpc.logging import get_logger
-from colearn_grpc.utils import iterator_to_weights
+from colearn_grpc.utils import iterator_to_weights, weights_to_iterator
 
 _logger = get_logger(__name__)
 
@@ -169,20 +168,8 @@ class GRPCLearnerClient(MachineLearningInterface):
     # TODO: check status codes
     @_time_test.time()
     def mli_test_weights(self, weights: Weights = None) -> ProposedWeights:
-        def request_iterator():
-            part_size = 4 * 10 ** 6
-            total_size = len(weights.weights)
-            total_parts = ceil(total_size / part_size)
-
-            for i in range(total_parts):
-                w = ipb2.WeightsPart()
-                w.byte_index = i * part_size
-                w.total_bytes = total_size
-                w.weights = weights.weights[i * part_size: (i + 1) * part_size]
-                yield w
-
         try:
-            response = self.stub.TestWeights(request_iterator())
+            response = self.stub.TestWeights(weights_to_iterator(weights, encode=False))
 
             return ProposedWeights(
                 weights=weights,
@@ -197,19 +184,8 @@ class GRPCLearnerClient(MachineLearningInterface):
     @_time_accept.time()
     def mli_accept_weights(self, weights: Weights):
         try:
-            def request_iterator():
-                part_size = 4 * 10 ** 6
-                total_size = len(weights.weights)
-                total_parts = ceil(total_size / part_size)
-
-                for i in range(total_parts):
-                    w = ipb2.WeightsPart()
-                    w.byte_index = i * part_size
-                    w.total_bytes = total_size
-                    w.weights = weights.weights[i * part_size: (i + 1) * part_size]
-                    yield w
-
-            self.stub.SetWeights(request_iterator())
+            request_iterator = weights_to_iterator(weights, encode=False)
+            self.stub.SetWeights(request_iterator)
         except grpc.RpcError as e:
             _logger.exception(f"Failed to call SetWeights: {e}")
             return False
