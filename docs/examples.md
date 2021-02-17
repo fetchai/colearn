@@ -36,3 +36,10 @@ This is a list of examples that we've implemented to show you how to use Collect
   Uses the `KerasLearner` helper class.
 * [xray_pytorch]({{ repo_root }}/examples/pytorch_xray.py). 
   Uses the `PytorchLearner` helper class.
+
+### Iris
+Uses the standard Iris dataset. 
+The aim of this task is to classify examples into one of three iris species based on measurements of the flower.
+
+* [iris_random_forest]({{ repo_root }}/examples/mli_random_forest_iris.py). 
+  Uses the `MachineLearningInterface` directly and a random forest for classification.
