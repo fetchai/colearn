@@ -1,3 +1,4 @@
+import copy
 import json
 from inspect import signature
 from typing import Set, Dict, Any
@@ -16,7 +17,7 @@ class ExampleMliFactory(MliFactory):
         self.dataloaders = {task.name: {} for task in TaskType}
 
         # TODO Currently only KERAS_MNIST(2DConv) is supported
-        self.models[TaskType.KERAS_MNIST.name] = {"model_type": ModelType(2).name}
+        self.models[TaskType.KERAS_MNIST.name] = {"model_type": ModelType(1).name}
         self.dataloaders[TaskType.KERAS_MNIST.name] = \
             {param.name: param.default
              for param in signature(prepare_data_loaders).parameters.values()
@@ -45,13 +46,13 @@ class ExampleMliFactory(MliFactory):
             raise Exception(f"Dataloader {dataloader_name} is not compatible with {model_name}."
                             f"Compatible dataloaders are: {self.compatibilities[model_name]}")
 
-        data_config = self.dataloaders[dataloader_name]  # Default parameters
+        data_config = copy.deepcopy(self.dataloaders[dataloader_name])  # Default parameters
         data_config.update(json.loads(dataset_params))
 
         # TODO Names should match between colearn and contract_learn
         train_folder = data_config["location"]
 
-        model_config = self.models[model_name]  # Default parameters
+        model_config = copy.deepcopy(self.models[model_name])  # Default parameters
         model_config.update(json.loads(model_params))
         # model_type will allow you to choose different architectures for different tasks
         # eventually we will get rid of it, but for now only the first model_type is supported

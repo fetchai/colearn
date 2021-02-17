@@ -26,12 +26,16 @@ message Weights {
     bytes weights = 1;
 };
 
+message WeightsPart {
+    bytes weights = 1;
+    uint32 byte_index = 2;
+    uint64 total_bytes = 3;
+};
+
 message ProposedWeights {
-    Weights weights = 1;
-    float vote_score = 2;
-    float test_score = 3;
-    bool vote = 4;
-    map<string, float> evaluation_results = 5;
+    float vote_score = 1;
+    float test_score = 2;
+    bool vote = 3;
 };
 
 message RequestStatus {
@@ -67,8 +71,8 @@ message ResponseSupportedSystem {
 service GRPCLearner {
     rpc QuerySupportedSystem(google.protobuf.Empty) returns (ResponseSupportedSystem);
     rpc MLSetup(RequestMLSetup) returns (ResponseMLSetup);
-    rpc ProposeWeights(google.protobuf.Empty) returns (stream Weights);
-    rpc TestWeights(Weights) returns (ProposedWeights);
-    rpc SetWeights(Weights) returns (google.protobuf.Empty);
+    rpc ProposeWeights(google.protobuf.Empty) returns (stream WeightsPart);
+    rpc TestWeights(stream WeightsPart) returns (ProposedWeights);
+    rpc SetWeights(stream WeightsPart) returns (google.protobuf.Empty);
     rpc StatusStream(stream RequestStatus) returns (stream ResponseStatus);
 };
