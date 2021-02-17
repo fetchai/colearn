@@ -18,11 +18,12 @@ import colearn_other.fraud_dataset  # type:ignore # noqa: F401
 class ExampleMliFactory(MliFactory):
 
     def __init__(self):
-        self.models = {name: params for name, (_, params, _) in FactoryRegistry.model_architectures.items()}
-        self.dataloaders = {name: params for name, (_, params) in FactoryRegistry.dataloaders.items()}
+        self.models = {name: config.default_parameters for name, config
+                       in FactoryRegistry.model_architectures.items()}
+        self.dataloaders = {name: config.default_parameters for name, config
+                            in FactoryRegistry.dataloaders.items()}
 
-        self.compatibilities = {name: dataloader_names
-                                for name, (_, _, dataloader_names)
+        self.compatibilities = {name: config.compatibilities for name, config
                                 in FactoryRegistry.model_architectures.items()}
 
     def get_models(self) -> Dict[str, Dict[str, Any]]:

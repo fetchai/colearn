@@ -1,5 +1,5 @@
 from inspect import signature
-from typing import Callable, Dict, Any, List, Tuple
+from typing import Callable, Dict, Any, List, NamedTuple
 
 
 def _get_defaults(to_call: Callable) -> Dict[str, Any]:
@@ -9,15 +9,27 @@ def _get_defaults(to_call: Callable) -> Dict[str, Any]:
 
 
 class FactoryRegistry:
-    dataloaders: Dict[str, Tuple[Callable, Dict[str, Any]]] = {}
-    model_architectures: Dict[str, Tuple[Callable, Dict[str, Any], List[str]]] = {}
+
+    class DataloaderDef(NamedTuple):
+        callable: Callable
+        default_parameters: Dict[str, Any]
+    dataloaders: Dict[str, DataloaderDef] = {}
+
+    class ModelArchitectureDef(NamedTuple):
+        callable: Callable
+        default_parameters: Dict[str, Any]
+        compatibilities: List[str]
+
+    model_architectures: Dict[str, ModelArchitectureDef] = {}
 
     @classmethod
     def register_dataloader(cls, name: str):
         def wrap(dataloader: Callable):
             if name in cls.dataloaders:
                 print(f"Warning: {name} already registered. Replacing with {dataloader.__name__}")
-            cls.dataloaders[name] = (dataloader, _get_defaults(dataloader))
+            cls.dataloaders[name] = cls.DataloaderDef(
+                callable=dataloader,
+                default_parameters=_get_defaults(dataloader))
             return dataloader
         return wrap
 
@@ -26,7 +38,10 @@ class FactoryRegistry:
         def wrap(model_arch_creator: Callable):
             if name in cls.model_architectures:
                 print(f"Warning: {name} already registered. Replacing with {model_arch_creator.__name__}")
-            cls.model_architectures[name] = (model_arch_creator, _get_defaults(model_arch_creator), compatibilities)
+            cls.model_architectures[name] = cls.ModelArchitectureDef(
+                callable=model_arch_creator,
+                default_parameters=_get_defaults(model_arch_creator),
+                compatibilities=compatibilities)
 
             return model_arch_creator
         return wrap
