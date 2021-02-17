@@ -28,7 +28,6 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
                     **_kwargs) -> PytorchLearner:
     """
     Creates new instance of PytorchLearner
-    :param model_type: Model Type to use
     :param data_loaders: Tuple of train_loader and test_loader
     :param learning_rate: Learning rate for optimiser
     :param steps_per_epoch: Number of batches per training epoch
