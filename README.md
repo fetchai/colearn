@@ -21,9 +21,18 @@ See the documentation at [fetchai.github.io/colearn/](https://fetchai.github.io/
 ## Installation
 
 To use the latest stable release we recommend installing the [package from PyPi](https://pypi.org/project/colearn/)
+
+To install with support for Keras/Pytorch:
    ```bash
    pip install colearn[all]
    ```
+To install with just support for Keras/Pytorch:
+
+   ```bash
+   pip install colearn[keras]
+   pip install colearn[pytorch]
+   ```
+
 
 Alternatively, to install the latest code from the repo:
 
@@ -46,7 +55,7 @@ Alternatively, to install the latest code from the repo:
     examples/pytorch_mnist.py
     ``` 
    
-For more instructions see the documentation at [fetchai.github.io/colearn/installation](https://fetchai.github.io/colearn/installation/)
+For more instructions, and versions without Tensorflow/Pytorch see the documentation at [fetchai.github.io/colearn/installation](https://fetchai.github.io/colearn/installation/)
 
 
 ## Build image
