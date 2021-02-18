@@ -22,11 +22,11 @@ See the documentation at [fetchai.github.io/colearn/](https://fetchai.github.io/
 
 To use the latest stable release we recommend installing the [package from PyPi](https://pypi.org/project/colearn/)
 
-To install with support for Keras/Pytorch:
+To install with support for Keras and Pytorch:
    ```bash
    pip install colearn[all]
    ```
-To install with just support for Keras/Pytorch:
+To install with just support for Keras or Pytorch:
 
    ```bash
    pip install colearn[keras]
