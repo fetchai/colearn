@@ -35,4 +35,6 @@ jobs:
       run: tox -e pytest
     - name: Build docs
       run: tox -e docs
+    - name: Check copyright notice
+      run: tox -e copyright_check
 
