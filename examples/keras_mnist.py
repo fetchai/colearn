@@ -52,7 +52,9 @@ l_rate = 0.001
 batch_size = 64
 
 # Load data for each learner
-train_dataset = tfds.load('mnist', split='train', as_supervised=True)
+train_dataset, info = tfds.load('mnist', split='train', as_supervised=True, with_info=True)
+n_datapoints = info.splits['train'].num_examples
+
 train_datasets = [train_dataset.shard(num_shards=n_learners, index=i) for i in range(n_learners)]
 
 test_dataset = tfds.load('mnist', split='test', as_supervised=True)
@@ -62,12 +64,11 @@ test_datasets = [test_dataset.shard(num_shards=n_learners, index=i) for i in ran
 for i in range(n_learners):
     train_datasets[i] = train_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    train_datasets[i] = train_datasets[i].shuffle(len(train_datasets[i]))
+    train_datasets[i] = train_datasets[i].shuffle(n_datapoints // n_learners)
     train_datasets[i] = train_datasets[i].batch(batch_size)
 
     test_datasets[i] = test_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    test_datasets[i] = test_datasets[i].shuffle(len(test_datasets[i]))
     test_datasets[i] = test_datasets[i].batch(batch_size)
 
 

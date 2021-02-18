@@ -55,9 +55,10 @@ batch_size = 64
 loss = "sparse_categorical_crossentropy"
 vote_batches = 2
 
-train_datasets = tfds.load('cifar10',
-                           split=tfds.even_splits('train', n=n_learners),
-                           as_supervised=True)
+train_datasets, info = tfds.load('cifar10',
+                                 split=tfds.even_splits('train', n=n_learners),
+                                 as_supervised=True, with_info=True)
+n_datapoints = info.splits['train'].num_examples
 
 test_datasets = tfds.load('cifar10',
                           split=tfds.even_splits('test', n=n_learners),
@@ -67,7 +68,7 @@ for i in range(n_learners):
     ds_train = train_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     ds_train = ds_train.cache()
-    ds_train = ds_train.shuffle(len(ds_train))
+    ds_train = ds_train.shuffle(n_datapoints // n_learners)
     ds_train = ds_train.batch(batch_size)
     train_datasets[i] = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 
