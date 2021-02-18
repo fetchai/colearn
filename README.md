@@ -1,6 +1,6 @@
 # Welcome to the Fetch.ai Collective Learning
 
-Colearn is a library that enables privacy-preserving decentralized machine learning tasks on the FET network.
+Colearn is a library that enables privacy-preserving decentralized machine learning tasks on the [FET network](https://fetch.ai/technology/).
 
 This blockchain-mediated collective learning system enables multiple stakeholders to build a shared 
 machine learning model without needing to rely on a central authority. 
@@ -34,53 +34,10 @@ To install with just support for Keras/Pytorch:
    ```
 
 
-Alternatively, to install the latest code from the repo:
+For more instructions see the documentation at [fetchai.github.io/colearn/installation](https://fetchai.github.io/colearn/installation/)
 
-1. Download the source code from github:
-   ```bash
-   git clone https://github.com/fetchai/colearn.git && cd colearn
-   ```
-1. Create and launch a clean virtual environment with Python 3.7. 
-   (This library has currently only been tested with Python 3.7).
-   ```bash
-   pipenv --python 3.7 && pipenv shell
-   ```
-
-2. Install the package from source:
-    ```bash
-    pip install -e .[all]
-    ```
-3. Run one of the examples:
-    ```bash
-    examples/pytorch_mnist.py
-    ``` 
-   
-For more instructions, and versions without Tensorflow/Pytorch see the documentation at [fetchai.github.io/colearn/installation](https://fetchai.github.io/colearn/installation/)
-
-
-## Build image
-
-To build ML server image and push to google cloud use the following command:
-```
-cd docker
-python3 ./build.py --publish --allow_dirty
-# Check this worked correctly
-docker images
-```
-
-
-## Documentation
-To run the documentation, first install mkdocs and plugins:
-```bash
-pip install mkdocs==1.1.2 mkdocs-macros-plugin==0.5.0 \
-mkdocs-macros-test==0.1.0 mkdocs-material==6.2.3 \
-mkdocs-material-extensions==1.0.1 markdown-include==0.6.0
-```
-
-Then run: 
-```
-mkdocs serve
-```
+After installation we recommend [running a demo](https://fetchai.github.io/colearn/demo/)
+, or seeing [the examples](https://fetchai.github.io/colearn/examples/)
 
 
 
