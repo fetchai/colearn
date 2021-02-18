@@ -6,7 +6,7 @@ This blockchain-mediated collective learning system enables multiple stakeholder
 machine learning model without needing to rely on a central authority. 
 This library is currently in development. 
 
-The collective learning protocol allows learners to collaborate on training a model without requiring trust between the participants. Learners vote on updates to the model, and only updates which pass the quality threshold are accepted. This makes the system robust to attempts to interfere with the model by providing bad updates. For more details on the collective learning system see [here](docs/about.md)
+The collective learning protocol allows learners to collaborate on training a model without requiring trust between the participants. Learners vote on updates to the model, and only updates which pass the quality threshold are accepted. This makes the system robust to attempts to interfere with the model by providing bad updates. For more details on the collective learning system see [here](https://fetchai.github.io/colearn/about/)
 
 ### Current Version
 
