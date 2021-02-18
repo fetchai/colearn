@@ -190,8 +190,8 @@ def split_to_folders(
         data_split = [1 / n_learners] * n_learners
 
     # Load CIFAR10 from tfds
-    train_dataset = tfds.load('cifar10', split='train+test', as_supervised=True)
-    n_datapoints = len(train_dataset)
+    train_dataset, info = tfds.load('cifar10', split='train+test', as_supervised=True, with_info=True)
+    n_datapoints = info.splits['train+test'].num_examples
     train_dataset = train_dataset.map(normalize_img).batch(n_datapoints)
 
     # there is only one batch in the iterator, and this contains all the data
