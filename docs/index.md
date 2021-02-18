@@ -20,41 +20,39 @@ For more information on the Collective Learning Protocol see [here](about.md).
 
 ### Current Version
 
-We have released *v.0.1* of the Colearn Machine Learning Interface, the first version of an interface that allows developers to define their own model architectures that can then be used in collective learning. 
+We have released *v.0.2* of the Colearn Machine Learning Interface, the first version of an interface that allows developers to define their own model architectures that can then be used in collective learning. 
 Together with the interface we provide a simple backend for local experiments. This is a prototype backend with upcoming blockchain ledger based backends to follow.  
 Future releases will use similar interfaces so that learners built with the current system will work on a different backend that integrates a distributed ledger and provides other improvements.
 The current framework will then be used mainly for model development and debugging.
 We invite all users to experiment with the framework, develop their own models, and provide feedback!
 
 ## Getting Started
-1. Download the source code from github:
+
+To use the latest stable release we recommend installing the [package from PyPi](https://pypi.org/project/colearn/)
+
+To install with support for Keras and Pytorch:
    ```bash
-   git clone https://github.com/fetchai/colearn.git && cd colearn
+   pip install colearn[all]
    ```
-1. Create and launch a clean virtual environment with Python 3.7. 
-   (This library has currently only been tested with Python 3.7).
+To install with just support for Keras or Pytorch:
+
    ```bash
-   pipenv --python 3.7 && pipenv shell
+   pip install colearn[keras]
+   pip install colearn[pytorch]
    ```
 
-2. Install the package from source:
-    ```bash
-    pip install -e .[all]
-    ```
-   For more installation options see [Installation](./installation.md)
-3. Run one of the examples:
+For more installation options or get the latest (development) version see [Installation](./installation.md)
+
+Then run one of the examples:
+
     ```bash
     python examples/pytorch_mnist.py
     ``` 
-    For other examples see [Examples](./examples.md).
+
+For other examples see the [Examples](./examples.md).
 
 ## Writing your own models
 We encourage users to try out the system by writing their own models. 
 Models need to implement the collective learning interface, which provides functions for training and voting on updates.
 More instructions can be found in the Getting Started section.
 
-## Running the tests
-Tests can be run with:
-```
-tox
-```
