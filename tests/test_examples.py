@@ -55,6 +55,7 @@ EXAMPLES_WITH_KWARGS = [
     ("keras_mnist_diffpriv.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
     ("keras_xray.py", [XRAY_DATA_DIR], {}),
     ("mli_fraud.py", [FRAUD_DATA_DIR], {}),
+    ("mli_random_forest_iris.py", [], {}),
     ("pytorch_cifar.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
     ("pytorch_covid.py", [COVID_DATA_DIR], {}),
     ("pytorch_mnist.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),

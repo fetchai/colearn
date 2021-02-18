@@ -91,7 +91,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 model_to_index[name] = index
             dataloader_to_index = {}
             for index, (name, params) in enumerate(self.mli_factory.get_dataloaders().items()):
-                d = response.datasets.add()
+                d = response.data_loaders.add()
                 d.name = name
                 d.default_parameters = json.dumps(params)
                 dataloader_to_index[name] = index
@@ -112,7 +112,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         response = ipb2.ResponseMLSetup()
         self._learner_mutex.acquire()
         try:
-            _logger.debug(f"Got MLSetup request: {request}")
+            _logger.info(f"Got MLSetup request: {request}")
             self.learner = self.mli_factory.get_mli(
                 model_name=request.model_arch_name,
                 model_params=request.model_parameters,
