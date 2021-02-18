@@ -53,7 +53,7 @@ except FileNotFoundError:
 
 setuptools.setup(
     name="colearn-interface-fetch-ai",
-    version="0.0.1",
+    version="0.2.1",
     author="Fetch AI",
     author_email="juan.besa@fetch.ai",
     description="The Standalone Fetch AI Collective Learning Framework",
