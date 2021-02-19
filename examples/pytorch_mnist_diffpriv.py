@@ -72,13 +72,13 @@ data_split = [len(train_data) // n_learners] * n_learners
 learner_train_data = torch.utils.data.random_split(train_data, data_split)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
+    batch_size=batch_size, shuffle=True, drop_last=True, **kwargs) for ds in learner_train_data]
 
 data_split = [len(test_data) // n_learners] * n_learners
 learner_test_data = torch.utils.data.random_split(test_data, data_split)
 learner_test_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
+    batch_size=batch_size, shuffle=True, drop_last=True, **kwargs) for ds in learner_test_data]
 
 
 # define the neural net architecture in Pytorch
@@ -104,7 +104,7 @@ class Net(nn.Module):
 # Make n instances of PytorchLearner with model and torch dataloaders
 all_learner_models = []
 for i in range(n_learners):
-    model = Net()
+    model = Net().to(device)
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
     privacy_engine = PrivacyEngine(
         model,
@@ -128,7 +128,7 @@ for i in range(n_learners):
     all_learner_models.append(learner)
 
 # print a summary of the model architecture
-summary(all_learner_models[0].model, input_size=(width, height))
+summary(all_learner_models[0].model, input_size=(width, height), device=str(device))
 
 # Now we're ready to start collective learning
 # Get initial accuracy

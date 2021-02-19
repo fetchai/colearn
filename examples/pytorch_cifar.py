@@ -143,7 +143,7 @@ for i in range(n_learners):
 set_equal_weights(all_learner_models)
 
 # print a summary of the model architecture
-summary(all_learner_models[0].model, input_size=(channels, width, height))
+summary(all_learner_models[0].model, input_size=(channels, width, height), device=str(device))
 
 # Now we're ready to start collective learning
 # Get initial accuracy
