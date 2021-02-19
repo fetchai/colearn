@@ -58,6 +58,7 @@ Then run one of the examples:
    wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist.py
    wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist_diffpriv.py
    wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_xray.py
+   # Or they can be accessed from colearn/examples by clonning colearn repo
 
    # for cloearn[keras] or colearn[all]
    python3 examples/keras_mnist.py

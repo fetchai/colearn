@@ -50,6 +50,7 @@ Download the stand-alone examples
    wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist_diffpriv.py
    wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_xray.py
    ```
+- Or they can be accessed from colearn/examples by clonning colearn repo
 
 Run any example depending on what machine learning library support you've installed
    ```bash
