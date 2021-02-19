@@ -33,6 +33,20 @@ To install with just support for Keras or Pytorch:
    pip install colearn[pytorch]
    ```
 
+## Running the examples
+
+Clone folder with stand-alone examples
+   ```bash
+   svn checkout https://github.com/fetchai/colearn.git/trunk/examples
+   ```
+
+Run any example depending on what machine learning library support you've installed
+   ```bash
+   # for cloearn[keras] or colearn[all]
+   python3 examples/keras_mnist.py
+   # for cloearn[pytorch] or colearn[all]
+   python3 examples/pytorch_mnist.py
+   ```
 
 For more instructions see the documentation at [fetchai.github.io/colearn/installation](https://fetchai.github.io/colearn/installation/)
 

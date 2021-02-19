@@ -44,10 +44,15 @@ To install with just support for Keras or Pytorch:
 For more installation options or get the latest (development) version see [Installation](./installation.md)
 
 Then run one of the examples:
+   ```bash
+   # Download the examples
+   svn checkout https://github.com/fetchai/colearn.git/trunk/examples
 
-    ```bash
-    python examples/pytorch_mnist.py
-    ``` 
+   # for cloearn[keras] or colearn[all]
+   python3 examples/keras_mnist.py
+   # for cloearn[pytorch] or colearn[all]
+   python3 examples/pytorch_mnist.py
+   ``` 
 
 For other examples see the [Examples](./examples.md).
 
