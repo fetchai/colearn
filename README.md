@@ -35,17 +35,28 @@ To install with just support for Keras or Pytorch:
 
 ## Running the examples
 
-Clone folder with stand-alone examples
+Download the stand-alone examples
    ```bash
-   svn checkout https://github.com/fetchai/colearn.git/trunk/examples
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_cifar.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_fraud.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist_diffpriv.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_xray.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_fraud.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_random_forest_iris.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_cifar.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_covid.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist_diffpriv.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_xray.py
    ```
 
 Run any example depending on what machine learning library support you've installed
    ```bash
    # for cloearn[keras] or colearn[all]
-   python3 examples/keras_mnist.py
+   python3 keras_mnist.py
    # for cloearn[pytorch] or colearn[all]
-   python3 examples/pytorch_mnist.py
+   python3 pytorch_mnist.py
    ```
 
 For more instructions see the documentation at [fetchai.github.io/colearn/installation](https://fetchai.github.io/colearn/installation/)

@@ -46,7 +46,18 @@ For more installation options or get the latest (development) version see [Insta
 Then run one of the examples:
    ```bash
    # Download the examples
-   svn checkout https://github.com/fetchai/colearn.git/trunk/examples
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_cifar.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_fraud.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist_diffpriv.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_xray.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_fraud.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_random_forest_iris.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_cifar.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_covid.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist_diffpriv.py
+   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_xray.py
 
    # for cloearn[keras] or colearn[all]
    python3 examples/keras_mnist.py
