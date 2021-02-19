@@ -50,13 +50,13 @@ Download the stand-alone examples
    wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist_diffpriv.py
    wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_xray.py
    ```
-- Or they can be accessed from colearn/examples by clonning colearn repo
+- Or they can be accessed from colearn/examples by cloning colearn repo
 
 Run any example depending on what machine learning library support you've installed
    ```bash
-   # for cloearn[keras] or colearn[all]
+   # for colearn[keras] or colearn[all]
    python3 keras_mnist.py
-   # for cloearn[pytorch] or colearn[all]
+   # for colearn[pytorch] or colearn[all]
    python3 pytorch_mnist.py
    ```
 
