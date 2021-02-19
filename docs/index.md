@@ -61,9 +61,9 @@ Then run one of the examples:
    # Or they can be accessed from colearn/examples by clonning colearn repo
 
    # for cloearn[keras] or colearn[all]
-   python3 examples/keras_mnist.py
+   python3 keras_mnist.py
    # for cloearn[pytorch] or colearn[all]
-   python3 examples/pytorch_mnist.py
+   python3 pytorch_mnist.py
    ``` 
 
 For other examples see the [Examples](./examples.md).
