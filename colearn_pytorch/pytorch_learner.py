@@ -65,7 +65,7 @@ class PytorchLearner(MachineLearningInterface):
         # Model has to be on same device as data
         self.model: torch.nn.Module = model.to(device)
         self.optimizer: torch.optim.Optimizer = optimizer
-        self.criterion = criterion.to(device)
+        self.criterion = criterion
         self.train_loader: torch.utils.data.DataLoader = train_loader
         self.test_loader: Optional[torch.utils.data.DataLoader] = test_loader
         self.device = device
