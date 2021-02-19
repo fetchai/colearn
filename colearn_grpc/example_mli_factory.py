@@ -45,10 +45,10 @@ class ExampleMliFactory(MliFactory):
                                 in FactoryRegistry.model_architectures.items()}
 
     def get_models(self) -> Dict[str, Dict[str, Any]]:
-        return self.models
+        return copy.deepcopy(self.models)
 
     def get_dataloaders(self) -> Dict[str, Dict[str, Any]]:
-        return self.dataloaders
+        return copy.deepcopy(self.dataloaders)
 
     def get_compatibilities(self) -> Dict[str, Set[str]]:
         return self.compatibilities
