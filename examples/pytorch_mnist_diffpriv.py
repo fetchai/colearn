@@ -1,3 +1,20 @@
+# ------------------------------------------------------------------------------
+#
+#   Copyright 2021 Fetch.AI Limited
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# ------------------------------------------------------------------------------
 import os
 
 from typing_extensions import TypedDict
@@ -55,13 +72,13 @@ data_split = [len(train_data) // n_learners] * n_learners
 learner_train_data = torch.utils.data.random_split(train_data, data_split)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
+    batch_size=batch_size, shuffle=True, drop_last=True, **kwargs) for ds in learner_train_data]
 
 data_split = [len(test_data) // n_learners] * n_learners
 learner_test_data = torch.utils.data.random_split(test_data, data_split)
 learner_test_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
+    batch_size=batch_size, shuffle=True, drop_last=True, **kwargs) for ds in learner_test_data]
 
 
 # define the neural net architecture in Pytorch
@@ -87,7 +104,7 @@ class Net(nn.Module):
 # Make n instances of PytorchLearner with model and torch dataloaders
 all_learner_models = []
 for i in range(n_learners):
-    model = Net()
+    model = Net().to(device)
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
     privacy_engine = PrivacyEngine(
         model,
@@ -111,7 +128,7 @@ for i in range(n_learners):
     all_learner_models.append(learner)
 
 # print a summary of the model architecture
-summary(all_learner_models[0].model, input_size=(width, height))
+summary(all_learner_models[0].model, input_size=(width, height), device=str(device))
 
 # Now we're ready to start collective learning
 # Get initial accuracy

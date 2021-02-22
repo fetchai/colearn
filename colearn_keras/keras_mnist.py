@@ -1,7 +1,23 @@
+# ------------------------------------------------------------------------------
+#
+#   Copyright 2021 Fetch.AI Limited
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# ------------------------------------------------------------------------------
 import os
 import pickle
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Tuple, List, Optional
 
@@ -15,29 +31,10 @@ from tensorflow.python.keras.layers import Dropout
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.utils import normalize_img
+from colearn_grpc.factory_registry import FactoryRegistry
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
-
-
-class ModelType(Enum):
-    CONV2D = 1
-    RESNET = 2  # Useful for testing large models. It doesn't fit MNIST well!
-
-
-def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Model:
-    """
-    Creates new instance of selected Keras model
-    :param model_type: Enum that represents selected model type
-    :param learning_rate: Learning rate for optimiser
-    :return: New instance of Keras model
-    """
-    if model_type == ModelType.CONV2D:
-        return _get_keras_mnist_conv2d_model(learning_rate)
-    if model_type == ModelType.RESNET:
-        return _get_keras_mnist_resnet_model(learning_rate)
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
 def _get_keras_mnist_conv2d_model(learning_rate: float) -> tf.keras.Model:
@@ -118,15 +115,14 @@ def _get_keras_mnist_resnet_model(learning_rate: float) -> tf.keras.Model:
     return model
 
 
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST"])
+def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
                     **_kwargs) -> KerasLearner:
     """
     Creates new instance of KerasLearner
-    :param model_type: Enum that represents selected model type
     :param data_loaders: Tuple of train_loader and test_loader
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_accuracy
@@ -134,8 +130,9 @@ def prepare_learner(model_type: ModelType,
     :param _kwargs: Residual parameters not used by this function
     :return: New instance of KerasLearner
     """
+
     learner = KerasLearner(
-        model=_prepare_model(model_type, learning_rate),
+        model=_get_keras_mnist_conv2d_model(learning_rate),
         train_loader=data_loaders[0],
         test_loader=data_loaders[1],
         criterion="sparse_categorical_accuracy",
@@ -166,6 +163,7 @@ def _make_loader(images: np.array,
     return dataset
 
 
+@FactoryRegistry.register_dataloader("KERAS_MNIST")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32,
@@ -215,8 +213,8 @@ def split_to_folders(
         data_split = [1 / n_learners] * n_learners
 
     # Load MNIST from tfds
-    train_dataset = tfds.load('mnist', split='train+test', as_supervised=True)
-    n_datapoints = len(train_dataset)
+    train_dataset, info = tfds.load('mnist', split='train+test', as_supervised=True, with_info=True)
+    n_datapoints = info.splits['train+test'].num_examples
     train_dataset = train_dataset.map(normalize_img).batch(n_datapoints)
 
     # there is only one batch in the iterator, and this contains all the data

@@ -1,3 +1,20 @@
+# ------------------------------------------------------------------------------
+#
+#   Copyright 2021 Fetch.AI Limited
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# ------------------------------------------------------------------------------
 import os
 
 import tensorflow as tf
@@ -38,9 +55,10 @@ batch_size = 64
 loss = "sparse_categorical_crossentropy"
 vote_batches = 2
 
-train_datasets = tfds.load('cifar10',
-                           split=tfds.even_splits('train', n=n_learners),
-                           as_supervised=True)
+train_datasets, info = tfds.load('cifar10',
+                                 split=tfds.even_splits('train', n=n_learners),
+                                 as_supervised=True, with_info=True)
+n_datapoints = info.splits['train'].num_examples
 
 test_datasets = tfds.load('cifar10',
                           split=tfds.even_splits('test', n=n_learners),
@@ -50,7 +68,7 @@ for i in range(n_learners):
     ds_train = train_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     ds_train = ds_train.cache()
-    ds_train = ds_train.shuffle(len(ds_train))
+    ds_train = ds_train.shuffle(n_datapoints // n_learners)
     ds_train = ds_train.batch(batch_size)
     train_datasets[i] = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 

@@ -1,3 +1,20 @@
+# ------------------------------------------------------------------------------
+#
+#   Copyright 2021 Fetch.AI Limited
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# ------------------------------------------------------------------------------
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -11,17 +28,17 @@ l_rate = 0.001
 batch_size = 64
 
 # Load the data
-train_dataset = tfds.load('mnist', split='train', as_supervised=True)
+train_dataset, info = tfds.load('mnist', split='train', as_supervised=True, with_info=True)
+n_train = info.splits['train'].num_examples
 test_dataset = tfds.load('mnist', split='test', as_supervised=True)
 
 train_dataset = train_dataset.map(normalize_img,
                                   num_parallel_calls=tf.data.experimental.AUTOTUNE)
-train_dataset = train_dataset.shuffle(len(train_dataset))
+train_dataset = train_dataset.shuffle(n_train)
 train_dataset = train_dataset.batch(batch_size)
 
 test_dataset = test_dataset.map(normalize_img,
                                 num_parallel_calls=tf.data.experimental.AUTOTUNE)
-test_dataset = test_dataset.shuffle(len(test_dataset))
 test_dataset = test_dataset.batch(batch_size)
 
 # Define the model

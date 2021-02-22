@@ -1,3 +1,20 @@
+# ------------------------------------------------------------------------------
+#
+#   Copyright 2021 Fetch.AI Limited
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# ------------------------------------------------------------------------------
 import os
 
 import tensorflow as tf
@@ -35,7 +52,9 @@ l_rate = 0.001
 batch_size = 64
 
 # Load data for each learner
-train_dataset = tfds.load('mnist', split='train', as_supervised=True)
+train_dataset, info = tfds.load('mnist', split='train', as_supervised=True, with_info=True)
+n_datapoints = info.splits['train'].num_examples
+
 train_datasets = [train_dataset.shard(num_shards=n_learners, index=i) for i in range(n_learners)]
 
 test_dataset = tfds.load('mnist', split='test', as_supervised=True)
@@ -45,12 +64,11 @@ test_datasets = [test_dataset.shard(num_shards=n_learners, index=i) for i in ran
 for i in range(n_learners):
     train_datasets[i] = train_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    train_datasets[i] = train_datasets[i].shuffle(len(train_datasets[i]))
+    train_datasets[i] = train_datasets[i].shuffle(n_datapoints // n_learners)
     train_datasets[i] = train_datasets[i].batch(batch_size)
 
     test_datasets[i] = test_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    test_datasets[i] = test_datasets[i].shuffle(len(test_datasets[i]))
     test_datasets[i] = test_datasets[i].batch(batch_size)
 
 
