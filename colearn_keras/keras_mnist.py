@@ -18,7 +18,6 @@
 import os
 import pickle
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Tuple, List, Optional
 
@@ -30,26 +29,10 @@ from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.utils import normalize_img
+from colearn_grpc.factory_registry import FactoryRegistry
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
-
-
-class ModelType(Enum):
-    CONV2D = 1
-
-
-def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Model:
-    """
-    Creates new instance of selected Keras model
-    :param model_type: Enum that represents selected model type
-    :param learning_rate: Learning rate for optimiser
-    :return: New instance of Keras model
-    """
-    if model_type == ModelType.CONV2D:
-        return _get_keras_mnist_conv2D_model(learning_rate)
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
 
 
 def _get_keras_mnist_conv2D_model(learning_rate: float) -> tf.keras.Model:
@@ -95,15 +78,14 @@ def _get_keras_mnist_conv2D_model(learning_rate: float) -> tf.keras.Model:
     return model
 
 
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST"])
+def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
                     **_kwargs) -> KerasLearner:
     """
     Creates new instance of KerasLearner
-    :param model_type: Enum that represents selected model type
     :param data_loaders: Tuple of train_loader and test_loader
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_accuracy
@@ -111,8 +93,9 @@ def prepare_learner(model_type: ModelType,
     :param _kwargs: Residual parameters not used by this function
     :return: New instance of KerasLearner
     """
+
     learner = KerasLearner(
-        model=_prepare_model(model_type, learning_rate),
+        model=_get_keras_mnist_conv2D_model(learning_rate),
         train_loader=data_loaders[0],
         test_loader=data_loaders[1],
         criterion="sparse_categorical_accuracy",
@@ -143,6 +126,7 @@ def _make_loader(images: np.array,
     return dataset
 
 
+@FactoryRegistry.register_dataloader("KERAS_MNIST")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32,

@@ -18,7 +18,6 @@
 import os
 import pickle
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Tuple, List, Optional
 
@@ -33,6 +32,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 from typing_extensions import TypedDict
 
+from colearn_grpc.factory_registry import FactoryRegistry
 from colearn.utils.data import split_list_into_fractions
 from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import categorical_accuracy
@@ -41,25 +41,8 @@ DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
 
 
-class ModelType(Enum):
-    MULTILAYER_PERCEPTRON = 1
-
-
-def prepare_model(model_type: ModelType) -> nn.Module:
-    """
-    Creates a new instance of selected Keras model
-    :param model_type: Enum that represents selected model type
-    :return: New instance of Pytorch model
-    """
-
-    if model_type == ModelType.MULTILAYER_PERCEPTRON:
-        return TorchCovidXrayPerceptronModel()
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
-
-
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[DataLoader, DataLoader],
+@FactoryRegistry.register_model_architecture("PYTORCH_COVID_XRAY", ["PYTORCH_COVID_XRAY"])
+def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
                     learning_rate: float = 0.001,
                     steps_per_epoch: int = 40,
                     vote_batches: int = 10,
@@ -68,7 +51,6 @@ def prepare_learner(model_type: ModelType,
                     **_kwargs) -> PytorchLearner:
     """
     Creates new instance of PytorchLearner
-    :param model_type: Enum that represents selected model type
     :param data_loaders: Tuple of train_loader and test_loader
     :param learning_rate: Learning rate for optimiser
     :param steps_per_epoch: Number of batches per training epoch
@@ -81,7 +63,7 @@ def prepare_learner(model_type: ModelType,
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
-    model = prepare_model(model_type)
+    model = TorchCovidXrayPerceptronModel()
 
     if vote_on_accuracy:
         learner_vote_kwargs = dict(
@@ -129,6 +111,7 @@ def _make_loader(data: np.array,
     return loader
 
 
+@FactoryRegistry.register_dataloader("PYTORCH_COVID_XRAY")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.8,
                          batch_size: int = 8,
