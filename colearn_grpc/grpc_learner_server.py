@@ -16,17 +16,17 @@
 #
 # ------------------------------------------------------------------------------
 import json
-import pickle
 from threading import Lock
 
 import grpc
 from google.protobuf import empty_pb2
 from prometheus_client import Counter, Summary
 
-from colearn_grpc.mli_factory_interface import MliFactory
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
 from colearn_grpc.logging import get_logger
+from colearn_grpc.mli_factory_interface import MliFactory
+from colearn_grpc.utils import iterator_to_weights, weights_to_iterator
 
 _logger = get_logger(__name__)
 _count_propose = Counter("contract_learner_grpc_server_propose",
@@ -53,14 +53,6 @@ _time_test = Summary("contract_learner_grpc_server_test_time",
                      "This metric measures the time it takes to test a given weight")
 _time_set = Summary("contract_learner_grpc_server_set_time",
                     "This metric measures the time it takes to accept a weight")
-
-
-def encode_weights(w):
-    return pickle.dumps(w)
-
-
-def decode_weights(w):
-    return pickle.loads(w)
 
 
 class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
@@ -153,11 +145,13 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         self._learner_mutex.acquire()
         try:
             _logger.debug("Start training...")
-            w = ipb2.Weights()
             weights = self.learner.mli_propose_weights()
-            w.weights = encode_weights(weights)
             _logger.debug("Training done!")
-            yield w
+
+            weights_part_iterator = weights_to_iterator(weights)
+            for wp in weights_part_iterator:
+                yield wp
+
         except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in ProposeWeights: {ex} {type(ex)}")
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -167,7 +161,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             self._learner_mutex.release()
 
     @_time_test.time()
-    def TestWeights(self, request, context):
+    def TestWeights(self, request_iterator, context):
         _count_test.inc()
         pw = ipb2.ProposedWeights()
         if not self._check_model(context):
@@ -175,9 +169,9 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         self._learner_mutex.acquire()
         try:
             _logger.debug("Test weights...")
-            weights = decode_weights(request.weights)
+
+            weights = iterator_to_weights(request_iterator)
             proposed_weights = self.learner.mli_test_weights(weights)
-            pw.weights.weights = request.weights
             pw.vote_score = proposed_weights.vote_score
             pw.test_score = proposed_weights.test_score
             pw.vote = proposed_weights.vote
@@ -192,13 +186,14 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         return pw
 
     @_time_set.time()
-    def SetWeights(self, request, context):
+    def SetWeights(self, request_iterator, context):
         _count_set.inc()
         if not self._check_model(context):
             return empty_pb2.Empty()
         self._learner_mutex.acquire()
         try:
-            weights = decode_weights(request.weights)
+            weights = iterator_to_weights(request_iterator)
+
             self.learner.mli_accept_weights(weights)
         except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in SetWeights: {ex} {type(ex)}")
