@@ -19,10 +19,21 @@ import pickle
 from math import ceil
 from typing import Iterator
 
+from prometheus_client import Summary
+
 from colearn.ml_interface import Weights
 from colearn_grpc.proto.generated.interface_pb2 import WeightsPart
 
+# the default limit for gRPC messages is 4MB, so the part size is set a bit smaller
 WEIGHTS_PART_SIZE_BYTES = 4 * 10 ** 6
+
+# Prometheus metrics
+_time_reconstruct_weights = Summary(
+    "grpc_utils_reconstruct_weights",
+    "This metric measures the time it takes to convert an iterator of WeightsPart to Weights")
+_time_deconstruct_weights = Summary(
+    "grpc_utils_deconstruct_weights",
+    "This metric measures the time it takes to convert Weights to an iterator of WeightsPart")
 
 
 def encode_weights(w: Weights) -> bytes:
@@ -33,6 +44,7 @@ def decode_weights(w: bytes) -> Weights:
     return pickle.loads(w)
 
 
+@_time_reconstruct_weights.time()
 def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) -> Weights:
     first_weights_part = next(request_iterator)
     full_weights = bytearray(first_weights_part.total_bytes)
@@ -41,13 +53,11 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
     end_index = first_weights_part.byte_index + len(first_weights_part.weights)
     full_weights[first_weights_part.byte_index: end_index] = first_weights_part.weights
     bytes_sum += len(first_weights_part.weights)
-    print("bytes_sum", bytes_sum, first_weights_part.total_bytes)
 
     for weights_part in request_iterator:
         end_index = weights_part.byte_index + len(weights_part.weights)
         full_weights[weights_part.byte_index: end_index] = weights_part.weights
         bytes_sum += len(weights_part.weights)
-        print("bytes_sum", bytes_sum, first_weights_part.total_bytes)
 
     weights_bytes = bytes(full_weights)
     if decode:
@@ -59,6 +69,7 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
         return Weights(weights=weights_bytes)
 
 
+@_time_deconstruct_weights.time()
 def weights_to_iterator(input_weights: Weights, encode=True) -> Iterator[WeightsPart]:
     enc_weights: bytes  # this is a pickled Weights object
     if encode:

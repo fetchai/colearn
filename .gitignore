@@ -56,3 +56,4 @@ venv/
 site/
 
 Pipfile
+*.bak
