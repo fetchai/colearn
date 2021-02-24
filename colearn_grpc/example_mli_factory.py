@@ -74,7 +74,8 @@ class ExampleMliFactory(MliFactory):
         data_config.update(json.loads(dataset_params))
 
         # TODO Names should match between colearn and contract_learn
-        data_config["train_folder"] = data_config["location"]
+        if "location" in data_config:
+            data_config["train_folder"] = data_config["location"]
         prepare_data_loaders = FactoryRegistry.dataloaders[dataloader_name][0]
         data_loaders = prepare_data_loaders(**data_config)
 
