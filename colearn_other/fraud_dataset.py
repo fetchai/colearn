@@ -18,7 +18,6 @@
 import os
 import pickle
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Optional, List, Tuple
 
@@ -29,15 +28,12 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
+from colearn_grpc.factory_registry import FactoryRegistry
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 from colearn.utils.data import split_list_into_fractions
 
 DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
-
-
-class ModelType(Enum):
-    SVM = 1
 
 
 class FraudLearner(MachineLearningInterface):
@@ -155,24 +151,21 @@ class FraudLearner(MachineLearningInterface):
             return 0
 
 
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
+@FactoryRegistry.register_model_architecture("FRAUD", ["FRAUD"])
+def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
                     **_kwargs) -> FraudLearner:
     """
     Creates a new instance of FraudLearner
-    :param model_type: Enum that represents selected model type
     :param data_loaders: Tuple of tuples (train_data, train_labels), (test_data, test_labels)
     :param _kwargs: Residual parameters not used by this function
     :return: Instance of FraudLearner
     """
-    if model_type == ModelType.SVM:
-        return FraudLearner(
-            train_data=data_loaders[0][0],
-            train_labels=data_loaders[0][1],
-            test_data=data_loaders[1][0],
-            test_labels=data_loaders[1][1])
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
+    return FraudLearner(
+        train_data=data_loaders[0][0],
+        train_labels=data_loaders[0][1],
+        test_data=data_loaders[1][0],
+        test_labels=data_loaders[1][1]
+    )
 
 
 def _infinite_batch_sampler(data_size: int,
@@ -189,6 +182,7 @@ def _infinite_batch_sampler(data_size: int,
             yield random_ind[i:i + batch_size]
 
 
+@FactoryRegistry.register_dataloader("FRAUD")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.8,
                          **_kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:

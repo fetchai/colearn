@@ -16,7 +16,8 @@
 #
 # ------------------------------------------------------------------------------
 import abc
-from typing import Optional, Any, Dict
+from typing import Any
+
 from pydantic import BaseModel
 
 
@@ -29,7 +30,6 @@ class ProposedWeights(BaseModel):
     vote_score: float
     test_score: float
     vote: bool
-    evaluation_results: Optional[Dict] = None
 
 
 class MachineLearningInterface(abc.ABC):

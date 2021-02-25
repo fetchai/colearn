@@ -39,6 +39,7 @@ docs_deps = [
 ]
 
 grpc_deps = ['grpcio~=1.35.0',
+             'grpcio-tools~=1.35.0',
              'prometheus_client==0.9.0',
              'click'
             ]
@@ -49,17 +50,17 @@ try:
     with open("README.md", "r") as fh:
         long_description = fh.read()
 except FileNotFoundError:
-    print("README.md ile not found, no long description available")
+    print("README.md file not found, no long description available")
 
 setuptools.setup(
-    name="colearn-interface-fetch-ai",
-    version="0.0.1",
+    name="colearn",
+    version="0.2.4",
     author="Fetch AI",
-    author_email="juan.besa@fetch.ai",
+    author_email="developer@fetch.ai",
     description="The Standalone Fetch AI Collective Learning Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/fetchai/colearn.git",
+    url="https://github.com/fetchai/colearn",
     packages=setuptools.find_packages(exclude=("tests", "examples", "docs")),
     classifiers=[
         # Need to fill in

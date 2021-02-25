@@ -1,6 +1,6 @@
 # How to run the demo
 
-You can try collective learning for yourself using the simple demo in `./bin/run_demo.py`. 
+You can try collective learning for yourself using the simple demo in `examples/run_demo.py`. 
 This demo creates n learners for one of five learning tasks and co-ordinates the collective learning between them.
 
 There are five potential datasets for the demo
@@ -8,12 +8,12 @@ There are five potential datasets for the demo
 * KERAS_MNIST is the Tensorflow implementation of standard handwritten digits recognition dataset
 * KERAS_CIFAR10 is the Tensorflow implementation of standard image recognition dataset
 * PYTORCH_XRAY is Pytorch implementation of a binary classification task that requires predicting pneumonia from images of chest X-rays. 
-  The data need to be downloaded from [kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
+  The data need to be downloaded from [Kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
 * PYTORCH_COVID_XRAY is Pytorch implementation of a 3 class classification task that requires predicting no finding, covid or pneumonia from images of chest X-rays. 
   This dataset is not currently publicly available.
 * FRAUD The fraud dataset consists of information about credit card transactions, and the task is to predict whether 
   transactions are fraudulent or not. 
-  The data need to be downloaded from [kaggle](https://www.kaggle.com/c/ieee-fraud-detection)
+  The data need to be downloaded from [Kaggle](https://www.kaggle.com/c/ieee-fraud-detection)
 
 Use the -h flag to see the options:
 ```bash

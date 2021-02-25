@@ -30,14 +30,12 @@ class TaskType(Enum):
 
 def mli_factory(str_task_type: str,
                 train_folder: str,
-                str_model_type: str,
                 test_folder: Optional[str] = None,
                 **learning_kwargs) -> MachineLearningInterface:
     """
     MachineLearningInterface factory
     :param str_task_type: String task type
     :param train_folder: Path to training set
-    :param str_model_type: String model type
     :param test_folder: Optional path to test set
     :param learning_kwargs: Learning parameters to be passed to dataloader and model
     :return: Specific instance of MachineLearningInterface
@@ -48,34 +46,30 @@ def mli_factory(str_task_type: str,
     # Load task
     # pylint: disable=C0415
     if task_type == TaskType.PYTORCH_XRAY:
-        from colearn_pytorch.pytorch_xray import prepare_learner, prepare_data_loaders, ModelType
+        from colearn_pytorch.pytorch_xray import prepare_learner, prepare_data_loaders
     elif task_type == TaskType.KERAS_MNIST:
         # noinspection PyUnresolvedReferences
         from colearn_keras.keras_mnist import (  # type: ignore[no-redef]
-            prepare_learner, prepare_data_loaders, ModelType)
+            prepare_learner, prepare_data_loaders)
     elif task_type == TaskType.KERAS_CIFAR10:
         # noinspection PyUnresolvedReferences
         from colearn_keras.keras_cifar10 import (  # type: ignore[no-redef]
-            prepare_learner, prepare_data_loaders, ModelType)
+            prepare_learner, prepare_data_loaders)
     elif task_type == TaskType.PYTORCH_COVID_XRAY:
         # noinspection PyUnresolvedReferences
         from colearn_pytorch.pytorch_covid_xray import (  # type: ignore[no-redef]
-            prepare_learner, prepare_data_loaders, ModelType)
+            prepare_learner, prepare_data_loaders)
     elif task_type == TaskType.FRAUD:
         # noinspection PyUnresolvedReferences
         from colearn_other.fraud_dataset import (  # type: ignore [no-redef]
-            prepare_learner, prepare_data_loaders, ModelType)
+            prepare_learner, prepare_data_loaders)
     else:
         raise Exception("Task %s not part of the TaskType enum" % type)
-
-    # Resolve model type
-    model_type = ModelType[str_model_type]
 
     learner_dataloaders = prepare_data_loaders(train_folder=train_folder,
                                                test_folder=test_folder,
                                                **learning_kwargs)
 
-    learner = prepare_learner(model_type=model_type,
-                              data_loaders=learner_dataloaders,
+    learner = prepare_learner(data_loaders=learner_dataloaders,
                               **learning_kwargs)
     return learner

@@ -107,7 +107,7 @@ class Net(nn.Module):
 # Make n instances of PytorchLearner with model and torch dataloaders
 all_learner_models = []
 for i in range(n_learners):
-    model = Net()
+    model = Net().to(device)
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
     learner = PytorchLearner(
         model=model,
@@ -126,7 +126,7 @@ for i in range(n_learners):
 # Ensure all learners starts with exactly same weights
 set_equal_weights(all_learner_models)
 
-summary(all_learner_models[0].model, input_size=(width, height))
+summary(all_learner_models[0].model, input_size=(width, height), device=str(device))
 
 # Train the model using Collective Learning
 results = Results()
