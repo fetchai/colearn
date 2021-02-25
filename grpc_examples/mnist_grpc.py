@@ -21,7 +21,7 @@ from multiprocessing import Process
 from pathlib import Path
 from typing import Tuple
 
-from colearn.training import collective_learning_round
+from colearn.training import collective_learning_round, set_equal_weights, initial_result
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_grpc.example_mli_factory import ExampleMliFactory
@@ -74,15 +74,14 @@ model_tag = "KERAS_MNIST_EXAMPLE_MODEL"
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
-                    learning_rate: float = 0.001,
-                    **_kwargs) -> KerasLearner:
+                    learning_rate: float = 0.001
+                    ) -> KerasLearner:
     """
     Creates new instance of KerasLearner
     :param data_loaders: Tuple of train_loader and test_loader
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_accuracy
     :param learning_rate: Learning rate for optimiser
-    :param _kwargs: Residual parameters not used by this function
     :return: New instance of KerasLearner
     """
 
@@ -145,11 +144,11 @@ for i in range(n_learners):
     all_learner_models.append(ml_system)
 
 # now colearn as usual!
-# set_equal_weights(all_learner_models)  todo: need get_current_weights
+set_equal_weights(all_learner_models)
 
 # Train the model using Collective Learning
 results = Results()
-# results.data.append(initial_result(all_learner_models))
+results.data.append(initial_result(all_learner_models))
 
 plot = ColearnPlot(score_name="accuracy")
 

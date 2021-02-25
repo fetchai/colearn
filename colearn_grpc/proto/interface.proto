@@ -70,5 +70,6 @@ service GRPCLearner {
     rpc ProposeWeights(google.protobuf.Empty) returns (stream WeightsPart);
     rpc TestWeights(stream WeightsPart) returns (ProposedWeights);
     rpc SetWeights(stream WeightsPart) returns (google.protobuf.Empty);
+    rpc GetCurrentWeights(google.protobuf.Empty) returns (stream WeightsPart);
     rpc StatusStream(stream RequestStatus) returns (stream ResponseStatus);
 };

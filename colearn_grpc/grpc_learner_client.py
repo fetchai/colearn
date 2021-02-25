@@ -42,6 +42,8 @@ _time_test = Summary("contract_learner_grpc_client_test_time",
                      "Metric measures the time it takes to test")
 _time_accept = Summary("contract_learner_grpc_client_accept_time",
                        "Metric measures the time it takes to accept weights")
+_time_get = Summary("contract_learner_grpc_client_get_time",
+                    "Metric measures the time it takes to get the current weights")
 
 
 class GRPCLearnerClient(MachineLearningInterface):
@@ -212,6 +214,14 @@ class GRPCLearnerClient(MachineLearningInterface):
             return False
         return True
 
-    # TODO: Implement
+    @_time_get.time()
     def mli_get_current_weights(self) -> Weights:
-        raise NotImplementedError("mli_get_current_weights not implemented")
+        request = empty_pb2.Empty()
+        try:
+            response = self.stub.GetCurrentWeights(request)
+            weights = iterator_to_weights(response, decode=False)
+            return weights
+
+        except grpc.RpcError as ex:
+            _logger.exception(f"Failed to get_current_weights: {ex}")
+            raise Exception(f"Failed to get_current_weights: {ex}")
