@@ -92,7 +92,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 c = response.compatibilities.add()
                 c.model_architecture = model_architecture
                 for dataloader_name in data_loaders:
-                    dl = c.dataloader.append(dataloader_name)
+                    c.dataloader.append(dataloader_name)
 
         except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in QuerySupportedSystem: {ex} {type(ex)}")
