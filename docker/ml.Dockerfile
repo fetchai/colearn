@@ -32,4 +32,4 @@ EXPOSE 9995
 EXPOSE 9091
 ENV PYTHONUNBUFFERED 0
 
-ENTRYPOINT [ "python3",  "/app/run_grpc_server.py"]
+ENTRYPOINT [ "python3", "-u", "/app/run_grpc_server.py"]
