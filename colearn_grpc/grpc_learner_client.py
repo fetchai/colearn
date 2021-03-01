@@ -88,6 +88,7 @@ class GRPCLearnerClient(MachineLearningInterface):
                 return True
                 # TODO Update the api
             except Exception as e:  # pylint: disable=W0703
+                _logger.info(f"Exception in connecting {e}")
                 ex = e
                 time.sleep(5)
 
@@ -153,8 +154,8 @@ class GRPCLearnerClient(MachineLearningInterface):
             r["data_loaders"][d.name] = d.default_parameters
         for m in response.model_architectures:
             r["model_architectures"][m.name] = m.default_parameters
-        for v1, v2 in response.compatibility.items():
-            r["compatibility"][v1] = v2
+        for mc in response.compatibility:
+            r["compatibility"][mc.model_name] = [x for x in mc.dataloader_names]
         return r
 
     @_time_setup.time()

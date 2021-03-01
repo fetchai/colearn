@@ -24,8 +24,6 @@ from colearn_grpc.mli_factory_interface import MliFactory
 from colearn_grpc.factory_registry import FactoryRegistry
 
 
-
-
 # TODO Add Documentation
 class ExampleMliFactory(MliFactory):
 

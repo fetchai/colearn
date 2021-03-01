@@ -58,10 +58,15 @@ message ModelArchSpec {
     string default_parameters = 2; // JSON encoded default parameters for the model arch.
 };
 
+message ModelCompatibility {
+    string model_name = 1;
+    repeated string dataloader_names = 2;
+}
+
 message ResponseSupportedSystem {
     repeated DatasetLoaderSpec data_loaders = 1;
     repeated ModelArchSpec model_architectures = 2;
-    map<int32, int32> compatibility = 3;
+    repeated ModelCompatibility compatibility = 3;
 };
 
 service GRPCLearner {

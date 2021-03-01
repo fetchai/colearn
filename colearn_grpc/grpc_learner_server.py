@@ -84,22 +84,20 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def QuerySupportedSystem(self, request, context):
         response = ipb2.ResponseSupportedSystem()
         try:
-            model_to_index = {}
             for index, (name, params) in enumerate(self.mli_factory.get_models().items()):
                 m = response.model_architectures.add()
                 m.name = name
                 m.default_parameters = json.dumps(params)
-                model_to_index[name] = index
-            dataloader_to_index = {}
             for index, (name, params) in enumerate(self.mli_factory.get_dataloaders().items()):
                 d = response.data_loaders.add()
                 d.name = name
                 d.default_parameters = json.dumps(params)
-                dataloader_to_index[name] = index
 
             for model_name, data_loaders in self.mli_factory.get_compatibilities().items():
+                mc = response.compatibility.add()
+                mc.model_name = model_name
                 for dataloader_name in data_loaders:
-                    response.compatibility[model_to_index[model_name]] = dataloader_to_index[dataloader_name]
+                    mc.dataloader_names.append(dataloader_name)
 
         except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in QuerySupportedSystem: {ex} {type(ex)}")
