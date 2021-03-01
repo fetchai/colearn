@@ -160,9 +160,10 @@ def _make_loader(images: np.array,
     :return: Shuffled Tensorflow prefetch dataset holding images and labels
     """
     dataset = tf.data.Dataset.from_tensor_slices((images, labels))
+    n_datapoints = images.shape[0]
 
     dataset = dataset.cache()
-    dataset = dataset.shuffle(len(dataset))
+    dataset = dataset.shuffle(n_datapoints)
     dataset = dataset.batch(batch_size)
     dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
