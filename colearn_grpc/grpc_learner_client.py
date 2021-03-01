@@ -148,14 +148,14 @@ class GRPCLearnerClient(MachineLearningInterface):
         r = {
             "data_loaders": {},
             "model_architectures": {},
-            "compatibility": {}
+            "compatibilities": {}
         }
         for d in response.data_loaders:
             r["data_loaders"][d.name] = d.default_parameters
         for m in response.model_architectures:
             r["model_architectures"][m.name] = m.default_parameters
-        for mc in response.compatibility:
-            r["compatibility"][mc.model_name] = [x for x in mc.dataloader_names]
+        for mc in response.compatibilities:
+            r["compatibilities"][mc.model_architecture] = list(mc.dataloader)
         return r
 
     @_time_setup.time()

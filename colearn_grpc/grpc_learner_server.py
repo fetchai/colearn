@@ -84,11 +84,11 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def QuerySupportedSystem(self, request, context):
         response = ipb2.ResponseSupportedSystem()
         try:
-            for index, (name, params) in enumerate(self.mli_factory.get_models().items()):
+            for name, params in self.mli_factory.get_models().items():
                 m = response.model_architectures.add()
                 m.name = name
                 m.default_parameters = json.dumps(params)
-            for index, (name, params) in enumerate(self.mli_factory.get_dataloaders().items()):
+            for name, params in self.mli_factory.get_dataloaders().items():
                 d = response.data_loaders.add()
                 d.name = name
                 d.default_parameters = json.dumps(params)

@@ -21,6 +21,8 @@ import sys
 from prometheus_client import start_http_server
 
 from colearn_grpc.example_mli_factory import ExampleMliFactory
+from colearn_grpc.grpc_server import GRPCServer
+from colearn_grpc.logging import set_log_levels, get_logger
 
 # These are imported to they are registered in the FactoryRegistry and are available here
 # pylint: disable=W0611
@@ -29,11 +31,6 @@ import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
 import colearn_other.fraud_dataset  # type:ignore # noqa: F401
-
-
-from colearn_grpc.grpc_server import GRPCServer
-from colearn_grpc.logging import set_log_levels, get_logger
-
 
 _logger = get_logger(__name__)
 
@@ -44,6 +41,7 @@ def create_signal_handler(server):
         server.stop()
         _logger.info("...done")
         sys.exit(0)
+
     return signal_handler
 
 

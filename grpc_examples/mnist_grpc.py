@@ -59,10 +59,11 @@ def prepare_data_loaders(train_folder: str,
     n_cases = int(train_ratio * len(images))
 
     dataset = tf.data.Dataset.from_tensor_slices((images[:n_cases], labels[:n_cases]))
-    train_loader = dataset.cache().shuffle(len(dataset)).batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
+    train_loader = dataset.cache().shuffle(n_cases).batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
     dataset = tf.data.Dataset.from_tensor_slices((images[n_cases:], labels[n_cases:]))
-    test_loader = dataset.cache().shuffle(len(dataset)).batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
+    test_loader = dataset.cache().shuffle(len(images) - n_cases).batch(batch_size)\
+        .prefetch(tf.data.experimental.AUTOTUNE)
 
     return train_loader, test_loader
 
@@ -119,6 +120,7 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
 n_learners = 5
 first_server_port = 9995
 # make n servers
+server_processes = []
 for i in range(n_learners):
     port = first_server_port + i
     server = GRPCServer(mli_factory=ExampleMliFactory(),
@@ -126,6 +128,7 @@ for i in range(n_learners):
     server_process = Process(target=server.run)
     print("starting server", i)
     server_process.start()
+    server_processes.append(server_process)
 
 # Before we make the grpc clients, ensure that there's an mnist folder for each client
 data_folders = split_to_folders(n_learners, data_split=[1 / n_learners] * n_learners)
@@ -168,3 +171,9 @@ plot.plot_results(results)
 plot.plot_votes(results, block=True)
 
 print("Colearn Example Finished!")
+
+for model in all_learner_models:
+    model.stop()
+
+for server_process in server_processes:
+    server_process.terminate()

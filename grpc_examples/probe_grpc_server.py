@@ -30,7 +30,7 @@ args = cli_args.parse_args()
 log_levels = {"default": "INFO"}
 set_log_levels(log_levels)
 port = args.port
-ml_system = GRPCLearnerClient(f"probing client", f"127.0.0.1:{port}")
+ml_system = GRPCLearnerClient("probing client", f"127.0.0.1:{port}")
 started = ml_system.start()
 
 # get info about client
