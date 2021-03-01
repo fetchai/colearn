@@ -60,7 +60,7 @@ message ModelArchSpec {
 
 message CompatibilitySpec {
     string model_architecture = 1;
-    repeated string dataloader = 2;
+    repeated string dataloaders = 2;
 };
 
 message ResponseSupportedSystem {
