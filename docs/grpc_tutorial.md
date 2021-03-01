@@ -40,7 +40,7 @@ def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32) -> Tuple[PrefetchDataset, PrefetchDataset]:
 ```
-Resistering a model is similar, but you additionally have to specify the dataloaders that this model is compatible with.
+Registering a model is similar, but you additionally have to specify the dataloaders that this model is compatible with.
 ```python
 @FactoryRegistry.register_model_architecture(model_tag, [dataloader_tag])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],

@@ -22,6 +22,13 @@ from colearn_other.mli_factory import TaskType
 from colearn_keras.keras_mnist import split_to_folders
 from colearn_keras.keras_learner import KerasLearner
 
+# These are imported here so that they are registered in the FactoryRegistry
+# pylint: disable=W0611
+import colearn_keras.keras_mnist  # type:ignore # noqa: F401
+import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
+import colearn_other.fraud_dataset  # type:ignore # noqa: F401
 
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 
@@ -84,9 +91,8 @@ def test_get_mnist(factory, mnist_config):
         dataloader_name=mnist_config['task_type'].name,
         dataset_params=dataset_params)
 
-    assert mli.model_fit_kwargs["steps_per_epoch"] == 20
-
     assert isinstance(mli, KerasLearner)
+    assert mli.model_fit_kwargs["steps_per_epoch"] == 20
 
 
 def test_triple_mnist(factory, mnist_config):
@@ -104,6 +110,7 @@ def test_triple_mnist(factory, mnist_config):
         dataloader_name=mnist_config['task_type'].name,
         dataset_params=dataset_params)
 
+    assert isinstance(mli, KerasLearner)
     default_steps = mli.model_fit_kwargs["steps_per_epoch"]
 
     model_params = json.dumps({"steps_per_epoch": 40})
