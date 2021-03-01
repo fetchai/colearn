@@ -17,7 +17,7 @@
 # ------------------------------------------------------------------------------
 import time
 from concurrent.futures import ThreadPoolExecutor
-from queue import Queue
+from queue import Queue, Empty
 from threading import Lock
 
 import grpc
@@ -108,21 +108,30 @@ class GRPCLearnerClient(MachineLearningInterface):
         self._check_queue.put(0)
 
     def _periodic_check_trigger_generator(self):
-        active = True
+        active: bool = True
+        max_sleep_sec = 2
         while active:
             self._check_queue.put(0)
-            time.sleep(self._health_check_time)
-            with self._mu:
-                active = self._active
+            # sleep is split into max_sleep_sec increments to allow for self._active check
+            for _ in range(0, self._health_check_time, max_sleep_sec):
+                time.sleep(max_sleep_sec)
+                with self._mu:
+                    active = self._active
+                if not active:
+                    break
 
     def _status_check_trigger(self):
-        active = True
+        active: bool = True
         while active:
-            self._check_queue.get()
-            request = ipb2.RequestStatus()
-            yield request
+            try:
+                # timeout is required otherwise .get() will block forever and thread will never terminate
+                self._check_queue.get(block=True, timeout=2)
+                request = ipb2.RequestStatus()
+                yield request
+            except Empty:  # raised by .get() on empty queue
+                pass
             with self._mu:
-                active = self._mu
+                active = self._active
 
     def _ml_system_health_loop(self):
         health_stream = self.stub.StatusStream(self._status_check_trigger())
