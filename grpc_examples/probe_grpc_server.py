@@ -18,7 +18,7 @@
 import argparse
 from pprint import pprint
 
-from colearn_grpc.grpc_learner_client import GRPCLearnerClient
+from colearn_grpc.example_grpc_learner_client import GRPCLearnerClient
 from colearn_grpc.logging import set_log_levels
 
 cli_args = argparse.ArgumentParser(description='Probe a GRPC learner server')

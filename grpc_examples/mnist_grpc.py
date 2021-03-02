@@ -26,7 +26,7 @@ from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.factory_registry import FactoryRegistry
-from colearn_grpc.grpc_learner_client import GRPCLearnerClient
+from colearn_grpc.example_grpc_learner_client import GRPCLearnerClient
 from colearn_grpc.grpc_server import GRPCServer
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.keras_mnist import split_to_folders

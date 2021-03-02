@@ -21,7 +21,7 @@ import json
 from colearn.training import set_equal_weights, initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
-from colearn_grpc.grpc_learner_client import GRPCLearnerClient
+from colearn_grpc.example_grpc_learner_client import GRPCLearnerClient
 
 cli_args = argparse.ArgumentParser(description='Start multiple GRPC learner servers')
 cli_args.add_argument('-p', '--port', type=int, default=9995, help='first server port')
