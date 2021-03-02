@@ -24,7 +24,7 @@ from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.grpc_server import GRPCServer
 from colearn_grpc.logging import set_log_levels, get_logger
 
-# These are imported to they are registered in the FactoryRegistry and are available here
+# These are imported so that they are registered in the FactoryRegistry
 # pylint: disable=W0611
 import colearn_keras.keras_mnist  # type:ignore # noqa: F401
 import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
