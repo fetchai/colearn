@@ -1,0 +1,70 @@
+{% set name = "colearn" %}
+{% set version = "0.2.4" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: 394bf7e950c71b14323a2ad24b7670804a3cd79e3578a54a3cb4b7dfbe1e0bd7
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - google-cloud-storage
+    - matplotlib
+    - numpy
+    - pandas
+    - pydantic
+    - python ==3.7.5
+    - scikit-learn
+    - tensorflow >=2.1.0,<=2.3.0
+    - tensorflow-datasets
+    - pytorch
+    - torchvision
+    - pillow
+    - absl-py
+   
+  run:
+    - google-cloud-storage
+    - matplotlib
+    - numpy
+    - pandas
+    - pydantic
+    - python ==3.7.5
+    - scikit-learn
+    - tensorflow >=2.1.0,<=2.3.0
+    - tensorflow-datasets
+    - absl-py
+    - pytorch
+    - torchvision
+    - pillow
+    - absl-py
+
+test:
+  imports:
+    - colearn
+    - colearn.utils
+    - colearn_grpc
+    - colearn_keras
+    - colearn_other
+    - colearn_pytorch
+  requires:
+
+
+about:
+  home: "https://github.com/fetchai/colearn"
+  license: Fetch.ai
+  license_family: OTHER
+  license_file: 
+  summary: "The Standalone Fetch AI Collective Learning Framework"
+  doc_url: 
+  dev_url: 
+
+extra:
+  recipe-maintainers:
+    - your-github-id-here
