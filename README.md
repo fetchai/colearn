@@ -18,7 +18,7 @@ We invite all users to experiment with the framework, develop their own models, 
 
 See the documentation at [fetchai.github.io/colearn/](https://fetchai.github.io/colearn/)
 
-## Installation
+## Pip installation
 
 To use the latest stable release we recommend installing the [package from PyPi](https://pypi.org/project/colearn/)
 
@@ -32,6 +32,16 @@ To install with just support for Keras or Pytorch:
    pip install colearn[keras]
    pip install colearn[pytorch]
    ```
+
+## Anaconda installation
+
+To install with support for Keras and Pytorch:
+```bash
+   conda create --name myenv python=3.7.5 conda-build
+   conda activate myenv
+   conda-build colearn
+   conda install --use-local colearn 
+```
 
 ## Running the examples
 
