@@ -1,6 +1,9 @@
 # Installation
 The core package, `colearn`, contains only the [MachineLearningInterface](about.md) and a simple driver that 
 implements the Collective Learning Protocol. 
+
+### To install colearn using Pip:
+
 To install only the core package:
 ```
 pip install colearn
@@ -20,7 +23,27 @@ To install both the Keras and Pytorch extras use:
 pip install colearn[all]
 ```
 
-To run stand-alone examples:
+### To install colearn using Anaconda
+
+1. Download the source code from github:
+   ```bash
+   git clone https://github.com/fetchai/colearn.git && cd colearn
+   ```
+
+2. Create conda environment:
+   ```bash
+   conda create --name myenv python=3.7.5 conda-build
+   conda activate myenv
+   ```
+
+3. Install the package from source:
+   ```bash
+   conda-build colearn
+   conda install --use-local colearn 
+   ```
+
+
+### To run stand-alone examples:
    ```bash
    # Download the examples
    wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_cifar.py
@@ -72,7 +95,7 @@ changes are effective immediately:
 pip install -e .[all]
 ```
 
-### Running the tests
+## Running the tests
 Tests can be run with:
 ```
 tox

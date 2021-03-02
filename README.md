@@ -36,12 +36,12 @@ To install with just support for Keras or Pytorch:
 ## Anaconda installation
 
 To install with support for Keras and Pytorch:
-```bash
+   ```bash
    conda create --name myenv python=3.7.5 conda-build
    conda activate myenv
    conda-build colearn
    conda install --use-local colearn 
-```
+   ```
 
 ## Running the examples
 
