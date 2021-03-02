@@ -131,11 +131,11 @@ class SimpleFactory(MliFactory):
 
     def get_mli(self, model_name: str, model_params: str, dataloader_name: str,
                 dataset_params: str) -> MachineLearningInterface:
-        dataloader_params = json.loads(dataset_params)
-        data_loaders = prepare_data_loaders(**dataloader_params)
+        dataloader_kwargs = json.loads(dataset_params)
+        data_loaders = prepare_data_loaders(**dataloader_kwargs)
 
-        model_params = json.loads(model_params)
-        mli_model = prepare_learner(data_loaders=data_loaders, **model_params)
+        model_kwargs = json.loads(model_params)
+        mli_model = prepare_learner(data_loaders=data_loaders, **model_kwargs)
         return mli_model
 
 
