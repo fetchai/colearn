@@ -23,6 +23,8 @@ from colearn_grpc.logging import set_log_levels
 
 cli_args = argparse.ArgumentParser(description='Probe a GRPC learner server')
 cli_args.add_argument('-p', '--port', type=int, default=9995, help='server port')
+cli_args.add_argument('-i', '--ip_addr', type=str, default="127.0.0.1", help='IP address or hostname')
+
 
 args = cli_args.parse_args()
 
@@ -30,7 +32,7 @@ args = cli_args.parse_args()
 log_levels = {"default": "INFO"}
 set_log_levels(log_levels)
 port = args.port
-ml_system = ExampleGRPCLearnerClient("probing client", f"127.0.0.1:{port}")
+ml_system = ExampleGRPCLearnerClient("probing client", f"{args.host}:{port}")
 started = ml_system.start()
 
 # get info about client
