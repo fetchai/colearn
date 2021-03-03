@@ -46,7 +46,7 @@ _time_get = Summary("contract_learner_grpc_client_get_time",
                     "Metric measures the time it takes to get the current weights")
 
 
-class GRPCLearnerClient(MachineLearningInterface):
+class ExampleGRPCLearnerClient(MachineLearningInterface):
     """
         This is the client half of the ML GRPC connection, which lives on the orchestrator side.
         This exposes methods:
@@ -79,21 +79,27 @@ class GRPCLearnerClient(MachineLearningInterface):
                 self.channel = grpc.insecure_channel(self.address)
                 self.stub = ipb2_grpc.GRPCLearnerStub(self.channel)
 
-                self.executor.submit(self._periodic_check_trigger_generator)
-                self.executor.submit(self._ml_system_health_loop)
+                self.start_health_check()
 
                 # Make sure query works
                 self.get_supported_system()
                 _logger.info(f"Successfully connected to {self.address}!")
                 return True
-                # TODO Update the api
-            except Exception as e:  # pylint: disable=W0703
-                _logger.info(f"Exception in connecting {e}")
+            except grpc.RpcError as e:
+                ex = e
+                time.sleep(5)
+            except Exception as e:   # pylint: disable=W0703
+                _logger.info(
+                    f"Received non grpc based exception when trying to connect: {e} : {type(e)}")
                 ex = e
                 time.sleep(5)
 
         _logger.exception(f"Failed to connect! Quitting... {ex}")
         return False
+
+    def start_health_check(self):
+        self.executor.submit(self._periodic_check_trigger_generator)
+        self.executor.submit(self._ml_system_health_loop)
 
     def stop(self):
         with self._mu:
@@ -154,8 +160,8 @@ class GRPCLearnerClient(MachineLearningInterface):
             r["data_loaders"][d.name] = d.default_parameters
         for m in response.model_architectures:
             r["model_architectures"][m.name] = m.default_parameters
-        for mc in response.compatibilities:
-            r["compatibilities"][mc.model_architecture] = mc.dataloaders
+        for c in response.compatibilities:
+            r["compatibilities"][c.model_architecture] = c.dataloaders
         return r
 
     @_time_setup.time()
@@ -193,7 +199,7 @@ class GRPCLearnerClient(MachineLearningInterface):
 
         except grpc.RpcError as ex:
             _logger.exception(f"Failed to train_model: {ex}")
-            raise Exception(f"Failed to train_model: {ex}")
+            raise ConnectionError(f"GRPC error: {ex}")
 
     # TODO: check status codes
     @_time_test.time()
@@ -212,7 +218,7 @@ class GRPCLearnerClient(MachineLearningInterface):
             )
         except grpc.RpcError as ex:
             _logger.exception(f"Failed to test_model: {ex}")
-            raise Exception(f"Failed to test_model: {ex}")
+            raise ConnectionError(f"GRPC error: {ex}")
 
     @_time_accept.time()
     def mli_accept_weights(self, weights: Weights):
@@ -221,8 +227,7 @@ class GRPCLearnerClient(MachineLearningInterface):
             self.stub.SetWeights(request_iterator)
         except grpc.RpcError as e:
             _logger.exception(f"Failed to call SetWeights: {e}")
-            return False
-        return True
+            raise ConnectionError(f"GRPC error: {e}")
 
     @_time_get.time()
     def mli_get_current_weights(self) -> Weights:

@@ -111,21 +111,22 @@ for i in range(n_learners):
 ```
 
 And then create n_learners gRPC clients:
+
 ```python
 all_learner_models = []
 for i in range(n_learners):
-    port = first_server_port + i
-    ml_system = GRPCLearnerClient(f"client {i}", f"127.0.0.1:{port}")
-    started = ml_system.start()
-    dataloader_params = {"train_folder": data_folders[i]}
-    ml_system.setup_ml(dataset_loader_name=dataloader_tag,
-                       dataset_loader_parameters=json.dumps(dataloader_params),
-                       model_arch_name=model_tag,
-                       model_parameters=json.dumps({}))
-    all_learner_models.append(ml_system)
+   port = first_server_port + i
+   ml_system = ExampleGRPCLearnerClient(f"client {i}", f"127.0.0.1:{port}")
+   started = ml_system.start()
+   dataloader_params = {"train_folder": data_folders[i]}
+   ml_system.setup_ml(dataset_loader_name=dataloader_tag,
+                      dataset_loader_parameters=json.dumps(dataloader_params),
+                      model_arch_name=model_tag,
+                      model_parameters=json.dumps({}))
+   all_learner_models.append(ml_system)
 ```
 
-GRPCLearnerClient implements the machine learning interface, so you can use it with the training functions as before:
+ExampleGRPCLearnerClient implements the machine learning interface, so you can use it with the training functions as before:
 ```python
 for round_index in range(n_rounds):
     results.data.append(

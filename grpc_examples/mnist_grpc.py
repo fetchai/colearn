@@ -26,7 +26,7 @@ from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.factory_registry import FactoryRegistry
-from colearn_grpc.example_grpc_learner_client import GRPCLearnerClient
+from colearn_grpc.example_grpc_learner_client import ExampleGRPCLearnerClient
 from colearn_grpc.grpc_server import GRPCServer
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.keras_mnist import split_to_folders
@@ -137,7 +137,7 @@ data_folders = split_to_folders(n_learners, data_split=[1 / n_learners] * n_lear
 all_learner_models = []
 for i in range(n_learners):
     port = first_server_port + i
-    ml_system = GRPCLearnerClient(f"client {i}", f"127.0.0.1:{port}")
+    ml_system = ExampleGRPCLearnerClient(f"client {i}", f"127.0.0.1:{port}")
     started = ml_system.start()
     dataloader_params = {"train_folder": data_folders[i]}
     ml_system.setup_ml(dataset_loader_name=dataloader_tag,

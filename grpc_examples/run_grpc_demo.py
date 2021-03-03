@@ -21,7 +21,7 @@ import json
 from colearn.training import set_equal_weights, initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
-from colearn_grpc.example_grpc_learner_client import GRPCLearnerClient
+from colearn_grpc.example_grpc_learner_client import ExampleGRPCLearnerClient
 
 cli_args = argparse.ArgumentParser(description='Start multiple GRPC learner servers')
 cli_args.add_argument('-p', '--port', type=int, default=9995, help='first server port')
@@ -44,7 +44,7 @@ elif len(data_folders) != args.n_learners:
 all_learner_models = []
 for i in range(args.n_learners):
     port = args.port + i
-    ml_system = GRPCLearnerClient(f"client {i}", f"127.0.0.1:{port}")
+    ml_system = ExampleGRPCLearnerClient(f"client {i}", f"127.0.0.1:{port}")
     started = ml_system.start()
     dataloader_params = {"train_folder": data_folders[i]}
     ml_system.setup_ml(dataset_loader_name=args.dataloader_tag,

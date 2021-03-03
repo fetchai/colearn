@@ -18,7 +18,7 @@
 import argparse
 from pprint import pprint
 
-from colearn_grpc.example_grpc_learner_client import GRPCLearnerClient
+from colearn_grpc.example_grpc_learner_client import ExampleGRPCLearnerClient
 from colearn_grpc.logging import set_log_levels
 
 cli_args = argparse.ArgumentParser(description='Probe a GRPC learner server')
@@ -30,7 +30,7 @@ args = cli_args.parse_args()
 log_levels = {"default": "INFO"}
 set_log_levels(log_levels)
 port = args.port
-ml_system = GRPCLearnerClient("probing client", f"127.0.0.1:{port}")
+ml_system = ExampleGRPCLearnerClient("probing client", f"127.0.0.1:{port}")
 started = ml_system.start()
 
 # get info about client
