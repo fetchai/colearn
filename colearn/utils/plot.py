@@ -24,7 +24,7 @@ from colearn.utils.results import Results
 
 
 class ColearnPlot:
-    def __init__(self, score_name: str = "user-defined score", draw_time=0.01):
+    def __init__(self, score_name: str = "user-defined score", draw_time=0.05):
         self.score_name = score_name
         plt.ion()
         self.results_axes: mpl_ax.Axes = plt.subplot(2, 1, 1, label="sub1")
