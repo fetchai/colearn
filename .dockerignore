@@ -1,0 +1,14 @@
+.git/
+.github/
+.idea/
+.mypy_cache/
+.pytest_cache/
+.tox/
+build/
+colearn.egg-info/
+dist/
+docs/
+site/
+tests/
+
+*.py[cgo]
