@@ -150,8 +150,8 @@ for i in range(n_learners):
         if key in learning_kwargs:
             dataloader_default_params[key] = learning_kwargs[key]
     dataloader_default_params["location"] = train_data_folders[i]
-    if "test_folder" in dataloader_default_params:
-        dataloader_default_params["test_folder"] = test_data_folders[i]
+    if "test_location" in dataloader_default_params:
+        dataloader_default_params["test_location"] = test_data_folders[i]
 
     model = mli_fac.get_mli(model_name=model_name, model_params=json.dumps(model_default_params),
                             dataloader_name=dataloader_name, dataset_params=json.dumps(dataloader_default_params))

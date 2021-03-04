@@ -87,7 +87,7 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
 
 @FactoryRegistry.register_dataloader("PYTORCH_XRAY")
 def prepare_data_loaders(location: str,
-                         test_folder: Optional[str] = None,
+                         test_location: Optional[str] = None,
                          train_ratio: float = 0.96,
                          batch_size: int = 8,
                          no_cuda: bool = False,
@@ -96,8 +96,8 @@ def prepare_data_loaders(location: str,
     Load training data from folders and create train and test dataloader
 
     :param location: Path to training dataset
-    :param test_folder: Path to test dataset
-    :param train_ratio: When test_folder is not specified what portion of train_data should be used as test set
+    :param test_location: Path to test dataset
+    :param train_ratio: When test_location is not specified what portion of train_data should be used as test set
     :param batch_size:
     :param no_cuda: Disable GPU computing
     :return: Tuple of train_loader and test_loader
@@ -107,13 +107,13 @@ def prepare_data_loaders(location: str,
     DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
     loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
-    if test_folder is not None:
+    if test_location is not None:
         train_loader = DataLoader(
             XrayDataset(location, train=True, train_ratio=1.0),
             batch_size=batch_size, shuffle=True, **loader_kwargs)
 
         test_loader = DataLoader(
-            XrayDataset(test_folder, train=True, train_ratio=1.0),
+            XrayDataset(test_location, train=True, train_ratio=1.0),
             batch_size=batch_size, shuffle=True, **loader_kwargs)
     else:
         train_loader = DataLoader(
