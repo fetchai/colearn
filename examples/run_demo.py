@@ -17,13 +17,15 @@
 #
 # ------------------------------------------------------------------------------
 import argparse
+import json
 import os
 from typing import Optional, Sequence
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
-from colearn_other.mli_factory import TaskType, mli_factory
+from colearn_grpc.example_mli_factory import ExampleMliFactory
+from colearn_other.mli_factory import TaskType
 
 """
 Collective learning demo:
@@ -149,14 +151,32 @@ if test_data_folder is not None:
 else:
     test_data_folders = [None] * n_learners
 
+mli_fac = ExampleMliFactory()
+
+model_name = str_task_type
+dataloader_name = str_task_type
+
 # Prepare learners
 all_learner_models = []
 for i in range(n_learners):
-    all_learner_models.append(mli_factory(str_task_type=str_task_type,
-                                          train_folder=train_data_folders[i],
-                                          test_folder=test_data_folders[i],
-                                          **learning_kwargs
-                                          ))
+    model_default_params = mli_fac.get_models()[model_name]
+    for key in model_default_params.keys():
+        if key in learning_kwargs:
+            model_default_params[key] = learning_kwargs[key]
+
+    dataloader_default_params = mli_fac.get_dataloaders()[dataloader_name]
+    for key in dataloader_default_params.keys():
+        if key in learning_kwargs:
+            dataloader_default_params[key] = learning_kwargs[key]
+    dataloader_default_params["train_folder"] = train_data_folders[i]
+    dataloader_default_params["location"] = train_data_folders[i]
+    if "test_folder" in dataloader_default_params:
+        dataloader_default_params["test_folder"] = test_data_folders[i]
+
+    model = mli_fac.get_mli(model_name=model_name, model_params=json.dumps(model_default_params),
+                            dataloader_name=dataloader_name, dataset_params=json.dumps(dataloader_default_params))
+
+    all_learner_models.append(model)
 
 # Ensure all learners have same weights
 set_equal_weights(all_learner_models)
