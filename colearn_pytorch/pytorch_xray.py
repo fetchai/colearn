@@ -42,7 +42,7 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
                     vote_batches: int = 10,
                     no_cuda: bool = False,
                     vote_on_accuracy: bool = True,
-                    **_kwargs) -> PytorchLearner:
+                    ) -> PytorchLearner:
     """
     Creates new instance of PytorchLearner
     :param data_loaders: Tuple of train_loader and test_loader
@@ -51,7 +51,6 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
     :param vote_batches: Number of batches to get vote_score
     :param no_cuda: True = disable GPU computing
     :param vote_on_accuracy: True = vote on accuracy metric, False = vote on loss
-    :param _kwargs: Residual parameters not used by this function
     :return: New instance of PytorchLearner
     """
 
@@ -92,7 +91,7 @@ def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.96,
                          batch_size: int = 8,
                          no_cuda: bool = False,
-                         **_kwargs) -> Tuple[DataLoader, DataLoader]:
+                         ) -> Tuple[DataLoader, DataLoader]:
     """
     Load training data from folders and create train and test dataloader
 
@@ -186,7 +185,7 @@ class XrayDataset(Dataset):
                  seed: Optional[int] = None,
                  width: int = 128,
                  height: int = 128,
-                 **_kwargs):
+                 ):
         """
         :param data_dir (string): Path to the data directory.
         :param transform (callable, optional): Optional transform to be applied
@@ -196,7 +195,6 @@ class XrayDataset(Dataset):
         :param seed: Shuffling seed
         :param width: Resize images width
         :param height: Resize images height
-        :param _kwargs: Residual parameters not used by this function
         """
         self.width, self.height = width, height
         self.seed = seed
@@ -293,8 +291,7 @@ def split_to_folders(
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
         train: bool = True,
-        **_kwargs
-) -> List[str]:
+        **_kwargs) -> List[str]:
     """
     :param data_dir: Path to directory containing xray images
     :param n_learners: Number of parts for splitting
