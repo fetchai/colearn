@@ -25,13 +25,15 @@ from colearn.training import initial_result, collective_learning_round, set_equa
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_grpc.example_mli_factory import ExampleMliFactory
-from colearn_other.mli_factory import TaskType
 
 """
 Collective learning demo:
 
 Demo for running all available examples
 """
+
+mli_fac = ExampleMliFactory()
+model_names = list(mli_fac.get_models().keys())
 
 parser = argparse.ArgumentParser(description='Run colearn demo')
 parser.add_argument("-d", "--data_dir", default=None,
@@ -40,9 +42,8 @@ parser.add_argument("-e", "--test_dir", default=None,
                     help="Optional directory containing test data. "
                          "Fraction of training set will be used as test set when not specified")
 
-parser.add_argument("-t", "--task", default="KERAS_MNIST",
-                    help="Type of task for machine learning, options are " + " ".join(str(x.name)
-                                                                                      for x in TaskType))
+parser.add_argument("-m", "--model", default=model_names[0],
+                    help="Model to train, options are " + " ".join(model_names))
 
 parser.add_argument("-n", "--n_learners", default=5, type=int, help="Number of learners")
 parser.add_argument("-p", "--n_rounds", default=15, type=int, help="Number of training rounds")
@@ -60,7 +61,10 @@ parser.add_argument("-b", "--batch_size", type=int, default=None, help="Size of 
 
 args = parser.parse_args()
 
-str_task_type = args.task
+model_name = args.model
+dataloader_set = mli_fac.get_compatibilities()[model_name]
+dataloader_name = next(iter(dataloader_set))  # use the first dataloader
+
 n_learners = args.n_learners
 test_data_folder = args.test_dir
 train_data_folder = args.data_dir
@@ -83,63 +87,44 @@ if args.batch_size is not None:
 if args.train_ratio is not None:
     learning_kwargs["train_ratio"] = args.train_ratio
 
-# Resolve task type
-task_type = TaskType[str_task_type]
 
 # Load correct split to folders function and resolve score_name for accuracy plot
 # pylint: disable=C0415, C0412
-if task_type == TaskType.PYTORCH_XRAY:
+if dataloader_name == "PYTORCH_XRAY":
     from colearn_pytorch.pytorch_xray import split_to_folders
+    score_name = "auc"
 
-    if "vote_on_accuracy" in learning_kwargs:
-        if learning_kwargs["vote_on_accuracy"]:
-            score_name = "auc"
-        else:
-            score_name = "loss"
-    else:
-        score_name = "auc"
-
-elif task_type == TaskType.KERAS_MNIST:
+elif dataloader_name == "KERAS_MNIST":
     # noinspection PyUnresolvedReferences
     from colearn_keras.keras_mnist import split_to_folders  # type: ignore[no-redef, misc]
-
     score_name = "categorical_accuracy"
 
-elif task_type == TaskType.KERAS_CIFAR10:
+elif dataloader_name == "KERAS_CIFAR10":
     # noinspection PyUnresolvedReferences
     from colearn_keras.keras_cifar10 import split_to_folders  # type: ignore[no-redef, misc]
-
     score_name = "categorical_accuracy"
 
-elif task_type == TaskType.PYTORCH_COVID_XRAY:
+elif dataloader_name == "PYTORCH_COVID_XRAY":
     # noinspection PyUnresolvedReferences
     from colearn_pytorch.pytorch_covid_xray import split_to_folders  # type: ignore[no-redef, misc]
+    score_name = "categorical_accuracy"
 
-    if "vote_on_accuracy" in learning_kwargs:
-        if learning_kwargs["vote_on_accuracy"]:
-            score_name = "categorical_accuracy"
-        else:
-            score_name = "loss"
-    else:
-        score_name = "categorical_accuracy"
-
-elif task_type == TaskType.FRAUD:
+elif dataloader_name == "FRAUD":
     # noinspection PyUnresolvedReferences
     from colearn_other.fraud_dataset import split_to_folders  # type: ignore [no-redef, misc]
-
     score_name = "accuracy"
 
 else:
-    raise Exception("Task %s not part of the TaskType enum" % type)
+    raise Exception("Split not defined for dataloader %s" % dataloader_name)
 
-# Load training data
+# split training data
 train_data_folders = split_to_folders(
     data_dir=train_data_folder or "",
     n_learners=n_learners,
     train=True,
     **learning_kwargs)
 
-# Load test data
+# split test data
 test_data_folders: Sequence[Optional[str]]
 if test_data_folder is not None:
     test_data_folders = split_to_folders(
@@ -151,10 +136,6 @@ if test_data_folder is not None:
 else:
     test_data_folders = [None] * n_learners
 
-mli_fac = ExampleMliFactory()
-
-model_name = str_task_type
-dataloader_name = str_task_type
 
 # Prepare learners
 all_learner_models = []
