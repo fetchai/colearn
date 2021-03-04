@@ -149,7 +149,6 @@ for i in range(n_learners):
     for key in dataloader_default_params.keys():
         if key in learning_kwargs:
             dataloader_default_params[key] = learning_kwargs[key]
-    dataloader_default_params["train_folder"] = train_data_folders[i]
     dataloader_default_params["location"] = train_data_folders[i]
     if "test_folder" in dataloader_default_params:
         dataloader_default_params["test_folder"] = test_data_folders[i]

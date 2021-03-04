@@ -182,19 +182,19 @@ def _infinite_batch_sampler(data_size: int,
 
 
 @FactoryRegistry.register_dataloader("FRAUD")
-def prepare_data_loaders(train_folder: str,
+def prepare_data_loaders(location: str,
                          train_ratio: float = 0.8,
                          ) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
     """
     Load training data from folders and create train and test arrays
 
-    :param train_folder: Path to training dataset
+    :param location: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
     :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
     """
 
-    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+    data = pickle.load(open(Path(location) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(location) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(data))
     assert (n_cases > 0), "There are no cases"

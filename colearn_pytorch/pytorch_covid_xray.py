@@ -111,7 +111,7 @@ def _make_loader(data: np.array,
 
 
 @FactoryRegistry.register_dataloader("PYTORCH_COVID_XRAY")
-def prepare_data_loaders(train_folder: str,
+def prepare_data_loaders(location: str,
                          train_ratio: float = 0.8,
                          batch_size: int = 8,
                          no_cuda: bool = False,
@@ -119,7 +119,7 @@ def prepare_data_loaders(train_folder: str,
     """
     Load training data from folders and create train and test dataloader
 
-    :param train_folder: Path to training dataset
+    :param location: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
     :param batch_size: Batch size
     :param no_cuda: Disable GPU computing
@@ -130,8 +130,8 @@ def prepare_data_loaders(train_folder: str,
     DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
     loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
-    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+    data = pickle.load(open(Path(location) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(location) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(data))
     assert (n_cases > 0), "There are no cases"

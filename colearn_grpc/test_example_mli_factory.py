@@ -66,8 +66,7 @@ def mnist_config():
     return {
         'model_name': "KERAS_MNIST",
         'dataloader_name': "KERAS_MNIST",
-        'train_folder': folders[0],
-        'test_folder': "",
+        'location': folders[0],
     }
 
 
@@ -75,8 +74,7 @@ def test_get_mnist(factory, mnist_config):
     model_params = json.dumps({"steps_per_epoch": 20})
 
     dataset_params = json.dumps(
-        {'location': mnist_config['train_folder'],
-         'test_folder': mnist_config['test_folder'],
+        {'location': mnist_config['location'],
          })
 
     mli = factory.get_mli(
@@ -93,8 +91,7 @@ def test_triple_mnist(factory, mnist_config):
     default_params = json.dumps({})
 
     dataset_params = json.dumps(
-        {'location': mnist_config['train_folder'],
-         'test_folder': mnist_config['test_folder']
+        {'location': mnist_config['location'],
          })
 
     mli = factory.get_mli(
