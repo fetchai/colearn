@@ -45,7 +45,7 @@ all_learner_models = []
 for i in range(args.n_learners):
     port = args.port + i
     ml_system = ExampleGRPCLearnerClient(f"client {i}", f"127.0.0.1:{port}")
-    started = ml_system.start()
+    ml_system.start()
     dataloader_params = {"train_folder": data_folders[i]}
     ml_system.setup_ml(dataset_loader_name=args.dataloader_tag,
                        dataset_loader_parameters=json.dumps(dataloader_params),
