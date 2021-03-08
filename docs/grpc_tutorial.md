@@ -20,19 +20,19 @@ This defines the functions that the gRPC server exposes and the format for messa
 gRPC server has a mli factory, and it uses the mli factory to make the learner
 mli factory needs to implement mli factory interface.
 So you could write your own mli factory,
-but it's easier to use the one we provide
+but it's easier to use the one we provide.
 Below we will discuss the mli factory and then talk about how to use the example factory.
 
 ## MLI Factory interface:
 mli factory (as the name suggests) is a factory class for creating objects that implement the machine learning interface.
 mlif stores the constructors for dataloaders and models and also the dataloaders that are compatible with each model.
-Each construcotr is stored under a specific name.
+Each constructor is stored under a specific name.
 For example, "KERAS_MNIST_MODEL" is the model for keras mnist.
 The gRPC server uses the mli factory to construct mli objects.
 mlif needs to implement four methods:
 * get_models - returns the names of the models that are registered with the factory and their parameters
 * get_dataloaders - returns the names of the dataloaders that are registered with the factory and their parameters
-* get compatibilities - returns a list of dataloaders for each model that can be used with that model
+* get_compatibilities - returns a list of dataloaders for each model that can be used with that model
 * get_mli - takes the name and parameters for the model and dataloader and contructs the mli object. Returns the mli object
 
 
@@ -95,7 +95,7 @@ The client side of the gRPC communication can then be run using run_grpc_demo.py
 More details are given below.
 
 ## Testing locally with an all-in-one script
-You can test the locally by following the example in mnist_grpc.
+You can test this locally by following the example in mnist_grpc.
 Define your dataloader and model functions as specified above, and register them with the factory.
 Then create n_learners gRPC servers:
 ```python
@@ -136,7 +136,7 @@ for round_index in range(n_rounds):
 ```
 
 ## Testing remotely
-We expect that the gRPC learner part will often be on e.g. a compute cluster and be separate from the gRPC client side.
+We expect that the gRPC learner part will often be on a compute cluster and be separate from the gRPC client side.
 To test the gRPC in a setup like this you can start the servers on the computer side and the client part separately.
 For one gRPC server:
 ```bash
