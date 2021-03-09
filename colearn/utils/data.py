@@ -56,11 +56,9 @@ def get_data(data_dir: str, download_to='/tmp/data_download'):
     """
 
     if str(data_dir).startswith("gs://"):
-        print("returning gs data")
         return _download_data_from_gcloud(data_dir, download_to)
 
     if str(data_dir).startswith("file://"):
-        print("returning split data")
         return str(data_dir).split("file://")[1]
 
     return data_dir
