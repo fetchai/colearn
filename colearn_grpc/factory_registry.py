@@ -52,9 +52,9 @@ class FactoryRegistry:
     @classmethod
     def register_dataloader(cls, name: str):
         def wrap(dataloader: Callable):
+            check_dataloader_callable(dataloader)
             if name in cls.dataloaders:
                 print(f"Warning: {name} already registered. Replacing with {dataloader.__name__}")
-            check_dataloader_callable(dataloader)
             cls.dataloaders[name] = cls.DataloaderDef(
                 callable=dataloader,
                 default_parameters=_get_defaults(dataloader))
@@ -65,9 +65,9 @@ class FactoryRegistry:
     @classmethod
     def register_model_architecture(cls, name: str, compatibilities: List[str]):
         def wrap(model_arch_creator: Callable):
+            cls.check_model_callable(model_arch_creator, compatibilities)
             if name in cls.model_architectures:
                 print(f"Warning: {name} already registered. Replacing with {model_arch_creator.__name__}")
-            cls.check_model_callable(model_arch_creator, compatibilities)
             cls.model_architectures[name] = cls.ModelArchitectureDef(
                 callable=model_arch_creator,
                 default_parameters=_get_defaults(model_arch_creator),
@@ -85,7 +85,8 @@ class FactoryRegistry:
         model_dl_type = sig.parameters["data_loaders"].annotation
         for dl in compatibilities:
             if dl not in cls.dataloaders:
-                raise RegistryException(f"Compatible dataloader {dl} is not registered")
+                raise RegistryException(f"Compatible dataloader {dl} is not registered. The dataloader needs to be "
+                                        "registered before the model that references it.")
             dl_type = signature(cls.dataloaders[dl].callable).return_annotation
             if not dl_type == model_dl_type:
                 raise RegistryException(f"Compatible dataloader {dl} has return type {dl_type}"

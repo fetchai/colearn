@@ -41,6 +41,7 @@ DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
 
 
+# The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader("PYTORCH_COVID_XRAY")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.8,

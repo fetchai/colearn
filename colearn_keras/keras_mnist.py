@@ -37,6 +37,7 @@ IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
 
 
+# The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader("KERAS_MNIST")
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.9,

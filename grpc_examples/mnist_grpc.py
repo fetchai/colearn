@@ -36,6 +36,7 @@ import tensorflow as tf
 dataloader_tag = "KERAS_MNIST_EXAMPLE_DATALOADER"
 
 
+# The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader(dataloader_tag)
 def prepare_data_loaders(train_folder: str,
                          train_ratio: float = 0.9,

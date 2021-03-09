@@ -35,6 +35,7 @@ from colearn_grpc.factory_registry import FactoryRegistry
 from .utils import auc_from_logits
 
 
+# The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader("PYTORCH_XRAY")
 def prepare_data_loaders(train_folder: str,
                          test_folder: Optional[str] = None,

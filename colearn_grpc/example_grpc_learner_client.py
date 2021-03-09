@@ -36,12 +36,12 @@ class GRPCClientException(Exception):
 
 class ExampleGRPCLearnerClient(MachineLearningInterface):
     """
-        This is the client half of the ML GRPC connection.
+        This is the client half of the ML gRPC connection.
         This exposes methods that:
-            * interrogate the ML side which model architectures are supported
+            * interrogate the ML side about which model architectures are supported
             * create the selected model
-            * implement MachineLearningInterface: all calls to the interface will be going through
-              GRPC and it will be executed on the ML side.
+            * implement the MachineLearningInterface: all calls to the interface will go through the
+              gRPC and will be executed on the ML side.
     """
 
     def __init__(self, name: str, address: str):

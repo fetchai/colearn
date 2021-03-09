@@ -7,7 +7,7 @@ There are two main types of functions:
 - Supported Systems (get_models, get_dataloaders, get_compatibilities)
 - Get a MachineLearningInterface (get_mli)
 
-When the GRPC server is connected to the Orchestrator it will query the supported system
+When the GRPC server is connected to the Orchestrator, it will query the supported system
 functions to know what the MLI Factory can serve. 
 
 Later when the Orchestrator wants to run something on this Learner it will call get_mli
