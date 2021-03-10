@@ -16,6 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import argparse
+import os
 import signal
 import sys
 from multiprocessing.context import Process
@@ -26,14 +27,17 @@ from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.grpc_server import GRPCServer
 from colearn_grpc.logging import set_log_levels, get_logger
 
+# to run tensorflow in multiple processes on the same machine, GPU must be switched off
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 # These are imported so that they are registered in the FactoryRegistry
 # pylint: disable=W0611
-import colearn_keras.keras_mnist  # type:ignore # noqa: F401
-import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
-import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
-import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
-import colearn_other.fraud_dataset  # type:ignore # noqa: F401
-
+# pylint: disable=C0413
+import colearn_keras.keras_mnist  # type:ignore # noqa: F401  # pylint: disable=C0413
+import colearn_keras.keras_cifar10  # type:ignore # noqa: F401  # pylint: disable=C0413
+import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401  # pylint: disable=C0413
+import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401  # pylint: disable=C0413
+import colearn_other.fraud_dataset  # type:ignore # noqa: F401  # pylint: disable=C0413
 
 _logger = get_logger(__name__)
 

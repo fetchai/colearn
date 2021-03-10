@@ -16,24 +16,29 @@
 #
 # ------------------------------------------------------------------------------
 import json
+import os
 import pickle
 from multiprocessing import Process
 from pathlib import Path
 from typing import Dict, Any, Set
 from typing import Tuple
 
-import tensorflow as tf
-from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
+# to run tensorflow in multiple processes on the same machine, GPU must be switched off
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-from colearn.ml_interface import MachineLearningInterface
-from colearn.training import collective_learning_round, set_equal_weights, initial_result
-from colearn.utils.plot import ColearnPlot
-from colearn.utils.results import Results, print_results
-from colearn_grpc.example_grpc_learner_client import ExampleGRPCLearnerClient
-from colearn_grpc.grpc_server import GRPCServer
-from colearn_grpc.mli_factory_interface import MliFactory
-from colearn_keras.keras_learner import KerasLearner
-from colearn_keras.keras_mnist import split_to_folders
+import tensorflow as tf  # pylint: disable=C0413 # noqa: F401
+from tensorflow.python.data.ops.dataset_ops import PrefetchDataset  # pylint: disable=C0413 # noqa: F401
+
+from colearn.ml_interface import MachineLearningInterface  # pylint: disable=C0413 # noqa: F401
+from colearn.training import (  # pylint: disable=C0413
+    collective_learning_round, set_equal_weights, initial_result)  # pylint: disable=C0413 # noqa: F401
+from colearn.utils.plot import ColearnPlot  # pylint: disable=C0413 # noqa: F401
+from colearn.utils.results import Results, print_results  # pylint: disable=C0413 # noqa: F401
+from colearn_grpc.example_grpc_learner_client import ExampleGRPCLearnerClient  # pylint: disable=C0413 # noqa: F401
+from colearn_grpc.grpc_server import GRPCServer  # pylint: disable=C0413 # noqa: F401
+from colearn_grpc.mli_factory_interface import MliFactory  # pylint: disable=C0413 # noqa: F401
+from colearn_keras.keras_learner import KerasLearner  # pylint: disable=C0413 # noqa: F401
+from colearn_keras.keras_mnist import split_to_folders  # pylint: disable=C0413 # noqa: F401
 
 
 def prepare_data_loaders(train_folder: str,

@@ -16,6 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import json
+import os
 import pickle
 from multiprocessing import Process
 from pathlib import Path
@@ -24,14 +25,18 @@ from typing import Tuple
 from colearn.training import collective_learning_round, set_equal_weights, initial_result
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
+from colearn_grpc.example_grpc_learner_client import ExampleGRPCLearnerClient
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.factory_registry import FactoryRegistry
-from colearn_grpc.example_grpc_learner_client import ExampleGRPCLearnerClient
 from colearn_grpc.grpc_server import GRPCServer
-from colearn_keras.keras_learner import KerasLearner
-from colearn_keras.keras_mnist import split_to_folders
-from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
-import tensorflow as tf
+
+# to run tensorflow in multiple processes on the same machine, GPU must be switched off
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+from colearn_keras.keras_learner import KerasLearner  # pylint: disable=C0413 # noqa: F401
+from colearn_keras.keras_mnist import split_to_folders  # pylint: disable=C0413 # noqa: F401
+from tensorflow.python.data.ops.dataset_ops import PrefetchDataset  # pylint: disable=C0413 # noqa: F401
+import tensorflow as tf  # pylint: disable=C0413 # noqa: F401
 
 dataloader_tag = "KERAS_MNIST_EXAMPLE_DATALOADER"
 

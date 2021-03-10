@@ -32,7 +32,7 @@ args = cli_args.parse_args()
 log_levels = {"default": "INFO"}
 set_log_levels(log_levels)
 port = args.port
-ml_system = ExampleGRPCLearnerClient("probing client", f"{args.host}:{port}")
+ml_system = ExampleGRPCLearnerClient("probing client", f"{args.ip_addr}:{port}")
 ml_system.start()
 
 # get info about client

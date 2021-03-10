@@ -119,6 +119,17 @@ The client side of the gRPC communication can then be run using
 [grpc_examples/run_grpc_demo.py]({{ repo_root }}/grpc_examples/run_grpc_demo.py).
 More details are given below.
 
+A note about running tensorflow in multiple processes: on a system with a GPU, tensorflow will try to get all the GPU
+memory when it starts up. 
+This means that running tensorflow in multiple processes on the same machine will fail.
+To prevent this happening, tensorflow should be told to use only the CPU by setting the environment variable
+`CUDA_VISIBLE_DEVIES` to `-1`.
+This can be done in a python script (before importing tensorflow) by using:
+```python
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+```
+
 ## Testing locally with an all-in-one script
 You can test this locally by following the example in 
 [grpc_examples/mnist_grpc.py]({{ repo_root }}/grpc_examples/mnist_grpc.py).
