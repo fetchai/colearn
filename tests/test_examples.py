@@ -75,7 +75,7 @@ IGNORED: List[str] = []
 @pytest.mark.slow
 def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str, str]):
     env = os.environ
-    env["MPLBACKEND"] = "agg"  # disable interacitve plotting
+    env["MPLBACKEND"] = "agg"  # disable interactive plotting
     env["COLEARN_EXAMPLES_TEST"] = "1"  # enables test mode, which sets n_rounds=1
     env.update(test_env)
     print("Additional envvars:", test_env)

@@ -26,12 +26,6 @@ from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 
-"""
-Collective learning demo:
-
-Demo for running all available examples
-"""
-
 # These are imported so that they are registered in the FactoryRegistry
 # pylint: disable=W0611
 import colearn_keras.keras_mnist  # type:ignore # noqa: F401
@@ -39,6 +33,12 @@ import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
 import colearn_other.fraud_dataset  # type:ignore # noqa: F401
+
+"""
+Collective learning demo:
+
+Demo for running all available examples
+"""
 
 mli_fac = ExampleMliFactory()
 model_names = list(mli_fac.get_models().keys())
