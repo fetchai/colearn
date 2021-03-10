@@ -151,6 +151,30 @@ class FraudLearner(MachineLearningInterface):
             return 0
 
 
+# The dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_dataloader("FRAUD")
+def prepare_data_loaders(train_folder: str,
+                         train_ratio: float = 0.8,
+                         **_kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
+    """
+    Load training data from folders and create train and test arrays
+
+    :param train_folder: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param _kwargs:
+    :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
+    """
+
+    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(data))
+    assert (n_cases > 0), "There are no cases"
+
+    # (train_data, train_labels), (test_data, test_labels)
+    return (data[:n_cases], labels[:n_cases]), (data[n_cases:], labels[n_cases:])
+
+
 @FactoryRegistry.register_model_architecture("FRAUD", ["FRAUD"])
 def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
                     **_kwargs) -> FraudLearner:
@@ -180,29 +204,6 @@ def _infinite_batch_sampler(data_size: int,
         random_ind = np.random.permutation(np.arange(data_size))
         for i in range(0, data_size, batch_size):
             yield random_ind[i:i + batch_size]
-
-
-@FactoryRegistry.register_dataloader("FRAUD")
-def prepare_data_loaders(train_folder: str,
-                         train_ratio: float = 0.8,
-                         **_kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
-    """
-    Load training data from folders and create train and test arrays
-
-    :param train_folder: Path to training dataset
-    :param train_ratio: What portion of train_data should be used as test set
-    :param _kwargs:
-    :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
-    """
-
-    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(data))
-    assert (n_cases > 0), "There are no cases"
-
-    # (train_data, train_labels), (test_data, test_labels)
-    return (data[:n_cases], labels[:n_cases]), (data[n_cases:], labels[n_cases:])
 
 
 def fraud_preprocessing(data_dir, use_cache=True):
