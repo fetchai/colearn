@@ -35,6 +35,53 @@ IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
 
 
+def _make_loader(images: np.array,
+                 labels: np.array,
+                 batch_size: int) -> PrefetchDataset:
+    """
+    Converts array of images and labels to Tensorflow dataset
+    :param images: Numpy array of input data
+    :param labels: Numpy array of output labels
+    :param batch_size: Batch size
+    :return: Shuffled Tensorflow prefetch dataset holding images and labels
+    """
+    dataset = tf.data.Dataset.from_tensor_slices((images, labels))
+    n_datapoints = images.shape[0]
+
+    dataset = dataset.cache()
+    dataset = dataset.shuffle(n_datapoints)
+    dataset = dataset.batch(batch_size)
+    dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+
+    return dataset
+
+
+# The dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_dataloader("KERAS_CIFAR10")
+def prepare_data_loaders(train_folder: str,
+                         train_ratio: float = 0.9,
+                         batch_size: int = 32,
+                         **_kwargs) -> Tuple[PrefetchDataset, PrefetchDataset]:
+    """
+    Load training data from folders and create train and test dataloader
+
+    :param train_folder: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param batch_size:
+    :param _kwargs: Residual parameters not used by this function
+    :return: Tuple of train_loader and test_loader
+    """
+
+    images = pickle.load(open(Path(train_folder) / IMAGE_FL, "rb"))
+    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(images))
+    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
+    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
+
+    return train_loader, test_loader
+
+
 def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
     """
     2D Convolutional model for image recognition
@@ -102,51 +149,6 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
         model_evaluate_kwargs={"steps": vote_batches},
     )
     return learner
-
-
-def _make_loader(images: np.array,
-                 labels: np.array,
-                 batch_size: int) -> PrefetchDataset:
-    """
-    Converts array of images and labels to Tensorflow dataset
-    :param images: Numpy array of input data
-    :param labels: Numpy array of output labels
-    :param batch_size: Batch size
-    :return: Shuffled Tensorflow prefetch dataset holding images and labels
-    """
-    dataset = tf.data.Dataset.from_tensor_slices((images, labels))
-    n_datapoints = images.shape[0]
-
-    dataset = dataset.cache()
-    dataset = dataset.shuffle(n_datapoints)
-    dataset = dataset.batch(batch_size)
-    dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-
-    return dataset
-
-
-@FactoryRegistry.register_dataloader("KERAS_CIFAR10")
-def prepare_data_loaders(location: str,
-                         train_ratio: float = 0.9,
-                         batch_size: int = 32,
-                         ) -> Tuple[PrefetchDataset, PrefetchDataset]:
-    """
-    Load training data from folders and create train and test dataloader
-
-    :param location: Path to training dataset
-    :param train_ratio: What portion of train_data should be used as test set
-    :param batch_size:
-    :return: Tuple of train_loader and test_loader
-    """
-
-    images = pickle.load(open(Path(location) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(location) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(images))
-    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
-    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
-
-    return train_loader, test_loader
 
 
 def split_to_folders(

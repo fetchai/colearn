@@ -20,6 +20,7 @@ nav:
       - PyTorch: 'intro_tutorial_pytorch.md'
       - The MachineLearningInterface: 'intro_tutorial_mli.md'
       - Differential Privacy: 'differential_privacy.md'
+      - gRPC server: 'grpc_tutorial.md'
   - Examples:
       - Standalone examples: 'examples.md'
       - Demo: 'demo.md'
