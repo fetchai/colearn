@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docs.fetch.ai/differential_privacy/">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.3">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.5">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.1655a90d.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.77f3fd56.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.7fa14f5b.min.css">
@@ -346,8 +346,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#differential-privacy-when-training-neural-netowrks" class="md-nav__link">
-    Differential privacy when training neural netowrks
+  <a href="#differential-privacy-when-training-neural-networks" class="md-nav__link">
+    Differential privacy when training neural networks
   </a>
   
 </li>
@@ -356,6 +356,18 @@
   
 </nav>
       
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grpc_tutorial/" class="md-nav__link">
+        gRPC server
+      </a>
     </li>
   
 
@@ -452,8 +464,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#differential-privacy-when-training-neural-netowrks" class="md-nav__link">
-    Differential privacy when training neural netowrks
+  <a href="#differential-privacy-when-training-neural-networks" class="md-nav__link">
+    Differential privacy when training neural networks
   </a>
   
 </li>
@@ -495,12 +507,12 @@ The amount of personal information that is revealed isn't zero, but it is guaran
 <p>The level of privacy that is provided is controlled by the parameter epsilon; the greater epsilon is the more noise is added and the more privacy is preserved.
 Queries that are more sensitive have more noise added, because they reveal more information about individuals.
 It is important to add as little noise as possible, because adding more noise obscures the patterns that you want to extract from the data.</p>
-<h2 id="differential-privacy-when-training-neural-netowrks">Differential privacy when training neural netowrks<a class="headerlink" href="#differential-privacy-when-training-neural-netowrks" title="Permanent link">&para;</a></h2>
+<h2 id="differential-privacy-when-training-neural-networks">Differential privacy when training neural networks<a class="headerlink" href="#differential-privacy-when-training-neural-networks" title="Permanent link">&para;</a></h2>
 <p>Each training step for a neural network can be though of as a complicated query on a database of training data.
 Differential privacy mechanisms tell you how much noise you need to add to guarantee a certain level of privacy.
 The <code>opacus</code> and <code>tensorflow-privacy</code> libraries implement epsilon-differential privacy for training neural networks for pytorch and keras respectively.</p>
 <h1 id="how-to-use-differential-privacy-with-colearn">How to use differential privacy with colearn<a class="headerlink" href="#how-to-use-differential-privacy-with-colearn" title="Permanent link">&para;</a></h1>
-<p>By using <code>opacus</code> and <code>tensorflow-privacy</code> we can make colleactive learning use differential privacy.
+<p>By using <code>opacus</code> and <code>tensorflow-privacy</code> we can make collective learning use differential privacy.
 The learner that is proposing weights does so using a DP-enabled optimiser.</p>
 <p>To see an example of using this see <a href="https://github.com/fetchai/colearn/tree/master//examples/pytorch_mnist_diffpriv.py">dp_pytorch</a> 
 and <a href="https://github.com/fetchai/colearn/tree/master//examples/keras_mnist_diffpriv.py">dp_keras</a>.</p>
@@ -536,13 +548,13 @@ and <a href="https://github.com/fetchai/colearn/tree/master//examples/keras_mnis
         </a>
       
       
-        <a href="../examples/" class="md-footer__link md-footer__link--next" rel="next">
+        <a href="../grpc_tutorial/" class="md-footer__link md-footer__link--next" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Standalone examples
+              gRPC server
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -560,6 +572,7 @@ and <a href="https://github.com/fetchai/colearn/tree/master//examples/keras_mnis
         <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
           Material for MkDocs
         </a>
+        
       </div>
       
     </div>
@@ -573,7 +586,7 @@ and <a href="https://github.com/fetchai/colearn/tree/master//examples/keras_mnis
     <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fb4a9340.min.js", "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.ca5457b8.min.js"></script>
+      <script src="../assets/javascripts/bundle.5cf3e710.min.js"></script>
       
     
   </body>
