@@ -31,7 +31,7 @@ def _get_defaults(to_call: Callable) -> Dict[str, Any]:
 
 def check_dataloader_callable(to_call: Callable):
     sig = signature(to_call)
-    if "train_folder" not in sig.parameters and "location" not in sig.parameters:
+    if "location" not in sig.parameters:
         raise RegistryException("dataloader must accept a 'location' parameter")
 
 

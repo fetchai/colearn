@@ -58,22 +58,21 @@ def _make_loader(images: np.array,
 
 # The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader("KERAS_CIFAR10")
-def prepare_data_loaders(train_folder: str,
+def prepare_data_loaders(location: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32,
-                         **_kwargs) -> Tuple[PrefetchDataset, PrefetchDataset]:
+                         ) -> Tuple[PrefetchDataset, PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
 
-    :param train_folder: Path to training dataset
+    :param location: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
     :param batch_size:
-    :param _kwargs: Residual parameters not used by this function
     :return: Tuple of train_loader and test_loader
     """
 
-    images = pickle.load(open(Path(train_folder) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+    images = pickle.load(open(Path(location) / IMAGE_FL, "rb"))
+    labels = pickle.load(open(Path(location) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(images))
     train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)

@@ -66,7 +66,7 @@ To add a new model and dataloader to the factory you need to do the following th
 Registering a dataloader looks like this:
 ```python
 @FactoryRegistry.register_dataloader(dataloader_tag)
-def prepare_data_loaders(train_folder: str,
+def prepare_data_loaders(location: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32) -> Tuple[PrefetchDataset, PrefetchDataset]:
 ```
@@ -86,7 +86,7 @@ before constructing the gRPC server (more on that later).
    
 Constraints on the dataloader function:
 
-1. The first parameter should be a mandatory parameter called "train_folder" which stores the location of the dataset.
+1. The first parameter should be a mandatory parameter called "location" which stores the location of the dataset.
 2. The subsequent parameters should have default arguments.
 3. The return type should be specified with a type annotation, and this should be the same type that is expected by the 
    model functions that use this dataloader.
@@ -155,7 +155,7 @@ for i in range(n_learners):
    port = first_server_port + i
    ml_system = ExampleGRPCLearnerClient(f"client {i}", f"127.0.0.1:{port}")
    ml_system.start()
-   dataloader_params = {"train_folder": data_folders[i]}
+   dataloader_params = {"location": data_folders[i]}
    ml_system.setup_ml(dataset_loader_name=dataloader_tag,
                       dataset_loader_parameters=json.dumps(dataloader_params),
                       model_arch_name=model_tag,
@@ -221,7 +221,7 @@ info: Successfully connected to 127.0.0.1:9995!
                   'KERAS_MNIST': '{"train_ratio": 0.9, "batch_size": 32}',
                   'PYTORCH_COVID_XRAY': '{"train_ratio": 0.8, "batch_size": 8, '
                                         '"no_cuda": false}',
-                  'PYTORCH_XRAY': '{"test_folder": null, "train_ratio": 0.96, '
+                  'PYTORCH_XRAY': '{"test_location": null, "train_ratio": 0.96, '
                                   '"batch_size": 8, "no_cuda": false}'},
  'model_architectures': {'FRAUD': '{}',
                          'KERAS_CIFAR10': '{"steps_per_epoch": 100, '

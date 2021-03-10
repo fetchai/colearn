@@ -32,6 +32,14 @@ Collective learning demo:
 Demo for running all available examples
 """
 
+# These are imported so that they are registered in the FactoryRegistry
+# pylint: disable=W0611
+import colearn_keras.keras_mnist  # type:ignore # noqa: F401
+import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
+import colearn_other.fraud_dataset  # type:ignore # noqa: F401
+
 mli_fac = ExampleMliFactory()
 model_names = list(mli_fac.get_models().keys())
 
