@@ -25,6 +25,7 @@ from colearn.training import initial_result, collective_learning_round, set_equa
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_grpc.example_mli_factory import ExampleMliFactory
+from colearn_other.demo_utils import get_split_to_folders, get_score_name
 
 # These are imported so that they are registered in the FactoryRegistry
 # pylint: disable=W0611
@@ -96,34 +97,9 @@ if args.train_ratio is not None:
     learning_kwargs["train_ratio"] = args.train_ratio
 
 
-# Load correct split to folders function and resolve score_name for accuracy plot
-# pylint: disable=C0415, C0412
-if dataloader_name == "PYTORCH_XRAY":
-    from colearn_pytorch.pytorch_xray import split_to_folders
-    score_name = "auc"
+score_name = get_score_name(model_name)  # get score_name for accuracy plot
 
-elif dataloader_name == "KERAS_MNIST":
-    # noinspection PyUnresolvedReferences
-    from colearn_keras.keras_mnist import split_to_folders  # type: ignore[no-redef, misc]
-    score_name = "categorical_accuracy"
-
-elif dataloader_name == "KERAS_CIFAR10":
-    # noinspection PyUnresolvedReferences
-    from colearn_keras.keras_cifar10 import split_to_folders  # type: ignore[no-redef, misc]
-    score_name = "categorical_accuracy"
-
-elif dataloader_name == "PYTORCH_COVID_XRAY":
-    # noinspection PyUnresolvedReferences
-    from colearn_pytorch.pytorch_covid_xray import split_to_folders  # type: ignore[no-redef, misc]
-    score_name = "categorical_accuracy"
-
-elif dataloader_name == "FRAUD":
-    # noinspection PyUnresolvedReferences
-    from colearn_other.fraud_dataset import split_to_folders  # type: ignore [no-redef, misc]
-    score_name = "accuracy"
-
-else:
-    raise Exception("Split not defined for dataloader %s" % dataloader_name)
+split_to_folders = get_split_to_folders(dataloader_name)  # get function to split data
 
 # split training data
 train_data_folders = split_to_folders(
