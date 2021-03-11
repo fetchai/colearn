@@ -701,7 +701,7 @@ To add a new model and dataloader to the factory you need to do the following th
 </ol>
 <p>Registering a dataloader looks like this:
 <div class="highlight"><pre><span></span><code><span class="nd">@FactoryRegistry</span><span class="o">.</span><span class="n">register_dataloader</span><span class="p">(</span><span class="n">dataloader_tag</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">prepare_data_loaders</span><span class="p">(</span><span class="n">train_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="k">def</span> <span class="nf">prepare_data_loaders</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                          <span class="n">train_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
                          <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PrefetchDataset</span><span class="p">,</span> <span class="n">PrefetchDataset</span><span class="p">]:</span>
 </code></pre></div>
@@ -718,7 +718,7 @@ The FactoryRegistry decorators get evaluated when the functions are imported, so
 before constructing the gRPC server (more on that later). </p>
 <p>Constraints on the dataloader function:</p>
 <ol>
-<li>The first parameter should be a mandatory parameter called "train_folder" which stores the location of the dataset.</li>
+<li>The first parameter should be a mandatory parameter called "location" which stores the location of the dataset.</li>
 <li>The subsequent parameters should have default arguments.</li>
 <li>The return type should be specified with a type annotation, and this should be the same type that is expected by the 
    model functions that use this dataloader.</li>
@@ -780,7 +780,7 @@ Then create n_learners gRPC servers:
    <span class="n">port</span> <span class="o">=</span> <span class="n">first_server_port</span> <span class="o">+</span> <span class="n">i</span>
    <span class="n">ml_system</span> <span class="o">=</span> <span class="n">ExampleGRPCLearnerClient</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;client </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;127.0.0.1:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
    <span class="n">ml_system</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-   <span class="n">dataloader_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;train_folder&quot;</span><span class="p">:</span> <span class="n">data_folders</span><span class="p">[</span><span class="n">i</span><span class="p">]}</span>
+   <span class="n">dataloader_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">data_folders</span><span class="p">[</span><span class="n">i</span><span class="p">]}</span>
    <span class="n">ml_system</span><span class="o">.</span><span class="n">setup_ml</span><span class="p">(</span><span class="n">dataset_loader_name</span><span class="o">=</span><span class="n">dataloader_tag</span><span class="p">,</span>
                       <span class="n">dataset_loader_parameters</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dataloader_params</span><span class="p">),</span>
                       <span class="n">model_arch_name</span><span class="o">=</span><span class="n">model_tag</span><span class="p">,</span>
@@ -835,7 +835,7 @@ info: Successfully connected to 127.0.0.1:9995!
                   &#39;KERAS_MNIST&#39;: &#39;{&quot;train_ratio&quot;: 0.9, &quot;batch_size&quot;: 32}&#39;,
                   &#39;PYTORCH_COVID_XRAY&#39;: &#39;{&quot;train_ratio&quot;: 0.8, &quot;batch_size&quot;: 8, &#39;
                                         &#39;&quot;no_cuda&quot;: false}&#39;,
-                  &#39;PYTORCH_XRAY&#39;: &#39;{&quot;test_folder&quot;: null, &quot;train_ratio&quot;: 0.96, &#39;
+                  &#39;PYTORCH_XRAY&#39;: &#39;{&quot;test_location&quot;: null, &quot;train_ratio&quot;: 0.96, &#39;
                                   &#39;&quot;batch_size&quot;: 8, &quot;no_cuda&quot;: false}&#39;},
  &#39;model_architectures&#39;: {&#39;FRAUD&#39;: &#39;{}&#39;,
                          &#39;KERAS_CIFAR10&#39;: &#39;{&quot;steps_per_epoch&quot;: 100, &#39;
