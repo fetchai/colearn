@@ -49,7 +49,6 @@ def prepare_data_loaders(location: str,
     :param location: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
     :param batch_size:
-    :param _kwargs: Residual parameters not used by this function
     :return: Tuple of train_loader and test_loader
     """
 
