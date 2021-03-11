@@ -144,16 +144,16 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 return False
         return True
 
-    @_time_propose.time()
     def ProposeWeights(self, request, context):
         _count_propose.inc()
         if not self._check_model(context):
             return
         self._learner_mutex.acquire()
         try:
-            _logger.debug("Start training...")
-            weights = self.learner.mli_propose_weights()
-            _logger.debug("Training done!")
+            with _time_propose.time():
+                _logger.debug("Start training...")
+                weights = self.learner.mli_propose_weights()
+                _logger.debug("Training done!")
 
             weights_part_iterator = weights_to_iterator(weights)
             for wp in weights_part_iterator:

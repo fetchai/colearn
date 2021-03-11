@@ -30,7 +30,7 @@ from sklearn.preprocessing import scale
 
 from colearn_grpc.factory_registry import FactoryRegistry
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
-from colearn.utils.data import split_list_into_fractions
+from colearn.utils.data import get_data, split_list_into_fractions
 
 DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
@@ -164,8 +164,10 @@ def prepare_data_loaders(location: str,
     :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
     """
 
-    data = pickle.load(open(Path(location) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(location) / LABEL_FL, "rb"))
+    data_folder = get_data(location)
+
+    data = pickle.load(open(Path(data_folder) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(data))
     assert (n_cases > 0), "There are no cases"

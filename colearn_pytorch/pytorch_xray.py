@@ -32,6 +32,7 @@ from typing_extensions import TypedDict
 
 from colearn_pytorch.pytorch_learner import PytorchLearner
 from colearn_grpc.factory_registry import FactoryRegistry
+from colearn.utils.data import get_data
 from .utils import auc_from_logits
 
 
@@ -58,21 +59,25 @@ def prepare_data_loaders(location: str,
     DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
     loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
+    data_folder = get_data(location)
+
     if test_location is not None:
+        local_test_folder = get_data(test_location)
+
         train_loader = DataLoader(
-            XrayDataset(location, train=True, train_ratio=1.0),
+            XrayDataset(data_folder, train=True, train_ratio=1.0),
             batch_size=batch_size, shuffle=True, **loader_kwargs)
 
         test_loader = DataLoader(
-            XrayDataset(test_location, train=True, train_ratio=1.0),
+            XrayDataset(local_test_folder, train=True, train_ratio=1.0),
             batch_size=batch_size, shuffle=True, **loader_kwargs)
     else:
         train_loader = DataLoader(
-            XrayDataset(location, train=True, train_ratio=train_ratio),
+            XrayDataset(data_folder, train=True, train_ratio=train_ratio),
             batch_size=batch_size, shuffle=True, **loader_kwargs)
 
         test_loader = DataLoader(
-            XrayDataset(location, train=False, train_ratio=train_ratio),
+            XrayDataset(data_folder, train=False, train_ratio=train_ratio),
             batch_size=batch_size, shuffle=True, **loader_kwargs)
 
     return train_loader, test_loader
