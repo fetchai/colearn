@@ -33,7 +33,7 @@ from torch.utils.data import TensorDataset
 from typing_extensions import TypedDict
 
 from colearn_grpc.factory_registry import FactoryRegistry
-from colearn.utils.data import split_list_into_fractions
+from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import categorical_accuracy
 
@@ -63,8 +63,10 @@ def prepare_data_loaders(train_folder: str,
     DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
     loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
-    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
+    data_folder = get_data(train_folder)
+
+    data = pickle.load(open(Path(data_folder) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(data))
     assert (n_cases > 0), "There are no cases"
