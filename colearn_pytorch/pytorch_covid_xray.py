@@ -43,19 +43,18 @@ LABEL_FL = "labels.pickle"
 
 # The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader("PYTORCH_COVID_XRAY")
-def prepare_data_loaders(train_folder: str,
+def prepare_data_loaders(location: str,
                          train_ratio: float = 0.8,
                          batch_size: int = 8,
                          no_cuda: bool = False,
-                         **_kwargs) -> Tuple[DataLoader, DataLoader]:
+                         ) -> Tuple[DataLoader, DataLoader]:
     """
     Load training data from folders and create train and test dataloader
 
-    :param train_folder: Path to training dataset
+    :param location: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
     :param batch_size: Batch size
     :param no_cuda: Disable GPU computing
-    :param _kwargs: Residual parameters not used by this function
     :return: Tuple of train_loader and test_loader
     """
 
@@ -63,7 +62,7 @@ def prepare_data_loaders(train_folder: str,
     DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
     loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
-    data_folder = get_data(train_folder)
+    data_folder = get_data(location)
 
     data = pickle.load(open(Path(data_folder) / DATA_FL, "rb"))
     labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
@@ -84,7 +83,7 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
                     vote_batches: int = 10,
                     no_cuda: bool = False,
                     vote_on_accuracy: bool = True,
-                    **_kwargs) -> PytorchLearner:
+                    ) -> PytorchLearner:
     """
     Creates new instance of PytorchLearner
     :param data_loaders: Tuple of train_loader and test_loader
@@ -93,7 +92,6 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
     :param vote_batches: Number of batches to get vote_score
     :param no_cuda: True = disable GPU computing
     :param vote_on_accuracy: True = vote on accuracy metric, False = vote on loss
-    :param _kwargs: Residual parameters not used by this function
     :return: New instance of PytorchLearner
     """
     cuda = not no_cuda and torch.cuda.is_available()
@@ -177,8 +175,7 @@ def split_to_folders(
         data_split: Optional[List[float]] = None,
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
-        **_kwargs
-) -> List[str]:
+        **_kwargs) -> List[str]:
     """
     Loads preprocessed images with labels from .mat files and splits them to specified number of subsets
     :param data_dir: Directory containing .mat files

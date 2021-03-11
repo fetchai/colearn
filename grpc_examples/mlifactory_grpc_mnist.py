@@ -41,19 +41,19 @@ from colearn_keras.keras_learner import KerasLearner  # pylint: disable=C0413 # 
 from colearn_keras.keras_mnist import split_to_folders  # pylint: disable=C0413 # noqa: F401
 
 
-def prepare_data_loaders(train_folder: str,
+def prepare_data_loaders(location: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32) -> Tuple[PrefetchDataset, PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
 
-    :param train_folder: Path to training dataset
+    :param location: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
     :param batch_size:
     :return: Tuple of train_loader and test_loader
     """
 
-    data_folder = train_folder
+    data_folder = location
     image_fl = "images.pickle"
     label_fl = "labels.pickle"
 
@@ -166,7 +166,7 @@ for i in range(n_learners):
     port = first_server_port + i
     ml_system = ExampleGRPCLearnerClient(f"client {i}", f"127.0.0.1:{port}")
     ml_system.start()
-    dataloader_params = {"train_folder": data_folders[i]}
+    dataloader_params = {"location": data_folders[i]}
     ml_system.setup_ml(dataset_loader_name=dataloader_tag,
                        dataset_loader_parameters=json.dumps(dataloader_params),
                        model_arch_name=model_tag,

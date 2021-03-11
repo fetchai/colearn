@@ -39,21 +39,20 @@ LABEL_FL = "labels.pickle"
 
 # The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader("KERAS_MNIST")
-def prepare_data_loaders(train_folder: str,
+def prepare_data_loaders(location: str,
                          train_ratio: float = 0.9,
                          batch_size: int = 32,
-                         **_kwargs) -> Tuple[PrefetchDataset, PrefetchDataset]:
+                         ) -> Tuple[PrefetchDataset, PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
 
-    :param train_folder: Path to training dataset
+    :param location: Path to training dataset
     :param train_ratio: What portion of train_data should be used as test set
     :param batch_size:
-    :param _kwargs: Residual parameters not used by this function
     :return: Tuple of train_loader and test_loader
     """
 
-    data_folder = get_data(train_folder)
+    data_folder = get_data(location)
 
     images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
     labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
@@ -70,7 +69,7 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset]
                            steps_per_epoch: int = 100,
                            vote_batches: int = 10,
                            learning_rate: float = 0.001,
-                           **_kwargs) -> KerasLearner:
+                           ) -> KerasLearner:
     # RESNET model
     rows = 28
     cols = 28
@@ -118,14 +117,13 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
-                    **_kwargs) -> KerasLearner:
+                    ) -> KerasLearner:
     """
     Creates new instance of KerasLearner
     :param data_loaders: Tuple of train_loader and test_loader
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_accuracy
     :param learning_rate: Learning rate for optimiser
-    :param _kwargs: Residual parameters not used by this function
     :return: New instance of KerasLearner
     """
 
@@ -203,8 +201,7 @@ def split_to_folders(
         data_split: Optional[List[float]] = None,
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
-        **_kwargs
-) -> List[str]:
+        **_kwargs) -> List[str]:
     """
     Loads images with labels and splits them to specified number of subsets
     :param n_learners: Number of parts for splitting
