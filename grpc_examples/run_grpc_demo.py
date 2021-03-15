@@ -71,11 +71,9 @@ for round_index in range(n_rounds):
     )
 
     print_results(results)
-    plot.plot_results(results)
-    plot.plot_votes(results)
+    plot.plot_results_and_votes(results)
 
-plot.plot_results(results)
-plot.plot_votes(results, block=True)
+plot.plot_results_and_votes(results)
 
 print("Colearn Example Finished!")
 
