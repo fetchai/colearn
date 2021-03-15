@@ -47,8 +47,9 @@ def get_data(data_dir: str, download_to='/tmp/data_download'):
     """
     Gets data, either from local filesystem or a google cloud bucket
 
-    @param data_dir: path to data. If prefix is "gs://" data will be downloaded
-    @param download_to: if data is downloaded where it will be downloaded to
+    @param data_dir: path to data. If prefix is "gs://" data will be downloaded. If
+      it is "file://" then it will be stripped off.
+    @param download_to: if data is downloaded where it will be downloaded to/is
     @return: Full path to either local data or to the downloaded data
 
     For more information on how to setup the google cloud bucket see the dev notes
@@ -56,6 +57,10 @@ def get_data(data_dir: str, download_to='/tmp/data_download'):
 
     if str(data_dir).startswith("gs://"):
         return _download_data_from_gcloud(data_dir, download_to)
+
+    if str(data_dir).startswith("file://"):
+        return str(data_dir).split("file://")[1]
+
     return data_dir
 
 

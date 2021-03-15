@@ -17,8 +17,10 @@
 # ------------------------------------------------------------------------------
 import json
 from threading import Lock
+from typing import Optional
 
 import grpc
+from colearn.ml_interface import MachineLearningInterface
 from google.protobuf import empty_pb2
 from prometheus_client import Counter, Summary
 
@@ -35,6 +37,8 @@ _count_test = Counter("contract_learner_grpc_server_test",
                       "The number of times the learner has requested weight testing")
 _count_set = Counter("contract_learner_grpc_server_set",
                      "The number of times the learner sent weights to update ML state")
+_count_get = Counter("contract_learner_grpc_server_get",
+                     "The number of times the learner has been asked for their weights")
 
 _count_propose_err = Counter("contract_learner_grpc_server_propose_error",
                              "The number of errors happened during propose")
@@ -42,8 +46,11 @@ _count_test_err = Counter("contract_learner_grpc_server_test_error",
                           "The number of errors happened during testing")
 _count_set_err = Counter("contract_learner_grpc_server_set_error",
                          "The number of errors happened during set weights")
+_count_get_err = Counter("contract_learner_grpc_server_get_error",
+                         "The number of errors happened during get current weights")
 _count_other_err = Counter("contract_learner_grpc_server_other_error",
-                           "The number of errors happened which is not covered by specialized counters (e.g. query models or setup)")
+                           "The number of errors happened which is not covered by specialized counters "
+                           "(e.g. query models or setup)")
 _count_check_err = Counter("contract_learner_grpc_server_check_error",
                            "The number of how many times we tried to use the class while model not set")
 
@@ -53,6 +60,8 @@ _time_test = Summary("contract_learner_grpc_server_test_time",
                      "This metric measures the time it takes to test a given weight")
 _time_set = Summary("contract_learner_grpc_server_set_time",
                     "This metric measures the time it takes to accept a weight")
+_time_get = Summary("contract_learner_grpc_server_get_time",
+                    "This metric measures the time it takes to get the current weights")
 
 
 class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
@@ -68,25 +77,21 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         """
             @param mli_factory is a factory object that produces MachineLearningInterface objects
         """
-        self.learner = None
+        self.learner: Optional[MachineLearningInterface] = None
         self._learner_mutex = Lock()
         self.mli_factory = mli_factory
 
     def QuerySupportedSystem(self, request, context):
         response = ipb2.ResponseSupportedSystem()
         try:
-            model_to_index = {}
-            for index, (name, params) in enumerate(self.mli_factory.get_models().items()):
+            for name, params in self.mli_factory.get_models().items():
                 m = response.model_architectures.add()
                 m.name = name
                 m.default_parameters = json.dumps(params)
-                model_to_index[name] = index
-            dataloader_to_index = {}
-            for index, (name, params) in enumerate(self.mli_factory.get_dataloaders().items()):
+            for name, params in self.mli_factory.get_dataloaders().items():
                 d = response.data_loaders.add()
                 d.name = name
                 d.default_parameters = json.dumps(params)
-                dataloader_to_index[name] = index
 
             for model_architecture, data_loaders in self.mli_factory.get_compatibilities().items():
                 c = response.compatibilities.add()
@@ -139,16 +144,16 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 return False
         return True
 
-    @_time_propose.time()
     def ProposeWeights(self, request, context):
         _count_propose.inc()
         if not self._check_model(context):
             return
         self._learner_mutex.acquire()
         try:
-            _logger.debug("Start training...")
-            weights = self.learner.mli_propose_weights()
-            _logger.debug("Training done!")
+            with _time_propose.time():
+                _logger.debug("Start training...")
+                weights = self.learner.mli_propose_weights()
+                _logger.debug("Training done!")
 
             weights_part_iterator = weights_to_iterator(weights)
             for wp in weights_part_iterator:
@@ -205,6 +210,29 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         finally:
             self._learner_mutex.release()
         return empty_pb2.Empty()
+
+    @_time_get.time()
+    def GetCurrentWeights(self, request, context):
+        _count_get.inc()
+        if not self._check_model(context):
+            return
+        self._learner_mutex.acquire()
+        try:
+            _logger.debug("Start getting weights...")
+            weights = self.learner.mli_get_current_weights()
+            _logger.debug("Getting weights done!")
+
+            weights_part_iterator = weights_to_iterator(weights)
+            for wp in weights_part_iterator:
+                yield wp
+
+        except Exception as ex:  # pylint: disable=W0703
+            _logger.exception(f"Exception in GetCurrentWeights: {ex} {type(ex)}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(ex))
+            _count_get_err.inc()
+        finally:
+            self._learner_mutex.release()
 
     def StatusStream(self, request_iterator, context):
         for _ in request_iterator:

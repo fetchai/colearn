@@ -30,7 +30,7 @@ from sklearn.preprocessing import scale
 
 from colearn_grpc.factory_registry import FactoryRegistry
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
-from colearn.utils.data import split_list_into_fractions
+from colearn.utils.data import get_data, split_list_into_fractions
 
 DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
@@ -151,13 +151,37 @@ class FraudLearner(MachineLearningInterface):
             return 0
 
 
+# The dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_dataloader("FRAUD")
+def prepare_data_loaders(location: str,
+                         train_ratio: float = 0.8,
+                         ) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
+    """
+    Load training data from folders and create train and test arrays
+
+    :param location: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
+    """
+
+    data_folder = get_data(location)
+
+    data = pickle.load(open(Path(data_folder) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(data))
+    assert (n_cases > 0), "There are no cases"
+
+    # (train_data, train_labels), (test_data, test_labels)
+    return (data[:n_cases], labels[:n_cases]), (data[n_cases:], labels[n_cases:])
+
+
 @FactoryRegistry.register_model_architecture("FRAUD", ["FRAUD"])
 def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
-                    **_kwargs) -> FraudLearner:
+                    ) -> FraudLearner:
     """
     Creates a new instance of FraudLearner
     :param data_loaders: Tuple of tuples (train_data, train_labels), (test_data, test_labels)
-    :param _kwargs: Residual parameters not used by this function
     :return: Instance of FraudLearner
     """
     return FraudLearner(
@@ -180,29 +204,6 @@ def _infinite_batch_sampler(data_size: int,
         random_ind = np.random.permutation(np.arange(data_size))
         for i in range(0, data_size, batch_size):
             yield random_ind[i:i + batch_size]
-
-
-@FactoryRegistry.register_dataloader("FRAUD")
-def prepare_data_loaders(train_folder: str,
-                         train_ratio: float = 0.8,
-                         **_kwargs) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
-    """
-    Load training data from folders and create train and test arrays
-
-    :param train_folder: Path to training dataset
-    :param train_ratio: What portion of train_data should be used as test set
-    :param _kwargs:
-    :return: Tuple of tuples (train_data, train_labels), (test_data, test_loaders)
-    """
-
-    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(data))
-    assert (n_cases > 0), "There are no cases"
-
-    # (train_data, train_labels), (test_data, test_labels)
-    return (data[:n_cases], labels[:n_cases]), (data[n_cases:], labels[n_cases:])
 
 
 def fraud_preprocessing(data_dir, use_cache=True):

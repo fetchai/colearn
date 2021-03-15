@@ -22,17 +22,11 @@ from typing import Set, Dict, Any
 from colearn.ml_interface import MachineLearningInterface
 from colearn_grpc.mli_factory_interface import MliFactory
 from colearn_grpc.factory_registry import FactoryRegistry
+from colearn_grpc.logging import get_logger
 
-# These are imported to they are registered in the FactoryRegistry and are available here
-# pylint: disable=W0611
-import colearn_keras.keras_mnist  # type:ignore # noqa: F401
-import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
-import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
-import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
-import colearn_other.fraud_dataset  # type:ignore # noqa: F401
+_logger = get_logger(__name__)
 
 
-# TODO Add Documentation
 class ExampleMliFactory(MliFactory):
 
     def __init__(self):
@@ -70,16 +64,27 @@ class ExampleMliFactory(MliFactory):
             raise Exception(f"Dataloader {dataloader_name} is not compatible with {model_name}."
                             f"Compatible dataloaders are: {self.compatibilities[model_name]}")
 
-        data_config = copy.deepcopy(self.dataloaders[dataloader_name])  # Default parameters
-        data_config.update(json.loads(dataset_params))
+        dataloader_config = copy.deepcopy(self.dataloaders[dataloader_name])  # Default parameters
+        dataloader_new_config = json.loads(dataset_params)
+        for key in dataloader_new_config.keys():
+            if key in dataloader_config or key == "location":
+                dataloader_config[key] = dataloader_new_config[key]
+            else:
+                _logger.warning(f"Key {key} was included in the dataloader params but this dataloader "
+                                f"({dataloader_name}) does not accept it.")
 
-        # TODO Names should match between colearn and contract_learn
-        data_config["train_folder"] = data_config["location"]
         prepare_data_loaders = FactoryRegistry.dataloaders[dataloader_name][0]
-        data_loaders = prepare_data_loaders(**data_config)
+        data_loaders = prepare_data_loaders(**dataloader_config)
 
         model_config = copy.deepcopy(self.models[model_name])  # Default parameters
-        model_config.update(json.loads(model_params))
+        model_new_config = json.loads(model_params)
+        for key in model_new_config.keys():
+            if key in model_config:
+                model_config[key] = model_new_config[key]
+            else:
+                _logger.warning(f"Key {key} was included in the model params but this model ({model_name}) does not "
+                                "accept it.")
+
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
 
         return prepare_learner(data_loaders=data_loaders, **model_config)

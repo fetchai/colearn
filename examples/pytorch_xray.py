@@ -211,7 +211,7 @@ def split_to_folders(
         data_split=None,
         shuffle_seed=None,
         output_folder=Path(tempfile.gettempdir()) / "xray",
-
+        **_kwargs
 ):
     if not os.path.isdir(data_dir):
         raise Exception("Data dir does not exist: " + str(data_dir))

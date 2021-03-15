@@ -32,7 +32,55 @@ from typing_extensions import TypedDict
 
 from colearn_pytorch.pytorch_learner import PytorchLearner
 from colearn_grpc.factory_registry import FactoryRegistry
+from colearn.utils.data import get_data
 from .utils import auc_from_logits
+
+
+# The dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_dataloader("PYTORCH_XRAY")
+def prepare_data_loaders(location: str,
+                         test_location: Optional[str] = None,
+                         train_ratio: float = 0.96,
+                         batch_size: int = 8,
+                         no_cuda: bool = False,
+                         ) -> Tuple[DataLoader, DataLoader]:
+    """
+    Load training data from folders and create train and test dataloader
+
+    :param location: Path to training dataset
+    :param test_location: Path to test dataset
+    :param train_ratio: When test_location is not specified what portion of train_data should be used as test set
+    :param batch_size:
+    :param no_cuda: Disable GPU computing
+    :return: Tuple of train_loader and test_loader
+    """
+
+    cuda = not no_cuda and torch.cuda.is_available()
+    DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+    loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+
+    data_folder = get_data(location)
+
+    if test_location is not None:
+        local_test_folder = get_data(test_location)
+
+        train_loader = DataLoader(
+            XrayDataset(data_folder, train=True, train_ratio=1.0),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+        test_loader = DataLoader(
+            XrayDataset(local_test_folder, train=True, train_ratio=1.0),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+    else:
+        train_loader = DataLoader(
+            XrayDataset(data_folder, train=True, train_ratio=train_ratio),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+        test_loader = DataLoader(
+            XrayDataset(data_folder, train=False, train_ratio=train_ratio),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+    return train_loader, test_loader
 
 
 @FactoryRegistry.register_model_architecture("PYTORCH_XRAY", ["PYTORCH_XRAY"])
@@ -42,7 +90,7 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
                     vote_batches: int = 10,
                     no_cuda: bool = False,
                     vote_on_accuracy: bool = True,
-                    **_kwargs) -> PytorchLearner:
+                    ) -> PytorchLearner:
     """
     Creates new instance of PytorchLearner
     :param data_loaders: Tuple of train_loader and test_loader
@@ -51,7 +99,6 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
     :param vote_batches: Number of batches to get vote_score
     :param no_cuda: True = disable GPU computing
     :param vote_on_accuracy: True = vote on accuracy metric, False = vote on loss
-    :param _kwargs: Residual parameters not used by this function
     :return: New instance of PytorchLearner
     """
 
@@ -84,49 +131,6 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
     )
 
     return learner
-
-
-@FactoryRegistry.register_dataloader("PYTORCH_XRAY")
-def prepare_data_loaders(train_folder: str,
-                         test_folder: Optional[str] = None,
-                         train_ratio: float = 0.96,
-                         batch_size: int = 8,
-                         no_cuda: bool = False,
-                         **_kwargs) -> Tuple[DataLoader, DataLoader]:
-    """
-    Load training data from folders and create train and test dataloader
-
-    :param train_folder: Path to training dataset
-    :param test_folder: Path to test dataset
-    :param train_ratio: When test_folder is not specified what portion of train_data should be used as test set
-    :param batch_size:
-    :param no_cuda: Disable GPU computing
-    :param kwargs:
-    :return: Tuple of train_loader and test_loader
-    """
-
-    cuda = not no_cuda and torch.cuda.is_available()
-    DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
-    loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
-
-    if test_folder is not None:
-        train_loader = DataLoader(
-            XrayDataset(train_folder, train=True, train_ratio=1.0),
-            batch_size=batch_size, shuffle=True, **loader_kwargs)
-
-        test_loader = DataLoader(
-            XrayDataset(test_folder, train=True, train_ratio=1.0),
-            batch_size=batch_size, shuffle=True, **loader_kwargs)
-    else:
-        train_loader = DataLoader(
-            XrayDataset(train_folder, train=True, train_ratio=train_ratio),
-            batch_size=batch_size, shuffle=True, **loader_kwargs)
-
-        test_loader = DataLoader(
-            XrayDataset(train_folder, train=False, train_ratio=train_ratio),
-            batch_size=batch_size, shuffle=True, **loader_kwargs)
-
-    return train_loader, test_loader
 
 
 class TorchXrayConv2DModel(nn.Module):
@@ -186,7 +190,7 @@ class XrayDataset(Dataset):
                  seed: Optional[int] = None,
                  width: int = 128,
                  height: int = 128,
-                 **_kwargs):
+                 ):
         """
         :param data_dir (string): Path to the data directory.
         :param transform (callable, optional): Optional transform to be applied
@@ -196,7 +200,6 @@ class XrayDataset(Dataset):
         :param seed: Shuffling seed
         :param width: Resize images width
         :param height: Resize images height
-        :param _kwargs: Residual parameters not used by this function
         """
         self.width, self.height = width, height
         self.seed = seed
@@ -293,8 +296,7 @@ def split_to_folders(
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
         train: bool = True,
-        **_kwargs
-) -> List[str]:
+        **_kwargs) -> List[str]:
     """
     :param data_dir: Path to directory containing xray images
     :param n_learners: Number of parts for splitting
