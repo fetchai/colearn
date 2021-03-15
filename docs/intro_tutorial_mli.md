@@ -27,6 +27,43 @@ There are four methods that need to be implemented:
     The old weighs of the model are discarded and replaced by the new weights.
 4. `current_weights` should return the current weights of the model.
 
+
+## Algorithms that work with colearn:
+These conditions need to be fulfilled for algorithms to work with collective learning:
+
+* The algorithm needs to have a "warm start", i.e. model fitting is incremental so that the previous model is 
+  used as the starting point for training. 
+  This is easy to achieve for neural networks because neural network training is always iterative, but for other 
+  learning algorithms more care must be taken. Some examples of getting this wrong:
+```python
+from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+model.fit(X, y)
+```
+```python
+from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=10)  # it would be okay with warm_start=True
+model.fit(X, y)
+```
+```python
+from xgboost import XGBRegressor
+model = XGBRegressor()
+model.fit(X, y)
+```
+  None of the training methods here use the previous result when fit is called for a second time; 
+  instead they start again from scratch. 
+  Good examples of warm starts can be seen in the [examples](./examples.md). 
+  Many sklearn models have a `warm_start` parameter which can be set to `True` to use the previous training result. 
+  XGBoost has an `xgb_model` parameter for passing in the previous training results.
+
+* The model mustn't overfit when propose_weights() is called. 
+  You should limit training so that a learner will not overfit their training data in one round.
+  For example, if a learner overfits their own training data then the other learners will reject the 
+  proposed update because it is not a good fit for their data. 
+  For a neural network a good approach is to restrict the number of batches that are used each round; 
+  for  random forest, restrict the trees that are added each round.
+  
+
 ## Implementation for fraud detection task
 Here is the class that implements the `MachineLearningInterface` for the task of detecting fraud in bank transactions.
 ```Python 
