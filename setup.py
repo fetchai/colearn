@@ -48,7 +48,7 @@ grpc_deps = ['grpcio~=1.35.0',
              'prometheus_client==0.9.0',
              'click'
              ]
-all_deps = list(set(keras_deps + other_deps + pytorch_deps + grpc_deps))
+all_deps = list(set(keras_deps + other_deps + pytorch_deps + grpc_deps)) + ["xgboost"]
 
 long_description = ""
 try:

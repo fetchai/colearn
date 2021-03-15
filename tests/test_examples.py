@@ -65,7 +65,8 @@ EXAMPLES_WITH_KWARGS = [
     ("run_demo.py", ["-m", "KERAS_MNIST"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
     ("run_demo.py", ["-m", "KERAS_CIFAR10"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
     ("run_demo.py", ["-m", "PYTORCH_COVID_XRAY", "-d", str(COVID_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
-    ("run_demo.py", ["-m", "FRAUD", "-d", str(FRAUD_DATA_DIR)] + STANDARD_DEMO_ARGS, {})
+    ("run_demo.py", ["-m", "FRAUD", "-d", str(FRAUD_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
+    ("xgb_reg_boston.py", [], {}),
 ]
 
 IGNORED: List[str] = []
