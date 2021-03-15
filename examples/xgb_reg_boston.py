@@ -22,6 +22,7 @@ import numpy as np
 import xgboost as xgb
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 from colearn.training import initial_result, collective_learning_round
+from colearn.utils.data import split_list_into_fractions
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from sklearn import datasets
@@ -110,16 +111,16 @@ boston = datasets.load_boston()
 data, labels = boston.data, boston.target
 n_datapoints = data.shape[0]
 random_indices = np.random.permutation(np.arange(n_datapoints))
-n_data_per_learner = n_datapoints // n_learners
+learner_indices_list = split_list_into_fractions(random_indices, [0.2, 0.2, 0.2, 0.2, 0.2])
 
 learner_train_data, learner_train_labels, learner_test_data, learner_test_labels = [], [], [], []
 for i in range(n_learners):
-    start_ind = i * n_data_per_learner
-    stop_ind = (i + 1) * n_data_per_learner
-    n_train = int(n_data_per_learner * train_fraction)
+    learner_indices = learner_indices_list[i]
+    n_data = len(learner_indices)
+    n_train = int(n_data * train_fraction)
 
-    learner_train_ind = random_indices[start_ind:start_ind + n_train]
-    learner_test_ind = random_indices[start_ind + n_train:stop_ind]
+    learner_train_ind = learner_indices[0:n_train]
+    learner_test_ind = learner_indices[n_train:]
 
     learner_train_data.append(data[learner_train_ind])
     learner_train_labels.append(labels[learner_train_ind])
