@@ -81,11 +81,12 @@ def _download_data_from_gcloud(cloud_data_dir, local_data_dir):
     blobs = bucket.list_blobs(prefix=prefix)  # Get list of files
 
     local_full_path = Path(local_data_dir) / prefix
-    os.makedirs(local_full_path, exist_ok=True)
     file_counter = 0
     for blob in blobs:
         filename = blob.name
-        blob.download_to_filename(Path(local_data_dir) / filename)  # Download
+        local_filename = Path(local_data_dir) / filename
+        os.makedirs(local_filename.parent, exist_ok=True)
+        blob.download_to_filename(local_filename)  # Download
         file_counter += 1
 
     if file_counter == 0:
