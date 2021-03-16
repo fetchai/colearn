@@ -185,10 +185,7 @@ if __name__ == "__main__":
         print_results(results)
 
         # then make an updating graph
-        plot.plot_results(results)
-        plot.plot_votes(results)
+        plot.plot_results_and_votes(results)
 
-    plot.plot_results(results)
-    plot.plot_votes(results, block=True)
-
+    plot.block()
     print("Colearn Example Finished!")
