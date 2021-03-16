@@ -160,7 +160,6 @@ for round_index in range(n_rounds):
     )
     print_results(results)
 
-    # then make an updating graph
     print_results(results)
     plot.plot_results_and_votes(results)
 
