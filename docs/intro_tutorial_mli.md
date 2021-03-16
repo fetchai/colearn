@@ -31,8 +31,7 @@ There are four methods that need to be implemented:
 ## Algorithms that work with colearn:
 These conditions need to be fulfilled for algorithms to work with collective learning:
 
-* The algorithm needs to have a "warm start", i.e. model fitting is incremental so that the previous model is 
-  used as the starting point for training. 
+* Model fitting must be incremental so that the previous model is used as the starting point for training. 
   This is easy to achieve for neural networks because neural network training is always iterative, but for other 
   learning algorithms more care must be taken. Some examples of getting this wrong:
 ```python
@@ -52,7 +51,7 @@ model.fit(X, y)
 ```
   None of the training methods here use the previous result when fit is called for a second time; 
   instead they start again from scratch. 
-  Good examples of warm starts can be seen in the [examples](./examples.md). 
+  Good examples of incremental training can be seen in the [examples](./examples.md). 
   Many sklearn models have a `warm_start` parameter which can be set to `True` to use the previous training result. 
   XGBoost has an `xgb_model` parameter for passing in the previous training results.
 
