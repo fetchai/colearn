@@ -160,6 +160,7 @@ class ColearnPlot:
     def block(self):
         if self.fig_invalid:
             raise Exception("Previous call to .block() made the plot invalid.")
+
         plt.show(block=True)
         # closing the plot makes the figure and axes invalid
         self.fig_invalid = True
