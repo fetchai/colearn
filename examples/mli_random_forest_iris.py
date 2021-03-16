@@ -16,6 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import os
+import pickle
 
 import numpy as np
 from sklearn import datasets
@@ -42,7 +43,7 @@ What the script does:
 # Define the class that implements the MLI
 class IrisLearner(MachineLearningInterface):
     def __init__(self, train_data, train_labels, test_data, test_labels,
-                 initial_trees=1, trees_to_add=2):
+                 initial_trees=1, trees_to_add=2, max_depth=3):
         self.train_data = train_data
         self.train_labels = train_labels
         self.test_data = test_data
@@ -51,7 +52,7 @@ class IrisLearner(MachineLearningInterface):
         self.initial_trees = initial_trees
         self.trees_to_add = trees_to_add
 
-        self.model = RandomForestClassifier(n_estimators=self.initial_trees, warm_start=True)
+        self.model = RandomForestClassifier(n_estimators=self.initial_trees, warm_start=True, max_depth=max_depth)
         self.model.fit(train_data, train_labels)
         self.vote_score = self.test(self.train_data, self.train_labels)
 
@@ -92,19 +93,10 @@ class IrisLearner(MachineLearningInterface):
         self.vote_score = self.test(self.train_data, self.train_labels)
 
     def mli_get_current_weights(self):
-        params = self.model.get_params()
-        return Weights(weights=dict(estimators_=self.model.estimators_,
-                                    n_classes_=self.model.n_classes_,
-                                    n_outputs_=self.model.n_outputs_,
-                                    classes_=self.model.classes_,
-                                    n_estimators=params["n_estimators"]))
+        return Weights(weights=pickle.dumps(self.model))
 
     def set_weights(self, weights: Weights):
-        self.model.estimators_ = weights.weights['estimators_']
-        self.model.n_classes_ = weights.weights['n_classes_']
-        self.model.n_outputs_ = weights.weights['n_outputs_']
-        self.model.classes_ = weights.weights['classes_']
-        self.model.set_params(n_estimators=weights.weights["n_estimators"])
+        self.model = pickle.loads(weights.weights)
 
     def test(self, data_array, labels_array):
         return self.model.score(data_array, labels_array)
@@ -145,7 +137,9 @@ for i in range(n_learners):
             train_data=learner_train_data[i],
             train_labels=learner_train_labels[i],
             test_data=learner_test_data[i],
-            test_labels=learner_test_labels[i]
+            test_labels=learner_test_labels[i],
+            trees_to_add=1,
+            max_depth=2,
         ))
 
 # Do collective learning
