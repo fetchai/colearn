@@ -16,7 +16,8 @@ Future releases will use similar interfaces so that learners built with the curr
 The current framework will then be used mainly for model development and debugging.
 We invite all users to experiment with the framework, develop their own models, and provide feedback!
 
-See the documentation at [fetchai.github.io/colearn/](https://fetchai.github.io/colearn/)
+See the most up-to-date documentation at [fetchai.github.io/colearn](https://fetchai.github.io/colearn/) 
+or the documentation for the latest release at [docs.fetch.ai/colearn](https://docs.fetch.ai/colearn/).
 
 ## Installation
 
