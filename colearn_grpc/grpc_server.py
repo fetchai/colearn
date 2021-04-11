@@ -17,6 +17,7 @@
 # ------------------------------------------------------------------------------
 from concurrent import futures
 import grpc
+import os
 
 from colearn_grpc.mli_factory_interface import MliFactory
 
@@ -54,14 +55,32 @@ class GRPCServer:
 
         address = "0.0.0.0:{}".format(self.port)
 
-        _logger.info(f"Starting GRPC server on {address}...")
+        _logger.info(f"Starting encrypted GRPC server on {address}...")
+
+        if not os.path.isfile("server.crt"):
+            _logger.error(f"Failed to find file server.crt needed for encrypted grpc connection")
+            return
+
+        if not os.path.isfile("server.key"):
+            _logger.error(f"Failed to find file server.key needed for encrypted grpc connection")
+            return
+
+        # read in key and certificate
+        with open('server.key', 'rb') as f:
+            private_key = f.read()
+        with open('server.crt', 'rb') as f:
+            certificate_chain = f.read()
 
         self.thread_pool = futures.ThreadPoolExecutor(
             max_workers=self.max_workers, thread_name_prefix="GRPCLearnerServer-poolworker-")
         self.server = grpc.server(self.thread_pool)
 
+        # create server credentials
+        server_credentials = grpc.ssl_server_credentials(((private_key, certificate_chain,),))
+
         ipb2_grpc.add_GRPCLearnerServicer_to_server(self.service, self.server)
-        self.server.add_insecure_port(address)
+        #self.server.add_insecure_port(address)
+        self.server.add_secure_port(address, server_credentials)
         self.server.start()
         _logger.info("GRPC server started. Waiting for termination...")
         self.server.wait_for_termination()

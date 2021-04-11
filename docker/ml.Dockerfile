@@ -28,6 +28,9 @@ USER appuser
 
 COPY grpc_examples/run_grpc_server.py ./
 
+COPY server.crt ./
+COPY server.key ./
+
 EXPOSE 9995
 EXPOSE 9091
 ENV PYTHONUNBUFFERED 0
