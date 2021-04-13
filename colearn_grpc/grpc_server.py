@@ -57,6 +57,8 @@ class GRPCServer:
 
         _logger.info(f"Starting GRPC server on {address}...")
 
+        # There needs to be a certificate and private key available to enable encryption -
+        # if these are not available, fall back to no encryption.
         encrypted_connection = True
 
         if not os.path.isfile("server.crt"):
@@ -74,8 +76,6 @@ class GRPCServer:
         ipb2_grpc.add_GRPCLearnerServicer_to_server(self.service, self.server)
 
         if encrypted_connection:
-            _logger.info(f"Creating encrypted connection")
-
             # read in key and certificate
             with open('server.key', 'rb') as f:
                 private_key = f.read()
