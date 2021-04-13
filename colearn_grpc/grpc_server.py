@@ -16,8 +16,8 @@
 #
 # ------------------------------------------------------------------------------
 from concurrent import futures
-import grpc
 import os
+import grpc
 
 from colearn_grpc.mli_factory_interface import MliFactory
 
@@ -62,11 +62,11 @@ class GRPCServer:
         encrypted_connection = True
 
         if not os.path.isfile("server.crt"):
-            _logger.error(f"Failed to find file server.crt needed for encrypted grpc connection - not enabling")
+            _logger.error("Failed to find file server.crt needed for encrypted grpc connection - not enabling")
             encrypted_connection = False
 
         if not os.path.isfile("server.key"):
-            _logger.error(f"Failed to find file server.key needed for encrypted grpc connection - not enabling")
+            _logger.error("Failed to find file server.key needed for encrypted grpc connection - not enabling")
             encrypted_connection = False
 
         self.thread_pool = futures.ThreadPoolExecutor(
