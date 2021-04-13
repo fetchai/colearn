@@ -55,32 +55,39 @@ class GRPCServer:
 
         address = "0.0.0.0:{}".format(self.port)
 
-        _logger.info(f"Starting encrypted GRPC server on {address}...")
+        _logger.info(f"Starting GRPC server on {address}...")
+
+        encrypted_connection = True
 
         if not os.path.isfile("server.crt"):
-            _logger.error(f"Failed to find file server.crt needed for encrypted grpc connection")
-            return
+            _logger.error(f"Failed to find file server.crt needed for encrypted grpc connection - not enabling")
+            encrypted_connection = False
 
         if not os.path.isfile("server.key"):
-            _logger.error(f"Failed to find file server.key needed for encrypted grpc connection")
-            return
-
-        # read in key and certificate
-        with open('server.key', 'rb') as f:
-            private_key = f.read()
-        with open('server.crt', 'rb') as f:
-            certificate_chain = f.read()
+            _logger.error(f"Failed to find file server.key needed for encrypted grpc connection - not enabling")
+            encrypted_connection = False
 
         self.thread_pool = futures.ThreadPoolExecutor(
             max_workers=self.max_workers, thread_name_prefix="GRPCLearnerServer-poolworker-")
+
         self.server = grpc.server(self.thread_pool)
-
-        # create server credentials
-        server_credentials = grpc.ssl_server_credentials(((private_key, certificate_chain,),))
-
         ipb2_grpc.add_GRPCLearnerServicer_to_server(self.service, self.server)
-        #self.server.add_insecure_port(address)
-        self.server.add_secure_port(address, server_credentials)
+
+        if encrypted_connection:
+            _logger.info(f"Creating encrypted connection")
+
+            # read in key and certificate
+            with open('server.key', 'rb') as f:
+                private_key = f.read()
+            with open('server.crt', 'rb') as f:
+                certificate_chain = f.read()
+
+            # create server credentials
+            server_credentials = grpc.ssl_server_credentials(((private_key, certificate_chain,),))
+            self.server.add_secure_port(address, server_credentials)
+        else:
+            self.server.add_insecure_port(address)
+
         self.server.start()
         _logger.info("GRPC server started. Waiting for termination...")
         self.server.wait_for_termination()

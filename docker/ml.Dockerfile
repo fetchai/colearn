@@ -24,15 +24,16 @@ RUN cd ./colearn && \
 RUN groupadd -g 999 appuser && \
     useradd -r -u 999 -g appuser appuser
 
-USER appuser
+#USER appuser
 
 COPY grpc_examples/run_grpc_server.py ./
 
-COPY server.crt ./
-COPY server.key ./
+#COPY server.crt ./
+#COPY server.key ./
+COPY scripts/entrypoint.sh ./
 
 EXPOSE 9995
 EXPOSE 9091
 ENV PYTHONUNBUFFERED 0
 
-ENTRYPOINT [ "python3", "-u", "/app/run_grpc_server.py"]
+#ENTRYPOINT [ "python3", "-u", "/app/run_grpc_server.py"]
