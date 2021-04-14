@@ -80,7 +80,6 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                     _logger.info("Creating insecure channel")
                     self.channel = grpc.insecure_channel(self.address)
 
-
                 # Make sure query works
                 self.get_supported_system()
                 _logger.info(f"Successfully connected to {self.address}!")
