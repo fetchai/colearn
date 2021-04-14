@@ -17,8 +17,8 @@
 # ------------------------------------------------------------------------------
 from concurrent import futures
 import os
-import grpc
 from pathlib import Path
+import grpc
 
 from colearn_grpc.mli_factory_interface import MliFactory
 

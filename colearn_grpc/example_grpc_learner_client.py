@@ -64,7 +64,7 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                     assert (':' in self.address), f"Poorly formatted address, needs :port - {self.address}"
                     _logger.info(f"Connecting to server: {self.address}")
                     addr, port = self.address.split(':')
-                    trusted_certs = ssl.get_server_certificate((addr, int(port))
+                    trusted_certs = ssl.get_server_certificate((addr, int(port)))
 
                     # create credentials
                     credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs.encode())
