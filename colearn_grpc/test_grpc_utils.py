@@ -48,8 +48,6 @@ def test_in_order_iterator_to_weights():
 
     result = iterator_to_weights(request_iterator=iter(parts), decode=False)
 
-    print(test_weights)
-    print(result)
     assert result.weights == test_weights
 
 
@@ -79,8 +77,6 @@ def test_weights_to_iterator_small():
     assert isinstance(val, WeightsPart)
     assert val.total_bytes == 1
     assert val.byte_index == 0
-    print(type(val.weights), type(bytes(val.weights)))
-    print(type(part_a))
     assert bytes(val.weights) == part_a
 
     val = next(iterator, b"")
@@ -98,8 +94,6 @@ def test_weights_to_iterator_small_limit():
     assert isinstance(val, WeightsPart)
     assert val.total_bytes == WEIGHTS_PART_SIZE_BYTES
     assert val.byte_index == 0
-    print(type(val.weights), type(bytes(val.weights)))
-    print(type(part_a))
     assert bytes(val.weights) == part_a
 
     val = next(iterator, b"")
@@ -118,8 +112,6 @@ def test_weights_to_iterator_small_limit_plus_one():
     assert isinstance(val, WeightsPart)
     assert val.total_bytes == WEIGHTS_PART_SIZE_BYTES + 1
     assert val.byte_index == 0
-    print(type(val.weights), type(bytes(val.weights)))
-    print(type(part_a))
     assert bytes(val.weights) == part_a
 
     val = next(iterator, b"")
@@ -144,8 +136,6 @@ def test_weights_to_iterator():
     assert isinstance(val, WeightsPart)
     assert val.total_bytes == 2 * WEIGHTS_PART_SIZE_BYTES - 2
     assert val.byte_index == 0
-    print(type(val.weights), type(bytes(val.weights)))
-    print(type(part_a))
     assert bytes(val.weights) == part_a
 
     val = next(iterator, b"")
