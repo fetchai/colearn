@@ -66,7 +66,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/fetchai/colearn",
-    packages=setuptools.find_packages(exclude=("tests", "examples", "docs")),
+    packages=setuptools.find_namespace_packages(exclude=("tests", "tests.*", "site", "site.*", "examples",
+                                                         "docs", "docs.*", "docker", "scripts", "build", "build.*")),
     classifiers=[
         # Need to fill in
         "Operating System :: OS Independent",
