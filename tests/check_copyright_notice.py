@@ -78,7 +78,7 @@ if __name__ == "__main__":
         Path("docker").glob("**/*.py"),
         Path("docs").glob("**/*.py"),
         Path("examples").glob("**/*.py"),
-        Path("grpc_examples").glob("**/*.py"),
+        Path("grpc").glob("**/*.py"),
         Path("tests").glob("**/*.py"),
         [Path("setup.py")],
     )
