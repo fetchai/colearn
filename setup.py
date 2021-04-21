@@ -66,7 +66,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/fetchai/colearn",
-    packages=setuptools.find_namespace_packages(exclude=("tests", "tests.*", "site", "site.*", "examples",
+    packages=setuptools.find_namespace_packages(exclude=("tests", "tests.*", "site", "site.*",
                                                          "docs", "docs.*", "docker", "scripts", "build", "build.*")),
     classifiers=[
         # Need to fill in
