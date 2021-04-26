@@ -10,7 +10,7 @@ The collective learning protocol allows learners to collaborate on training a mo
 
 ### Current Version
 
-We have released *v.0.2* of the Colearn Machine Learning Interface, the first version of an interface that will allow developers to prepare for future releases. 
+We have released *v.0.3* of the Colearn Machine Learning Interface, the first version of an interface that will allow developers to prepare for future releases. 
 Together with the interface we provide a simple backend for local experiments. This is the first backend with upcoming blockchain ledger based backends to follow.  
 Future releases will use similar interfaces so that learners built with the current system will work on a different backend that integrates a distributed ledger and provides other improvements.
 The current framework will then be used mainly for model development and debugging.
