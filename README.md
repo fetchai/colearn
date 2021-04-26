@@ -36,30 +36,16 @@ To install with just support for Keras or Pytorch:
 
 ## Running the examples
 
-Download the stand-alone examples
+Examples are available in the colearn_examples module. To run a standalone demo run:
    ```bash
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_cifar.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_fraud.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist_diffpriv.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_xray.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_fraud.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_random_forest_iris.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_cifar.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_covid.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist_diffpriv.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_xray.py
+   python -m colearn_examples.ml_interface.run_demo
    ```
-- Or they can be accessed from colearn/examples by cloning colearn repo
+- Or they can be accessed from colearn/colearn_examples by cloning the colearn repo
 
-Run any example depending on what machine learning library support you've installed
-   ```bash
-   # for colearn[keras] or colearn[all]
-   python3 keras_mnist.py
-   # for colearn[pytorch] or colearn[all]
-   python3 pytorch_mnist.py
-   ```
+!!! Note
+    The examples that are available depend on your installation. If you installed only `colearn[keras]` or 
+    `colearn[pytorch]` then only their respective examples will be available. 
+
 
 For more instructions see the documentation at [fetchai.github.io/colearn/installation](https://fetchai.github.io/colearn/installation/)
 

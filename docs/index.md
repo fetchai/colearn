@@ -43,30 +43,12 @@ To install with just support for Keras or Pytorch:
 
 For more installation options or get the latest (development) version see [Installation](./installation.md)
 
-Then run one of the examples:
+Then run the standalone demo:
    ```bash
-   # Download the examples
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_cifar.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_fraud.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist_diffpriv.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_xray.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_fraud.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_random_forest_iris.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_cifar.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_covid.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist_diffpriv.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_xray.py
-   # Or they can be accessed from colearn/examples by cloning colearn repo
-
-   # for colearn[keras] or colearn[all]
-   python3 keras_mnist.py
-   # for colearn[pytorch] or colearn[all]
-   python3 pytorch_mnist.py
+   python -m colearn_examples.ml_interface.run_demo
    ``` 
 
-For other examples see the [Examples](./examples.md).
+For other plenty of other examples see the [Examples](./examples.md).
 
 ## Writing your own models
 We encourage users to try out the system by writing their own models. 

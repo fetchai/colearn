@@ -1,5 +1,6 @@
 # Examples that use Collective Learning
-This is a list of examples that we've implemented to show you how to use Collective Learning
+This is a list of examples that we've implemented to show you how to use Collective Learning locally. See and example of
+the [gRPC server](grpc_examples.md) for the next step towards decentralized Colearn. 
 
 ### Mnist
   Uses the standard [Mnist](https://en.wikipedia.org/wiki/MNIST_database) database of handwritten images

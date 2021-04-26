@@ -178,19 +178,19 @@ We expect that the gRPC learner part will often be on a compute cluster and be s
 To test the gRPC in a setup like this you can start the servers on the computer side and the client part separately.
 For one gRPC server:
 ```bash
-python3 ./grpc_examples/run_grpc_server.py --port 9995 --metrics_port 9091
+python3 ./colearn_grpc/scripts/run_grpc_server.py --port 9995 --metrics_port 9091
 ```
 
 For multiple gRPC servers:
 ```bash
-python3 ./grpc_examples/run_n_grpc_servers.py --n_learners 5 --port 9995 --metrics_port 9091
+python3 ./colearn_grpc/scrips/run_n_grpc_servers.py --n_learners 5 --port 9995 --metrics_port 9091
 ```
 The servers by default will start on port 9995 and use subsequent ports from there, so if three
 servers are required they will run on ports 9995, 9996 and 9997.
 
 If you have written your own dataloaders and models then you need to make sure that those functions are defined or 
 imported before the server is created.
-These are the imports of the default dataloaders and models in `grpc_examples/run_grpc_server.py`:
+These are the imports of the default dataloaders and models in `colearn_grpc/scripts/run_grpc_server.py`:
 ```python
 # These are imported so that they are registered in the FactoryRegistry
 import colearn_keras.keras_mnist
@@ -203,7 +203,7 @@ import colearn_other.fraud_dataset
 Once the gRPC server(s) are running, set up whatever networking and port forwarding is required.
 You can check that the gRPC server is accessible by using the probe script:
 ```bash
-python3 ./grpc_examples/probe_grps_server.py --port 9995
+python3 ./colearn_grpc/scripts/probe_grpc_server.py --port 9995
 ```
 If the connection is successful this will print a list of the models and datasets registered on the server.
 These are the defaults that are registered:
@@ -245,11 +245,11 @@ info: Successfully connected to 127.0.0.1:9995!
 
 ```
 
-Then run `python -m colearn_examples/grpc/run_grpc_demo.py` on the other side to run the usual demo.
+Then run `python -m colearn_examples.grpc.run_grpc_demo.py` on the other side to run the usual demo.
 The script takes as arguments the model name and dataset name that should be run, along with the number of learners
 and the data location for each learner.
 ```bash
-python -m colearn_examples/grpc/run_grpc_demo.py --n_learners 5 --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST \
+python -m colearn_examples.grpc.run_grpc_demo.py --n_learners 5 --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST \
 --data_locations /tmp/mnist/0,/tmp/mnist/1,/tmp/mnist/2,/tmp/mnist/3,/tmp/mnist/4
 ```
 
