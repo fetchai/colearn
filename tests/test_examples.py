@@ -23,7 +23,7 @@ from typing import List, Dict, Sequence
 import pytest
 
 REPO_ROOT = Path(__file__).absolute().parent.parent
-EXAMPLES_DIR = REPO_ROOT / "examples/ml_interface"
+EXAMPLES_DIR = REPO_ROOT / "colearn_examples/ml_interface"
 
 GITHUB_ACTION = bool(os.getenv("GITHUB_ACTION", ""))
 

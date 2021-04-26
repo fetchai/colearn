@@ -80,7 +80,7 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
                     ) -> KerasLearner:
 ```
 
-You can see an example of how to do this in [colearn_grpc/mnist_grpc.py]({{ repo_root }}/colearn_grpc/mnist_grpc.py).
+You can see an example of how to do this in [colearn_examples/grpc/mnist_grpc.py]({{ repo_root }}/colearn_examples/grpc/mnist_grpc.py).
 The FactoryRegistry decorators get evaluated when the functions are imported, so ensure that the functions are imported 
 before constructing the gRPC server (more on that later). 
    
@@ -110,13 +110,13 @@ Constraints on the model function:
 It can be challenging to ensure that all the parts talk to each other, so we have provided some examples and 
 helper scripts.
 It is recommended to first make an all-in-one script following the example of 
-[grpc_examples/mnist_grpc.py]({{ repo_root }}/grpc_examples/mnist_grpc.py).
-Once this is working you can run [grpc_examples/run_n_servers.py]({{ repo_root }}/grpc_examples/run_n_servers.py) or 
-[grpc_examples/run_server.py]({{ repo_root }}/grpc_examples/run_server.py) to run the server(s).
-The script [grpc_examples/probe_grpc_server.py]({{ repo_root }}/grpc_examples/probe_grpc_server.py) will connect to a 
+[colearn_examples/grpc/mnist_grpc.py]({{ repo_root }}/colearn_examples/grpc/mnist_grpc.py).
+Once this is working you can run [colearn_grpc/scripts/run_n_servers.py]({{ repo_root }}/colearn_grpc/scripts/run_n_servers.py) or 
+[colearn_grpc/scripts/run_grpc_server.py]({{ repo_root }}/colearn_grpc/scripts/run_server.py) to run the server(s).
+The script [colearn_grpc/scripts/probe_grpc_server.py]({{ repo_root }}/colearn_grpc/scripts/probe_grpc_server.py) will connect to a 
 gRPC server and print the dataloaders and models that are registered on it (pass in the address as a parameter).
 The client side of the gRPC communication can then be run using 
-[grpc_examples/run_grpc_demo.py]({{ repo_root }}/grpc_examples/run_grpc_demo.py).
+[colearn_examples/grpc/run_grpc_demo.py]({{ repo_root }}/colearn_examples/grpc/run_grpc_demo.py).
 More details are given below.
 
 A note about running tensorflow in multiple processes: on a system with a GPU, tensorflow will try to get all the GPU
@@ -132,7 +132,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 ## Testing locally with an all-in-one script
 You can test this locally by following the example in 
-[grpc_examples/mnist_grpc.py]({{ repo_root }}/grpc_examples/mnist_grpc.py).
+[colearn_examples/grpc/mnist_grpc.py]({{ repo_root }}/colearn_examples/grpc/mnist_grpc.py).
 Define your dataloader and model functions as specified above, and register them with the factory.
 Then create n_learners gRPC servers:
 ```python
@@ -245,18 +245,18 @@ info: Successfully connected to 127.0.0.1:9995!
 
 ```
 
-Then run `grpc_examples/run_grpc_demo.py` on the other side to run the usual demo.
+Then run `python -m colearn_examples/grpc/run_grpc_demo.py` on the other side to run the usual demo.
 The script takes as arguments the model name and dataset name that should be run, along with the number of learners
 and the data location for each learner.
 ```bash
-python ./grpc_examples/run_grpc_demo.py --n_learners 5 --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST \
+python -m colearn_examples/grpc/run_grpc_demo.py --n_learners 5 --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST \
 --data_locations /tmp/mnist/0,/tmp/mnist/1,/tmp/mnist/2,/tmp/mnist/3,/tmp/mnist/4
 ```
 
 ## Using the MLI Factory interface
 An alternative method of using your own dataloaders and models with the gRPC server is to use the MLI Factory interface.
 This is defined in `colearn_grpc/mli_factory_interface.py`.
-An example is given in `grpc_examples/mlifactory_grpc_mnist.py`.
+An example is given in `colearn_examples/grpc/mlifactory_grpc_mnist.py`.
 The MLI Factory is implemented as shown:
 ```python
 dataloader_tag = "KERAS_MNIST_EXAMPLE_DATALOADER"

@@ -1,6 +1,6 @@
 # How to run the demo
 
-You can try collective learning for yourself using the simple demo in `examples/run_demo.py`. 
+You can try collective learning for yourself using the simple demo in `colearn_examples/mli_interface/run_demo.py`. 
 This demo creates n learners for one of five learning tasks and co-ordinates the collective learning between them.
 
 There are five potential datasets for the demo
@@ -17,7 +17,7 @@ There are five potential datasets for the demo
 
 Use the -h flag to see the options:
 ```bash
-examples/run_demo.py -h
+python -m colearn_examples/mli_interface/run_demo.py -h
 ```
 
 Arguments to run the demo:
@@ -39,7 +39,7 @@ Arguments to run the demo:
 The simplest task to run is MNIST because the data are downloaded automatically from `tensorflow_datasets`.
 The command below runs the MNIST task with five learners for 15 rounds.
 ```bash
-examples/run_demo.py --task KERAS_MNIST --n_learners 5 --n_rounds 15
+python -m colearn_examples/mli_interface/run_demo.py --task KERAS_MNIST --n_learners 5 --n_rounds 15
 ```
 You should see a graph of the vote score and the test score (the score used here is categorical accuracy).
 The new model is accepted if the fraction of positive votes (green colour) is higher than 0.5. 
@@ -53,15 +53,15 @@ In round one, learner 0 is selected to propose a new set of weights.
 ## Other datasets
 To run the CIFAR10 dataset:
 ```bash
-examples/run_demo.py --task KERAS_CIFAR10 --n_learners 5 --n_rounds 15
+python -m colearn_examples/mli_interface/run_demo.py --task KERAS_CIFAR10 --n_learners 5 --n_rounds 15
 ```
 The Fraud and X-ray datasets need to be downloaded from kaggle (this requires a kaggle account).
 To run the fraud dataset:
 ```bash
-examples/run_demo.py --task FRAUD --n_learners 5 --n_rounds 15 --data_dir ./data/fraud
+python -m colearn_examples/mli_interface/run_demo.py --task FRAUD --n_learners 5 --n_rounds 15 --data_dir ./data/fraud
 ```
 To run the X-ray dataset:
 ```bash
-examples/run_demo.py --task PYTORCH_XRAY --n_learners 5 --n_rounds 15 --data_dir ./data/xray
+python -m colearn_examples/mli_interface/run_demo.py --task PYTORCH_XRAY --n_learners 5 --n_rounds 15 --data_dir ./data/xray
 ```
 
