@@ -13,7 +13,7 @@ python -m colearn_examples.grpc.run_grpc_demo --n_learners 5 --dataloader_tag KE
 You can verify that the example is working correctly by running the probe:
 
 ```bash
-python -m colearn_grpc.scripts.probe_grpc_server.py --port 9995
+python -m colearn_grpc.scripts.probe_grpc_server --port 9995
 ```
 
 For more about the gRPC components of Colearn see the [gRPC Tutorial](grpc_tutorial.md)

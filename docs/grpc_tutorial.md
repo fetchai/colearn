@@ -245,11 +245,11 @@ info: Successfully connected to 127.0.0.1:9995!
 
 ```
 
-Then run `python -m colearn_examples.grpc.run_grpc_demo.py` on the other side to run the usual demo.
+Then run `python -m colearn_examples.grpc.run_grpc_demo` on the other side to run the usual demo.
 The script takes as arguments the model name and dataset name that should be run, along with the number of learners
 and the data location for each learner.
 ```bash
-python -m colearn_examples.grpc.run_grpc_demo.py --n_learners 5 --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST \
+python -m colearn_examples.grpc.run_grpc_demo --n_learners 5 --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST \
 --data_locations /tmp/mnist/0,/tmp/mnist/1,/tmp/mnist/2,/tmp/mnist/3,/tmp/mnist/4
 ```
 
