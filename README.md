@@ -36,15 +36,16 @@ To install with just support for Keras or Pytorch:
 
 ## Running the examples
 
-Examples are available in the colearn_examples module. To run a standalone demo run:
+Examples are available in the colearn_examples module. To run the Mnist demo in Keras or Pytorch run:
    ```bash
-   python -m colearn_examples.ml_interface.run_demo
+   python -m colearn_examples.ml_interface.keras_mnist
+   python -m colearn_examples.ml_interface.pytorch_mnist
    ```
 - Or they can be accessed from colearn/colearn_examples by cloning the colearn repo
 
 !!! Note
-    The examples that are available depend on your installation. If you installed only `colearn[keras]` or 
-    `colearn[pytorch]` then only their respective examples will be available. 
+    All the examples are always available, but which will run will depend on your installation. 
+    If you installed only `colearn[keras]` or `colearn[pytorch]` then only their respective examples will work. 
 
 
 For more instructions see the documentation at [fetchai.github.io/colearn/installation](https://fetchai.github.io/colearn/installation/)

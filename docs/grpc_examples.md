@@ -3,7 +3,7 @@
 To run the Keras Mnist gRPC example run:
 
 ```bash
-python -m colearn_examples.grpc.run_grpc_demo.py --n_learners 5 --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST \
+python -m colearn_examples.grpc.run_grpc_demo --n_learners 5 --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST \
 --data_locations /tmp/mnist/0,/tmp/mnist/1,/tmp/mnist/2,/tmp/mnist/3,/tmp/mnist/4
 ```
 

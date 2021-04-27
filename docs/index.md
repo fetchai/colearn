@@ -48,7 +48,7 @@ Then run the standalone demo:
    python -m colearn_examples.ml_interface.run_demo
    ``` 
 
-For other plenty of other examples see the [Examples](./examples.md).
+For plenty of other examples see the [Examples](./examples.md).
 
 ## Writing your own models
 We encourage users to try out the system by writing their own models. 
