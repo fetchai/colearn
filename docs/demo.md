@@ -1,6 +1,6 @@
 # How to run the demo
 
-You can try collective learning for yourself using the simple demo in `colearn_examples/ml_interface/run_demo`. 
+You can try collective learning for yourself using the simple demo in [run_demo]({{repo_root }}/colearn_examples/ml_interface/run_demo.py). 
 This demo creates n learners for one of five learning tasks and co-ordinates the collective learning between them.
 
 There are five potential datasets for the demo
