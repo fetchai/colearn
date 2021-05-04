@@ -43,7 +43,7 @@ Examples are available in the colearn_examples module. To run the Mnist demo in 
    ```
 - Or they can be accessed from colearn/colearn_examples by cloning the colearn repo
 
-    Please note, all the examples are always available, but which will run will depend on your installation. 
+    Please note that although all the examples are always available, which you can run will depend on your installation. 
     If you installed only `colearn[keras]` or `colearn[pytorch]` then only their respective examples will work. 
 
 
