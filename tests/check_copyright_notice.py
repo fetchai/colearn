@@ -77,8 +77,8 @@ if __name__ == "__main__":
         Path("colearn_pytorch").glob("**/*.py"),
         Path("docker").glob("**/*.py"),
         Path("docs").glob("**/*.py"),
-        Path("examples").glob("**/*.py"),
-        Path("grpc_examples").glob("**/*.py"),
+        Path("colearn_examples").glob("**/*.py"),
+        Path("grpc").glob("**/*.py"),
         Path("tests").glob("**/*.py"),
         [Path("setup.py")],
     )

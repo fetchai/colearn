@@ -33,5 +33,5 @@ The `opacus` and `tensorflow-privacy` libraries implement epsilon-differential p
 By using `opacus` and `tensorflow-privacy` we can make collective learning use differential privacy.
 The learner that is proposing weights does so using a DP-enabled optimiser.
 
-To see an example of using this see [dp_pytorch]({{ repo_root }}/examples/pytorch_mnist_diffpriv.py) 
-and [dp_keras]({{ repo_root }}/examples/keras_mnist_diffpriv.py).
+To see an example of using this see [dp_pytorch]({{ repo_root }}/colearn_examples/ml_interface/pytorch_mnist_diffpriv.py) 
+and [dp_keras]({{ repo_root }}/colearn_examples/ml_interface/keras_mnist_diffpriv.py).

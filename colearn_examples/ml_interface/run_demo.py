@@ -38,7 +38,7 @@ import colearn_other.fraud_dataset  # type:ignore # noqa: F401
 """
 Collective learning demo:
 
-Demo for running all available examples
+Demo for running all available colearn_examples
 """
 
 mli_fac = ExampleMliFactory()
