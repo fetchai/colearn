@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 import os
 import pickle
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Tuple, List, Optional
 
@@ -33,7 +32,8 @@ from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 from typing_extensions import TypedDict
 
-from colearn.utils.data import split_list_into_fractions
+from colearn_grpc.factory_registry import FactoryRegistry
+from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import categorical_accuracy
 
@@ -41,47 +41,63 @@ DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
 
 
-class ModelType(Enum):
-    MULTILAYER_PERCEPTRON = 1
-
-
-def prepare_model(model_type: ModelType) -> nn.Module:
+# The dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_dataloader("PYTORCH_COVID_XRAY")
+def prepare_data_loaders(location: str,
+                         train_ratio: float = 0.8,
+                         batch_size: int = 8,
+                         no_cuda: bool = False,
+                         ) -> Tuple[DataLoader, DataLoader]:
     """
-    Creates a new instance of selected Keras model
-    :param model_type: Enum that represents selected model type
-    :return: New instance of Pytorch model
+    Load training data from folders and create train and test dataloader
+
+    :param location: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param batch_size: Batch size
+    :param no_cuda: Disable GPU computing
+    :return: Tuple of train_loader and test_loader
     """
 
-    if model_type == ModelType.MULTILAYER_PERCEPTRON:
-        return TorchCovidXrayPerceptronModel()
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
+    cuda = not no_cuda and torch.cuda.is_available()
+    DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
+    loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+
+    data_folder = get_data(location)
+
+    data = pickle.load(open(Path(data_folder) / DATA_FL, "rb"))
+    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(data))
+    assert (n_cases > 0), "There are no cases"
+
+    train_loader = _make_loader(data[:n_cases], labels[:n_cases], batch_size, **loader_kwargs)
+    test_loader = _make_loader(data[n_cases:], labels[n_cases:], batch_size, **loader_kwargs)
+
+    return train_loader, test_loader
 
 
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[DataLoader, DataLoader],
+@FactoryRegistry.register_model_architecture("PYTORCH_COVID_XRAY", ["PYTORCH_COVID_XRAY"])
+def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
                     learning_rate: float = 0.001,
                     steps_per_epoch: int = 40,
                     vote_batches: int = 10,
                     no_cuda: bool = False,
                     vote_on_accuracy: bool = True,
-                    **_kwargs) -> PytorchLearner:
+                    ) -> PytorchLearner:
     """
     Creates new instance of PytorchLearner
-    :param model_type: Enum that represents selected model type
     :param data_loaders: Tuple of train_loader and test_loader
     :param learning_rate: Learning rate for optimiser
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_score
     :param no_cuda: True = disable GPU computing
     :param vote_on_accuracy: True = vote on accuracy metric, False = vote on loss
-    :param _kwargs: Residual parameters not used by this function
     :return: New instance of PytorchLearner
     """
     cuda = not no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
 
-    model = prepare_model(model_type)
+    model = TorchCovidXrayPerceptronModel()
 
     if vote_on_accuracy:
         learner_vote_kwargs = dict(
@@ -129,38 +145,6 @@ def _make_loader(data: np.array,
     return loader
 
 
-def prepare_data_loaders(train_folder: str,
-                         train_ratio: float = 0.8,
-                         batch_size: int = 8,
-                         no_cuda: bool = False,
-                         **_kwargs) -> Tuple[DataLoader, DataLoader]:
-    """
-    Load training data from folders and create train and test dataloader
-
-    :param train_folder: Path to training dataset
-    :param train_ratio: What portion of train_data should be used as test set
-    :param batch_size: Batch size
-    :param no_cuda: Disable GPU computing
-    :param _kwargs: Residual parameters not used by this function
-    :return: Tuple of train_loader and test_loader
-    """
-
-    cuda = not no_cuda and torch.cuda.is_available()
-    DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
-    loader_kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
-
-    data = pickle.load(open(Path(train_folder) / DATA_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(data))
-    assert (n_cases > 0), "There are no cases"
-
-    train_loader = _make_loader(data[:n_cases], labels[:n_cases], batch_size, **loader_kwargs)
-    test_loader = _make_loader(data[n_cases:], labels[n_cases:], batch_size, **loader_kwargs)
-
-    return train_loader, test_loader
-
-
 # define the neural net architecture in Pytorch
 class TorchCovidXrayPerceptronModel(nn.Module):
     def __init__(self):
@@ -191,8 +175,7 @@ def split_to_folders(
         data_split: Optional[List[float]] = None,
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
-        **_kwargs
-) -> List[str]:
+        **_kwargs) -> List[str]:
     """
     Loads preprocessed images with labels from .mat files and splits them to specified number of subsets
     :param data_dir: Directory containing .mat files

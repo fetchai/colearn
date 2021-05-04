@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,21 @@
 import json
 import pytest
 
-from colearn_other.mli_factory import TaskType
-from colearn_keras.keras_mnist import ModelType, split_to_folders
+from colearn_keras.keras_mnist import split_to_folders
 from colearn_keras.keras_learner import KerasLearner
 
+# These are imported here so that they are registered in the FactoryRegistry
+# pylint: disable=W0611
+import colearn_keras.keras_mnist  # type:ignore # noqa: F401
+import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
+import colearn_other.fraud_dataset  # type:ignore # noqa: F401
 
 from colearn_grpc.example_mli_factory import ExampleMliFactory
+
+DATALOADER_NAMES = {"PYTORCH_XRAY", "KERAS_MNIST", "KERAS_CIFAR10", "PYTORCH_COVID_XRAY", "FRAUD"}
+MODEL_NAMES = {"PYTORCH_XRAY", "KERAS_MNIST", "KERAS_MNIST_RESNET", "KERAS_CIFAR10", "PYTORCH_COVID_XRAY", "FRAUD"}
 
 
 @pytest.fixture
@@ -39,49 +48,85 @@ def test_setup(factory):
 
 
 def test_model_names(factory):
-    for task in TaskType:
-        assert task.name in factory.get_models().keys()
+    for model in MODEL_NAMES:
+        assert model in factory.get_models().keys()
+    print(factory.get_models())
 
 
 def test_dataloader_names(factory):
-    for task in TaskType:
-        assert task.name in factory.get_dataloaders().keys()
+    for dl in DATALOADER_NAMES:
+        assert dl in factory.get_dataloaders().keys()
 
-    assert len(factory.get_dataloaders()[TaskType.KERAS_MNIST.name]) > 0
+    assert len(factory.get_dataloaders()["KERAS_MNIST"]) > 0
 
 
 def test_compatibilities(factory):
-    for task in TaskType:
-        assert task.name in factory.get_models().keys()
-        assert task.name in factory.get_compatibilities()[task.name]
+    for model in MODEL_NAMES:
+        assert model in factory.get_models().keys()
+        for dl in factory.get_compatibilities()[model]:
+            assert dl in DATALOADER_NAMES
 
 
 @pytest.fixture()
 def mnist_config():
-
     folders = split_to_folders(10)
 
     return {
-        'task_type': TaskType.KERAS_MNIST,
-        'model_type': ModelType(1).name,
-        'train_folder': folders[0],
-        'test_folder': "",
+        'model_name': "KERAS_MNIST",
+        'dataloader_name': "KERAS_MNIST",
+        'location': folders[0],
     }
 
 
 def test_get_mnist(factory, mnist_config):
-
-    model_params = json.dumps({'model_type': mnist_config['model_type']})
+    model_params = json.dumps({"steps_per_epoch": 20})
 
     dataset_params = json.dumps(
-        {'location': mnist_config['train_folder'],
-         'test_folder': mnist_config['test_folder']
+        {'location': mnist_config['location'],
          })
 
     mli = factory.get_mli(
-        model_name=mnist_config['task_type'].name,
+        model_name=mnist_config['model_name'],
         model_params=model_params,
-        dataloader_name=mnist_config['task_type'].name,
+        dataloader_name=mnist_config['dataloader_name'],
         dataset_params=dataset_params)
 
     assert isinstance(mli, KerasLearner)
+    assert mli.model_fit_kwargs["steps_per_epoch"] == 20
+
+
+def test_triple_mnist(factory, mnist_config):
+    default_params = json.dumps({})
+
+    dataset_params = json.dumps(
+        {'location': mnist_config['location'],
+         })
+
+    mli = factory.get_mli(
+        model_name=mnist_config['model_name'],
+        model_params=default_params,
+        dataloader_name=mnist_config['dataloader_name'],
+        dataset_params=dataset_params)
+
+    assert isinstance(mli, KerasLearner)
+    default_steps = mli.model_fit_kwargs["steps_per_epoch"]
+
+    model_params = json.dumps({"steps_per_epoch": 40})
+
+    mli = factory.get_mli(
+        model_name=mnist_config['model_name'],
+        model_params=model_params,
+        dataloader_name=mnist_config['dataloader_name'],
+        dataset_params=dataset_params)
+
+    assert isinstance(mli, KerasLearner)
+    assert mli.model_fit_kwargs["steps_per_epoch"] == 40
+
+    mli = factory.get_mli(
+        model_name=mnist_config['model_name'],
+        model_params=default_params,
+        dataloader_name=mnist_config['dataloader_name'],
+        dataset_params=dataset_params)
+
+    assert isinstance(mli, KerasLearner)
+    assert mli.model_fit_kwargs["steps_per_epoch"] == default_steps

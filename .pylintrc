@@ -67,8 +67,6 @@ ENABLED:
 # R0801: similar lines
 
 [IMPORTS]
-ignored-modules=aiohttp,defusedxml,imgaug,google,gym,fetch,librosa,matplotlib,
-    memory_profiler,numpy,oef,opacus,
-    openapi_core,pandas,PIL,psutil,pydantic,pytest,tensorflow,tensorflow_datasets,tensorflow_core,
-    tensorflow_privacy,temper,torch,torchvision,torchsummary,tqdm,typing_extensions,
-    scipy,skimage,sklearn,vyper,web3,click,grpc,prometheus_client
+ignored-modules=click,google,grpc,matplotlib,numpy,opacus,pandas,PIL,prometheus_client,pydantic,pytest,
+    tensorflow,tensorflow_core,tensorflow_datasets,tensorflow_privacy,torch,torchsummary,torchvision,typing_extensions,
+    scipy,sklearn,xgboost

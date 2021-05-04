@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ import os
 
 import tensorflow as tf
 import tensorflow_datasets as tfds
-from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
@@ -27,31 +26,41 @@ from colearn.utils.results import Results, print_results
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.utils import normalize_img
 
-n_learners = 5
+"""
+CIFAR10 training example using Tensorflow Keras
 
+Used dataset:
+- CIFAR10 is set of 60 000 colour images of size 32x32x3 in 10 classes
+
+What script does:
+- Loads CIFAR10 dataset from torchvision.datasets
+- Randomly splits dataset between multiple learners
+- Does multiple rounds of learning process and displays plot with results
+"""
+
+n_learners = 5
 testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
 n_rounds = 20 if not testing_mode else 1
+
+make_plot = True
 vote_threshold = 0.5
 
-width = 28
-height = 28
+width = 32
+height = 32
 n_classes = 10
 
+optimizer = tf.keras.optimizers.Adam
 l_rate = 0.001
 batch_size = 64
+loss = "sparse_categorical_crossentropy"
 vote_batches = 2
 
-# Differential privacy parameters
-l2_norm_clip = 1.5
-noise_multiplier = 1.3  # more noise -> more privacy, less utility
-num_microbatches = 64  # how many batches to split a batch into
-
-train_datasets, info = tfds.load('mnist',
+train_datasets, info = tfds.load('cifar10',
                                  split=tfds.even_splits('train', n=n_learners),
                                  as_supervised=True, with_info=True)
 n_datapoints = info.splits['train'].num_examples
 
-test_datasets = tfds.load('mnist',
+test_datasets = tfds.load('cifar10',
                           split=tfds.even_splits('test', n=n_learners),
                           as_supervised=True)
 
@@ -73,32 +82,34 @@ for i in range(n_learners):
 
 def get_model():
     input_img = tf.keras.Input(
-        shape=(width, height, 1), name="Input"
+        shape=(width, height, 3), name="Input"
     )
     x = tf.keras.layers.Conv2D(
-        64, (3, 3), activation="relu", padding="same", name="Conv1_1"
+        32, (5, 5), activation="relu", padding="same", name="Conv1_1"
     )(input_img)
-    x = tf.keras.layers.BatchNormalization(name="bn1")(x)
     x = tf.keras.layers.MaxPooling2D((2, 2), name="pool1")(x)
     x = tf.keras.layers.Conv2D(
-        128, (3, 3), activation="relu", padding="same", name="Conv2_1"
+        32, (5, 5), activation="relu", padding="same", name="Conv2_1"
     )(x)
-    x = tf.keras.layers.BatchNormalization(name="bn4")(x)
     x = tf.keras.layers.MaxPooling2D((2, 2), name="pool2")(x)
+    x = tf.keras.layers.Conv2D(
+        64, (5, 5), activation="relu", padding="same", name="Conv3_1"
+    )(x)
+    x = tf.keras.layers.MaxPooling2D((2, 2), name="pool3")(x)
     x = tf.keras.layers.Flatten(name="flatten")(x)
     x = tf.keras.layers.Dense(
-        n_classes, activation="softmax", name="fc1"
+        64, activation="relu", name="fc1"
+    )(x)
+    x = tf.keras.layers.Dense(
+        n_classes, activation="softmax", name="fc2"
     )(x)
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
-    opt = DPKerasAdamOptimizer(
-        l2_norm_clip=l2_norm_clip,
-        noise_multiplier=noise_multiplier,
-        num_microbatches=num_microbatches,
-        learning_rate=l_rate)
-
+    opt = optimizer(
+        lr=l_rate
+    )
     model.compile(
-        loss='sparse_categorical_crossentropy',
+        loss=loss,
         metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
         optimizer=opt)
     return model
@@ -112,6 +123,7 @@ for i in range(n_learners):
         test_loader=test_datasets[i],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
+        model_fit_kwargs={"steps_per_epoch": 100},
         model_evaluate_kwargs={"steps": vote_batches}
     ))
 
@@ -128,12 +140,14 @@ for round_index in range(n_rounds):
         collective_learning_round(all_learner_models,
                                   vote_threshold, round_index)
     )
+
     print_results(results)
+    if make_plot:
+        # then make an updating graph
+        plot.plot_results_and_votes(results)
 
-    plot.plot_results(results)
-    plot.plot_votes(results)
 
-plot.plot_results(results)
-plot.plot_votes(results, block=True)
+if make_plot:
+    plot.block()
 
 print("Colearn Example Finished!")

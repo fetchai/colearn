@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -211,7 +211,7 @@ def split_to_folders(
         data_split=None,
         shuffle_seed=None,
         output_folder=Path(tempfile.gettempdir()) / "xray",
-
+        **_kwargs
 ):
     if not os.path.isdir(data_dir):
         raise Exception("Data dir does not exist: " + str(data_dir))
@@ -347,10 +347,8 @@ for round_index in range(n_rounds):
     )
     print_results(results)
 
-    plot.plot_results(results)
-    plot.plot_votes(results)
+    plot.plot_results_and_votes(results)
 
-plot.plot_results(results)
-plot.plot_votes(results, block=True)
+plot.block()
 
 print("Colearn Example Finished!")

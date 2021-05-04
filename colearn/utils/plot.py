@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,17 +24,31 @@ from colearn.utils.results import Results
 
 
 class ColearnPlot:
-    def __init__(self, score_name: str = "user-defined score"):
+    def __init__(self, score_name: str = "user-defined score", draw_time=0.01):
         self.score_name = score_name
+        plt.ion()
         self.results_axes: mpl_ax.Axes = plt.subplot(2, 1, 1, label="sub1")
         self.votes_axes: mpl_ax.Axes = plt.subplot(2, 1, 2, label="sub2")
+        plt.show()
+        self.fig_invalid = False
+        self.draw_time = draw_time  # pause required for plt.draw() to complete
 
-    def plot_results(self, results, block=False):
+    def _remake_axes(self):
+        self.results_axes: mpl_ax.Axes = plt.subplot(2, 1, 1, label="sub1")
+        self.votes_axes: mpl_ax.Axes = plt.subplot(2, 1, 2, label="sub2")
+        plt.show()
+        self.fig_invalid = False
+
+    def plot_results_and_votes(self, results):
+        self.plot_results(results)
+        self.plot_votes(results)
+
+    def plot_results(self, results):
+        if self.fig_invalid:
+            self._remake_axes()
+
         # Prepare data for plotting
         results.process_statistics()
-
-        plt.ion()
-        plt.show(block=False)
 
         self.results_axes.clear()
 
@@ -78,16 +92,12 @@ class ColearnPlot:
         )
         self.results_axes.legend(handles=[line_mean_test_score, line_mean_vote_score])
 
-        if block is False:
-            plt.draw()
-            plt.pause(0.01)
-        else:
-            plt.show(block=True)
+        plt.draw()
+        plt.pause(self.draw_time)
 
-    def plot_votes(self, results: Results, block=False):
-        plt.ion()
-        plt.show(block=False)
-
+    def plot_votes(self, results: Results):
+        if self.fig_invalid:
+            self._remake_axes()
         self.votes_axes.clear()
 
         results_list = results.data
@@ -144,8 +154,12 @@ class ColearnPlot:
         self.votes_axes.set_yticks(np.arange(-0.5, n_learners, 1), minor=True)
         self.votes_axes.grid(which="minor", color="w", linestyle="-", linewidth=2)
 
-        if block is False:
-            plt.draw()
-            plt.pause(0.01)
-        else:
-            plt.show(block=True)
+        plt.draw()
+        plt.pause(self.draw_time)
+
+    def block(self):
+        if self.fig_invalid:
+            raise Exception("Previous call to .block() made the plot invalid.")
+        plt.show(block=True)
+        # closing the plot makes the figure and axes invalid
+        self.fig_invalid = True

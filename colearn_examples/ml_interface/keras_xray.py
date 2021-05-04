@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,6 @@ from colearn.training import set_equal_weights, initial_result, collective_learn
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
 from colearn_keras.keras_learner import KerasLearner
-from colearn_keras.utils import normalize_img
 
 """
 Xray training example using Tensorflow Keras
@@ -68,30 +67,18 @@ vote_threshold = 0.5
 
 
 def get_model():
-    # Minimalistic model XraySuperminiLearner
-    input_img = tf.keras.Input(
-        shape=(width, height, channels), name="Input"
-    )
-    x = tf.keras.layers.Conv2D(
-        32, (3, 3), activation="relu", padding="same", name="Conv1_1"
-    )(input_img)
+    input_img = tf.keras.Input(shape=(width, height, channels), name="Input")
+    x = tf.keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same", name="Conv1_1")(input_img)
     x = tf.keras.layers.BatchNormalization(name="bn1")(x)
     x = tf.keras.layers.MaxPooling2D((4, 4), name="pool1")(x)
-    x = tf.keras.layers.Conv2D(
-        64, (3, 3), activation="relu", padding="same", name="Conv2_1"
-    )(x)
+    x = tf.keras.layers.Conv2D(64, (3, 3), activation="relu", padding="same", name="Conv2_1")(x)
     x = tf.keras.layers.BatchNormalization(name="bn2")(x)
     x = tf.keras.layers.GlobalMaxPool2D()(x)
-
-    x = tf.keras.layers.Dense(
-        n_classes, activation="sigmoid", name="fc1"
-    )(x)
+    x = tf.keras.layers.Dense(n_classes, activation="sigmoid", name="fc1")(x)
 
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
-    opt = optimizer(
-        lr=l_rate
-    )
+    opt = optimizer(lr=l_rate)
     model.compile(
         loss=tf.keras.losses.BinaryCrossentropy(),
         metrics=[tf.keras.metrics.BinaryAccuracy(),
@@ -100,15 +87,14 @@ def get_model():
     return model
 
 
-# this is modified from the version in xray/data in order to keep the directory structure
-# e.g. when the data is in NORMAL and PNEU directories these will also be in each of the split dirs
+# split up the original data into n_learners parts
 def split_to_folders(
         data_dir,
         n_learners,
         data_split=None,
         shuffle_seed=None,
         output_folder=Path(tempfile.gettempdir()) / "xray",
-
+        **_kwargs
 ):
     if not os.path.isdir(data_dir):
         raise Exception("Data dir does not exist: " + str(data_dir))
@@ -158,7 +144,7 @@ def split_to_folders(
     return dir_names
 
 
-# lOAD DATA
+# LOAD DATA
 parser = argparse.ArgumentParser()
 parser.add_argument("data_dir", help="Path to data directory", type=str)
 
@@ -186,21 +172,27 @@ test_data_folders = split_to_folders(
 train_datasets, test_datasets = [], []
 
 for i in range(n_learners):
-    train_datasets.append(tf.keras.preprocessing.image_dataset_from_directory(
+    train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,)
+
+    train_dataset = train_datagen.flow_from_directory(
         train_data_folders[i],
-        label_mode='binary',
+        target_size=(width, height),
         batch_size=batch_size,
-        image_size=(width, height),
-        color_mode='grayscale'
-    ).map(normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE))
-    test_datasets.append(tf.keras.preprocessing.image_dataset_from_directory(
+        color_mode='grayscale',
+        class_mode='binary')
+
+    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,)
+
+    test_dataset = test_datagen.flow_from_directory(
         test_data_folders[i],
-        label_mode='binary',
+        target_size=(width, height),
         batch_size=batch_size,
-        image_size=(width, height),
-        color_mode='grayscale'
-    ).map(normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE))
-# todo: augmentation (although this seems to be turned off)
+        color_mode='grayscale',
+        class_mode='binary')
+
+    train_datasets.append(train_dataset)
+    test_datasets.append(test_dataset)
+
 
 all_learner_models = []
 for i in range(n_learners):
@@ -210,9 +202,7 @@ for i in range(n_learners):
             model=model,
             train_loader=train_datasets[i],
             test_loader=test_datasets[i],
-            model_fit_kwargs={"steps_per_epoch": steps_per_epoch,
-                              # "class_weight": {0: 1, 1: 0.27}
-                              },
+            model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
             model_evaluate_kwargs={"steps": vote_batches},
             criterion="auc",
             minimise_criterion=False
@@ -227,17 +217,13 @@ results.data.append(initial_result(all_learner_models))
 plot = ColearnPlot(score_name=all_learner_models[0].criterion)
 
 for round_index in range(n_rounds):
-    results.data.append(
-        collective_learning_round(all_learner_models,
-                                  vote_threshold, round_index)
-    )
+    result = collective_learning_round(all_learner_models, vote_threshold, round_index)
+    results.data.append(result)
     print_results(results)
 
     # then make an updating graph
-    plot.plot_results(results)
-    plot.plot_votes(results)
+    plot.plot_results_and_votes(results)
 
-plot.plot_results(results, n_learners)
-plot.plot_votes(results, block=True)
+plot.block()
 
 print("Colearn Example Finished!")

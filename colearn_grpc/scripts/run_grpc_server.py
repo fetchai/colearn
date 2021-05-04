@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,16 @@ import sys
 from prometheus_client import start_http_server
 
 from colearn_grpc.example_mli_factory import ExampleMliFactory
-
-
 from colearn_grpc.grpc_server import GRPCServer
 from colearn_grpc.logging import set_log_levels, get_logger
 
+# These are imported so that they are registered in the FactoryRegistry
+# pylint: disable=W0611
+import colearn_keras.keras_mnist  # type:ignore # noqa: F401
+import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
+import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
+import colearn_other.fraud_dataset  # type:ignore # noqa: F401
 
 _logger = get_logger(__name__)
 
@@ -36,6 +41,7 @@ def create_signal_handler(server):
         server.stop()
         _logger.info("...done")
         sys.exit(0)
+
     return signal_handler
 
 
