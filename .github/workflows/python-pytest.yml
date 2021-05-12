@@ -28,4 +28,4 @@ jobs:
         pip install wheel
         pip install tox
     - name: Pytest
-      run: tox -e pytest-slow
+      run: tox -e pytest-slow3.6 -e pytest-slow3.7 -e pytest-slow3.8

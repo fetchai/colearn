@@ -32,7 +32,7 @@ jobs:
     - name: Type checking
       run: tox -e mypy
     - name: Short pytests
-      run: tox -e pytest
+      run: tox -e pytest3.6 -e pytest3.7 -e pytest3.8
     - name: Build docs
       run: tox -e docs
     - name: Check copyright notice
