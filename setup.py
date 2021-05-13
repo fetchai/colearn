@@ -72,7 +72,7 @@ setuptools.setup(
         # Need to fill in
         "Operating System :: OS Independent",
     ],
-    python_requires='~=3.7',
+    python_requires='>=3.6, <3.9',
     install_requires=[
         'google-cloud-storage~=1.35.0',
         'matplotlib~=3.3.0',
