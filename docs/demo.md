@@ -3,7 +3,7 @@
 You can try collective learning for yourself using the simple demo in [run_demo]({{repo_root }}/colearn_examples/ml_interface/run_demo.py). 
 This demo creates n learners for one of five learning tasks and co-ordinates the collective learning between them.
 
-There are five potential models for the demo
+There are six potential models for the demo
 
 * KERAS_MNIST is the Tensorflow implementation of a small model for the standard handwritten digits recognition dataset
 * KERAS_MNIST_RESNET is the Tensorflow implementation of a Resnet model for the standard handwritten digits recognition dataset
