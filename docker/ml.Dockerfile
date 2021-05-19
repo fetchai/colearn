@@ -21,7 +21,7 @@ RUN cd ./colearn && \
     pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir -e .[all]
 
-COPY grpc_examples/run_grpc_server.py ./
+COPY colearn_grpc/scripts/run_grpc_server.py ./
 
 COPY scripts/entrypoint.sh ./
 
