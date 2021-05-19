@@ -7,7 +7,7 @@ There are five potential models for the demo
 
 * KERAS_MNIST is the Tensorflow implementation of a small model for the standard handwritten digits recognition dataset
 * KERAS_MNIST_RESNET is the Tensorflow implementation of a Resnet model for the standard handwritten digits recognition dataset
-* KERAS_CIFAR10 is the Tensorflow implementation of standard image recognition dataset
+* KERAS_CIFAR10 is the Tensorflow implementation of the classical image recognition dataset
 * PYTORCH_XRAY is Pytorch implementation of a binary classification task that requires predicting pneumonia from images of chest X-rays. 
   The data need to be downloaded from [Kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
 * PYTORCH_COVID_XRAY is Pytorch implementation of a 3 class classification task that requires predicting no finding, covid or pneumonia from images of chest X-rays. 
