@@ -45,11 +45,12 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
               gRPC and will be executed on the ML side.
     """
 
-    def __init__(self, name: str, address: str):
+    def __init__(self, name: str, address: str, enable_encryption: bool = False):
         self.name = name
         self.address = address
         self.channel = None
         self.stub: ipb2_grpc.GRPCLearnerStub
+        self.enable_encryption = enable_encryption
 
     def start(self):
         retries = 100
@@ -58,27 +59,35 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
             try:
                 _logger.info(f"Attempt number {i} to connect to {self.address}")
 
-                # Attempt to get the certificate from the server and use it to encrypt the
-                # connection. If the cert cannot be found, try to create an unencrypted connection.
-                try:
-                    assert (':' in self.address), f"Poorly formatted address, needs :port - {self.address}"
-                    _logger.info(f"Connecting to server: {self.address}")
-                    addr, port = self.address.split(':')
-                    trusted_certs = ssl.get_server_certificate((addr, int(port)))
+                if self.enable_encryption:
+                    credentials = None
 
-                    # create credentials
-                    credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs.encode())
-                except ssl.SSLError as e:
-                    _logger.error(f"Encountered ssl error when attempting to get certificate from learner server: {e}")
-                except OSError:
-                    pass
+                    # Attempt to get the certificate from the server and use it to encrypt the
+                    # connection. If the certificate cannot be found, try to create an unencrypted connection.
+                    try:
+                        assert (':' in self.address), f"Poorly formatted address, needs :port - {self.address}"
+                        _logger.info(f"Connecting to server: {self.address}")
+                        addr, port = self.address.split(':')
+                        trusted_certs = ssl.get_server_certificate((addr, int(port)))
 
-                if credentials:
-                    _logger.info("Creating secure channel")
-                    self.channel = grpc.secure_channel(self.address, credentials)
+                        # create credentials
+                        credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs.encode())
+                    except ssl.SSLError as e:
+                        _logger.warning(f"Encountered ssl error when attempting to get certificate from learner server: {e}")
+                    except OSError:
+                        _logger.warning(f"Encountered os error when attempting to get certificate from learner server: {e}")
+
+                    if credentials:
+                        _logger.info("Creating secure channel")
+                        self.channel = grpc.secure_channel(self.address, credentials)
+                    else:
+                        _logger.info("Creating insecure channel")
+                        self.channel = grpc.insecure_channel(self.address)
                 else:
-                    _logger.info("Creating insecure channel")
+                    _logger.info("Creating channel")
                     self.channel = grpc.insecure_channel(self.address)
+
+                self.stub = ipb2_grpc.GRPCLearnerStub(self.channel)
 
                 # Make sure query works
                 self.get_supported_system()
