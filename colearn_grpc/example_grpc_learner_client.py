@@ -81,7 +81,7 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                         _logger.info("Creating secure channel")
                         self.channel = grpc.secure_channel(self.address, credentials)
                     else:
-                        _logger.info("Creating insecure channel")
+                        _logger.warning("Creating insecure channel")
                         self.channel = grpc.insecure_channel(self.address)
                 else:
                     _logger.info("Creating channel")

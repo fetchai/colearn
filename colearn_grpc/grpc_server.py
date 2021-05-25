@@ -17,7 +17,6 @@
 # ------------------------------------------------------------------------------
 from concurrent import futures
 import os
-from pathlib import Path
 import grpc
 
 from colearn_grpc.mli_factory_interface import MliFactory
@@ -27,9 +26,6 @@ import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
 
 from colearn_grpc.logging import get_logger
 
-REPO_ROOT = Path(__file__).absolute().parent.parent
-server_key = REPO_ROOT / "server.key"
-server_crt = REPO_ROOT / "server.crt"
 
 _logger = get_logger(__name__)
 
@@ -42,12 +38,14 @@ class GRPCServer:
     """
 
     def __init__(self, mli_factory: MliFactory, port=None, max_workers=5,
-                 enable_encryption=False):
+                 enable_encryption=False, server_key="", server_crt=""):
         """
             @param mli_factory is a factory object that produces MachineLearningInterface objects
             @param port is the port where the server will listen
             @param max_workers is how many worker threads will be available in the thread pool
             @param enable_encryption if True they the server will try to enable encryption
+            @param server_key path to server key for encryption (if enabled)
+            @param server_crt path to server certificate for encryption (if enabled)
         """
         self.port = port
         self.server = None
@@ -55,6 +53,8 @@ class GRPCServer:
         self.thread_pool = None
         self.max_workers = max_workers
         self.enable_encryption = enable_encryption
+        self.server_key = server_key
+        self.server_crt = server_crt
 
     def run(self):
         if self.server:
@@ -70,12 +70,12 @@ class GRPCServer:
             # if these are not available, fall back to no encryption.
             encrypted_connection = True
 
-            if not os.path.isfile(server_crt):
-                _logger.error(f"Failed to find file {server_crt} needed for encrypted grpc connection - not enabling")
+            if not os.path.isfile(self.server_crt):
+                _logger.error(f"Failed to find file {self.server_crt} needed for encrypted grpc connection - not enabling")
                 encrypted_connection = False
 
-            if not os.path.isfile(server_key):
-                _logger.error(f"Failed to find file {server_key} needed for encrypted grpc connection - not enabling")
+            if not os.path.isfile(self.server_key):
+                _logger.error(f"Failed to find file {self.server_key} needed for encrypted grpc connection - not enabling")
                 encrypted_connection = False
 
         self.thread_pool = futures.ThreadPoolExecutor(
@@ -86,9 +86,9 @@ class GRPCServer:
 
         if encrypted_connection:
             # read in key and certificate
-            with open(server_key, 'rb') as f:
+            with open(self.server_key, 'rb') as f:
                 private_key = f.read()
-            with open(server_crt, 'rb') as f:
+            with open(self.server_crt, 'rb') as f:
                 certificate_chain = f.read()
 
             # create server credentials
