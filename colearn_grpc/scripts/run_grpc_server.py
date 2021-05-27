@@ -16,6 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import argparse
+from pathlib import Path
 import signal
 import sys
 from prometheus_client import start_http_server
@@ -34,6 +35,8 @@ import colearn_other.fraud_dataset  # type:ignore # noqa: F401
 
 _logger = get_logger(__name__)
 
+REPO_ROOT = Path(__file__).absolute().parent.parent
+
 
 def create_signal_handler(server):
     def signal_handler(sig, frame):
@@ -49,9 +52,13 @@ def main():
     cli_args = argparse.ArgumentParser(description='Start GRPC learner server')
     cli_args.add_argument('-p', '--port', type=int, default=9995, help='server port')
     cli_args.add_argument('--metrics_port', type=int, default=9091, help='prometheus metrics webserver port')
+    cli_args.add_argument('--enable_encryption', action="store_true",
+                          help='enable encryption on grpc channel between server and orchestrator')
+    cli_args.add_argument('--server_key', type=str, default=REPO_ROOT / "server.key",
+                          help='path to server key for encryption( if enabled)')
+    cli_args.add_argument('--server_crt', type=str, default=REPO_ROOT / "server.crt",
+                          help='path to server certificate for encryption( if enabled)')
     args = cli_args.parse_args()
-
-    start_http_server(args.metrics_port)
 
     log_levels = {
         "default": "INFO"
@@ -59,8 +66,15 @@ def main():
 
     set_log_levels(log_levels)
 
+    try:
+        start_http_server(args.metrics_port)
+    except Exception as e:  # pylint: disable=W0703
+        _logger.warning(f"Could not start the Prometheus metrics! Due to: {e}")
+
     server = GRPCServer(mli_factory=ExampleMliFactory(),
-                        port=args.port)
+                        port=args.port, enable_encryption=args.enable_encryption,
+                        server_key=args.server_key, server_crt=args.server_crt
+                        )
 
     signal.signal(signal.SIGINT, create_signal_handler(server))
 
