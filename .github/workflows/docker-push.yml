@@ -1,0 +1,23 @@
+name: Container Publish
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-push:
+    name: Dockerhub Push
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        run: |
+          docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and Publish Public Images
+        uses: ejfitzgerald/action-docker-tag@v0.2.0-alpha2
+        with:
+          repo: fetchai/colearn
+          dockerfile: docker/ml.Dockerfile
