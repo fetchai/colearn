@@ -22,6 +22,8 @@ from typing import List, Union
 from google.cloud import storage
 import numpy as np
 
+GAUTH_ENV_VAR_NAME = "GOOGLE_APPLICATION_CREDENTIALS"
+
 
 def split_list_into_fractions(input_list: Union[List, np.ndarray],
                               fractions_list: List,
@@ -76,7 +78,10 @@ def _download_data_from_gcloud(cloud_data_dir, local_data_dir):
     bucket_name, prefix = bucket_name.split('/', 1)
     print(f"Downloading data from google cloud: Bucket {bucket_name}, prefix {prefix}")
 
-    storage_client = storage.Client()
+    if len(os.getenv(GAUTH_ENV_VAR_NAME, "")) > 0:
+        storage_client = storage.Client()
+    else:
+        storage_client = storage.client.Client.create_anonymous_client()
     bucket = storage_client.bucket(bucket_name=bucket_name)
     blobs = bucket.list_blobs(prefix=prefix)  # Get list of files
 

@@ -8,4 +8,4 @@ if test "$#" -eq 1; then
 fi
 
 echo "Running python3 /app/run_grpc_server.py"
-python3 -u /app/run_grpc_server.py --enable_encryption
+python3 -u /app/run_grpc_server.py --enable_encryption --server_key /app/colearn/server.key --server_crt /app/colearn/server.crt
