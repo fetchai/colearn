@@ -72,20 +72,26 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
 async def iterator_to_weights_async(request_iterator: Iterator[WeightsPart], decode=True) -> Weights:
     print(f"############################ here we gooooo??! ############################")
     print("x")
-    first_weights_part = await request_iterator.read()
-    full_weights = bytearray(first_weights_part.total_bytes)
-    bytes_sum = 0
 
-    end_index = first_weights_part.byte_index + len(first_weights_part.weights)
-    full_weights[first_weights_part.byte_index: end_index] = first_weights_part.weights
-    bytes_sum += len(first_weights_part.weights)
-
-    print(f"############################ here we gooooo! ############################")
+    first_time = True
 
     async for weights_part in request_iterator:
-        end_index = weights_part.byte_index + len(weights_part.weights)
-        full_weights[weights_part.byte_index: end_index] = weights_part.weights
-        bytes_sum += len(weights_part.weights)
+        if first_time:
+            first_weights_part = weights_part
+            full_weights = bytearray(first_weights_part.total_bytes)
+            bytes_sum = 0
+
+            end_index = first_weights_part.byte_index + len(first_weights_part.weights)
+            full_weights[first_weights_part.byte_index: end_index] = first_weights_part.weights
+            bytes_sum += len(first_weights_part.weights)
+
+            first_time = False
+
+            print(f"############################ here we gooooo! ############################")
+        else:
+            end_index = weights_part.byte_index + len(weights_part.weights)
+            full_weights[weights_part.byte_index: end_index] = weights_part.weights
+            bytes_sum += len(weights_part.weights)
 
     weights_bytes = bytes(full_weights)
     if decode:
