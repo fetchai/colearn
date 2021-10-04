@@ -68,6 +68,7 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
         # another Weights object.
         return Weights(weights=weights_bytes)
 
+
 @_time_reconstruct_weights.time()
 async def iterator_to_weights_async(request_iterator: Iterator[WeightsPart], decode=True) -> Weights:
     first_time = True
