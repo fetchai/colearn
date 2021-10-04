@@ -70,9 +70,6 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
 
 @_time_reconstruct_weights.time()
 async def iterator_to_weights_async(request_iterator: Iterator[WeightsPart], decode=True) -> Weights:
-    print(f"############################ here we gooooo??! ############################")
-    print("x")
-
     first_time = True
 
     async for weights_part in request_iterator:
@@ -86,8 +83,6 @@ async def iterator_to_weights_async(request_iterator: Iterator[WeightsPart], dec
             bytes_sum += len(first_weights_part.weights)
 
             first_time = False
-
-            print(f"############################ here we gooooo! ############################")
         else:
             end_index = weights_part.byte_index + len(weights_part.weights)
             full_weights[weights_part.byte_index: end_index] = weights_part.weights
