@@ -18,6 +18,7 @@
 import pickle
 from math import ceil
 from typing import Iterator
+from grpc.aio import UnaryStreamCall
 
 from prometheus_client import Summary
 
@@ -70,7 +71,7 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
 
 
 @_time_reconstruct_weights.time()
-async def iterator_to_weights_async(request_iterator: Iterator[WeightsPart], decode=True) -> Weights:
+async def iterator_to_weights_async(request_iterator: UnaryStreamCall[WeightsPart], decode=True) -> Weights:
     first_time = True
 
     async for weights_part in request_iterator:
