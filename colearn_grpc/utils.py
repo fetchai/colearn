@@ -72,7 +72,7 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
 async def iterator_to_weights_async(request_iterator: Iterator[WeightsPart], decode=True) -> Weights:
     print(f"############################ here we gooooo??! ############################")
     print("x")
-    first_weights_part = await next(request_iterator)
+    first_weights_part = await request_iterator.read()
     full_weights = bytearray(first_weights_part.total_bytes)
     bytes_sum = 0
 
