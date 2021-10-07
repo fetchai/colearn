@@ -24,6 +24,10 @@ from colearn_grpc.utils import encode_weights, decode_weights, \
     iterator_to_weights, iterator_to_weights_async, weights_to_iterator, WEIGHTS_PART_SIZE_BYTES
 
 
+def asyncio_run_synchronously(coroutine_to_run):
+    return asyncio.get_event_loop().run_until_complete(coroutine_to_run)
+
+
 def test_encode_decode():
     test_weights = "weights"
     weights = Weights(weights=test_weights)
@@ -68,7 +72,7 @@ def test_in_order_iterator_to_weights_async():
         for i in range(len(test_weights))]
 
     # Easy way to call async coroutine from sync context
-    result = asyncio.run(iterator_to_weights_async(request_iterator=weights_async_gen(parts), decode=False))
+    result = asyncio_run_synchronously(iterator_to_weights_async(request_iterator=weights_async_gen(parts), decode=False))
 
     assert result.weights == test_weights
 
