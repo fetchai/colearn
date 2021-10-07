@@ -16,11 +16,12 @@
 #
 # ------------------------------------------------------------------------------
 
+import asyncio
 from colearn.ml_interface import Weights
 from colearn_grpc.proto.generated.interface_pb2 import WeightsPart
 
 from colearn_grpc.utils import encode_weights, decode_weights, \
-    iterator_to_weights, weights_to_iterator, WEIGHTS_PART_SIZE_BYTES
+    iterator_to_weights, iterator_to_weights_async, weights_to_iterator, WEIGHTS_PART_SIZE_BYTES
 
 
 def test_encode_decode():
@@ -47,6 +48,24 @@ def test_in_order_iterator_to_weights():
         for i in range(len(test_weights))]
 
     result = iterator_to_weights(request_iterator=iter(parts), decode=False)
+
+    assert result.weights == test_weights
+
+def test_in_order_iterator_to_weights_async():
+
+    # Create async generator
+    async def weights_async_gen(parts):
+        for i in parts:
+            yield i
+
+    test_weights = b"abc"
+    parts = [WeightsPart(
+        weights=test_weights[i:i + 1],
+        byte_index=i,
+        total_bytes=len(test_weights))
+        for i in range(len(test_weights))]
+
+    result = asyncio.run(iterator_to_weights_async(request_iterator=weights_async_gen(parts), decode=False))
 
     assert result.weights == test_weights
 
