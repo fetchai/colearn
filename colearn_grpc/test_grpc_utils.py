@@ -51,6 +51,7 @@ def test_in_order_iterator_to_weights():
 
     assert result.weights == test_weights
 
+# An alternate way to reconstruct weights is async with an async generator
 def test_in_order_iterator_to_weights_async():
 
     # Create async generator
@@ -65,6 +66,7 @@ def test_in_order_iterator_to_weights_async():
         total_bytes=len(test_weights))
         for i in range(len(test_weights))]
 
+    # Easy way to call async coroutine from sync context
     result = asyncio.run(iterator_to_weights_async(request_iterator=weights_async_gen(parts), decode=False))
 
     assert result.weights == test_weights
