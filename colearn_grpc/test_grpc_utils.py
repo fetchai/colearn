@@ -51,6 +51,7 @@ def test_in_order_iterator_to_weights():
 
     assert result.weights == test_weights
 
+
 # An alternate way to reconstruct weights is async with an async generator
 def test_in_order_iterator_to_weights_async():
 
