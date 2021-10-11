@@ -16,11 +16,16 @@
 #
 # ------------------------------------------------------------------------------
 
+import asyncio
 from colearn.ml_interface import Weights
 from colearn_grpc.proto.generated.interface_pb2 import WeightsPart
 
 from colearn_grpc.utils import encode_weights, decode_weights, \
-    iterator_to_weights, weights_to_iterator, WEIGHTS_PART_SIZE_BYTES
+    iterator_to_weights, iterator_to_weights_async, weights_to_iterator, WEIGHTS_PART_SIZE_BYTES
+
+
+def asyncio_run_synchronously(coroutine_to_run):
+    return asyncio.get_event_loop().run_until_complete(coroutine_to_run)
 
 
 def test_encode_decode():
@@ -47,6 +52,27 @@ def test_in_order_iterator_to_weights():
         for i in range(len(test_weights))]
 
     result = iterator_to_weights(request_iterator=iter(parts), decode=False)
+
+    assert result.weights == test_weights
+
+
+# An alternate way to reconstruct weights is async with an async generator
+def test_in_order_iterator_to_weights_async():
+
+    # Create async generator
+    async def weights_async_gen(parts):
+        for i in parts:
+            yield i
+
+    test_weights = b"abc"
+    parts = [WeightsPart(
+        weights=test_weights[i:i + 1],
+        byte_index=i,
+        total_bytes=len(test_weights))
+        for i in range(len(test_weights))]
+
+    # Easy way to call async coroutine from sync context
+    result = asyncio_run_synchronously(iterator_to_weights_async(request_iterator=weights_async_gen(parts), decode=False))
 
     assert result.weights == test_weights
 

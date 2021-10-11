@@ -69,6 +69,36 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
         return Weights(weights=weights_bytes)
 
 
+@_time_reconstruct_weights.time()
+async def iterator_to_weights_async(request_iterator, decode=True) -> Weights:
+    first_time = True
+
+    async for weights_part in request_iterator:
+        if first_time:
+            first_weights_part = weights_part
+            full_weights = bytearray(first_weights_part.total_bytes)
+            bytes_sum = 0
+
+            end_index = first_weights_part.byte_index + len(first_weights_part.weights)
+            full_weights[first_weights_part.byte_index: end_index] = first_weights_part.weights
+            bytes_sum += len(first_weights_part.weights)
+
+            first_time = False
+        else:
+            end_index = weights_part.byte_index + len(weights_part.weights)
+            full_weights[weights_part.byte_index: end_index] = weights_part.weights
+            bytes_sum += len(weights_part.weights)
+
+    weights_bytes = bytes(full_weights)
+    if decode:
+        return decode_weights(weights_bytes)
+    else:
+        # On the client side we can't necessarily unpickle the Weights object because the relevant libraries might not
+        # be importable. But we need to return a Weights object to match the MLI. So we wrap the pickled Weights in
+        # another Weights object.
+        return Weights(weights=weights_bytes)
+
+
 @_time_deconstruct_weights.time()
 def weights_to_iterator(input_weights: Weights, encode=True) -> Iterator[WeightsPart]:
     enc_weights: bytes  # this is a pickled Weights object
