@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 import os
 import pickle
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Tuple, List, Optional
 
@@ -27,29 +26,61 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
-from colearn.utils.data import split_list_into_fractions
+from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.utils import normalize_img
+from colearn_grpc.factory_registry import FactoryRegistry
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
 
 
-class ModelType(Enum):
-    CONV2D = 1
+def _make_loader(images: np.array,
+                 labels: np.array,
+                 batch_size: int) -> PrefetchDataset:
+    """
+    Converts array of images and labels to Tensorflow dataset
+    :param images: Numpy array of input data
+    :param labels: Numpy array of output labels
+    :param batch_size: Batch size
+    :return: Shuffled Tensorflow prefetch dataset holding images and labels
+    """
+    dataset = tf.data.Dataset.from_tensor_slices((images, labels))
+    n_datapoints = images.shape[0]
+
+    dataset = dataset.cache()
+    dataset = dataset.shuffle(n_datapoints)
+    dataset = dataset.batch(batch_size)
+    dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+
+    return dataset
 
 
-def _prepare_model(model_type: ModelType, learning_rate: float) -> tf.keras.Model:
+# The dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_dataloader("KERAS_CIFAR10")
+def prepare_data_loaders(location: str,
+                         train_ratio: float = 0.9,
+                         batch_size: int = 32,
+                         ) -> Tuple[PrefetchDataset, PrefetchDataset]:
     """
-    Creates a new instance of selected Keras model
-    :param model_type: Enum that represents selected model type
-    :param learning_rate: Learning rate for optimiser
-    :return: New instance of Keras model
+    Load training data from folders and create train and test dataloader
+
+    :param location: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param batch_size:
+    :return: Tuple of train_loader and test_loader
     """
-    if model_type == ModelType.CONV2D:
-        return _get_keras_cifar10_conv2D_model(learning_rate)
-    else:
-        raise Exception("Model %s not part of the ModelType enum" % model_type)
+
+    data_folder = get_data(location)
+
+    images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
+    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(images))
+    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
+    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
+
+    return train_loader, test_loader
 
 
 def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
@@ -95,24 +126,22 @@ def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
     return model
 
 
-def prepare_learner(model_type: ModelType,
-                    data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+@FactoryRegistry.register_model_architecture("KERAS_CIFAR10", ["KERAS_CIFAR10"])
+def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
-                    **_kwargs) -> KerasLearner:
+                    ) -> KerasLearner:
     """
     Creates new instance of KerasLearner
-    :param model_type: Enum that represents selected model type
     :param data_loaders: Tuple of train_loader and test_loader
     :param steps_per_epoch: Number of batches per training epoch
     :param vote_batches: Number of batches to get vote_score
     :param learning_rate: Learning rate for optimiser
-    :param _kwargs: Residual parameters not used by this function
     :return: New instance of KerasLearner
     """
     learner = KerasLearner(
-        model=_prepare_model(model_type, learning_rate),
+        model=_get_keras_cifar10_conv2D_model(learning_rate),
         train_loader=data_loaders[0],
         test_loader=data_loaders[1],
         criterion="sparse_categorical_accuracy",
@@ -123,57 +152,12 @@ def prepare_learner(model_type: ModelType,
     return learner
 
 
-def _make_loader(images: np.array,
-                 labels: np.array,
-                 batch_size: int) -> PrefetchDataset:
-    """
-    Converts array of images and labels to Tensorflow dataset
-    :param images: Numpy array of input data
-    :param labels: Numpy array of output labels
-    :param batch_size: Batch size
-    :return: Shuffled Tensorflow prefetch dataset holding images and labels
-    """
-    dataset = tf.data.Dataset.from_tensor_slices((images, labels))
-
-    dataset = dataset.cache()
-    dataset = dataset.shuffle(len(dataset))
-    dataset = dataset.batch(batch_size)
-    dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-
-    return dataset
-
-
-def prepare_data_loaders(train_folder: str,
-                         train_ratio: float = 0.9,
-                         batch_size: int = 32,
-                         **_kwargs) -> Tuple[PrefetchDataset, PrefetchDataset]:
-    """
-    Load training data from folders and create train and test dataloader
-
-    :param train_folder: Path to training dataset
-    :param train_ratio: What portion of train_data should be used as test set
-    :param batch_size:
-    :param _kwargs: Residual parameters not used by this function
-    :return: Tuple of train_loader and test_loader
-    """
-
-    images = pickle.load(open(Path(train_folder) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(train_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(images))
-    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
-    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
-
-    return train_loader, test_loader
-
-
 def split_to_folders(
         n_learners: int,
         data_split: Optional[List[float]] = None,
         shuffle_seed: Optional[int] = None,
         output_folder: Optional[Path] = None,
-        **_kwargs
-) -> List[str]:
+        **_kwargs) -> List[str]:
     """
     Loads images with labels and splits them to specified number of subsets
     :param n_learners: Number of parts for splitting

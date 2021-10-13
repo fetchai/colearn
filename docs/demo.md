@@ -1,12 +1,13 @@
 # How to run the demo
 
-You can try collective learning for yourself using the simple demo in `examples/run_demo.py`. 
-This demo creates n learners for one of five learning tasks and co-ordinates the collective learning between them.
+You can try collective learning for yourself using the simple demo in [run_demo]({{repo_root }}/colearn_examples/ml_interface/run_demo.py). 
+This demo creates n learners for one of six learning tasks and co-ordinates the collective learning between them.
 
-There are five potential datasets for the demo
+There are six potential models for the demo
 
-* KERAS_MNIST is the Tensorflow implementation of standard handwritten digits recognition dataset
-* KERAS_CIFAR10 is the Tensorflow implementation of standard image recognition dataset
+* KERAS_MNIST is the Tensorflow implementation of a small model for the standard handwritten digits recognition dataset
+* KERAS_MNIST_RESNET is the Tensorflow implementation of a Resnet model for the standard handwritten digits recognition dataset
+* KERAS_CIFAR10 is the Tensorflow implementation of the classical image recognition dataset
 * PYTORCH_XRAY is Pytorch implementation of a binary classification task that requires predicting pneumonia from images of chest X-rays. 
   The data need to be downloaded from [Kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
 * PYTORCH_COVID_XRAY is Pytorch implementation of a 3 class classification task that requires predicting no finding, covid or pneumonia from images of chest X-rays. 
@@ -17,15 +18,14 @@ There are five potential datasets for the demo
 
 Use the -h flag to see the options:
 ```bash
-examples/run_demo.py -h
+python -m colearn_examples.ml_interface.run_demo -h
 ```
 
 Arguments to run the demo:
 ```
 --data_dir:       Directory containing training data, not required for MNIST and CIFAR10
 --test_dir:       Optional directory containing test data. A fraction of the training set will be used as a test set when not specified
---task:           Type of task for machine learning: KERAS_MNIST, KERAS_CIFAR10, FRAUD, PYTORCH_XRAY, PYTORCH_COVID_XRAY
---model_type:     Type of machine learning model, default model will be used if not specified
+--model:          Model to train, options are KERAS_MNIST KERAS_MNIST_RESNET KERAS_CIFAR10 PYTORCH_XRAY PYTORCH_COVID_XRAY FRAUD
 --n_learners:     Number of individual learners
 --n_rounds:       Number of training rounds
 --vote_threshold: Minimum fraction of positive votes to accept the new model
@@ -39,7 +39,7 @@ Arguments to run the demo:
 The simplest task to run is MNIST because the data are downloaded automatically from `tensorflow_datasets`.
 The command below runs the MNIST task with five learners for 15 rounds.
 ```bash
-examples/run_demo.py --task KERAS_MNIST --n_learners 5 --n_rounds 15
+python -m colearn_examples.ml_interface.run_demo --model KERAS_MNIST --n_learners 5 --n_rounds 15
 ```
 You should see a graph of the vote score and the test score (the score used here is categorical accuracy).
 The new model is accepted if the fraction of positive votes (green colour) is higher than 0.5. 
@@ -53,15 +53,15 @@ In round one, learner 0 is selected to propose a new set of weights.
 ## Other datasets
 To run the CIFAR10 dataset:
 ```bash
-examples/run_demo.py --task KERAS_CIFAR10 --n_learners 5 --n_rounds 15
+python -m colearn_examples.ml_interface.run_demo --model KERAS_CIFAR10 --n_learners 5 --n_rounds 15
 ```
 The Fraud and X-ray datasets need to be downloaded from kaggle (this requires a kaggle account).
 To run the fraud dataset:
 ```bash
-examples/run_demo.py --task FRAUD --n_learners 5 --n_rounds 15 --data_dir ./data/fraud
+python -m colearn_examples.ml_interface.run_demo --model FRAUD --n_learners 5 --n_rounds 15 --data_dir ./data/fraud
 ```
 To run the X-ray dataset:
 ```bash
-examples/run_demo.py --task PYTORCH_XRAY --n_learners 5 --n_rounds 15 --data_dir ./data/xray
+python -m colearn_examples.ml_interface.run_demo --model PYTORCH_XRAY --n_learners 5 --n_rounds 15 --data_dir ./data/xray
 ```
 

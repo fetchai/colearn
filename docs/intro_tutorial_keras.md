@@ -26,7 +26,7 @@ There are three steps:
 In this tutorial we are going to see how to modify each step to use collective learning. 
 We'll end up with code like this:
 ```Python 
-{!../examples/keras_mnist.py!}
+{!../colearn_examples/ml_interface/keras_mnist.py!}
 ```
 
 The first thing is to modify the data loading code.

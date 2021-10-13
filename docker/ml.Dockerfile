@@ -21,15 +21,10 @@ RUN cd ./colearn && \
     pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir -e .[all]
 
-RUN groupadd -g 999 appuser && \
-    useradd -r -u 999 -g appuser appuser
+COPY colearn_grpc/scripts/run_grpc_server.py ./
 
-USER appuser
-
-COPY grpc_examples/run_grpc_server.py ./
+COPY scripts/entrypoint.sh ./
 
 EXPOSE 9995
 EXPOSE 9091
 ENV PYTHONUNBUFFERED 0
-
-ENTRYPOINT [ "python3",  "/app/run_grpc_server.py"]

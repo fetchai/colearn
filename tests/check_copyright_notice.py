@@ -3,11 +3,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-
 """
 This script checks that all the Python files of the repository have:
 
@@ -38,11 +37,11 @@ HEADER_REGEX = r"""(#!/usr/bin/env python3
 #
 #   (Copyright 2021 Fetch.AI Limited|Copyright [0-9]{4}(-[0-9]{4})? [a-zA-Z_]+)
 #
-#   Licensed under the Apache License, Version 2\.0 \(the \"License\"\);
-#   you may not use this file except in compliance with the License\.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4\.0 \(the \"License\"\); you may not use this file except in
+#   compliance with the License\. You may obtain a copy of the License at
 #
-#       http://www\.apache\.org/licenses/LICENSE-2\.0
+#       http://creativecommons\.org/licenses/by-nc/4\.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an \"AS IS\" BASIS,
@@ -69,27 +68,17 @@ def check_copyright(file: Path) -> bool:
     return re.match(header_regex, content) is not None
 
 
-def parse_args():
-    """Parse arguments."""
-    import argparse  # pylint: disable=import-outside-toplevel
-
-    parser = argparse.ArgumentParser("check_copyright_notice")
-    parser.add_argument(
-        "--directory", type=str, default=".", help="The path to the repository root."
-    )
-
-
 if __name__ == "__main__":
     python_files = itertools.chain(
         Path("colearn").glob("**/*.py"),
-        Path("colearn_grpc").glob("**/*.py"),
+        Path("colearn_grpc").glob("*.py"),
         Path("colearn_keras").glob("**/*.py"),
         Path("colearn_other").glob("**/*.py"),
         Path("colearn_pytorch").glob("**/*.py"),
         Path("docker").glob("**/*.py"),
         Path("docs").glob("**/*.py"),
-        Path("examples").glob("**/*.py"),
-        Path("grpc_examples").glob("**/*.py"),
+        Path("colearn_examples").glob("**/*.py"),
+        Path("grpc").glob("**/*.py"),
         Path("tests").glob("**/*.py"),
         [Path("setup.py")],
     )

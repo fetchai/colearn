@@ -20,7 +20,7 @@ For more information on the Collective Learning Protocol see [here](about.md).
 
 ### Current Version
 
-We have released *v.0.2* of the Colearn Machine Learning Interface, the first version of an interface that allows developers to define their own model architectures that can then be used in collective learning. 
+We have released *v.0.2.6* of the Colearn Machine Learning Interface, the first version of an interface that allows developers to define their own model architectures that can then be used in collective learning. 
 Together with the interface we provide a simple backend for local experiments. This is a prototype backend with upcoming blockchain ledger based backends to follow.  
 Future releases will use similar interfaces so that learners built with the current system will work on a different backend that integrates a distributed ledger and provides other improvements.
 The current framework will then be used mainly for model development and debugging.
@@ -43,30 +43,12 @@ To install with just support for Keras or Pytorch:
 
 For more installation options or get the latest (development) version see [Installation](./installation.md)
 
-Then run one of the examples:
+Then run the standalone demo:
    ```bash
-   # Download the examples
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_cifar.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_fraud.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_mnist_diffpriv.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/keras_xray.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_fraud.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/mli_random_forest_iris.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_cifar.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_covid.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_mnist_diffpriv.py
-   wget https://raw.githubusercontent.com/fetchai/colearn/master/examples/pytorch_xray.py
-   # Or they can be accessed from colearn/examples by cloning colearn repo
-
-   # for colearn[keras] or colearn[all]
-   python3 keras_mnist.py
-   # for colearn[pytorch] or colearn[all]
-   python3 pytorch_mnist.py
+   python -m colearn_examples.ml_interface.run_demo
    ``` 
 
-For other examples see the [Examples](./examples.md).
+For plenty of other examples see the [Examples](./examples.md).
 
 ## Writing your own models
 We encourage users to try out the system by writing their own models. 

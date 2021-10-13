@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,33 +21,22 @@ from typing_extensions import TypedDict
 import torch.nn as nn
 import torch.nn.functional as nn_func
 import torch.utils.data
+from opacus import PrivacyEngine
 from torchsummary import summary
 from torchvision import transforms, datasets
 
-from colearn.training import initial_result, collective_learning_round, set_equal_weights
+from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
-from colearn_pytorch.utils import categorical_accuracy
 from colearn_pytorch.pytorch_learner import PytorchLearner
-
-"""
-MNIST training example using PyTorch
-
-Used dataset:
-- MNIST is set of 60 000 black and white hand written digits images of size 28x28x1 in 10 classes
-
-What script does:
-- Loads MNIST dataset from torchvision.datasets
-- Randomly splits dataset between multiple learners
-- Does multiple rounds of learning process and displays plot with results
-"""
 
 # define some constants
 n_learners = 5
 batch_size = 64
+seed = 42
 
 testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
-n_rounds = 20 if not testing_mode else 1
+n_rounds = 10 if not testing_mode else 1
 vote_threshold = 0.5
 train_fraction = 0.9
 learning_rate = 0.001
@@ -55,18 +44,26 @@ height = 28
 width = 28
 n_classes = 10
 vote_batches = 2
-score_name = "categorical accuracy"
+
+# Differential Privacy parameters
+sample_size = 3300
+alphas = list(range(2, 32))
+noise_multiplier = 1.3
+max_grad_norm = 1.0
 
 no_cuda = False
-cuda = not no_cuda and torch.cuda.is_available()
+cuda = not no_cuda and torch.cuda.is_available()  # boring torch stuff
 device = torch.device("cuda" if cuda else "cpu")
 DataloaderKwargs = TypedDict('DataloaderKwargs', {'num_workers': int, 'pin_memory': bool}, total=False)
 kwargs: DataloaderKwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
 # Load the data and split for each learner.
+# Using a torch-native dataloader makes this much easier
+transform = transforms.Compose([
+    transforms.ToTensor()])
 DATA_DIR = os.environ.get('PYTORCH_DATA_DIR',
                           os.path.expanduser(os.path.join('~', 'pytorch_datasets')))
-data = datasets.MNIST(DATA_DIR, transform=transforms.ToTensor(), download=True)
+data = datasets.MNIST(DATA_DIR, transform=transform, download=True)
 n_train = int(train_fraction * len(data))
 n_test = len(data) - n_train
 train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])
@@ -75,16 +72,16 @@ data_split = [len(train_data) // n_learners] * n_learners
 learner_train_data = torch.utils.data.random_split(train_data, data_split)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
+    batch_size=batch_size, shuffle=True, drop_last=True, **kwargs) for ds in learner_train_data]
 
 data_split = [len(test_data) // n_learners] * n_learners
 learner_test_data = torch.utils.data.random_split(test_data, data_split)
 learner_test_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_test_data]
+    batch_size=batch_size, shuffle=True, drop_last=True, **kwargs) for ds in learner_test_data]
 
 
-# Define the model
+# define the neural net architecture in Pytorch
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -109,6 +106,15 @@ all_learner_models = []
 for i in range(n_learners):
     model = Net().to(device)
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    privacy_engine = PrivacyEngine(
+        model,
+        batch_size=batch_size,
+        sample_size=sample_size,
+        alphas=alphas,
+        noise_multiplier=noise_multiplier,
+        max_grad_norm=max_grad_norm
+    )
+    privacy_engine.attach(opt)
     learner = PytorchLearner(
         model=model,
         train_loader=learner_train_dataloaders[i],
@@ -116,24 +122,22 @@ for i in range(n_learners):
         device=device,
         optimizer=opt,
         criterion=torch.nn.NLLLoss(),
-        num_test_batches=vote_batches,
-        vote_criterion=categorical_accuracy,
-        minimise_criterion=False
+        num_test_batches=vote_batches
     )
 
     all_learner_models.append(learner)
 
-# Ensure all learners starts with exactly same weights
-set_equal_weights(all_learner_models)
-
+# print a summary of the model architecture
 summary(all_learner_models[0].model, input_size=(width, height), device=str(device))
 
-# Train the model using Collective Learning
+# Now we're ready to start collective learning
+# Get initial accuracy
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-plot = ColearnPlot(score_name=score_name)
+plot = ColearnPlot(score_name="loss")
 
+score_name = "loss"
 for round_index in range(n_rounds):
     results.data.append(
         collective_learning_round(all_learner_models,
@@ -141,11 +145,8 @@ for round_index in range(n_rounds):
     )
     print_results(results)
 
-    plot.plot_results(results)
-    plot.plot_votes(results)
+    plot.plot_results_and_votes(results)
 
-# Plot the final result with votes
-plot.plot_results(results)
-plot.plot_votes(results, block=True)
+plot.block()
 
 print("Colearn Example Finished!")

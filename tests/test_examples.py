@@ -2,11 +2,11 @@
 #
 #   Copyright 2021 Fetch.AI Limited
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#   Licensed under the Creative Commons Attribution-NonCommercial International
+#   License, Version 4.0 (the "License"); you may not use this file except in
+#   compliance with the License. You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       http://creativecommons.org/licenses/by-nc/4.0/legalcode
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ from typing import List, Dict, Sequence
 import pytest
 
 REPO_ROOT = Path(__file__).absolute().parent.parent
-EXAMPLES_DIR = REPO_ROOT / "examples"
+EXAMPLES_DIR = REPO_ROOT / "colearn_examples/ml_interface"
 
 GITHUB_ACTION = bool(os.getenv("GITHUB_ACTION", ""))
 
@@ -61,11 +61,12 @@ EXAMPLES_WITH_KWARGS = [
     ("pytorch_mnist.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
     ("pytorch_mnist_diffpriv.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
     ("pytorch_xray.py", [XRAY_DATA_DIR], {}),
-    ("run_demo.py", ["-t", "PYTORCH_XRAY", "-d", str(XRAY_DATA_DIR / "train")] + STANDARD_DEMO_ARGS, {}),
-    ("run_demo.py", ["-t", "KERAS_MNIST"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("run_demo.py", ["-t", "KERAS_CIFAR10"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("run_demo.py", ["-t", "PYTORCH_COVID_XRAY", "-d", str(COVID_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
-    ("run_demo.py", ["-t", "FRAUD", "-d", str(FRAUD_DATA_DIR)] + STANDARD_DEMO_ARGS, {})
+    ("run_demo.py", ["-m", "PYTORCH_XRAY", "-d", str(XRAY_DATA_DIR / "train")] + STANDARD_DEMO_ARGS, {}),
+    ("run_demo.py", ["-m", "KERAS_MNIST"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    ("run_demo.py", ["-m", "KERAS_CIFAR10"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    ("run_demo.py", ["-m", "PYTORCH_COVID_XRAY", "-d", str(COVID_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
+    ("run_demo.py", ["-m", "FRAUD", "-d", str(FRAUD_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
+    ("xgb_reg_boston.py", [], {}),
 ]
 
 IGNORED: List[str] = []
@@ -75,7 +76,7 @@ IGNORED: List[str] = []
 @pytest.mark.slow
 def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str, str]):
     env = os.environ
-    env["MPLBACKEND"] = "agg"  # disable interacitve plotting
+    env["MPLBACKEND"] = "agg"  # disable interactive plotting
     env["COLEARN_EXAMPLES_TEST"] = "1"  # enables test mode, which sets n_rounds=1
     env.update(test_env)
     print("Additional envvars:", test_env)
