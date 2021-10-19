@@ -31,7 +31,7 @@ pytorch_deps = [
     'Pillow~=8.0.1',
     'scikit-learn~=0.23.0',
     'scipy~=1.5.0',
-    'torch~=1.7.0',
+    'torch>=1.7,<1.10',
     'torchsummary~=1.5.0',
     'torchvision~=0.8.0',
 ]
