@@ -17,7 +17,7 @@ jobs:
           docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and Publish Public Images
-        uses: ejfitzgerald/action-docker-tag@v1
+        uses: ejfitzgerald/action-docker-tag@v0.2.0-alpha2
         with:
           repo: fetchai/colearn
           dockerfile: docker/ml.Dockerfile
