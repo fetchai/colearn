@@ -27,7 +27,7 @@ other_deps = [
     'scikit-learn~=0.23.0',
 ]
 pytorch_deps = [
-    'opacus~=0.10.0',
+    'opacus>=0.10,<0.15',
     'Pillow~=8.0.1',
     'scikit-learn~=0.23.0',
     'scipy~=1.5.0',
