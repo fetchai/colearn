@@ -33,7 +33,7 @@ pytorch_deps = [
     'scipy~=1.5.0',
     'torch>=1.7,<1.10',
     'torchsummary~=1.5.0',
-    'torchvision~=0.8.0',
+    'torchvision>=0.8,<0.11',
 ]
 docs_deps = [
     "mkdocs",
