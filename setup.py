@@ -24,12 +24,12 @@ keras_deps = [
 ]
 other_deps = [
     'pandas~=1.1.0',
-    'scikit-learn~=0.23.0',
+    'scikit-learn>=0.23,<1.1',
 ]
 pytorch_deps = [
     'opacus>=0.10,<0.15',
     'Pillow~=8.0.1',
-    'scikit-learn~=0.23.0',
+    'scikit-learn>=0.23,<1.1',
     'scipy~=1.5.0',
     'torch>=1.7,<1.10',
     'torchsummary~=1.5.0',
