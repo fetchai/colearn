@@ -45,7 +45,7 @@ docs_deps = [
 
 grpc_deps = ['grpcio~=1.35.0',
              'grpcio-tools>=1.35,<1.42',
-             'prometheus_client==0.9.0',
+             'prometheus_client==0.11.0',
              'click'
              ]
 all_deps = list(set(keras_deps + other_deps + pytorch_deps + grpc_deps)) + ["xgboost"]
