@@ -20,7 +20,7 @@ import setuptools
 keras_deps = [
     'tensorflow~=2.2.0',
     'tensorflow_datasets>=4.2,<4.5',
-    'tensorflow-privacy~=0.5.0',
+    'tensorflow-privacy>=0.5,<0.8',
 ]
 other_deps = [
     'pandas~=1.1.0',
