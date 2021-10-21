@@ -19,7 +19,7 @@ import setuptools
 
 keras_deps = [
     'tensorflow~=2.2.0',
-    'tensorflow_datasets~=4.2.0',
+    'tensorflow_datasets>=4.2,<4.5',
     'tensorflow-privacy~=0.5.0',
 ]
 other_deps = [
@@ -76,7 +76,7 @@ setuptools.setup(
     install_requires=[
         'google-cloud-storage>=1.35,<1.43',
         'matplotlib~=3.3.0',
-        'numpy~=1.16.0',
+        'numpy>=1.16,<1.22',
         'pydantic~=1.7.0',
     ],
     tests_require=["tox~=3.20.0"],
