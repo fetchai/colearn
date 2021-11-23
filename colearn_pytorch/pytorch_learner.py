@@ -162,10 +162,12 @@ class PytorchLearner(MachineLearningInterface):
         :return: bool positive or negative vote
         """
 
+        print(f"####### voting! {new_score} and {self.vote_score} to compare!")
+
         if self.minimise_criterion:
-            return new_score <= self.vote_score
+            return new_score < self.vote_score
         else:
-            return new_score >= self.vote_score
+            return new_score > self.vote_score
 
     def test(self, loader: torch.utils.data.DataLoader) -> float:
         """

@@ -118,10 +118,13 @@ class KerasLearner(MachineLearningInterface):
         :param new_score: Proposed score
         :return: bool positive or negative vote
         """
+
+        print(f"####### voting! {new_score} and {self.vote_score} {self.minimise_criterion} to compare!")
+
         if self.minimise_criterion:
-            return new_score <= self.vote_score
+            return new_score < self.vote_score
         else:
-            return new_score >= self.vote_score
+            return new_score > self.vote_score
 
     def mli_accept_weights(self, weights: Weights):
         """
@@ -129,7 +132,9 @@ class KerasLearner(MachineLearningInterface):
         :param weights: The new weights
         """
         self.set_weights(weights)
+        print(f"accept weights. vote score before: {self.vote_score}")
         self.vote_score = self.test(self.train_loader)
+        print(f"accept weights. vote score after: {self.vote_score}")
 
     def mli_get_current_weights(self) -> Weights:
         """

@@ -89,8 +89,20 @@ def _download_data_from_gcloud(cloud_data_dir, local_data_dir):
     file_counter = 0
     for blob in blobs:
         filename = blob.name
+
+        if filename[-1] is '/':
+            print(f"Skipping malformed filename {filename}")
+            continue
+
         local_filename = Path(local_data_dir) / filename
-        os.makedirs(local_filename.parent, exist_ok=True)
+        print(f"blobby!!! {blob} {local_filename} {local_filename.parent}")
+
+        try:
+            os.makedirs(local_filename.parent, exist_ok=True)
+        except Exception as e:
+            print(f"ARGH: {e}")
+            continue
+
         blob.download_to_filename(local_filename)  # Download
         file_counter += 1
 

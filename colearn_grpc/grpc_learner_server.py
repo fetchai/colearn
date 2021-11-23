@@ -111,7 +111,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         response = ipb2.ResponseMLSetup()
         self._learner_mutex.acquire()
         try:
-            _logger.info(f"Got MLSetup request: {request}")
+            _logger.info(f"Got MLSetup request: {request} !!!!")
             self.learner = self.mli_factory.get_mli(
                 model_name=request.model_arch_name,
                 model_params=request.model_parameters,
