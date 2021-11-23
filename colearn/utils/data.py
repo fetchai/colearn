@@ -95,12 +95,7 @@ def _download_data_from_gcloud(cloud_data_dir, local_data_dir):
             continue
 
         local_filename = Path(local_data_dir) / filename
-
-        try:
-            os.makedirs(local_filename.parent, exist_ok=True)
-        except Exception as e:
-            print(f"Failed to make dir {local_filename.parent}: {e}")
-            continue
+        os.makedirs(local_filename.parent, exist_ok=True)
 
         blob.download_to_filename(local_filename)  # Download
         file_counter += 1
