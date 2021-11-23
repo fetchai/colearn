@@ -90,8 +90,8 @@ def _download_data_from_gcloud(cloud_data_dir, local_data_dir):
     for blob in blobs:
         filename = blob.name
 
-        if filename[-1] is '/':
-            print(f"Skipping malformed filename {filename}")
+        if blob.size == 0:
+            print(f"Skipping empty file {filename}")
             continue
 
         local_filename = Path(local_data_dir) / filename
