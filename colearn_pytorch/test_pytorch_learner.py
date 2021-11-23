@@ -93,7 +93,7 @@ def test_vote(nkl):
 
     assert nkl.minimise_criterion is True
     assert nkl.vote(vote_score + 0.1) is False
-    assert nkl.vote(vote_score) is True
+    assert nkl.vote(vote_score) is False
     assert nkl.vote(vote_score - 0.1) is True
 
 
@@ -104,7 +104,7 @@ def test_vote_minimise_criterion(nkl):
     nkl.minimise_criterion = False
 
     assert nkl.vote(vote_score + 0.1) is True
-    assert nkl.vote(vote_score) is True
+    assert nkl.vote(vote_score) is False
     assert nkl.vote(vote_score - 0.1) is False
 
 

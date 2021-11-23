@@ -78,6 +78,7 @@ setuptools.setup(
         'matplotlib~=3.3.0',
         'numpy~=1.16.0',
         'pydantic~=1.7.0',
+        'tensorflow~=2.2.0',
     ],
     tests_require=["tox~=3.20.0"],
     extras_require={
