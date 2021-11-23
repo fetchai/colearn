@@ -2,7 +2,7 @@
 
 if test "$#" -eq 1; then
     DOMAIN=$1
-    echo "Setting up self signed certificate for domain $DOMAIN !"
+    echo "Setting up self signed certificate for domain $DOMAIN"
 
     cd /app/colearn && openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt -subj "/C=GB/ST=Cambridge/L=Cambridge/O=None/OU=None Department/CN=$DOMAIN"
 fi
