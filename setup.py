@@ -18,7 +18,7 @@
 import setuptools
 
 keras_deps = [
-    'tensorflow~=2.2.0',
+    'tensorflow>=2.2,<2.8',
     'tensorflow_datasets>=4.2,<4.5',
     'tensorflow-privacy~=0.5.0',
 ]
@@ -31,7 +31,7 @@ pytorch_deps = [
     'Pillow~=8.0.1',
     'scikit-learn>=0.23,<1.1',
     'scipy~=1.5.0',
-    'torch>=1.7,<1.10',
+    'torch>=1.7,<1.11',
     'torchsummary~=1.5.0',
     'torchvision>=0.8,<0.11',
 ]
