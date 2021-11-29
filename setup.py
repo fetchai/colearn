@@ -33,7 +33,7 @@ pytorch_deps = [
     'scipy~=1.5.0',
     'torch>=1.7,<1.11',
     'torchsummary~=1.5.0',
-    'torchvision>=0.8,<0.11',
+    'torchvision>=0.8,<0.12',
 ]
 docs_deps = [
     "mkdocs",
@@ -45,7 +45,7 @@ docs_deps = [
 
 grpc_deps = ['grpcio>=1.35,<1.42',
              'grpcio-tools>=1.35,<1.42',
-             'prometheus_client==0.11.0',
+             'prometheus_client==0.12.0',
              'click'
              ]
 all_deps = list(set(keras_deps + other_deps + pytorch_deps + grpc_deps)) + ["xgboost"]
