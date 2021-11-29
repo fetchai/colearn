@@ -89,8 +89,14 @@ def _download_data_from_gcloud(cloud_data_dir, local_data_dir):
     file_counter = 0
     for blob in blobs:
         filename = blob.name
+
+        if blob.size == 0:
+            print(f"Skipping empty file {filename}")
+            continue
+
         local_filename = Path(local_data_dir) / filename
         os.makedirs(local_filename.parent, exist_ok=True)
+
         blob.download_to_filename(local_filename)  # Download
         file_counter += 1
 

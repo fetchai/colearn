@@ -163,9 +163,9 @@ class PytorchLearner(MachineLearningInterface):
         """
 
         if self.minimise_criterion:
-            return new_score <= self.vote_score
+            return new_score < self.vote_score
         else:
-            return new_score >= self.vote_score
+            return new_score > self.vote_score
 
     def test(self, loader: torch.utils.data.DataLoader) -> float:
         """

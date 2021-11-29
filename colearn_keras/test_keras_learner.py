@@ -48,7 +48,7 @@ def test_vote(nkl):
     assert nkl.vote_score == get_mock_model().evaluate.return_value["loss"]
 
     assert nkl.vote(1.1) is False
-    assert nkl.vote(1) is True
+    assert nkl.vote(1) is False
     assert nkl.vote(0.9) is True
 
 
@@ -56,7 +56,7 @@ def test_minimise_criterion(nkl):
     nkl.minimise_criterion = False
 
     assert nkl.vote(1.1) is True
-    assert nkl.vote(1) is True
+    assert nkl.vote(1) is False
     assert nkl.vote(0.9) is False
 
 
