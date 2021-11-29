@@ -18,7 +18,7 @@
 import setuptools
 
 keras_deps = [
-    'tensorflow~=2.2.0',
+    'tensorflow>=2.2,<2.8',
     'tensorflow_datasets>=4.2,<4.5',
     'tensorflow-privacy>=0.5,<0.8',
 ]
@@ -79,7 +79,7 @@ setuptools.setup(
         'numpy~=1.16.0',
         'pydantic~=1.7.0',
     ],
-    tests_require=["tox~=3.20.0"],
+    tests_require=["tox>=3.20,<3.25"],
     extras_require={
         'keras': keras_deps,
         'other': other_deps,
