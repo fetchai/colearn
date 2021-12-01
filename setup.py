@@ -27,7 +27,7 @@ other_deps = [
     'scikit-learn>=0.23,<1.1',
 ]
 pytorch_deps = [
-    'opacus>=0.10,<0.15',
+    'opacus>=0.10,<1.1',
     'Pillow~=8.0.1',
     'scikit-learn>=0.23,<1.1',
     'scipy~=1.5.0',
@@ -44,7 +44,7 @@ docs_deps = [
 ]
 
 grpc_deps = ['grpcio>=1.35,<1.42',
-             'grpcio-tools>=1.35,<1.42',
+             'grpcio-tools>=1.35,<1.43',
              'prometheus_client==0.12.0',
              'click'
              ]
@@ -79,7 +79,7 @@ setuptools.setup(
         'numpy~=1.16.0',
         'pydantic~=1.7.0',
     ],
-    tests_require=["tox~=3.20.0"],
+    tests_require=["tox>=3.20,<3.25"],
     extras_require={
         'keras': keras_deps,
         'other': other_deps,
