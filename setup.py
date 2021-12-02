@@ -74,7 +74,7 @@ setuptools.setup(
     ],
     python_requires='>=3.6, <3.9',
     install_requires=[
-        'google-cloud-storage>=1.35,<1.43',
+        'google-cloud-storage>=1.35,<1.44',
         'matplotlib~=3.3.0',
         'numpy~=1.16.0',
         'pydantic~=1.7.0',
