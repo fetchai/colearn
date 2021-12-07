@@ -94,10 +94,7 @@ class PytorchLearner(MachineLearningInterface):
         :param weights: Weights to be stored
         """
 
-        with torch.no_grad():
-            for new_param, old_param in zip(weights.weights,
-                                            self.model.parameters()):
-                old_param.set_(new_param)
+        self.model.load_state_dict(weights.weights)
 
     def train(self):
         """
