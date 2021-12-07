@@ -76,6 +76,37 @@ class KerasLearner(MachineLearningInterface):
 
         self.vote_score: float = self.test(self.train_loader)
 
+    def recompile_model(self):
+        """
+        Recompiles the Keras model. This way the optimizer history get erased,
+        which is needed before a new training round, otherwise the outdated history is used.
+        """
+        compile_args = self.model._get_compile_args()
+        opt_config = self.model.optimizer.get_config()
+
+        if opt_config['name'] == 'Adadelta':
+            compile_args['optimizer'] = keras.optimizers.Adadelta.from_config(opt_config)
+        elif opt_config['name'] == 'Adagrad':
+            compile_args['optimizer'] = keras.optimizers.Adagrad.from_config(opt_config)
+        elif opt_config['name'] == 'Adam':
+            compile_args['optimizer'] = keras.optimizers.Adam.from_config(opt_config)
+        elif opt_config['name'] == 'Adamax':
+            compile_args['optimizer'] = keras.optimizers.Adamax.from_config(opt_config)  
+        elif opt_config['name'] == 'Ftrl':
+            compile_args['optimizer'] = keras.optimizers.Ftrl.from_config(opt_config)
+        elif opt_config['name'] == 'Nadam':
+            compile_args['optimizer'] = keras.optimizers.Nadam.from_config(opt_config)
+        elif opt_config['name'] == 'RMSprop':
+            compile_args['optimizer'] = keras.optimizers.RMSprop.from_config(opt_config)
+        elif opt_config['name'] == 'SGD':
+            compile_args['optimizer'] = keras.optimizers.SGD.from_config(opt_config)
+        else:
+            raise NotImplementedError(f'''
+            The history erasing is not implemented yet for {opt_config['name']} optimizer.
+            Please raise an issue ticket.
+            ''')
+        self.model.compile(**compile_args)
+
     def mli_propose_weights(self) -> Weights:
         """
         Trains model on training set and returns new weights after training
@@ -83,6 +114,7 @@ class KerasLearner(MachineLearningInterface):
         :return: Weights after training
         """
         current_weights = self.mli_get_current_weights()
+        self.recompile_model() # erase the outdated optimizer memory (momentums mostly)
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)
