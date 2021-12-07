@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 from typing import Optional, Callable
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 
 try:
     import torch
@@ -82,7 +82,7 @@ class PytorchLearner(MachineLearningInterface):
         :return: The current weights of the model
         """
 
-        current_state_dict = {}
+        current_state_dict = OrderedDict()
         for key in self.model.state_dict():
             current_state_dict[key] = self.model.state_dict()[key].clone()    
         w = Weights(weights=current_state_dict)
