@@ -16,6 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 from typing import Optional, Callable
+from collections import defaultdict
 
 try:
     import torch
@@ -100,6 +101,9 @@ class PytorchLearner(MachineLearningInterface):
         """
         Trains the model on the training dataset
         """
+
+        # erase the outdated optimizer memory (momentums mostly)
+        self.optimizer.__setstate__({'state': defaultdict(dict)})
 
         self.model.train()
 
