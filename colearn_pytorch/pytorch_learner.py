@@ -81,7 +81,11 @@ class PytorchLearner(MachineLearningInterface):
         :return: The current weights of the model
         """
 
-        w = Weights(weights=[x.clone() for x in self.model.parameters()])
+        current_state_dict = {}
+        for key in self.model.state_dict():
+            current_state_dict[key] = self.model.state_dict()[key].clone()    
+        w = Weights(weights=current_state_dict)
+
         return w
 
     def set_weights(self, weights: Weights):
