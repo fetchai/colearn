@@ -16,7 +16,8 @@
 #
 # ------------------------------------------------------------------------------
 import abc
-from typing import Any
+from enum import Enum
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -30,6 +31,17 @@ class ProposedWeights(BaseModel):
     vote_score: float
     test_score: float
     vote: bool
+
+
+class ModelFormat(Enum):
+    PICKLE_WEIGHTS_ONLY = 1
+    ONNX = 2
+
+
+class ColearnModel(BaseModel):
+    model_format: ModelFormat
+    model_file: Optional[str]
+    model: Optional[Any]
 
 
 class MachineLearningInterface(abc.ABC):
