@@ -60,7 +60,7 @@ class ColearnPlot:
 
         n_rounds = len(results.data)
         n_learners = len(results.data[0].vote_scores)
-        for i in range(n_learners):
+        for i in range(n_learners-1):
             self.results_axes.plot(
                 range(n_rounds),
                 results.h_test_scores[i],

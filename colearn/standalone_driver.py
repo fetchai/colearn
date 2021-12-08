@@ -27,16 +27,23 @@ def run(n_rounds: int, learners: List[MachineLearningInterface]):
 
 def run_one_round(round_index: int, learners: Sequence[MachineLearningInterface],
                   vote_threshold=0.5):
+
+    # Get weights from proposer
     proposer = round_index % len(learners)
     new_weights = learners[proposer].mli_propose_weights()
 
     prop_weights_list = [ln.mli_test_weights(new_weights) for ln in learners]
+
+    # Invalidate vote on self since not allowed
+    prop_weights_list[proposer].vote = None
+
     approves = sum(1 if v.vote else 0 for v in prop_weights_list)
 
     vote = False
-    if approves >= len(learners) * vote_threshold:
+    if approves >= (len(prop_weights_list) - 1) * vote_threshold:
         vote = True
-        for j, learner in enumerate(learners):
-            learner.mli_accept_weights(prop_weights_list[j].weights)
+        # Set all learners to new weights
+        for _, learner in enumerate(learners):
+            learner.mli_accept_weights(prop_weights_list[0].weights)
 
     return prop_weights_list, vote

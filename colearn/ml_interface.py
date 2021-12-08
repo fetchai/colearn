@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import abc
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -29,7 +29,7 @@ class ProposedWeights(BaseModel):
     weights: Weights
     vote_score: float
     test_score: float
-    vote: bool
+    vote: Optional[bool]
 
 
 class MachineLearningInterface(abc.ABC):
