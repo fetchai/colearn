@@ -15,7 +15,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-from unittest.mock import Mock, MagicMock, create_autospec
+from unittest.mock import Mock, create_autospec
 from collections import OrderedDict
 
 import pytest
@@ -27,7 +27,7 @@ from colearn.ml_interface import Weights
 from colearn_pytorch.pytorch_learner import PytorchLearner
 
 # torch does not correctly type-hint its tensor class so pylint fails
-MODEL_PARAMETERS = OrderedDict({'param1':torch.tensor([3, 3]), 'param2': torch.tensor([4, 4])})  # pylint: disable=not-callable
+MODEL_PARAMETERS = OrderedDict({'param1': torch.tensor([3, 3]), 'param2': torch.tensor([4, 4])})  # pylint: disable=not-callable
 MODEL_PARAMETERS2 = OrderedDict({'param1': torch.tensor([5, 5]), 'param2': torch.tensor([6, 6])})  # pylint: disable=not-callable
 BATCH_SIZE = 2
 TRAIN_BATCHES = 1

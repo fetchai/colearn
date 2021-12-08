@@ -81,7 +81,7 @@ class KerasLearner(MachineLearningInterface):
         Recompiles the Keras model. This way the optimizer history get erased,
         which is needed before a new training round, otherwise the outdated history is used.
         """
-        compile_args = self.model._get_compile_args()
+        compile_args = self.model._get_compile_args()  # pylint: disable=protected-access
         opt_config = self.model.optimizer.get_config()
 
         if opt_config['name'] == 'Adadelta':
@@ -91,7 +91,7 @@ class KerasLearner(MachineLearningInterface):
         elif opt_config['name'] == 'Adam':
             compile_args['optimizer'] = keras.optimizers.Adam.from_config(opt_config)
         elif opt_config['name'] == 'Adamax':
-            compile_args['optimizer'] = keras.optimizers.Adamax.from_config(opt_config)  
+            compile_args['optimizer'] = keras.optimizers.Adamax.from_config(opt_config)
         elif opt_config['name'] == 'Ftrl':
             compile_args['optimizer'] = keras.optimizers.Ftrl.from_config(opt_config)
         elif opt_config['name'] == 'Nadam':
@@ -114,7 +114,8 @@ class KerasLearner(MachineLearningInterface):
         :return: Weights after training
         """
         current_weights = self.mli_get_current_weights()
-        self.recompile_model() # erase the outdated optimizer memory (momentums mostly)
+        # erase the outdated optimizer memory (momentums mostly)
+        self.recompile_model()
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)

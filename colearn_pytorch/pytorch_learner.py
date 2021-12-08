@@ -84,7 +84,7 @@ class PytorchLearner(MachineLearningInterface):
 
         current_state_dict = OrderedDict()
         for key in self.model.state_dict():
-            current_state_dict[key] = self.model.state_dict()[key].clone()    
+            current_state_dict[key] = self.model.state_dict()[key].clone()
         w = Weights(weights=current_state_dict)
 
         return w

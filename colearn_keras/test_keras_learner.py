@@ -29,7 +29,7 @@ def get_mock_model() -> mock.Mock:
                                    "accuracy": 3}
     model.get_weights.return_value = "all the weights"
     model.optimizer.get_config.return_value = {"name": "Adam"}
-    model._get_compile_args.return_value = {}
+    model._get_compile_args.return_value = {}  # pylint: disable=protected-access
     return model
 
 
