@@ -36,6 +36,7 @@ class KerasLearner(MachineLearningInterface):
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
                  test_loader: Optional[tf.data.Dataset] = None,
+                 need_reset_optimizer: bool = True,
                  minimise_criterion: bool = True,
                  criterion: str = 'loss',
                  model_fit_kwargs: Optional[dict] = None,
@@ -44,6 +45,7 @@ class KerasLearner(MachineLearningInterface):
         :param model: Keras model used for training
         :param train_loader: Training dataset
         :param test_loader: Optional test set. Subset of training set will be used if not specified.
+        :param need_reset_optimizer: True to clear optimizer history before training, False to kepp history.
         :param minimise_criterion: Boolean - True to minimise value of criterion, False to maximise
         :param criterion: Function to measure model performance
         :param model_fit_kwargs: Arguments to be passed on model.fit function call
@@ -52,6 +54,7 @@ class KerasLearner(MachineLearningInterface):
         self.model: keras.Model = model
         self.train_loader: tf.data.Dataset = train_loader
         self.test_loader: Optional[tf.data.Dataset] = test_loader
+        self.need_reset_optimizer = need_reset_optimizer
         self.minimise_criterion: bool = minimise_criterion
         self.criterion = criterion
         self.model_fit_kwargs = model_fit_kwargs or {}
@@ -76,7 +79,7 @@ class KerasLearner(MachineLearningInterface):
 
         self.vote_score: float = self.test(self.train_loader)
 
-    def recompile_model(self):
+    def reset_optimizer(self):
         """
         Recompiles the Keras model. This way the optimizer history get erased,
         which is needed before a new training round, otherwise the outdated history is used.
@@ -84,27 +87,9 @@ class KerasLearner(MachineLearningInterface):
         compile_args = self.model._get_compile_args()  # pylint: disable=protected-access
         opt_config = self.model.optimizer.get_config()
 
-        if opt_config['name'] == 'Adadelta':
-            compile_args['optimizer'] = keras.optimizers.Adadelta.from_config(opt_config)
-        elif opt_config['name'] == 'Adagrad':
-            compile_args['optimizer'] = keras.optimizers.Adagrad.from_config(opt_config)
-        elif opt_config['name'] == 'Adam':
-            compile_args['optimizer'] = keras.optimizers.Adam.from_config(opt_config)
-        elif opt_config['name'] == 'Adamax':
-            compile_args['optimizer'] = keras.optimizers.Adamax.from_config(opt_config)
-        elif opt_config['name'] == 'Ftrl':
-            compile_args['optimizer'] = keras.optimizers.Ftrl.from_config(opt_config)
-        elif opt_config['name'] == 'Nadam':
-            compile_args['optimizer'] = keras.optimizers.Nadam.from_config(opt_config)
-        elif opt_config['name'] == 'RMSprop':
-            compile_args['optimizer'] = keras.optimizers.RMSprop.from_config(opt_config)
-        elif opt_config['name'] == 'SGD':
-            compile_args['optimizer'] = keras.optimizers.SGD.from_config(opt_config)
-        else:
-            raise NotImplementedError(f'''
-            The history erasing is not implemented yet for {opt_config['name']} optimizer.
-            Please raise an issue ticket.
-            ''')
+        compile_args['optimizer'] = getattr(keras.optimizers, 
+                                            opt_config['name']).from_config(opt_config)
+
         self.model.compile(**compile_args)
 
     def mli_propose_weights(self) -> Weights:
@@ -114,8 +99,6 @@ class KerasLearner(MachineLearningInterface):
         :return: Weights after training
         """
         current_weights = self.mli_get_current_weights()
-        # erase the outdated optimizer memory (momentums mostly)
-        self.recompile_model()
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)
@@ -182,6 +165,11 @@ class KerasLearner(MachineLearningInterface):
         """
         Trains the model on the training dataset
         """
+
+        if self.need_reset_optimizer:
+            # erase the outdated optimizer memory (momentums mostly)
+            self.reset_optimizer()
+
         self.model.fit(self.train_loader, **self.model_fit_kwargs)
 
     def test(self, loader: tf.data.Dataset) -> float:
