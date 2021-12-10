@@ -87,7 +87,7 @@ class KerasLearner(MachineLearningInterface):
         compile_args = self.model._get_compile_args()  # pylint: disable=protected-access
         opt_config = self.model.optimizer.get_config()
 
-        compile_args['optimizer'] = getattr(keras.optimizers, 
+        compile_args['optimizer'] = getattr(keras.optimizers,
                                             opt_config['name']).from_config(opt_config)
 
         self.model.compile(**compile_args)
