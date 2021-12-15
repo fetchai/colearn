@@ -110,12 +110,17 @@ class ColearnPlot:
 
         green_colour = np.array([204, 255, 204], dtype=np.int)
         red_colour = np.array([255, 153, 153], dtype=np.int)
+        grey_colour = np.array([53, 53, 53], dtype=np.int)
+
+        # Default fill: grey colour. Green and red will not match to 'None' in the votes_array
         coloured_votes_array[votes_array == 1] = green_colour
         coloured_votes_array[votes_array == 0] = red_colour
+        coloured_votes_array[(votes_array != 1) & (votes_array != 0)] = grey_colour
 
         # make extra legend entries
         red_patch_handle = mpatches.Patch(color=red_colour / 256, label='Negative vote')
         green_patch_handle = mpatches.Patch(color=green_colour / 256, label='Positive vote')
+        grey_patch_handle = mpatches.Patch(color=grey_colour / 256, label='Did not vote')
 
         self.votes_axes.imshow(coloured_votes_array, aspect="auto", interpolation='nearest')
 
@@ -147,7 +152,7 @@ class ColearnPlot:
         self.votes_axes.set_xlabel("training round")
 
         handles, _ = self.votes_axes.get_legend_handles_labels()
-        self.votes_axes.legend(handles=handles + [green_patch_handle, red_patch_handle])
+        self.votes_axes.legend(handles=handles + [green_patch_handle, red_patch_handle, grey_patch_handle])
 
         # Gridlines based on minor ticks
         self.votes_axes.set_xticks(np.arange(-0.5, n_rounds, 1), minor=True)
