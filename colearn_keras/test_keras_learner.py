@@ -78,3 +78,15 @@ def test_get_current_weights(nkl):
     weights = nkl.mli_get_current_weights()
     assert isinstance(weights, Weights)
     assert weights.weights == get_mock_model().get_weights.return_value
+
+def test_privacy_budget():
+    # exceeded
+    # note exceeded
+
+def test_optimizer_reset():
+    # with privacy
+    # without privacy
+
+def test_privacy():
+    # turned off
+    # turned on
