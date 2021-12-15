@@ -16,6 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 from unittest.mock import Mock, create_autospec
+from collections import OrderedDict
 
 import pytest
 import torch
@@ -26,8 +27,8 @@ from colearn.ml_interface import Weights
 from colearn_pytorch.pytorch_learner import PytorchLearner
 
 # torch does not correctly type-hint its tensor class so pylint fails
-MODEL_PARAMETERS = [torch.tensor([3, 3]), torch.tensor([4, 4])]  # pylint: disable=not-callable
-MODEL_PARAMETERS2 = [torch.tensor([5, 5]), torch.tensor([6, 6])]  # pylint: disable=not-callable
+MODEL_PARAMETERS = OrderedDict({'param1': torch.tensor([3, 3]), 'param2': torch.tensor([4, 4])})  # pylint: disable=not-callable
+MODEL_PARAMETERS2 = OrderedDict({'param1': torch.tensor([5, 5]), 'param2': torch.tensor([6, 6])})  # pylint: disable=not-callable
 BATCH_SIZE = 2
 TRAIN_BATCHES = 1
 TEST_BATCHES = 1
@@ -36,7 +37,7 @@ LOSS = 12
 
 def get_mock_model() -> Mock:
     model = create_autospec(torch.nn.Module, instance=True, spec_set=True)
-    model.parameters.return_value = [x.clone() for x in MODEL_PARAMETERS]
+    model.state_dict.return_value = MODEL_PARAMETERS
     model.to.return_value = model
     return model
 
@@ -54,7 +55,9 @@ def get_mock_dataloader() -> Mock:
 
 
 def get_mock_optimiser() -> Mock:
-    return Mock()
+    opt = Mock()
+    opt.__setstate__ = Mock()
+    return opt
 
 
 def get_mock_criterion() -> Mock:
@@ -82,7 +85,7 @@ def nkl():
 
 
 def test_setup(nkl):
-    assert str(MODEL_PARAMETERS) == str(nkl.model.parameters())
+    assert str(MODEL_PARAMETERS) == str(nkl.mli_get_current_weights().weights)
     vote_score = LOSS / (TEST_BATCHES * BATCH_SIZE)
     assert nkl.vote_score == vote_score
 
@@ -108,17 +111,12 @@ def test_vote_minimise_criterion(nkl):
     assert nkl.vote(vote_score - 0.1) is False
 
 
-def test_accept_weights(nkl):
-    nkl.mli_accept_weights(Weights(weights=MODEL_PARAMETERS2))
-    assert str(nkl.model.parameters()) == str(MODEL_PARAMETERS2)
-
-
 def test_propose_weights(nkl):
-    current_weights = nkl.model.parameters()
+    current_weights = nkl.mli_get_current_weights()
     proposed_weights = nkl.mli_propose_weights()
     assert isinstance(proposed_weights, Weights)
     # current weights should not change
-    assert str(current_weights) == str(nkl.model.parameters())
+    assert str(current_weights) == str(proposed_weights)
     # proposed_weights should be different from current_weights, but I cannot
     # find a way to test this!
 
@@ -127,4 +125,3 @@ def test_get_current_weights(nkl):
     weights = nkl.mli_get_current_weights()
     assert isinstance(weights, Weights)
     assert str(weights.weights) == str(MODEL_PARAMETERS)
-    assert str(weights.weights) == str(nkl.model.parameters())
