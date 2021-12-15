@@ -40,7 +40,8 @@ def nkl():
     """Returns a Keraslearner"""
     model = get_mock_model()
     dl = get_mock_dataloader()
-    nkl = KerasLearner(model, dl)
+    vote_dl = get_mock_dataloader()
+    nkl = KerasLearner(model, dl, vote_dl)
     return nkl
 
 

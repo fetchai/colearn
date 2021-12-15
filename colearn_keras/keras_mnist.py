@@ -103,6 +103,7 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset]
     learner = KerasLearner(
         model=model,
         train_loader=data_loaders[0],
+        vote_loader=data_loaders[1],
         test_loader=data_loaders[1],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
@@ -166,6 +167,7 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
     learner = KerasLearner(
         model=model,
         train_loader=data_loaders[0],
+        vote_loader=data_loaders[1],
         test_loader=data_loaders[1],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,

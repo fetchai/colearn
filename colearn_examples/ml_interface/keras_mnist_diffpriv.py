@@ -109,6 +109,7 @@ for i in range(n_learners):
     all_learner_models.append(KerasLearner(
         model=get_model(),
         train_loader=train_datasets[i],
+        vote_loader=test_datasets[i],
         test_loader=test_datasets[i],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,

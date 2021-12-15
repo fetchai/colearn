@@ -121,6 +121,7 @@ for i in range(n_learners):
         KerasLearner(
             model=model,
             train_loader=train_datasets[i],
+            vote_loader=test_datasets[i],
             test_loader=test_datasets[i],
             model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
             model_evaluate_kwargs={"steps": vote_batches},
