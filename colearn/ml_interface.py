@@ -16,9 +16,23 @@
 #
 # ------------------------------------------------------------------------------
 import abc
+from enum import Enum
 from typing import Any, Optional
+import onnxmltools
+import tensorflow as tf
+from tensorflow import keras
 
 from pydantic import BaseModel
+
+model_classes = [tf.keras.Model, keras.Model, tf.estimator.Estimator]
+
+# Helper function to convert a ML model to onnx format
+def convert_model_to_onnx(model: Any):
+    if isinstance(model, model_classes):
+        return onnxmltools.convert_keras(model)
+    else:
+        raise Exception("Attempt to convert unsupported model to onnx: {model}")
+
 
 
 class Weights(BaseModel):
@@ -30,6 +44,17 @@ class ProposedWeights(BaseModel):
     vote_score: float
     test_score: float
     vote: Optional[bool]
+
+
+class ModelFormat(Enum):
+    PICKLE_WEIGHTS_ONLY = 1
+    ONNX = 2
+
+
+class ColearnModel(BaseModel):
+    model_format: ModelFormat
+    model_file: Optional[str]
+    model: Optional[Any]
 
 
 class MachineLearningInterface(abc.ABC):
@@ -58,5 +83,12 @@ class MachineLearningInterface(abc.ABC):
     def mli_get_current_weights(self) -> Weights:
         """
         Returns the current weights of the model
+        """
+        pass
+
+    @abc.abstractmethod
+    def mli_get_current_model(self) -> ColearnModel:
+        """
+        Returns the current model
         """
         pass

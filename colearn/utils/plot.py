@@ -120,7 +120,7 @@ class ColearnPlot:
         # make extra legend entries
         red_patch_handle = mpatches.Patch(color=red_colour / 256, label='Negative vote')
         green_patch_handle = mpatches.Patch(color=green_colour / 256, label='Positive vote')
-        grey_patch_handle = mpatches.Patch(color=grey_colour / 256, label='N/A vote')
+        grey_patch_handle = mpatches.Patch(color=grey_colour / 256, label='Did not vote')
 
         self.votes_axes.imshow(coloured_votes_array, aspect="auto", interpolation='nearest')
 
