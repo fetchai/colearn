@@ -17,7 +17,6 @@
 # ------------------------------------------------------------------------------
 from inspect import signature
 from typing import Optional
-import random
 
 try:
     import tensorflow as tf
@@ -26,7 +25,7 @@ except ImportError:
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 
 
 class KerasLearner(MachineLearningInterface):
@@ -107,15 +106,10 @@ class KerasLearner(MachineLearningInterface):
         vote = self.vote(vote_score)
 
         self.set_weights(current_weights)
-
-        random_result = random.randint(0,1)
-
-        print(f"injecting random result!!! {random_result}")
-
         return ProposedWeights(weights=weights,
                                vote_score=vote_score,
                                test_score=test_score,
-                               vote=vote if random_result == 0 else None
+                               vote=vote
                                )
 
     def vote(self, new_score) -> bool:
@@ -143,22 +137,6 @@ class KerasLearner(MachineLearningInterface):
         :return: The current weights of the model
         """
         return Weights(weights=self.model.get_weights())
-
-    def mli_get_current_model(self) -> ColearnModel:
-        """
-        :return: The current model and its format
-        """
-
-        thing = ColearnModel(
-            model_format = ModelFormat(1),
-            model_file = "",
-            model = "xxyy",
-        )
-
-
-        print(f"we do the thing {thing}")
-
-        return thing
 
     def set_weights(self, weights: Weights):
         """
