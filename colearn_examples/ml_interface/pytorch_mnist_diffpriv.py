@@ -64,7 +64,7 @@ transform = transforms.Compose([
 DATA_DIR = os.environ.get('PYTORCH_DATA_DIR',
                           os.path.expanduser(os.path.join('~', 'pytorch_datasets')))
 data = datasets.MNIST(DATA_DIR, transform=transform, download=True,
-                      target_transform=lambda x: int(x))
+                      target_transform=int)
 n_train = int(train_fraction * len(data))
 n_test = len(data) - n_train
 train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])
