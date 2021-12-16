@@ -44,8 +44,6 @@ def get_mock_model() -> Mock:
 
 def get_mock_dataloader() -> Mock:
     dl = tf.data.Dataset.range(42)
-    dl._batch_size = Mock()  # pylint: disable=protected-access
-    dl._batch_size.numpy.return_value = 16  # pylint: disable=protected-access
     return dl
 
 
@@ -54,7 +52,8 @@ def nkl():
     """Returns a Keraslearner"""
     model = get_mock_model()
     dl = get_mock_dataloader()
-    nkl = KerasLearner(model, dl, privacy_kwargs={'epsilon': 1, 'delta': 1e-3})
+    nkl = KerasLearner(model, dl, privacy_kwargs={'epsilon': 1, 'delta': 1e-3,
+                                                  'batch_size': 16})
     return nkl
 
 

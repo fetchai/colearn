@@ -51,7 +51,8 @@ class KerasLearner(MachineLearningInterface):
         :param need_reset_optimizer: True to clear optimizer history before training, False to kepp history.
         :param minimise_criterion: Boolean - True to minimise value of criterion, False to maximise
         :param criterion: Function to measure model performance
-        :param privacy_kwargs: dict - Stores the differential privacy budget related constants.
+        :param privacy_kwargs: dict - Stores the differential privacy budget related constants, such as:
+                                      epsilon, delta, batch_size
                                       When set to None, no differential privacy applied.
         :param model_fit_kwargs: Arguments to be passed on model.fit function call
         :param model_evaluate_kwargs: Arguments to be passed on model.evaluate function call
@@ -76,8 +77,8 @@ class KerasLearner(MachineLearningInterface):
         self.privacy_kwargs = privacy_kwargs or {}
 
         if self.privacy_kwargs:
-            for k in ['epsilon', 'delta']:
-                assert k in self.privacy_kwargs.keys()
+            for k in ['epsilon', 'delta', 'batch_size']:
+                assert k in self.privacy_kwargs.keys(), f'Missing {k} from privacy_kwargs.'
             self.epsilon_spent = 0.0
             self.cumulative_epochs = 0
             if 'epochs' in self.model_fit_kwargs.keys():
@@ -196,14 +197,13 @@ class KerasLearner(MachineLearningInterface):
         """
         Calculates, what epsilon will apply after another model training.
         """
-        batch_size = self.train_loader._batch_size.numpy()  # pylint: disable=protected-access
         iterations_per_epoch = tf.data.experimental.cardinality(self.train_loader).numpy()
-        n_samples = batch_size * iterations_per_epoch
+        n_samples = self.privacy_kwargs['batch_size'] * iterations_per_epoch
         planned_epochs = self.cumulative_epochs + self.epochs_per_fit
 
         epsilon, _ = compute_dp_sgd_privacy(
             n=n_samples,
-            batch_size=batch_size,
+            batch_size=self.privacy_kwargs['batch_size'],
             noise_multiplier=self.model.optimizer._noise_multiplier,  # pylint: disable=protected-access
             epochs=planned_epochs,
             delta=self.privacy_kwargs['delta']
