@@ -199,10 +199,9 @@ class PytorchLearner(MachineLearningInterface):
         all_labels = []
         all_outputs = []
         batch_idx = 0
-        batch_size = None
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
-                batch_size = batch_size or labels.shape[0]
+                batch_size = labels.shape[0]
                 if self.num_test_batches and batch_idx == self.num_test_batches:
                     break
                 data = data.to(self.device)
