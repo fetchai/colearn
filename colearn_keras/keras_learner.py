@@ -134,7 +134,7 @@ class KerasLearner(MachineLearningInterface):
         if self.privacy_kwargs:
             # we calculate epsilon beforehand, to save unnecessary model training
             epsilon = self.privacy_after_training()
-            if epsilon < self.privacy_kwargs['epsilon']:
+            if epsilon > self.privacy_kwargs['epsilon']:
                 # if the budget would be overconsumed, reject training
                 return current_weights
 
