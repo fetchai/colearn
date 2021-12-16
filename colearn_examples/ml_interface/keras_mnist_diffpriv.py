@@ -45,6 +45,8 @@ vote_batches = 2
 l2_norm_clip = 1.5
 noise_multiplier = 1.3  # more noise -> more privacy, less utility
 num_microbatches = 64  # how many batches to split a batch into
+epsilon = 1.0  # epsilon budget for the epsilon-delta DP
+delta = 1e-5  # delta budget for the epsilon-delta DP
 
 train_datasets, info = tfds.load('mnist',
                                  split=tfds.even_splits('train', n=n_learners),
@@ -60,7 +62,8 @@ for i in range(n_learners):
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     ds_train = ds_train.cache()
     ds_train = ds_train.shuffle(n_datapoints // n_learners)
-    ds_train = ds_train.batch(batch_size)
+    # tf privacy expects fix batch sizes, thus drop_remainder=True
+    ds_train = ds_train.batch(batch_size, drop_remainder=True)
     train_datasets[i] = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 
     ds_test = test_datasets[i].map(
@@ -78,12 +81,10 @@ def get_model():
     x = tf.keras.layers.Conv2D(
         64, (3, 3), activation="relu", padding="same", name="Conv1_1"
     )(input_img)
-    x = tf.keras.layers.BatchNormalization(name="bn1")(x)
     x = tf.keras.layers.MaxPooling2D((2, 2), name="pool1")(x)
     x = tf.keras.layers.Conv2D(
         128, (3, 3), activation="relu", padding="same", name="Conv2_1"
     )(x)
-    x = tf.keras.layers.BatchNormalization(name="bn4")(x)
     x = tf.keras.layers.MaxPooling2D((2, 2), name="pool2")(x)
     x = tf.keras.layers.Flatten(name="flatten")(x)
     x = tf.keras.layers.Dense(
@@ -98,7 +99,11 @@ def get_model():
         learning_rate=l_rate)
 
     model.compile(
-        loss='sparse_categorical_crossentropy',
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(
+            # need to calculare the loss per sample for the
+            # per sample / per microbatch gradient clipping
+            reduction=tf.losses.Reduction.NONE
+        ),
         metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
         optimizer=opt)
     return model
@@ -112,6 +117,7 @@ for i in range(n_learners):
         test_loader=test_datasets[i],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
+        privacy_kwargs={"epsilon": epsilon, "delta": delta, "batch_size": batch_size},
         model_evaluate_kwargs={"steps": vote_batches}
     ))
 
