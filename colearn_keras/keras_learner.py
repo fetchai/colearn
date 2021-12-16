@@ -73,12 +73,12 @@ class KerasLearner(MachineLearningInterface):
             except TypeError:
                 raise Exception("Invalid arguments for model.fit")
 
-        self.privacy_kwargs = privacy_kwargs
+        self.privacy_kwargs = privacy_kwargs or {}
 
         if self.privacy_kwargs:
             for k in ['epsilon', 'delta']:
                 assert k in self.privacy_kwargs.keys()
-            self.epsilon_spent = 0
+            self.epsilon_spent = 0.0
             self.cumulative_epochs = 0
             if 'epochs' in self.model_fit_kwargs.keys():
                 self.epochs_per_fit = self.model_fit_kwargs['epochs']
