@@ -316,6 +316,7 @@ for i in range(n_learners):
     learner = PytorchLearner(
         model=model,
         train_loader=learner_train_dataloaders[i],
+        vote_loader=learner_test_dataloaders[i],
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,

@@ -42,6 +42,7 @@ class PytorchLearner(MachineLearningInterface):
     def __init__(self, model: torch.nn.Module,
                  optimizer: torch.optim.Optimizer,
                  train_loader: torch.utils.data.DataLoader,
+                 vote_loader: torch.utils.data.DataLoader,
                  test_loader: Optional[torch.utils.data.DataLoader] = None,
                  device=_DEFAULT_DEVICE,
                  criterion: Optional[_Loss] = None,
@@ -67,6 +68,7 @@ class PytorchLearner(MachineLearningInterface):
         self.optimizer: torch.optim.Optimizer = optimizer
         self.criterion = criterion
         self.train_loader: torch.utils.data.DataLoader = train_loader
+        self.vote_loader: torch.utils.data.DataLoader = vote_loader
         self.test_loader: Optional[torch.utils.data.DataLoader] = test_loader
         self.device = device
         self.num_train_batches = num_train_batches or len(train_loader)
@@ -74,7 +76,7 @@ class PytorchLearner(MachineLearningInterface):
         self.minimise_criterion = minimise_criterion
         self.vote_criterion = vote_criterion
 
-        self.vote_score = self.test(self.train_loader)
+        self.vote_score = self.test(self.vote_loader)
 
     def mli_get_current_weights(self) -> Weights:
         """
@@ -140,7 +142,7 @@ class PytorchLearner(MachineLearningInterface):
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
-        vote_score = self.test(self.train_loader)
+        vote_score = self.test(self.vote_loader)
 
         if self.test_loader:
             test_score = self.test(self.test_loader)
@@ -208,4 +210,4 @@ class PytorchLearner(MachineLearningInterface):
         """
 
         self.set_weights(weights)
-        self.vote_score = self.test(self.train_loader)
+        self.vote_score = self.test(self.vote_loader)

@@ -23,7 +23,7 @@ from typing import List, Dict, Sequence
 import pytest
 
 REPO_ROOT = Path(__file__).absolute().parent.parent
-EXAMPLES_DIR = REPO_ROOT / "colearn_examples/ml_interface"
+EXAMPLES_DIR = REPO_ROOT / "colearn_examples" / "ml_interface"
 
 GITHUB_ACTION = bool(os.getenv("GITHUB_ACTION", ""))
 
@@ -94,5 +94,5 @@ def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str,
 
 
 def test_all_examples_included():
-    examples_list = {x.name for x in EXAMPLES_DIR.glob('*')}
+    examples_list = {x.name for x in EXAMPLES_DIR.glob('*.py')}
     assert examples_list == {x[0] for x in EXAMPLES_WITH_KWARGS}

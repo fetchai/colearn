@@ -111,6 +111,7 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
     learner = PytorchLearner(
         model=model,
         train_loader=data_loaders[0],
+        vote_loader=data_loaders[1],
         test_loader=data_loaders[1],
         device=device,
         optimizer=opt,
