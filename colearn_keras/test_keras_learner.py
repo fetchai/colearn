@@ -15,26 +15,38 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-from unittest import mock
+from unittest.mock import Mock, create_autospec
 
 import pytest
+import tensorflow as tf
+from tensorflow import keras
 
 from colearn.ml_interface import Weights
 from colearn_keras.keras_learner import KerasLearner
 
 
-def get_mock_model() -> mock.Mock:
-    model = mock.Mock()
+def get_mock_model() -> Mock:
+    model = create_autospec(keras.Sequential, instance=True)
     model.evaluate.return_value = {"loss": 1,
                                    "accuracy": 3}
     model.get_weights.return_value = "all the weights"
+
+    model.optimizer = create_autospec(keras.optimizers.Optimizer, instance=True)
     model.optimizer.get_config.return_value = {"name": "Adam"}
+    # these are needed for the DP optimizers, but do no harm for the non-DP tests
+    model.optimizer._noise_multiplier = 2  # pylint: disable=protected-access
+    model.optimizer._l2_norm_clip = 2  # pylint: disable=protected-access
+    model.optimizer._num_microbatches = 2  # pylint: disable=protected-access
+
     model._get_compile_args.return_value = {}  # pylint: disable=protected-access
     return model
 
 
-def get_mock_dataloader() -> mock.Mock:
-    return mock.Mock()
+def get_mock_dataloader() -> Mock:
+    dl = tf.data.Dataset.range(42)
+    dl._batch_size = Mock()  # pylint: disable=protected-access
+    dl._batch_size.numpy.return_value = 16  # pylint: disable=protected-access
+    return dl
 
 
 @pytest.fixture
@@ -42,7 +54,7 @@ def nkl():
     """Returns a Keraslearner"""
     model = get_mock_model()
     dl = get_mock_dataloader()
-    nkl = KerasLearner(model, dl)
+    nkl = KerasLearner(model, dl, privacy_kwargs={'epsilon': 1, 'delta': 1e-3})
     return nkl
 
 
@@ -79,14 +91,35 @@ def test_get_current_weights(nkl):
     assert isinstance(weights, Weights)
     assert weights.weights == get_mock_model().get_weights.return_value
 
-def test_privacy_budget():
-    # exceeded
-    # note exceeded
 
-def test_optimizer_reset():
-    # with privacy
+def test_privacy_update(nkl):
+    epsilon = nkl.privacy_after_training()
+    assert nkl.epsilon_spent != epsilon
+    nkl.update_spent_privacy(epsilon)
+    assert nkl.epsilon_spent == epsilon
+
+
+def test_privacy_training(nkl):
+    # no training when budget is overcompsumed
+    nkl.privacy_kwargs['epsilon'] = 0
+    epsilon_before = nkl.epsilon_spent
+    _ = nkl.mli_propose_weights()
+    epsilon_after = nkl.epsilon_spent
+    assert epsilon_before == epsilon_after
+
+    # do training when budget is not overcompsumed
+    nkl.privacy_kwargs['epsilon'] = 9999999
+    epsilon_before = nkl.epsilon_spent
+    _ = nkl.mli_propose_weights()
+    epsilon_after = nkl.epsilon_spent
+    assert epsilon_before < epsilon_after
+
+
+def test_reset_optimizer(nkl):
     # without privacy
+    nkl.privacy_kwargs = None
+    nkl.reset_optimizer()
 
-def test_privacy():
-    # turned off
-    # turned on
+    # with privacy
+    nkl.privacy_kwargs = {'epsilon': 1, 'delta': 0}
+    nkl.reset_optimizer()
