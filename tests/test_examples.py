@@ -94,5 +94,5 @@ def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str,
 
 
 def test_all_examples_included():
-    examples_list = {x.name for x in EXAMPLES_DIR.glob('*')}
+    examples_list = {x.name for x in EXAMPLES_DIR.glob('*.py')}
     assert examples_list == {x[0] for x in EXAMPLES_WITH_KWARGS}

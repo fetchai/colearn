@@ -199,8 +199,10 @@ class PytorchLearner(MachineLearningInterface):
         all_labels = []
         all_outputs = []
         batch_idx = 0
+        total_samples = 0
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
+                total_samples += labels.shape[0]
                 if self.num_test_batches and batch_idx == self.num_test_batches:
                     break
                 data = data.to(self.device)
@@ -214,7 +216,7 @@ class PytorchLearner(MachineLearningInterface):
         if batch_idx == 0:
             raise Exception("No batches in loader")
         if self.vote_criterion is None:
-            return float(total_score / (batch_idx * loader.batch_size))  # type: ignore[operator]
+            return float(total_score / total_samples)
         else:
             return self.vote_criterion(torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0))
 
