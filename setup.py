@@ -27,7 +27,7 @@ other_deps = [
     'scikit-learn>=0.23,<1.1',
 ]
 pytorch_deps = [
-    'opacus>=0.10,<1.1',
+    'opacus>=1.0.0,<1.1',
     'Pillow>=8.0.1,<8.5.0',
     'scikit-learn>=0.23,<1.1',
     'scipy>=1.5,<1.8',
@@ -72,7 +72,7 @@ setuptools.setup(
         # Need to fill in
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6, <3.9',
+    python_requires='>=3.7, <3.9',
     install_requires=[
         'google-cloud-storage>=1.35,<1.44',
         'matplotlib>=3.3,<3.6',
