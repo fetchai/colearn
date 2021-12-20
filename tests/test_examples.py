@@ -24,6 +24,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).absolute().parent.parent
 EXAMPLES_DIR = REPO_ROOT / "colearn_examples" / "ml_interface"
+GRPC_EXAMPLES_DIR = REPO_ROOT / "colearn_examples" / "grpc"
 
 GITHUB_ACTION = bool(os.getenv("GITHUB_ACTION", ""))
 
@@ -46,27 +47,30 @@ FRAUD_DATA_DIR = COLEARN_DATA_DIR / "ieee-fraud-detection"
 XRAY_DATA_DIR = COLEARN_DATA_DIR / "chest_xray"
 COVID_DATA_DIR = COLEARN_DATA_DIR / "covid"
 
-STANDARD_DEMO_ARGS: List[str] = ["-p", "1", "-n", "3"]
+NUMBER_OF_LEARNERS = 3
+STANDARD_DEMO_ARGS: List[str] = ["-p", "1", "-n", str(NUMBER_OF_LEARNERS)]
 
 EXAMPLES_WITH_KWARGS = [
-    ("keras_cifar.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("keras_fraud.py", [FRAUD_DATA_DIR], {}),
-    ("keras_mnist.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("keras_mnist_diffpriv.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("keras_xray.py", [XRAY_DATA_DIR], {}),
-    ("mli_fraud.py", [FRAUD_DATA_DIR], {}),
-    ("mli_random_forest_iris.py", [], {}),
-    ("pytorch_cifar.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
-    ("pytorch_covid.py", [COVID_DATA_DIR], {}),
-    ("pytorch_mnist.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
-    ("pytorch_mnist_diffpriv.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
-    ("pytorch_xray.py", [XRAY_DATA_DIR], {}),
-    ("run_demo.py", ["-m", "PYTORCH_XRAY", "-d", str(XRAY_DATA_DIR / "train")] + STANDARD_DEMO_ARGS, {}),
-    ("run_demo.py", ["-m", "KERAS_MNIST"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("run_demo.py", ["-m", "KERAS_CIFAR10"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    ("run_demo.py", ["-m", "PYTORCH_COVID_XRAY", "-d", str(COVID_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
-    ("run_demo.py", ["-m", "FRAUD", "-d", str(FRAUD_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
-    ("xgb_reg_boston.py", [], {}),
+    (EXAMPLES_DIR / "keras_cifar.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    (EXAMPLES_DIR / "keras_fraud.py", [FRAUD_DATA_DIR], {}),
+    (EXAMPLES_DIR / "keras_mnist.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    (EXAMPLES_DIR / "keras_mnist_diffpriv.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    (EXAMPLES_DIR / "keras_xray.py", [XRAY_DATA_DIR], {}),
+    (EXAMPLES_DIR / "mli_fraud.py", [FRAUD_DATA_DIR], {}),
+    (EXAMPLES_DIR / "mli_random_forest_iris.py", [], {}),
+    (EXAMPLES_DIR / "pytorch_cifar.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
+    (EXAMPLES_DIR / "pytorch_covid.py", [COVID_DATA_DIR], {}),
+    (EXAMPLES_DIR / "pytorch_mnist.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
+    (EXAMPLES_DIR / "pytorch_mnist_diffpriv.py", [], {"PYTORCH_DATA_DIR": PYTORCH_DATA_DIR}),
+    (EXAMPLES_DIR / "pytorch_xray.py", [XRAY_DATA_DIR], {}),
+    (EXAMPLES_DIR / "run_demo.py", ["-m", "PYTORCH_XRAY", "-d", str(XRAY_DATA_DIR / "train")] + STANDARD_DEMO_ARGS, {}),
+    (EXAMPLES_DIR / "run_demo.py", ["-m", "KERAS_MNIST"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    (EXAMPLES_DIR / "run_demo.py", ["-m", "KERAS_CIFAR10"] + STANDARD_DEMO_ARGS, {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    (EXAMPLES_DIR / "run_demo.py", ["-m", "PYTORCH_COVID_XRAY", "-d", str(COVID_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
+    (EXAMPLES_DIR / "run_demo.py", ["-m", "FRAUD", "-d", str(FRAUD_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
+    (EXAMPLES_DIR / "xgb_reg_boston.py", [], {}),
+    (GRPC_EXAMPLES_DIR / "mlifactory_grpc_mnist.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    (GRPC_EXAMPLES_DIR / "mnist_grpc.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
 ]
 
 IGNORED: List[str] = []
@@ -84,7 +88,7 @@ def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str,
     if script in IGNORED:
         pytest.skip(f"Example {script} marked as IGNORED")
 
-    full_cmd: Sequence = ["python", str(EXAMPLES_DIR / script)] + cmd_line
+    full_cmd: Sequence = ["python", str(script)] + cmd_line
     print("Full command", full_cmd)
     subprocess.run(full_cmd,
                    env=env,
@@ -94,5 +98,35 @@ def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str,
 
 
 def test_all_examples_included():
-    examples_list = {x.name for x in EXAMPLES_DIR.glob('*.py')}
-    assert examples_list == {x[0] for x in EXAMPLES_WITH_KWARGS}
+    examples_list = {EXAMPLES_DIR / x.name for x in EXAMPLES_DIR.glob('*.py')}
+    assert examples_list <= {x[0] for x in EXAMPLES_WITH_KWARGS}
+
+
+GRPC_EXAMPLES_WITH_KWARGS: List = [
+    (GRPC_EXAMPLES_DIR / "run_grpc_demo.py", ["-m", "KERAS_MNIST",
+                                              "-d", "KERAS_MNIST",
+                                              "-l", "/tmp/mnist/0,/tmp/mnist/1,/tmp/mnist/2",
+                                              "-n", str(NUMBER_OF_LEARNERS), "--n_rounds", "1"], {}),
+]
+
+
+@pytest.mark.parametrize("script,cmd_line,test_env", GRPC_EXAMPLES_WITH_KWARGS)
+@pytest.mark.slow
+def test_a_colearn_grpc_example(script: str, cmd_line: List[str], test_env: Dict[str, str]):
+    env = os.environ
+    env["MPLBACKEND"] = "agg"  # disable interactive plotting
+    env.update(test_env)
+    print("Additional envvars:", test_env)
+
+    grpc_servers = subprocess.Popen(["python", str(REPO_ROOT / "colearn_grpc" / "scripts" / "run_n_grpc_servers.py"),
+                                     "-n", str(NUMBER_OF_LEARNERS)])
+
+    full_cmd: Sequence = ["python", str(script)] + cmd_line
+    print("Full command", " ".join(full_cmd))
+    subprocess.run(full_cmd,
+                   env=env,
+                   timeout=20 * 60,
+                   check=True
+                   )
+    grpc_servers.terminate()
+    grpc_servers.wait()

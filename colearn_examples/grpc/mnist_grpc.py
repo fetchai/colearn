@@ -45,7 +45,7 @@ dataloader_tag = "KERAS_MNIST_EXAMPLE_DATALOADER"
 @FactoryRegistry.register_dataloader(dataloader_tag)
 def prepare_data_loaders(location: str,
                          train_ratio: float = 0.9,
-                         batch_size: int = 32) -> Tuple[PrefetchDataset, PrefetchDataset]:
+                         batch_size: int = 32) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
 
@@ -68,17 +68,21 @@ def prepare_data_loaders(location: str,
     train_loader = dataset.cache().shuffle(n_cases).batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
     dataset = tf.data.Dataset.from_tensor_slices((images[n_cases:], labels[n_cases:]))
+    vote_loader = dataset.cache().shuffle(len(images) - n_cases).batch(batch_size) \
+        .prefetch(tf.data.experimental.AUTOTUNE)
+
+    dataset = tf.data.Dataset.from_tensor_slices((images[n_cases:], labels[n_cases:]))
     test_loader = dataset.cache().shuffle(len(images) - n_cases).batch(batch_size)\
         .prefetch(tf.data.experimental.AUTOTUNE)
 
-    return train_loader, test_loader
+    return train_loader, vote_loader, test_loader
 
 
 model_tag = "KERAS_MNIST_EXAMPLE_MODEL"
 
 
 @FactoryRegistry.register_model_architecture(model_tag, [dataloader_tag])
-def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001
@@ -115,7 +119,7 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
         model=model,
         train_loader=data_loaders[0],
         vote_loader=data_loaders[1],
-        test_loader=data_loaders[1],
+        test_loader=data_loaders[2],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
@@ -162,7 +166,8 @@ results.data.append(initial_result(all_learner_models))
 
 plot = ColearnPlot(score_name="accuracy")
 
-n_rounds = 10
+testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
+n_rounds = 10 if not testing_mode else 1
 vote_threshold = 0.5
 for round_index in range(n_rounds):
     results.data.append(

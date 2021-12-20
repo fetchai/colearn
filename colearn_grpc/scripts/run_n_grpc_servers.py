@@ -44,7 +44,8 @@ _logger = get_logger(__name__)
 
 def run_grpc_server(grpc_server, metrics_port):
     # this function runs in a new process and starts the grpc server and monitoring
-    start_http_server(metrics_port)
+    if metrics_port is not None:
+        start_http_server(metrics_port)
 
     def signal_handler(sig, frame):
         _logger.info('Received sigterm. Killing server...')
@@ -59,8 +60,8 @@ def run_grpc_server(grpc_server, metrics_port):
 if __name__ == "__main__":
     cli_args = argparse.ArgumentParser(description='Start multiple GRPC learner servers')
     cli_args.add_argument('-p', '--port', type=int, default=9995, help='first server port')
-    cli_args.add_argument('-m', '--metrics_port', type=int, default=9091,
-                          help='first prometheus metrics webserver port')
+    cli_args.add_argument('-m', '--metrics_port', type=int, default=0,
+                          help='first prometheus metrics webserver port. 0 means no metrics server.')
     cli_args.add_argument('-n', '--n_learners', type=int, default=5, help='number of learners')
 
     args = cli_args.parse_args()
@@ -71,7 +72,10 @@ if __name__ == "__main__":
     child_processes = []
     for i in range(args.n_learners):
         port = args.port + i
-        metrics_port = args.metrics_port + i
+        if args.metrics_port != 0:
+            metrics_port = args.metrics_port + i
+        else:
+            metrics_port = None
         server = GRPCServer(mli_factory=ExampleMliFactory(),
                             port=port)
         server_process = Process(target=run_grpc_server,
