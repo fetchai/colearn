@@ -70,7 +70,7 @@ DATA_DIR = os.environ.get('PYTORCH_DATA_DIR',
 data = datasets.MNIST(DATA_DIR, transform=transforms.ToTensor(), download=True)
 n_train = int(train_fraction * len(data))
 n_vote = int(vote_fraction * len(data))
-n_test = len(data) - n_train
+n_test = len(data) - n_train - n_vote
 train_data, vote_data, test_data = torch.utils.data.random_split(data, [n_train, n_vote, n_test])
 
 data_split = [len(train_data) // n_learners] * n_learners

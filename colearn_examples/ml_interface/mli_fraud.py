@@ -153,7 +153,7 @@ if __name__ == "__main__":
         start_ind = i * n_data_per_learner
         stop_ind = (i + 1) * n_data_per_learner
         n_train = int(n_data_per_learner * train_fraction)
-        n_vote = int(n_datapoints * vote_fraction)
+        n_vote = int(n_data_per_learner * vote_fraction)
 
         learner_train_ind = random_indices[start_ind:start_ind + n_train]
         learner_vote_ind = random_indices[start_ind + n_train:start_ind + n_train + n_vote]

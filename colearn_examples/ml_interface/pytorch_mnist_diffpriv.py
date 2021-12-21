@@ -68,7 +68,7 @@ data = datasets.MNIST(DATA_DIR, transform=transform, download=True,
                       target_transform=int)
 n_train = int(train_fraction * len(data))
 n_vote = int(vote_fraction * len(data))
-n_test = len(data) - n_train
+n_test = len(data) - n_train - n_vote
 train_data, vote_data, test_data = torch.utils.data.random_split(data, [n_train, n_vote, n_test])
 
 data_split = [len(train_data) // n_learners] * n_learners

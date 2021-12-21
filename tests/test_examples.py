@@ -51,7 +51,7 @@ NUMBER_OF_LEARNERS = 3
 STANDARD_DEMO_ARGS: List[str] = ["-p", "1", "-n", str(NUMBER_OF_LEARNERS)]
 
 EXAMPLES_WITH_KWARGS = [
-    (EXAMPLES_DIR / "keras_cifar.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    (EXAMPLES_DIR / "keras_cifar.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),  # script 0
     (EXAMPLES_DIR / "keras_fraud.py", [FRAUD_DATA_DIR], {}),
     (EXAMPLES_DIR / "keras_mnist.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
     (EXAMPLES_DIR / "keras_mnist_diffpriv.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
