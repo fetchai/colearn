@@ -165,11 +165,11 @@ train_data_folders = split_to_folders(
 test_data_folders = split_to_folders(
     full_test_data_folder,
     shuffle_seed=42,
-    n_learners=n_learners,
-    output_folder='/tmp/xray_test'
+    n_learners=2*n_learners,
+    output_folder=Path('/tmp/xray_test')
 )
 
-train_datasets, test_datasets = [], []
+train_datasets, vote_datasets, test_datasets = [], [], []
 
 for i in range(n_learners):
     train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,)
@@ -180,17 +180,24 @@ for i in range(n_learners):
         batch_size=batch_size,
         color_mode='grayscale',
         class_mode='binary')
+    train_datasets.append(train_dataset)
 
-    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,)
-
-    test_dataset = test_datagen.flow_from_directory(
+    vote_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,)
+    vote_dataset = vote_datagen.flow_from_directory(
         test_data_folders[i],
         target_size=(width, height),
         batch_size=batch_size,
         color_mode='grayscale',
         class_mode='binary')
+    vote_datasets.append(vote_dataset)
 
-    train_datasets.append(train_dataset)
+    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,)
+    test_dataset = test_datagen.flow_from_directory(
+        test_data_folders[i + n_learners],
+        target_size=(width, height),
+        batch_size=batch_size,
+        color_mode='grayscale',
+        class_mode='binary')
     test_datasets.append(test_dataset)
 
 
@@ -201,7 +208,7 @@ for i in range(n_learners):
         KerasLearner(
             model=model,
             train_loader=train_datasets[i],
-            vote_loader=test_datasets[i],
+            vote_loader=vote_datasets[i],
             test_loader=test_datasets[i],
             model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
             model_evaluate_kwargs={"steps": vote_batches},

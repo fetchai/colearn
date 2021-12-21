@@ -60,9 +60,12 @@ train_datasets, info = tfds.load('cifar10',
                                  as_supervised=True, with_info=True)
 n_datapoints = info.splits['train'].num_examples
 
-test_datasets = tfds.load('cifar10',
-                          split=tfds.even_splits('test', n=n_learners),
+all_test_datasets = tfds.load('cifar10',
+                          split=tfds.even_splits('test', n=2 * n_learners),
                           as_supervised=True)
+
+vote_datasets = all_test_datasets[0:n_learners]
+test_datasets = all_test_datasets[n_learners:]
 
 for i in range(n_learners):
     ds_train = train_datasets[i].map(
@@ -71,6 +74,13 @@ for i in range(n_learners):
     ds_train = ds_train.shuffle(n_datapoints // n_learners)
     ds_train = ds_train.batch(batch_size)
     train_datasets[i] = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
+
+    ds_vote = vote_datasets[i].map(
+        normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    ds_vote = ds_vote.cache()
+    ds_vote = ds_vote.shuffle(n_datapoints // n_learners)
+    ds_vote = ds_vote.batch(batch_size)
+    vote_datasets[i] = ds_vote.prefetch(tf.data.experimental.AUTOTUNE)
 
     ds_test = test_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -120,7 +130,7 @@ for i in range(n_learners):
     all_learner_models.append(KerasLearner(
         model=get_model(),
         train_loader=train_datasets[i],
-        vote_loader=test_datasets[i],
+        vote_loader=vote_datasets[i],
         test_loader=test_datasets[i],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
@@ -146,7 +156,6 @@ for round_index in range(n_rounds):
     if make_plot:
         # then make an updating graph
         plot.plot_results_and_votes(results)
-
 
 if make_plot:
     plot.block()
