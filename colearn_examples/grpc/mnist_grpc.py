@@ -45,6 +45,7 @@ dataloader_tag = "KERAS_MNIST_EXAMPLE_DATALOADER"
 @FactoryRegistry.register_dataloader(dataloader_tag)
 def prepare_data_loaders(location: str,
                          train_ratio: float = 0.9,
+                         vote_ratio: float = 0.05,
                          batch_size: int = 32) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
@@ -63,16 +64,18 @@ def prepare_data_loaders(location: str,
     labels = pickle.load(open(Path(data_folder) / label_fl, "rb"))
 
     n_cases = int(train_ratio * len(images))
+    n_vote_cases = int(vote_ratio * len(images))
 
     dataset = tf.data.Dataset.from_tensor_slices((images[:n_cases], labels[:n_cases]))
     train_loader = dataset.cache().shuffle(n_cases).batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
-    dataset = tf.data.Dataset.from_tensor_slices((images[n_cases:], labels[n_cases:]))
-    vote_loader = dataset.cache().shuffle(len(images) - n_cases).batch(batch_size) \
+    dataset = tf.data.Dataset.from_tensor_slices(
+        (images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases]))
+    vote_loader = dataset.cache().shuffle(n_vote_cases).batch(batch_size) \
         .prefetch(tf.data.experimental.AUTOTUNE)
 
-    dataset = tf.data.Dataset.from_tensor_slices((images[n_cases:], labels[n_cases:]))
-    test_loader = dataset.cache().shuffle(len(images) - n_cases).batch(batch_size)\
+    dataset = tf.data.Dataset.from_tensor_slices((images[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:]))
+    test_loader = dataset.cache().shuffle(len(images) - n_cases - n_vote_cases).batch(batch_size) \
         .prefetch(tf.data.experimental.AUTOTUNE)
 
     return train_loader, vote_loader, test_loader

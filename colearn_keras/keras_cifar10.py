@@ -27,9 +27,9 @@ import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
 from colearn.utils.data import get_data, split_list_into_fractions
+from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.utils import normalize_img
-from colearn_grpc.factory_registry import FactoryRegistry
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
@@ -60,6 +60,7 @@ def _make_loader(images: np.array,
 @FactoryRegistry.register_dataloader("KERAS_CIFAR10")
 def prepare_data_loaders(location: str,
                          train_ratio: float = 0.9,
+                         vote_ratio: float = 0.05,
                          batch_size: int = 32,
                          ) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
     """
@@ -77,9 +78,11 @@ def prepare_data_loaders(location: str,
     labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(images))
+    n_vote_cases = int(vote_ratio * len(images))
     train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
-    vote_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
-    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)  # todo: vote and test are duplicates
+    vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
+                               batch_size)
+    test_loader = _make_loader(images[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:], batch_size)
 
     return train_loader, vote_loader, test_loader
 
