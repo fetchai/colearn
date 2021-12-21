@@ -61,6 +61,7 @@ n_rounds = 50 if not testing_mode else 1
 
 vote_threshold = 0.5
 train_fraction = 0.8
+vote_fraction = 0.1
 learning_rate = 0.001
 input_width = 64
 n_classes = 3
@@ -103,8 +104,9 @@ dataset = TensorDataset(data_tensor, labels_tensor)
 
 # Split dataset to train and test part
 n_train = int(train_fraction * len(dataset))
-n_test = len(dataset) - n_train
-train_data, test_data = torch.utils.data.random_split(dataset, [n_train, n_test])
+n_vote = int(vote_fraction * len(data))
+n_test = len(data) - n_train - n_vote
+train_data, vote_data, test_data = torch.utils.data.random_split(data, [n_train, n_vote, n_test])
 
 # Split train set between learners
 parts = prepare_data_split_list(train_data, n_learners)
@@ -112,6 +114,13 @@ learner_train_data = torch.utils.data.random_split(train_data, parts)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
     batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
+
+# Split vote set between learners
+parts = prepare_data_split_list(vote_data, n_learners)
+learner_vote_data = torch.utils.data.random_split(vote_data, parts)
+learner_vote_dataloaders = [torch.utils.data.DataLoader(
+    ds,
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_vote_data]
 
 # Split test set between learners
 parts = prepare_data_split_list(test_data, n_learners)
@@ -160,7 +169,7 @@ for i in range(n_learners):
     learner = PytorchLearner(
         model=model,
         train_loader=learner_train_dataloaders[i],
-        vote_loader=learner_test_dataloaders[i],
+        vote_loader=learner_vote_dataloaders[i],
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,

@@ -282,20 +282,25 @@ train_data_folders = split_to_folders(
 test_data_folders = split_to_folders(
     full_test_data_folder,
     shuffle_seed=42,
-    n_learners=n_learners,
-    output_folder='/tmp/xray_test'
+    n_learners=2 * n_learners,
+    output_folder=Path('/tmp/xray_test')
 )
 
 learner_train_dataloaders = []
+learner_vote_dataloaders = []
 learner_test_dataloaders = []
 
 for i in range(n_learners):
     learner_train_dataloaders.append(torch.utils.data.DataLoader(
-        XrayDataset(train_data_folders[i], train_ratio=1),
+        XrayDataset(str(train_data_folders[i]), train_ratio=1),
+        batch_size=batch_size, shuffle=True, **kwargs)
+    )
+    learner_vote_dataloaders.append(torch.utils.data.DataLoader(
+        XrayDataset(str(test_data_folders[i]), train_ratio=1),
         batch_size=batch_size, shuffle=True, **kwargs)
     )
     learner_test_dataloaders.append(torch.utils.data.DataLoader(
-        XrayDataset(test_data_folders[i], train_ratio=1),
+        XrayDataset(str(test_data_folders[i + n_learners]), train_ratio=1),
         batch_size=batch_size, shuffle=True, **kwargs)
     )
 
@@ -316,7 +321,7 @@ for i in range(n_learners):
     learner = PytorchLearner(
         model=model,
         train_loader=learner_train_dataloaders[i],
-        vote_loader=learner_test_dataloaders[i],
+        vote_loader=learner_vote_dataloaders[i],
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,

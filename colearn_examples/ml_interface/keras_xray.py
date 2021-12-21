@@ -153,7 +153,6 @@ args = parser.parse_args()
 if not Path.is_dir(Path(args.data_dir)):
     sys.exit(f"Data path provided: {args.data_dir} is not a valid path or not a directory")
 
-
 full_train_data_folder = os.path.join(args.data_dir, 'train')
 full_test_data_folder = os.path.join(args.data_dir, 'test')
 
@@ -165,14 +164,14 @@ train_data_folders = split_to_folders(
 test_data_folders = split_to_folders(
     full_test_data_folder,
     shuffle_seed=42,
-    n_learners=2*n_learners,
+    n_learners=2 * n_learners,
     output_folder=Path('/tmp/xray_test')
 )
 
 train_datasets, vote_datasets, test_datasets = [], [], []
 
 for i in range(n_learners):
-    train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,)
+    train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255, )
 
     train_dataset = train_datagen.flow_from_directory(
         train_data_folders[i],
@@ -182,7 +181,7 @@ for i in range(n_learners):
         class_mode='binary')
     train_datasets.append(train_dataset)
 
-    vote_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,)
+    vote_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255, )
     vote_dataset = vote_datagen.flow_from_directory(
         test_data_folders[i],
         target_size=(width, height),
@@ -191,7 +190,7 @@ for i in range(n_learners):
         class_mode='binary')
     vote_datasets.append(vote_dataset)
 
-    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255,)
+    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255, )
     test_dataset = test_datagen.flow_from_directory(
         test_data_folders[i + n_learners],
         target_size=(width, height),
@@ -199,7 +198,6 @@ for i in range(n_learners):
         color_mode='grayscale',
         class_mode='binary')
     test_datasets.append(test_dataset)
-
 
 all_learner_models = []
 for i in range(n_learners):

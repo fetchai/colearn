@@ -17,8 +17,8 @@
 # ------------------------------------------------------------------------------
 import argparse
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
@@ -105,10 +105,10 @@ n_train = int(n_datapoints * train_fraction)
 n_vote = int(n_datapoints * vote_fraction)
 train_data = fraud_data[random_indices[:n_train]]
 train_labels = labels[random_indices[:n_train]]
-vote_data = fraud_data[random_indices[n_train: n_train+n_vote]]
-vote_labels = labels[random_indices[n_train:n_train+n_vote]]
-test_data = fraud_data[random_indices[n_train+n_vote:]]
-test_labels = labels[random_indices[n_train+n_vote:]]
+vote_data = fraud_data[random_indices[n_train: n_train + n_vote]]
+vote_labels = labels[random_indices[n_train:n_train + n_vote]]
+test_data = fraud_data[random_indices[n_train + n_vote:]]
+test_labels = labels[random_indices[n_train + n_vote:]]
 
 # make a tensorflow dataloader out of np arrays
 train_dataset = tf.data.Dataset.from_tensor_slices((train_data, train_labels))

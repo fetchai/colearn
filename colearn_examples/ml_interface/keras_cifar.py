@@ -61,8 +61,8 @@ train_datasets, info = tfds.load('cifar10',
 n_datapoints = info.splits['train'].num_examples
 
 all_test_datasets = tfds.load('cifar10',
-                          split=tfds.even_splits('test', n=2 * n_learners),
-                          as_supervised=True)
+                              split=tfds.even_splits('test', n=2 * n_learners),
+                              as_supervised=True)
 
 vote_datasets = all_test_datasets[0:n_learners]
 test_datasets = all_test_datasets[n_learners:]
