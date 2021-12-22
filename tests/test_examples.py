@@ -16,6 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import os
+import signal
 import subprocess
 from pathlib import Path
 from typing import List, Dict, Sequence
@@ -128,5 +129,5 @@ def test_a_colearn_grpc_example(script: str, cmd_line: List[str], test_env: Dict
                    timeout=20 * 60,
                    check=True
                    )
-    grpc_servers.terminate()
+    grpc_servers.send_signal(signal.SIGINT)
     grpc_servers.wait()
