@@ -76,9 +76,9 @@ EXAMPLES_WITH_KWARGS = [
 
 IGNORED: List[str] = []
 
-print("killing old servers")
-subprocess.run("pkill -e -f grpc", shell=True)
-print("done killing")
+print("Killing old servers that might have been left from incomplete termination")
+subprocess.run("pkill -e -f grpc", shell=True, check=False)
+print("Done killing")
 
 
 @pytest.mark.parametrize("script,cmd_line,test_env", EXAMPLES_WITH_KWARGS)
@@ -107,6 +107,8 @@ def test_all_examples_included():
     assert examples_list <= {x[0] for x in EXAMPLES_WITH_KWARGS}
 
 
+# NB: this test depends on the existence of /tmp/mnist/0 etc. which are created in the previous tests.
+# This means that this test must run after those ones.
 GRPC_EXAMPLES_WITH_KWARGS: List = [
     (GRPC_EXAMPLES_DIR / "run_grpc_demo.py", ["-m", "KERAS_MNIST",
                                               "-d", "KERAS_MNIST",
