@@ -76,6 +76,10 @@ EXAMPLES_WITH_KWARGS = [
 
 IGNORED: List[str] = []
 
+print("killing old servers")
+subprocess.run("pkill -e -f grpc", shell=True)
+print("done killing")
+
 
 @pytest.mark.parametrize("script,cmd_line,test_env", EXAMPLES_WITH_KWARGS)
 @pytest.mark.slow
