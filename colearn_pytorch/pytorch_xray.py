@@ -30,9 +30,9 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from typing_extensions import TypedDict
 
-from colearn_pytorch.pytorch_learner import PytorchLearner
-from colearn_grpc.factory_registry import FactoryRegistry
 from colearn.utils.data import get_data
+from colearn_grpc.factory_registry import FactoryRegistry
+from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import auc_from_logits
 
 
@@ -41,9 +41,10 @@ from .utils import auc_from_logits
 def prepare_data_loaders(location: str,
                          test_location: Optional[str] = None,
                          train_ratio: float = 0.96,
+                         vote_ratio: float = 0.02,
                          batch_size: int = 8,
                          no_cuda: bool = False,
-                         ) -> Tuple[DataLoader, DataLoader]:
+                         ) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Load training data from folders and create train and test dataloader
 
@@ -65,7 +66,11 @@ def prepare_data_loaders(location: str,
         local_test_folder = get_data(test_location)
 
         train_loader = DataLoader(
-            XrayDataset(data_folder, train=True, train_ratio=1.0),
+            XrayDataset(data_folder, train=True, train_ratio=train_ratio),
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
+        vote_loader = DataLoader(
+            XrayDataset(data_folder, train=False, train_ratio=1 - vote_ratio),
             batch_size=batch_size, shuffle=True, **loader_kwargs)
 
         test_loader = DataLoader(
@@ -76,15 +81,19 @@ def prepare_data_loaders(location: str,
             XrayDataset(data_folder, train=True, train_ratio=train_ratio),
             batch_size=batch_size, shuffle=True, **loader_kwargs)
 
+        vote_loader = DataLoader(
+            XrayDataset(data_folder, train=False, train_ratio=1 - vote_ratio),  # NB: vote and test sets overlap here
+            batch_size=batch_size, shuffle=True, **loader_kwargs)
+
         test_loader = DataLoader(
             XrayDataset(data_folder, train=False, train_ratio=train_ratio),
             batch_size=batch_size, shuffle=True, **loader_kwargs)
 
-    return train_loader, test_loader
+    return train_loader, vote_loader, test_loader
 
 
 @FactoryRegistry.register_model_architecture("PYTORCH_XRAY", ["PYTORCH_XRAY"])
-def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
+def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader, DataLoader],
                     learning_rate: float = 0.001,
                     steps_per_epoch: int = 40,
                     vote_batches: int = 10,
@@ -119,7 +128,8 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
     learner = PytorchLearner(
         model=model,
         train_loader=data_loaders[0],
-        test_loader=data_loaders[1],
+        vote_loader=data_loaders[1],
+        test_loader=data_loaders[2],
         device=device,
         optimizer=opt,
         criterion=nn.BCEWithLogitsLoss(

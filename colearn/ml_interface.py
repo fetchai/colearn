@@ -45,7 +45,6 @@ class ProposedWeights(BaseModel):
     test_score: float
     vote: Optional[bool]
 
-
 class ModelFormat(Enum):
     PICKLE_WEIGHTS_ONLY = 1
     ONNX = 2

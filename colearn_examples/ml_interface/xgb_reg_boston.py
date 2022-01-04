@@ -20,22 +20,24 @@ from typing import Optional
 
 import numpy as np
 import xgboost as xgb
+from sklearn import datasets
+from sklearn.metrics import mean_squared_error as mse
+
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.data import split_list_into_fractions
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
-from sklearn import datasets
-from sklearn.metrics import mean_squared_error as mse
 
 
 class XGBoostLearner(MachineLearningInterface):
-    def __init__(self, train_data, train_labels, test_data, test_labels,
+    def __init__(self, train_data, train_labels, vote_data, vote_labels, test_data, test_labels,
                  worker_id=0, xgb_params: Optional[dict] = None,
                  n_steps_per_round=2):
         self.worker_id = worker_id
 
         self.xg_train = xgb.DMatrix(train_data, label=train_labels)
+        self.xg_vote = xgb.DMatrix(vote_data, label=vote_labels)
         self.xg_test = xgb.DMatrix(test_data, label=test_labels)
 
         default_params = {'objective': 'reg:squarederror',
@@ -52,7 +54,7 @@ class XGBoostLearner(MachineLearningInterface):
 
         self.model_file_base = f"/tmp/model_{self.worker_id}"
         self.n_saves = 0
-        self.vote_score = self.test(self.xg_train)
+        self.vote_score = self.test(self.xg_vote)
 
     def mli_propose_weights(self) -> Weights:
         current_model = self.mli_get_current_weights()
@@ -70,7 +72,7 @@ class XGBoostLearner(MachineLearningInterface):
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
-        vote_score = self.test(self.xg_train)
+        vote_score = self.test(self.xg_vote)
         test_score = self.test(self.xg_test)
 
         vote = self.vote_score >= vote_score
@@ -84,7 +86,7 @@ class XGBoostLearner(MachineLearningInterface):
 
     def mli_accept_weights(self, weights: Weights):
         self.set_weights(weights)
-        self.vote_score = self.test(self.xg_train)
+        self.vote_score = self.test(self.xg_vote)
 
     def mli_get_current_weights(self) -> Weights:
         model_path = self.model_file_base + '_' + str(self.n_saves)
@@ -101,6 +103,7 @@ class XGBoostLearner(MachineLearningInterface):
 
 
 train_fraction = 0.9
+vote_fraction = 0.05
 n_learners = 5
 testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
 n_rounds = 20 if not testing_mode else 1
@@ -113,17 +116,22 @@ n_datapoints = data.shape[0]
 random_indices = np.random.permutation(np.arange(n_datapoints))
 learner_indices_list = split_list_into_fractions(random_indices, [0.2, 0.2, 0.2, 0.2, 0.2])
 
-learner_train_data, learner_train_labels, learner_test_data, learner_test_labels = [], [], [], []
+learner_train_data, learner_train_labels, learner_vote_data, learner_vote_labels, learner_test_data, \
+    learner_test_labels = [], [], [], [], [], []
 for i in range(n_learners):
     learner_indices = learner_indices_list[i]
     n_data = len(learner_indices)
     n_train = int(n_data * train_fraction)
+    n_vote = int(n_data * vote_fraction)
 
     learner_train_ind = learner_indices[0:n_train]
-    learner_test_ind = learner_indices[n_train:]
+    learner_vote_ind = learner_indices[n_train:n_train + n_vote]
+    learner_test_ind = learner_indices[n_train + n_vote:]
 
     learner_train_data.append(data[learner_train_ind])
     learner_train_labels.append(labels[learner_train_ind])
+    learner_vote_data.append(data[learner_vote_ind])
+    learner_vote_labels.append(labels[learner_vote_ind])
     learner_test_data.append(data[learner_test_ind])
     learner_test_labels.append(labels[learner_test_ind])
 
@@ -141,6 +149,8 @@ for i in range(n_learners):
         XGBoostLearner(
             train_data=learner_train_data[i],
             train_labels=learner_train_labels[i],
+            vote_data=learner_vote_data[i],
+            vote_labels=learner_vote_labels[i],
             test_data=learner_test_data[i],
             test_labels=learner_test_labels[i],
             worker_id=i,

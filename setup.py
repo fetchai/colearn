@@ -27,8 +27,8 @@ other_deps = [
     'scikit-learn>=0.23,<1.1',
 ]
 pytorch_deps = [
-    'opacus>=0.10,<1.1',
-    'Pillow>=8.0.1,<8.5.0',
+    'opacus>=1.0.0,<1.1',
+    'Pillow>=8.0.1,<9.1.0',
     'scikit-learn>=0.23,<1.1',
     'scipy>=1.5,<1.8',
     'torch>=1.7,<1.11',
@@ -72,14 +72,14 @@ setuptools.setup(
         # Need to fill in
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6, <3.9',
+    python_requires='>=3.7, <3.9',
     install_requires=[
         'google-cloud-storage>=1.35,<1.44',
         'matplotlib>=3.3,<3.6',
         'tensorflow_datasets>=4.2,<4.5',
         'numpy~=1.16.0',
         'onnxmltools==1.10.0',
-        'pydantic~=1.7.0',
+        'pydantic>=1.7,<1.10',
     ],
     tests_require=["tox>=3.20,<3.25"],
     extras_require={
