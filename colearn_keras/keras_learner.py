@@ -35,6 +35,7 @@ class KerasLearner(MachineLearningInterface):
 
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
+                 vote_loader: tf.data.Dataset,
                  test_loader: Optional[tf.data.Dataset] = None,
                  need_reset_optimizer: bool = True,
                  minimise_criterion: bool = True,
@@ -53,6 +54,7 @@ class KerasLearner(MachineLearningInterface):
         """
         self.model: keras.Model = model
         self.train_loader: tf.data.Dataset = train_loader
+        self.vote_loader: tf.data.Dataset = vote_loader
         self.test_loader: Optional[tf.data.Dataset] = test_loader
         self.need_reset_optimizer = need_reset_optimizer
         self.minimise_criterion: bool = minimise_criterion
@@ -77,7 +79,7 @@ class KerasLearner(MachineLearningInterface):
             except TypeError:
                 raise Exception("Invalid arguments for model.evaluate")
 
-        self.vote_score: float = self.test(self.train_loader)
+        self.vote_score: float = self.test(self.vote_loader)
 
     def reset_optimizer(self):
         """
@@ -113,7 +115,7 @@ class KerasLearner(MachineLearningInterface):
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
-        vote_score = self.test(self.train_loader)
+        vote_score = self.test(self.vote_loader)
 
         if self.test_loader:
             test_score = self.test(self.test_loader)
@@ -146,7 +148,7 @@ class KerasLearner(MachineLearningInterface):
         :param weights: The new weights
         """
         self.set_weights(weights)
-        self.vote_score = self.test(self.train_loader)
+        self.vote_score = self.test(self.vote_loader)
 
     def mli_get_current_weights(self) -> Weights:
         """

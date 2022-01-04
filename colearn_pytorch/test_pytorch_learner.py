@@ -75,9 +75,10 @@ def nkl():
     """Returns a Pytorchlearner"""
     model = get_mock_model()
     dl = get_mock_dataloader()
+    vote_dl = get_mock_dataloader()
     opt = get_mock_optimiser()
     crit = get_mock_criterion()
-    nkl = PytorchLearner(model=model, train_loader=dl,
+    nkl = PytorchLearner(model=model, train_loader=dl, vote_loader=vote_dl,
                          optimizer=opt, criterion=crit,
                          num_train_batches=1,
                          num_test_batches=1)

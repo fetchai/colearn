@@ -58,7 +58,8 @@ n_datapoints = info.splits['train'].num_examples
 train_datasets = [train_dataset.shard(num_shards=n_learners, index=i) for i in range(n_learners)]
 
 test_dataset = tfds.load('mnist', split='test', as_supervised=True)
-test_datasets = [test_dataset.shard(num_shards=n_learners, index=i) for i in range(n_learners)]
+vote_datasets = [test_dataset.shard(num_shards=2 * n_learners, index=i) for i in range(n_learners)]
+test_datasets = [test_dataset.shard(num_shards=2 * n_learners, index=i) for i in range(n_learners, 2 * n_learners)]
 
 
 for i in range(n_learners):
@@ -66,6 +67,10 @@ for i in range(n_learners):
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     train_datasets[i] = train_datasets[i].shuffle(n_datapoints // n_learners)
     train_datasets[i] = train_datasets[i].batch(batch_size)
+
+    vote_datasets[i] = vote_datasets[i].map(
+        normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    vote_datasets[i] = vote_datasets[i].batch(batch_size)
 
     test_datasets[i] = test_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -106,6 +111,7 @@ for i in range(n_learners):
     all_learner_models.append(KerasLearner(
         model=get_model(),
         train_loader=train_datasets[i],
+        vote_loader=vote_datasets[i],
         test_loader=test_datasets[i],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,

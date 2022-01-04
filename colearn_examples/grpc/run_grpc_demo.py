@@ -31,6 +31,7 @@ cli_args.add_argument('-m', '--model_tag', type=str, help='number of learners')
 cli_args.add_argument('-l', '--data_locations', type=str,
                       help='A comma-separated list of folders where the data is located. If the list has only one '
                            'item then all the learners will use the same location.')
+cli_args.add_argument('-r', "--n_rounds", default=15, type=int, help="Number of training rounds")
 
 args = cli_args.parse_args()
 
@@ -62,7 +63,7 @@ results.data.append(initial_result(all_learner_models))
 
 plot = ColearnPlot(score_name="accuracy")
 
-n_rounds = 10
+n_rounds = args.n_rounds
 vote_threshold = 0.5
 for round_index in range(n_rounds):
     results.data.append(

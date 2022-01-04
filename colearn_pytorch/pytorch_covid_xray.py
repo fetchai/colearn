@@ -32,8 +32,8 @@ from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 from typing_extensions import TypedDict
 
-from colearn_grpc.factory_registry import FactoryRegistry
 from colearn.utils.data import get_data, split_list_into_fractions
+from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_pytorch.pytorch_learner import PytorchLearner
 from .utils import categorical_accuracy
 
@@ -45,9 +45,10 @@ LABEL_FL = "labels.pickle"
 @FactoryRegistry.register_dataloader("PYTORCH_COVID_XRAY")
 def prepare_data_loaders(location: str,
                          train_ratio: float = 0.8,
+                         vote_ratio: float = 0.1,
                          batch_size: int = 8,
                          no_cuda: bool = False,
-                         ) -> Tuple[DataLoader, DataLoader]:
+                         ) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Load training data from folders and create train and test dataloader
 
@@ -68,16 +69,18 @@ def prepare_data_loaders(location: str,
     labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(data))
+    n_vote_cases = int(vote_ratio * len(data))
     assert (n_cases > 0), "There are no cases"
 
     train_loader = _make_loader(data[:n_cases], labels[:n_cases], batch_size, **loader_kwargs)
+    vote_loader = _make_loader(data[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases], batch_size)
     test_loader = _make_loader(data[n_cases:], labels[n_cases:], batch_size, **loader_kwargs)
 
-    return train_loader, test_loader
+    return train_loader, vote_loader, test_loader
 
 
 @FactoryRegistry.register_model_architecture("PYTORCH_COVID_XRAY", ["PYTORCH_COVID_XRAY"])
-def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
+def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader, DataLoader],
                     learning_rate: float = 0.001,
                     steps_per_epoch: int = 40,
                     vote_batches: int = 10,
@@ -111,7 +114,8 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader],
     learner = PytorchLearner(
         model=model,
         train_loader=data_loaders[0],
-        test_loader=data_loaders[1],
+        vote_loader=data_loaders[1],
+        test_loader=data_loaders[2],
         device=device,
         optimizer=opt,
         criterion=torch.nn.NLLLoss(),
