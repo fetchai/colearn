@@ -77,7 +77,7 @@ setuptools.setup(
         'google-cloud-storage>=1.35,<1.44',
         'matplotlib>=3.3,<3.6',
         'numpy~=1.16.0',
-        'pydantic~=1.7.0',
+        'pydantic>=1.7,<1.10',
     ],
     tests_require=["tox>=3.20,<3.25"],
     extras_require={
