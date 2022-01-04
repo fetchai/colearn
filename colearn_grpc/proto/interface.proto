@@ -63,6 +63,10 @@ message CompatibilitySpec {
     repeated string dataloaders = 2;
 };
 
+message ResponseVersion {
+    string version = 1;
+};
+
 message ResponseSupportedSystem {
     repeated DatasetLoaderSpec data_loaders    = 1;
     repeated ModelArchSpec model_architectures = 2;

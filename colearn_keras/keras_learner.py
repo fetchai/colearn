@@ -17,6 +17,7 @@
 # ------------------------------------------------------------------------------
 from inspect import signature
 from typing import Optional
+from colearn.ml_interface import convert_model_to_onnx
 import random
 
 try:
@@ -152,7 +153,7 @@ class KerasLearner(MachineLearningInterface):
         thing = ColearnModel(
             model_format = ModelFormat(1),
             model_file = "",
-            model = "xxyy",
+            model = convert_model_to_onnx(self.model),
         )
 
 

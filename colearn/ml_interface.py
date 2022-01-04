@@ -24,7 +24,7 @@ from tensorflow import keras
 
 from pydantic import BaseModel
 
-model_classes = [tf.keras.Model, keras.Model, tf.estimator.Estimator]
+model_classes = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
 
 # Helper function to convert a ML model to onnx format
 def convert_model_to_onnx(model: Any):

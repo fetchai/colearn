@@ -26,6 +26,12 @@ class MliFactory(abc.ABC):
     Interface a class must implement to be used as a factory by the GRPC Server
     """
 
+    def get_version(self) -> str:
+        """
+        Returns the version of this library.
+        """
+        return "0.2.7"
+
     @abc.abstractmethod
     def get_models(self) -> Dict[str, Dict[str, Any]]:
         """
