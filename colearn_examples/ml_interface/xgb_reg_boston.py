@@ -23,7 +23,7 @@ import xgboost as xgb
 from sklearn import datasets
 from sklearn.metrics import mean_squared_error as mse
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.data import split_list_into_fractions
 from colearn.utils.plot import ColearnPlot
@@ -97,6 +97,15 @@ class XGBoostLearner(MachineLearningInterface):
     def set_weights(self, weights: Weights):
         model_path = weights.weights
         self.model.load_model(model_path)
+
+    def mli_get_current_model(self) -> ColearnModel:
+        """
+        :return: The current model and its format
+        """
+
+        print(f"randomforest ")
+
+        return ColearnModel()
 
     def test(self, data_matrix):
         return mse(self.model.predict(data_matrix), data_matrix.get_label())

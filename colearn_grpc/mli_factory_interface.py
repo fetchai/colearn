@@ -28,7 +28,7 @@ class MliFactory(abc.ABC):
 
     def get_version(self) -> str:
         """
-        Returns the version of this library.
+        Returns the version of this library....
         """
         return "0.2.7"
 

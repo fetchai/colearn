@@ -19,6 +19,7 @@ import abc
 from enum import Enum
 from typing import Any, Optional
 import onnxmltools
+import onnx
 import tensorflow as tf
 from tensorflow import keras
 
@@ -32,7 +33,6 @@ def convert_model_to_onnx(model: Any):
         return onnxmltools.convert_keras(model)
     else:
         raise Exception("Attempt to convert unsupported model to onnx: {model}")
-
 
 
 class Weights(BaseModel):
@@ -54,6 +54,9 @@ class ColearnModel(BaseModel):
     model_format: ModelFormat
     model_file: Optional[str]
     model: Optional[Any]
+
+def deser_model(model: Any) -> ColearnModel:
+    return onnx.load_model_from_string(model)
 
 
 class MachineLearningInterface(abc.ABC):

@@ -17,7 +17,6 @@
 # ------------------------------------------------------------------------------
 from inspect import signature
 from typing import Optional
-from colearn.ml_interface import convert_model_to_onnx
 import random
 
 try:
@@ -27,7 +26,8 @@ except ImportError:
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+import onnx
 
 
 class KerasLearner(MachineLearningInterface):
@@ -168,14 +168,20 @@ class KerasLearner(MachineLearningInterface):
         :return: The current model and its format
         """
 
+        print(f"kerasssss ")
+
+        #www = convert_model_to_onnx(self.model)
+        #onnx.checker.check_model(www)
+        #xxx = www.SerializeToString()
+        #aabb = onnx.load_model_from_string(xxx)
+        #print(f"www")
+
         thing = ColearnModel(
-            model_format = ModelFormat(1),
-            model_file = "",
-            model = convert_model_to_onnx(self.model),
+            model_format=ModelFormat(2),
+            model_file="",
+            model=convert_model_to_onnx(self.model),
         )
-
-
-        print(f"we do the thing {thing}")
+        print(f"we do the thing")
 
         return thing
 

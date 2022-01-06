@@ -24,7 +24,7 @@ import numpy as np
 import sklearn
 from sklearn.linear_model import SGDClassifier
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
@@ -104,6 +104,15 @@ class FraudLearner(MachineLearningInterface):
     def mli_accept_weights(self, weights: Weights):
         self.set_weights(weights)
         self.vote_score = self.test(self.vote_data, self.vote_labels)
+
+    def mli_get_current_model(self) -> ColearnModel:
+        """
+        :return: The current model and its format
+        """
+
+        print(f"mlifraud ")
+
+        return ColearnModel()
 
     def mli_get_current_weights(self):
         return Weights(weights=dict(coef_=self.model.coef_,

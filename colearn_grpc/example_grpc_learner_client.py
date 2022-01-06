@@ -24,7 +24,7 @@ from google.protobuf import empty_pb2
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
-from colearn.ml_interface import MachineLearningInterface, ProposedWeights, Weights
+from colearn.ml_interface import MachineLearningInterface, ProposedWeights, Weights, ColearnModel
 from colearn_grpc.logging import get_logger
 from colearn_grpc.utils import iterator_to_weights, weights_to_iterator
 
@@ -127,6 +127,13 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
             r["compatibilities"][c.model_architecture] = c.dataloaders
         return r
 
+    def get_version(self):
+        """ Get the version from the learner """
+        request = empty_pb2.Empty()
+        response = self.stub.QueryVersion(request)
+
+        return r.version
+
     def setup_ml(self, dataset_loader_name, dataset_loader_parameters,
                  model_arch_name, model_parameters):
 
@@ -196,3 +203,10 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         except grpc.RpcError as ex:
             _logger.exception(f"Failed to get_current_weights: {ex}")
             raise Exception(f"Failed to get_current_weights: {ex}")
+
+    def mli_get_current_model(self) -> ColearnModel:
+        request = empty_pb2.Empty()
+        response = self.stub.GetCurrentModel(request)
+
+        return ColearnModel(model_format=response.model_format, model_file=response.model_file, model=response.model)
+

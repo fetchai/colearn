@@ -81,6 +81,13 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         self._learner_mutex = Lock()
         self.mli_factory = mli_factory
 
+    def QueryVersion(self, request, context):
+        print("querying version")
+        response = ipb2.ResponseVersion()
+        response.version = self.mli_factory.get_version()
+
+        return response
+
     def QuerySupportedSystem(self, request, context):
         response = ipb2.ResponseSupportedSystem()
         try:
@@ -243,3 +250,19 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             else:
                 r.status = ipb2.SystemStatus.NO_MODEL
             yield r
+
+    @_time_test.time()
+    def GetCurrentModel(self, request, context):
+        print("+++++++++++++++++++++++++ querying model")
+        response = ipb2.ResponseCurrentModel()
+
+        if self.learner is not None:
+            current_model = self.learner.mli_get_current_model()
+            #response.model_format = current_model.model_format
+            #response.model_file = current_model.model_file
+            response.model_format = current_model.model_format.value
+            response.model_file = current_model.model_file
+            response.model = current_model.model.SerializeToString()
+            #response.model = current_model.model
+
+        return response

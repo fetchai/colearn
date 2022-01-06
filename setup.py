@@ -79,6 +79,7 @@ setuptools.setup(
         'tensorflow_datasets>=4.2,<4.5',
         'numpy~=1.16.0',
         'onnxmltools==1.10.0',
+        'tf2onnx==1.9.3',
         'pydantic>=1.7,<1.10',
     ],
     tests_require=["tox>=3.20,<3.25"],
