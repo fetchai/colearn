@@ -20,17 +20,21 @@ from enum import Enum
 from typing import Any, Optional
 import onnxmltools
 import onnx
+import torch
 import tensorflow as tf
 from tensorflow import keras
 
 from pydantic import BaseModel
 
-model_classes = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
+model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
+model_classes_scipy = (torch.nn.Module)
 
 # Helper function to convert a ML model to onnx format
 def convert_model_to_onnx(model: Any):
-    if isinstance(model, model_classes):
+    if isinstance(model, model_classes_keras):
         return onnxmltools.convert_keras(model)
+    if isinstance(model, model_classes_scipy):
+        raise Exception("Pytorch models not yet supported to onnx")
     else:
         raise Exception("Attempt to convert unsupported model to onnx: {model}")
 

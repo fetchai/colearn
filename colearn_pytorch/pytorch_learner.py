@@ -30,7 +30,8 @@ import torch.utils
 import torch.utils.data
 from torch.nn.modules.loss import _Loss
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, \
+    convert_model_to_onnx, ModelFormat
 
 _DEFAULT_DEVICE = torch.device("cpu")
 
@@ -99,16 +100,11 @@ class PytorchLearner(MachineLearningInterface):
         :return: The current model and its format
         """
 
-        print(f"kerasssss2 ")
-
-        thing = ColearnModel(
-            model_format = ModelFormat(1),
-            model_file = "",
-            model = convert_model_to_onnx(self.model),
+        return ColearnModel(
+            model_format=ModelFormat(1),
+            model_file="",
+            model=convert_model_to_onnx(self.model),
         )
-        print(f"we do the thing {thing}")
-
-        return thing
 
     def set_weights(self, weights: Weights):
         """
