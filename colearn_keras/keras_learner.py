@@ -176,14 +176,13 @@ class KerasLearner(MachineLearningInterface):
         #aabb = onnx.load_model_from_string(xxx)
         #print(f"www")
 
-        thing = ColearnModel(
+        print(f"we do the thing")
+
+        return ColearnModel(
             model_format=ModelFormat(2),
             model_file="",
             model=convert_model_to_onnx(self.model),
         )
-        print(f"we do the thing")
-
-        return thing
 
     def set_weights(self, weights: Weights):
         """

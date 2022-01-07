@@ -28,10 +28,6 @@ def run(n_rounds: int, learners: List[MachineLearningInterface]):
 def run_one_round(round_index: int, learners: Sequence[MachineLearningInterface],
                   vote_threshold=0.5):
 
-    oo = learners[0].mli_get_current_model()
-
-    print(f"XXXXXXXXXX The model is {learners[0].mli_get_current_model()} XXXXXXXXXX")
-
     # Get weights from proposer
     proposer = round_index % len(learners)
     new_weights = learners[proposer].mli_propose_weights()
