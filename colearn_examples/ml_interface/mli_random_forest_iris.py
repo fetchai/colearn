@@ -22,7 +22,7 @@ import numpy as np
 from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
@@ -102,9 +102,11 @@ class IrisLearner(MachineLearningInterface):
         :return: The current model and its format
         """
 
-        print(f"randomforest ")
-
-        return ColearnModel()
+        return ColearnModel(
+            model_format=ModelFormat(2),
+            model_file="",
+            model=convert_model_to_onnx(self.model),
+        )
 
     def set_weights(self, weights: Weights):
         self.model = pickle.loads(weights.weights)

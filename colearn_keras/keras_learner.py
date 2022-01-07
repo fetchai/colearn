@@ -17,7 +17,6 @@
 # ------------------------------------------------------------------------------
 from inspect import signature
 from typing import Optional
-import random
 
 try:
     import tensorflow as tf
@@ -27,7 +26,6 @@ except ImportError:
 from tensorflow import keras
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
-import onnx
 
 
 class KerasLearner(MachineLearningInterface):
@@ -127,14 +125,10 @@ class KerasLearner(MachineLearningInterface):
 
         self.set_weights(current_weights)
 
-        random_result = random.randint(0,1)
-
-        print(f"injecting random result!!! {random_result}")
-
         return ProposedWeights(weights=weights,
                                vote_score=vote_score,
                                test_score=test_score,
-                               vote=vote if random_result == 0 else None
+                               vote=vote,
                                )
 
     def vote(self, new_score) -> bool:
@@ -167,16 +161,6 @@ class KerasLearner(MachineLearningInterface):
         """
         :return: The current model and its format
         """
-
-        print(f"kerasssss ")
-
-        #www = convert_model_to_onnx(self.model)
-        #onnx.checker.check_model(www)
-        #xxx = www.SerializeToString()
-        #aabb = onnx.load_model_from_string(xxx)
-        #print(f"www")
-
-        print(f"we do the thing")
 
         return ColearnModel(
             model_format=ModelFormat(2),

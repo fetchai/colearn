@@ -28,7 +28,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
 
@@ -138,9 +138,11 @@ class FraudLearner(MachineLearningInterface):
         :return: The current model and its format
         """
 
-        print(f"fraudddd ")
-
-        return ColearnModel()
+        return ColearnModel(
+            model_format=ModelFormat(2),
+            model_file="",
+            model=convert_model_to_onnx(self.model),
+        )
 
     def set_weights(self, weights: Weights):
         """

@@ -253,16 +253,12 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
 
     @_time_test.time()
     def GetCurrentModel(self, request, context):
-        print("+++++++++++++++++++++++++ querying model")
         response = ipb2.ResponseCurrentModel()
 
         if self.learner is not None:
             current_model = self.learner.mli_get_current_model()
-            #response.model_format = current_model.model_format
-            #response.model_file = current_model.model_file
             response.model_format = current_model.model_format.value
             response.model_file = current_model.model_file
             response.model = current_model.model.SerializeToString()
-            #response.model = current_model.model
 
         return response

@@ -23,7 +23,7 @@ import xgboost as xgb
 from sklearn import datasets
 from sklearn.metrics import mean_squared_error as mse
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.data import split_list_into_fractions
 from colearn.utils.plot import ColearnPlot
@@ -103,9 +103,11 @@ class XGBoostLearner(MachineLearningInterface):
         :return: The current model and its format
         """
 
-        print(f"randomforest ")
-
-        return ColearnModel()
+        return ColearnModel(
+            model_format=ModelFormat(2),
+            model_file="",
+            model=convert_model_to_onnx(self.model),
+        )
 
     def test(self, data_matrix):
         return mse(self.model.predict(data_matrix), data_matrix.get_label())
