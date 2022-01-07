@@ -15,9 +15,9 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+import ssl
 import time
 import traceback
-import ssl
 
 import grpc
 from google.protobuf import empty_pb2
@@ -73,9 +73,11 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                         # create credentials
                         credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs.encode())
                     except ssl.SSLError as e:
-                        _logger.warning(f"Encountered ssl error when attempting to get certificate from learner server: {e}")
+                        _logger.warning(
+                            f"Encountered ssl error when attempting to get certificate from learner server: {e}")
                     except OSError:
-                        _logger.warning(f"Encountered os error when attempting to get certificate from learner server: {e}")
+                        _logger.warning(
+                            f"Encountered os error when attempting to get certificate from learner server: {e}")
 
                     if credentials:
                         _logger.info("Creating secure channel")
@@ -98,7 +100,7 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                 _logger.warning(traceback.format_exc(limit=1, chain=False))
                 caught_exception = e
                 time.sleep(5)
-            except Exception as e:   # pylint: disable=W0703
+            except Exception as e:  # pylint: disable=W0703
                 _logger.warning("Non grpc-based exception when trying to connect:")
                 _logger.warning(traceback.format_exc(limit=1, chain=False))
                 caught_exception = e
@@ -132,7 +134,7 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         request = empty_pb2.Empty()
         response = self.stub.QueryVersion(request)
 
-        return r.version
+        return response.version
 
     def setup_ml(self, dataset_loader_name, dataset_loader_parameters,
                  model_arch_name, model_parameters):
@@ -209,4 +211,3 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         response = self.stub.GetCurrentModel(request)
 
         return ColearnModel(model_format=response.model_format, model_file=response.model_file, model=response.model)
-

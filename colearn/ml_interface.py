@@ -18,20 +18,21 @@
 import abc
 from enum import Enum
 from typing import Any, Optional
-import onnxmltools
-import onnx
-import torch
-import sklearn
-import xgboost
-import tensorflow as tf
-from tensorflow import keras
 
+import onnx
+import onnxmltools
+import sklearn
+import tensorflow as tf
+import torch
+import xgboost
 from pydantic import BaseModel
+from tensorflow import keras
 
 model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
 model_classes_scipy = (torch.nn.Module)
 model_classes_sklearn = (sklearn.ClassifierMixin)
 model_classes_xgboost = (xgboost.Booster)
+
 
 def convert_model_to_onnx(model: Any):
     """
@@ -59,6 +60,7 @@ class ProposedWeights(BaseModel):
     test_score: float
     vote: Optional[bool]
 
+
 class ModelFormat(Enum):
     PICKLE_WEIGHTS_ONLY = 1
     ONNX = 2
@@ -68,6 +70,7 @@ class ColearnModel(BaseModel):
     model_format: ModelFormat
     model_file: Optional[str]
     model: Optional[Any]
+
 
 def deser_model(model: Any) -> ColearnModel:
     """

@@ -25,12 +25,13 @@ class MliFactory(abc.ABC):
     """
     Interface a class must implement to be used as a factory by the GRPC Server
     """
+    _version = "0.2.6"
 
     def get_version(self) -> str:
         """
         Returns the version of this library....
         """
-        return "0.2.7"
+        return self._version
 
     @abc.abstractmethod
     def get_models(self) -> Dict[str, Dict[str, Any]]:
