@@ -82,7 +82,6 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         self.mli_factory = mli_factory
 
     def QueryVersion(self, request, context):
-        print("querying version")
         response = ipb2.ResponseVersion()
         response.version = self.mli_factory.get_version()
 
