@@ -21,8 +21,10 @@ from collections import OrderedDict, defaultdict
 try:
     import torch
 except ImportError:
-    raise Exception("Pytorch is not installed. To use the pytorch "
-                    "add-ons please install colearn with `pip install colearn[pytorch]`.")
+    raise Exception(
+        "Pytorch is not installed. To use the pytorch "
+        "add-ons please install colearn with `pip install colearn[pytorch]`."
+    )
 
 import torch.nn
 import torch.optim
@@ -30,8 +32,20 @@ import torch.utils
 import torch.utils.data
 from torch.nn.modules.loss import _Loss
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, \
-    convert_model_to_onnx, ModelFormat
+from colearn.ml_interface import (
+    MachineLearningInterface,
+    Weights,
+    ProposedWeights,
+    ColearnModel,
+    convert_model_to_onnx,
+    ModelFormat,
+    DiffPrivBudget,
+    DiffPrivConfig,
+    TrainingSummary,
+    ErrorCodes,
+)
+
+from opacus import PrivacyEngine
 
 _DEFAULT_DEVICE = torch.device("cpu")
 
@@ -41,18 +55,22 @@ class PytorchLearner(MachineLearningInterface):
     Pytorch learner implementation of machine learning interface
     """
 
-    def __init__(self, model: torch.nn.Module,
-                 optimizer: torch.optim.Optimizer,
-                 train_loader: torch.utils.data.DataLoader,
-                 vote_loader: torch.utils.data.DataLoader,
-                 test_loader: Optional[torch.utils.data.DataLoader] = None,
-                 need_reset_optimizer: bool = True,
-                 device=_DEFAULT_DEVICE,
-                 criterion: Optional[_Loss] = None,
-                 minimise_criterion=True,
-                 vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,
-                 num_train_batches: Optional[int] = None,
-                 num_test_batches: Optional[int] = None):
+    def __init__(
+        self,
+        model: torch.nn.Module,
+        optimizer: torch.optim.Optimizer,
+        train_loader: torch.utils.data.DataLoader,
+        vote_loader: torch.utils.data.DataLoader,
+        test_loader: Optional[torch.utils.data.DataLoader] = None,
+        need_reset_optimizer: bool = True,
+        device=_DEFAULT_DEVICE,
+        criterion: Optional[_Loss] = None,
+        minimise_criterion=True,
+        vote_criterion: Optional[Callable[[torch.Tensor, torch.Tensor], float]] = None,
+        num_train_batches: Optional[int] = None,
+        num_test_batches: Optional[int] = None,
+        diff_priv_config: Optional[DiffPrivConfig] = None,
+    ):
         """
         :param model: Pytorch model used for training
         :param optimizer: Training optimizer
@@ -65,6 +83,7 @@ class PytorchLearner(MachineLearningInterface):
         :param vote_criterion: Function to measure model performance for voting
         :param num_train_batches: Number of training batches
         :param num_test_batches: Number of testing batches
+        :param diff_priv_config: Contains differential privacy (dp) budget related configuration
         """
 
         # Model has to be on same device as data
@@ -81,6 +100,24 @@ class PytorchLearner(MachineLearningInterface):
         self.minimise_criterion = minimise_criterion
         self.vote_criterion = vote_criterion
 
+        self.dp_config = diff_priv_config
+        self.dp_privacy_engine = PrivacyEngine()
+
+        if diff_priv_config is not None:
+            (
+                self.model,
+                self.optimizer,
+                self.train_loader,
+            ) = self.dp_privacy_engine.make_private_with_epsilon(
+                module=self.model,
+                optimizer=self.optimizer,
+                data_loader=self.train_loader,
+                epochs=self.num_train_batches,
+                target_epsilon=diff_priv_config.target_epsilon,
+                target_delta=diff_priv_config.target_delta,
+                max_grad_norm=diff_priv_config.max_grad_norm,
+            )
+
         self.vote_score = self.test(self.vote_loader)
 
     def mli_get_current_weights(self) -> Weights:
@@ -91,7 +128,9 @@ class PytorchLearner(MachineLearningInterface):
         current_state_dict = OrderedDict()
         for key in self.model.state_dict():
             current_state_dict[key] = self.model.state_dict()[key].clone()
-        w = Weights(weights=current_state_dict)
+        w = Weights(
+            weights=current_state_dict, training_summary=self.get_training_summary()
+        )
 
         return w
 
@@ -120,7 +159,7 @@ class PytorchLearner(MachineLearningInterface):
         This way, the outdated history can be erased.
         """
 
-        self.optimizer.__setstate__({'state': defaultdict(dict)})
+        self.optimizer.__setstate__({"state": defaultdict(dict)})
 
     def train(self):
         """
@@ -159,7 +198,16 @@ class PytorchLearner(MachineLearningInterface):
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)
-        # new_weights.training_summary = ...
+
+        training_summary = new_weights.training_summary
+        if (
+            training_summary is not None
+            and training_summary.error_code is not None
+            and training_summary.error_code == ErrorCodes.DP_BUDGET_EXCEEDED
+        ):
+            current_weights.training_summary = training_summary
+            return current_weights
+
         return new_weights
 
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
@@ -181,11 +229,9 @@ class PytorchLearner(MachineLearningInterface):
         vote = self.vote(vote_score)
 
         self.set_weights(current_weights)
-        return ProposedWeights(weights=weights,
-                               vote_score=vote_score,
-                               test_score=test_score,
-                               vote=vote
-                               )
+        return ProposedWeights(
+            weights=weights, vote_score=vote_score, test_score=test_score, vote=vote
+        )
 
     def vote(self, new_score) -> bool:
         """
@@ -233,7 +279,9 @@ class PytorchLearner(MachineLearningInterface):
         if self.vote_criterion is None:
             return float(total_score / total_samples)
         else:
-            return self.vote_criterion(torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0))
+            return self.vote_criterion(
+                torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0)
+            )
 
     def mli_accept_weights(self, weights: Weights):
         """
@@ -243,3 +291,34 @@ class PytorchLearner(MachineLearningInterface):
 
         self.set_weights(weights)
         self.vote_score = self.test(self.vote_loader)
+
+    def get_training_summary(self) -> Optional[TrainingSummary]:
+        """
+        Differential Privacy Budget
+        :return: the target and consumed epsilon so far
+        """
+
+        if self.dp_config is None:
+            return None
+
+        delta = self.dp_config.target_delta
+        target_epsilon = self.dp_config.target_epsilon
+        consumed_epsilon = self.dp_privacy_engine.get_epsilon(delta)
+
+        budget = DiffPrivBudget(
+            target_epsilon=target_epsilon,
+            consumed_epsilon=consumed_epsilon,
+            target_delta=delta,
+            consumed_delta=delta,  # delta is constatnt per training
+        )
+
+        err = (
+            ErrorCodes.DP_BUDGET_EXCEEDED
+            if consumed_epsilon >= target_epsilon
+            else None
+        )
+
+        return TrainingSummary(
+            dp_budget=budget,
+            error_code=err,
+        )

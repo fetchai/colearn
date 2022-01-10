@@ -16,19 +16,19 @@
 #
 # ------------------------------------------------------------------------------
 import os
+from typing import List
 
 from typing_extensions import TypedDict
 import torch.nn as nn
 import torch.nn.functional as nn_func
 import torch.utils.data
-from opacus import PrivacyEngine
 from torchsummary import summary
 from torchvision import transforms, datasets
 
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
-from colearn_pytorch.pytorch_learner import PytorchLearner
+from colearn_pytorch.pytorch_learner import PytorchLearner, DiffPrivConfig
 
 # define some constants
 n_learners = 5
@@ -47,10 +47,10 @@ n_classes = 10
 vote_batches = 2
 
 # Differential Privacy parameters
-sample_size = 3300
-alphas = list(range(2, 32))
 noise_multiplier = 1.3
-max_grad_norm = 1.0
+max_grad_norm = 1.2
+target_epsilon = 10.0
+target_delta = 1.01e-5
 
 no_cuda = False
 cuda = not no_cuda and torch.cuda.is_available()  # boring torch stuff
@@ -90,6 +90,14 @@ learner_test_dataloaders = [torch.utils.data.DataLoader(
     batch_size=batch_size, shuffle=True, drop_last=True, **kwargs) for ds in learner_test_data]
 
 
+def print_results_with_privacy_budget(results: Results, learners: List[PytorchLearner]):
+    if learners[0].get_training_summary() is not None:
+        last_result = results.data[-1]
+        for learner in learners:
+            last_result.privacy_budgets.append(learner.get_training_summary())
+    print_results(results)
+
+
 # define the neural net architecture in Pytorch
 class Net(nn.Module):
     def __init__(self):
@@ -111,46 +119,47 @@ class Net(nn.Module):
 
 
 # Make n instances of PytorchLearner with model and torch dataloaders
-all_learner_models = []
+all_learner = []
 for i in range(n_learners):
     model = Net().to(device)
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    privacy_engine = PrivacyEngine()
-    model, opt, data_loader = privacy_engine.make_private(
-        optimizer=opt, module=model, data_loader=learner_train_dataloaders[i],
+    diff_priv_config = DiffPrivConfig(
+        target_epsilon=target_epsilon,
+        target_delta=target_delta,
+        max_grad_norm=max_grad_norm,
         noise_multiplier=noise_multiplier,
-        max_grad_norm=max_grad_norm
     )
     learner = PytorchLearner(
         model=model,
-        train_loader=data_loader,
+        train_loader=learner_train_dataloaders[i],
         vote_loader=learner_vote_dataloaders[i],
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,
         criterion=torch.nn.NLLLoss(),
-        num_test_batches=vote_batches
+        num_test_batches=vote_batches,
+        diff_priv_config=diff_priv_config,
     )
 
-    all_learner_models.append(learner)
+    all_learner.append(learner)
 
 # print a summary of the model architecture
-summary(all_learner_models[0].model, input_size=(width, height), device=str(device))
+summary(all_learner[0].model, input_size=(width, height), device=str(device))
 
 # Now we're ready to start collective learning
 # Get initial accuracy
 results = Results()
-results.data.append(initial_result(all_learner_models))
+results.data.append(initial_result(all_learner))
 
 plot = ColearnPlot(score_name="loss")
 
 score_name = "loss"
 for round_index in range(n_rounds):
     results.data.append(
-        collective_learning_round(all_learner_models,
+        collective_learning_round(all_learner,
                                   vote_threshold, round_index)
     )
-    print_results(results)
+    print_results_with_privacy_budget(results, all_learner)
 
     plot.plot_results_and_votes(results)
 
