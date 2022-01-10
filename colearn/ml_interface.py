@@ -40,6 +40,8 @@ def convert_model_to_onnx(model: Any):
         return onnxmltools.convert_keras(model)
     if isinstance(model, model_classes_sklearn):
         return onnxmltools.convert_sklearn(model)
+    if 'xgboost' in model.__repr__():
+        return onnxmltools.convert_sklearn(model)
     if isinstance(model, model_classes_scipy):
         raise Exception("Pytorch models not yet supported to onnx")
     else:
