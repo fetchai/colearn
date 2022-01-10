@@ -76,6 +76,7 @@ def deser_model(model: Any) -> ColearnModel:
     """
     return onnx.load_model_from_string(model)
 
+
 class MachineLearningInterface(abc.ABC):
     @abc.abstractmethod
     def mli_propose_weights(self) -> Weights:
