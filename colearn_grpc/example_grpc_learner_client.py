@@ -19,8 +19,8 @@ import ssl
 import time
 import traceback
 
-import grpc
 from google.protobuf import empty_pb2
+import grpc
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc

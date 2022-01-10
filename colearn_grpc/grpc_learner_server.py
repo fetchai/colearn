@@ -19,9 +19,9 @@ import json
 from threading import Lock
 from typing import Optional
 
+from google.protobuf import empty_pb2
 import grpc
 from colearn.ml_interface import MachineLearningInterface
-from google.protobuf import empty_pb2
 from prometheus_client import Counter, Summary
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
