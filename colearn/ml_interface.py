@@ -24,14 +24,12 @@ import onnxmltools
 import sklearn
 import tensorflow as tf
 import torch
-import xgboost
 from pydantic import BaseModel
 from tensorflow import keras
 
 model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
 model_classes_scipy = (torch.nn.Module)
 model_classes_sklearn = (sklearn.base.ClassifierMixin)
-model_classes_xgboost = (xgboost.Booster)
 
 
 def convert_model_to_onnx(model: Any):
@@ -41,8 +39,6 @@ def convert_model_to_onnx(model: Any):
     if isinstance(model, model_classes_keras):
         return onnxmltools.convert_keras(model)
     if isinstance(model, model_classes_sklearn):
-        return onnxmltools.convert_sklearn(model)
-    if isinstance(model, model_classes_xgboost):
         return onnxmltools.convert_sklearn(model)
     if isinstance(model, model_classes_scipy):
         raise Exception("Pytorch models not yet supported to onnx")
