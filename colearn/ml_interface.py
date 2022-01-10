@@ -30,7 +30,7 @@ from tensorflow import keras
 
 model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
 model_classes_scipy = (torch.nn.Module)
-model_classes_sklearn = (sklearn.ClassifierMixin)
+model_classes_sklearn = (sklearn.base.ClassifierMixin)
 model_classes_xgboost = (xgboost.Booster)
 
 

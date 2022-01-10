@@ -21,12 +21,12 @@ import tempfile
 from pathlib import Path
 from typing import Optional, List, Tuple
 
-import numpy as np
-import pandas as pd
-import sklearn
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
+import sklearn
+import numpy as np
+import pandas as pd
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.utils.data import get_data, split_list_into_fractions

@@ -18,10 +18,10 @@
 import os
 from typing import Optional
 
-import numpy as np
-import xgboost as xgb
 from sklearn import datasets
 from sklearn.metrics import mean_squared_error as mse
+import numpy as np
+import xgboost as xgb
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.training import initial_result, collective_learning_round
