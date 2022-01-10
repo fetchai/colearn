@@ -30,7 +30,7 @@ class ProposedWeights(BaseModel):
     weights: Weights
     vote_score: float
     test_score: float
-    vote: bool
+    vote: Optional[bool]
 
 
 class ModelFormat(Enum):

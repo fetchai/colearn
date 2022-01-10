@@ -51,9 +51,9 @@ train_datasets, info = tfds.load('mnist',
                                  as_supervised=True, with_info=True)
 n_datapoints = info.splits['train'].num_examples
 
-test_datasets = tfds.load('mnist',
-                          split=tfds.even_splits('test', n=n_learners),
-                          as_supervised=True)
+test_dataset = tfds.load('mnist', split='test', as_supervised=True)
+vote_datasets = [test_dataset.shard(num_shards=2 * n_learners, index=i) for i in range(n_learners)]
+test_datasets = [test_dataset.shard(num_shards=2 * n_learners, index=i) for i in range(n_learners, 2 * n_learners)]
 
 for i in range(n_learners):
     ds_train = train_datasets[i].map(
@@ -62,6 +62,13 @@ for i in range(n_learners):
     ds_train = ds_train.shuffle(n_datapoints // n_learners)
     ds_train = ds_train.batch(batch_size)
     train_datasets[i] = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
+
+    ds_vote = vote_datasets[i].map(
+        normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    ds_vote = ds_vote.batch(batch_size)
+    ds_vote = ds_vote.cache()
+    ds_vote = ds_vote.prefetch(tf.data.experimental.AUTOTUNE)
+    vote_datasets[i] = ds_vote
 
     ds_test = test_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -109,6 +116,7 @@ for i in range(n_learners):
     all_learner_models.append(KerasLearner(
         model=get_model(),
         train_loader=train_datasets[i],
+        vote_loader=test_datasets[i],
         test_loader=test_datasets[i],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
