@@ -29,6 +29,13 @@ class DiffPrivBudget(BaseModel):
     consumed: float
 
 
+class DiffPrivConfig(BaseModel):
+    target_epsilon: float
+    target_delta: float
+    max_grand_norm: float
+    noise_multiplier: float
+
+
 class ProposedWeights(BaseModel):
     weights: Weights
     vote_score: float
