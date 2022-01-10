@@ -18,11 +18,15 @@
 import abc
 from typing import Any, NewType, Optional
 from pydantic import BaseModel
-from enum import Enum
 
 
 class Weights(BaseModel):
     weights: Any
+
+
+class DiffPrivBudget(BaseModel):
+    target: float
+    consumed: float
 
 
 class ProposedWeights(BaseModel):
@@ -30,12 +34,7 @@ class ProposedWeights(BaseModel):
     vote_score: float
     test_score: float
     vote: Optional[bool]
-
-
-class ReportTypes(Enum):
-    TRAINING   = 0
-    VALIDATION = 1
-    NEW        = 3
+    diff_priv_budget: Optional[DiffPrivBudget]
 
 
 class MachineLearningInterface(abc.ABC):
@@ -66,18 +65,3 @@ class MachineLearningInterface(abc.ABC):
         Returns the current weights of the model
         """
         pass
-
-    @abc.abstractmethod
-    def mli_configure_model(self, parameters: dict) -> bool:
-        """
-        Configures the model parameters. Returns true if the configuration succeeded Used for:
-            * configure differential privacy
-        :param parameters: the configuration dictionary
-        """
-    
-    @abc.abstractmethod
-    def mli_get_report(self, report_type: ReportTypes) -> dict:
-        """
-        Returns arbitrary report, contained in the dict object, which in simple case is metric => value.
-        :param report_type: select what type of report to return.
-        """
