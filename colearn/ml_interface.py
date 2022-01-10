@@ -77,6 +77,17 @@ def deser_model(model: Any) -> ColearnModel:
     return onnx.load_model_from_string(model)
 
 
+class ModelFormat(Enum):
+    PICKLE_WEIGHTS_ONLY = 1
+    ONNX = 2
+
+
+class ColearnModel(BaseModel):
+    model_format: ModelFormat
+    model_file: Optional[str]
+    model: Optional[Any]
+
+
 class MachineLearningInterface(abc.ABC):
     @abc.abstractmethod
     def mli_propose_weights(self) -> Weights:
