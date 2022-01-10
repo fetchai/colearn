@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import abc
-from typing import Any, NewType, Optional
+from typing import Any, Optional
 from pydantic import BaseModel
 
 
