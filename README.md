@@ -1,6 +1,6 @@
 # Welcome to the Fetch.ai Collective Learning
 
-Colearn is a library that enables privacy-preserving decentralized machine learning tasks on the [FET network](https://fetch.ai/).
+Colearn is a library that enables privacy-preserving decentralized machine learning tasks on the [FET network](https://fetch.ai/)
 
 This blockchain-mediated collective learning system enables multiple stakeholders to build a shared 
 machine learning model without needing to rely on a central authority. 
