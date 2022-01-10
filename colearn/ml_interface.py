@@ -32,7 +32,7 @@ class DiffPrivBudget(BaseModel):
 class DiffPrivConfig(BaseModel):
     target_epsilon: float
     target_delta: float
-    max_grand_norm: float
+    max_grad_norm: float
     noise_multiplier: float
 
 
