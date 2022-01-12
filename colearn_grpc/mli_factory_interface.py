@@ -17,6 +17,8 @@
 # ------------------------------------------------------------------------------
 import abc
 from typing import Dict, Set, Any
+from pkg_resources import get_distribution, DistributionNotFound
+import os.path
 
 from colearn.ml_interface import MachineLearningInterface
 
@@ -25,7 +27,21 @@ class MliFactory(abc.ABC):
     """
     Interface a class must implement to be used as a factory by the GRPC Server
     """
-    _version = "0.2.6"
+    _version = "0.0.0"
+
+    # https://stackoverflow.com/questions/17583443
+    try:
+        _dist = get_distribution('colearn')
+        # Normalize case for Windows systems
+        dist_loc = os.path.normcase(_dist.location)
+        here = os.path.normcase(__file__)
+        if not here.startswith(os.path.join(dist_loc, 'colearn')):
+            # not installed, but there is another version that *is*
+            raise DistributionNotFound
+    except DistributionNotFound:
+        pass
+    else:
+        _version = _dist.version
 
     def get_version(self) -> str:
         """

@@ -70,7 +70,7 @@ class ColearnModel(BaseModel):
     model: Optional[Any]
 
 
-def deser_model(model: Any) -> ColearnModel:
+def deser_model(model: Any) -> onnx.ModelProto:
     """
     Helper function to recover a onnx model from its deserialized form
     """

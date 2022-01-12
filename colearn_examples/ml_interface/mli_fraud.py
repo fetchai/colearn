@@ -111,7 +111,7 @@ class FraudLearner(MachineLearningInterface):
         """
 
         return ColearnModel(
-            model_format=ModelFormat(2),
+            model_format=ModelFormat(ModelFormat.ONNX),
             model_file="",
             model=convert_model_to_onnx(self.model),
         )
