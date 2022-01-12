@@ -35,7 +35,9 @@ class KerasLearner(MachineLearningInterface):
 
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
+                 vote_loader: tf.data.Dataset,
                  test_loader: Optional[tf.data.Dataset] = None,
+                 need_reset_optimizer: bool = True,
                  minimise_criterion: bool = True,
                  criterion: str = 'loss',
                  model_fit_kwargs: Optional[dict] = None,
@@ -44,6 +46,7 @@ class KerasLearner(MachineLearningInterface):
         :param model: Keras model used for training
         :param train_loader: Training dataset
         :param test_loader: Optional test set. Subset of training set will be used if not specified.
+        :param need_reset_optimizer: True to clear optimizer history before training, False to kepp history.
         :param minimise_criterion: Boolean - True to minimise value of criterion, False to maximise
         :param criterion: Function to measure model performance
         :param model_fit_kwargs: Arguments to be passed on model.fit function call
@@ -51,7 +54,9 @@ class KerasLearner(MachineLearningInterface):
         """
         self.model: keras.Model = model
         self.train_loader: tf.data.Dataset = train_loader
+        self.vote_loader: tf.data.Dataset = vote_loader
         self.test_loader: Optional[tf.data.Dataset] = test_loader
+        self.need_reset_optimizer = need_reset_optimizer
         self.minimise_criterion: bool = minimise_criterion
         self.criterion = criterion
         self.model_fit_kwargs = model_fit_kwargs or {}
@@ -74,7 +79,20 @@ class KerasLearner(MachineLearningInterface):
             except TypeError:
                 raise Exception("Invalid arguments for model.evaluate")
 
-        self.vote_score: float = self.test(self.train_loader)
+        self.vote_score: float = self.test(self.vote_loader)
+
+    def reset_optimizer(self):
+        """
+        Recompiles the Keras model. This way the optimizer history get erased,
+        which is needed before a new training round, otherwise the outdated history is used.
+        """
+        compile_args = self.model._get_compile_args()  # pylint: disable=protected-access
+        opt_config = self.model.optimizer.get_config()
+
+        compile_args['optimizer'] = getattr(keras.optimizers,
+                                            opt_config['name']).from_config(opt_config)
+
+        self.model.compile(**compile_args)
 
     def mli_propose_weights(self) -> Weights:
         """
@@ -97,7 +115,7 @@ class KerasLearner(MachineLearningInterface):
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
-        vote_score = self.test(self.train_loader)
+        vote_score = self.test(self.vote_loader)
 
         if self.test_loader:
             test_score = self.test(self.test_loader)
@@ -118,10 +136,11 @@ class KerasLearner(MachineLearningInterface):
         :param new_score: Proposed score
         :return: bool positive or negative vote
         """
+
         if self.minimise_criterion:
-            return new_score <= self.vote_score
+            return new_score < self.vote_score
         else:
-            return new_score >= self.vote_score
+            return new_score > self.vote_score
 
     def mli_accept_weights(self, weights: Weights):
         """
@@ -129,7 +148,7 @@ class KerasLearner(MachineLearningInterface):
         :param weights: The new weights
         """
         self.set_weights(weights)
-        self.vote_score = self.test(self.train_loader)
+        self.vote_score = self.test(self.vote_loader)
 
     def mli_get_current_weights(self) -> Weights:
         """
@@ -148,6 +167,11 @@ class KerasLearner(MachineLearningInterface):
         """
         Trains the model on the training dataset
         """
+
+        if self.need_reset_optimizer:
+            # erase the outdated optimizer memory (momentums mostly)
+            self.reset_optimizer()
+
         self.model.fit(self.train_loader, **self.model_fit_kwargs)
 
     def test(self, loader: tf.data.Dataset) -> float:

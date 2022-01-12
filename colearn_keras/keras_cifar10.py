@@ -27,9 +27,9 @@ import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
 from colearn.utils.data import get_data, split_list_into_fractions
+from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.utils import normalize_img
-from colearn_grpc.factory_registry import FactoryRegistry
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
@@ -60,8 +60,9 @@ def _make_loader(images: np.array,
 @FactoryRegistry.register_dataloader("KERAS_CIFAR10")
 def prepare_data_loaders(location: str,
                          train_ratio: float = 0.9,
+                         vote_ratio: float = 0.05,
                          batch_size: int = 32,
-                         ) -> Tuple[PrefetchDataset, PrefetchDataset]:
+                         ) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
 
@@ -77,10 +78,13 @@ def prepare_data_loaders(location: str,
     labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(images))
+    n_vote_cases = int(vote_ratio * len(images))
     train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
-    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
+    vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
+                               batch_size)
+    test_loader = _make_loader(images[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:], batch_size)
 
-    return train_loader, test_loader
+    return train_loader, vote_loader, test_loader
 
 
 def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
@@ -127,7 +131,7 @@ def _get_keras_cifar10_conv2D_model(learning_rate: float) -> tf.keras.Model:
 
 
 @FactoryRegistry.register_model_architecture("KERAS_CIFAR10", ["KERAS_CIFAR10"])
-def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
+def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
@@ -143,7 +147,8 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset],
     learner = KerasLearner(
         model=_get_keras_cifar10_conv2D_model(learning_rate),
         train_loader=data_loaders[0],
-        test_loader=data_loaders[1],
+        vote_loader=data_loaders[1],
+        test_loader=data_loaders[2],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},

@@ -16,6 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 from typing import Optional, Callable
+from collections import OrderedDict, defaultdict
 
 try:
     import torch
@@ -42,7 +43,9 @@ class PytorchLearner(MachineLearningInterface):
     def __init__(self, model: torch.nn.Module,
                  optimizer: torch.optim.Optimizer,
                  train_loader: torch.utils.data.DataLoader,
+                 vote_loader: torch.utils.data.DataLoader,
                  test_loader: Optional[torch.utils.data.DataLoader] = None,
+                 need_reset_optimizer: bool = True,
                  device=_DEFAULT_DEVICE,
                  criterion: Optional[_Loss] = None,
                  minimise_criterion=True,
@@ -54,6 +57,7 @@ class PytorchLearner(MachineLearningInterface):
         :param optimizer: Training optimizer
         :param train_loader: Train dataset
         :param test_loader: Optional test dataset - subset of training set will be used if not specified
+        :param need_reset_optimizer: True to clear optimizer history before training, False to kepp history.
         :param device: Pytorch device - CPU or GPU
         :param criterion: Loss function
         :param minimise_criterion: True to minimise value of criterion, False to maximise
@@ -67,21 +71,27 @@ class PytorchLearner(MachineLearningInterface):
         self.optimizer: torch.optim.Optimizer = optimizer
         self.criterion = criterion
         self.train_loader: torch.utils.data.DataLoader = train_loader
+        self.vote_loader: torch.utils.data.DataLoader = vote_loader
         self.test_loader: Optional[torch.utils.data.DataLoader] = test_loader
+        self.need_reset_optimizer = need_reset_optimizer
         self.device = device
         self.num_train_batches = num_train_batches or len(train_loader)
         self.num_test_batches = num_test_batches
         self.minimise_criterion = minimise_criterion
         self.vote_criterion = vote_criterion
 
-        self.vote_score = self.test(self.train_loader)
+        self.vote_score = self.test(self.vote_loader)
 
     def mli_get_current_weights(self) -> Weights:
         """
         :return: The current weights of the model
         """
 
-        w = Weights(weights=[x.clone() for x in self.model.parameters()])
+        current_state_dict = OrderedDict()
+        for key in self.model.state_dict():
+            current_state_dict[key] = self.model.state_dict()[key].clone()
+        w = Weights(weights=current_state_dict)
+
         return w
 
     def set_weights(self, weights: Weights):
@@ -90,15 +100,24 @@ class PytorchLearner(MachineLearningInterface):
         :param weights: Weights to be stored
         """
 
-        with torch.no_grad():
-            for new_param, old_param in zip(weights.weights,
-                                            self.model.parameters()):
-                old_param.set_(new_param)
+        self.model.load_state_dict(weights.weights)
+
+    def reset_optimizer(self):
+        """
+        Clear optimizer state, such as number of iterations, momentums.
+        This way, the outdated history can be erased.
+        """
+
+        self.optimizer.__setstate__({'state': defaultdict(dict)})
 
     def train(self):
         """
         Trains the model on the training dataset
         """
+
+        if self.need_reset_optimizer:
+            # erase the outdated optimizer memory (momentums mostly)
+            self.reset_optimizer()
 
         self.model.train()
 
@@ -140,7 +159,7 @@ class PytorchLearner(MachineLearningInterface):
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
-        vote_score = self.test(self.train_loader)
+        vote_score = self.test(self.vote_loader)
 
         if self.test_loader:
             test_score = self.test(self.test_loader)
@@ -163,9 +182,9 @@ class PytorchLearner(MachineLearningInterface):
         """
 
         if self.minimise_criterion:
-            return new_score <= self.vote_score
+            return new_score < self.vote_score
         else:
-            return new_score >= self.vote_score
+            return new_score > self.vote_score
 
     def test(self, loader: torch.utils.data.DataLoader) -> float:
         """
@@ -182,8 +201,10 @@ class PytorchLearner(MachineLearningInterface):
         all_labels = []
         all_outputs = []
         batch_idx = 0
+        total_samples = 0
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
+                total_samples += labels.shape[0]
                 if self.num_test_batches and batch_idx == self.num_test_batches:
                     break
                 data = data.to(self.device)
@@ -197,7 +218,7 @@ class PytorchLearner(MachineLearningInterface):
         if batch_idx == 0:
             raise Exception("No batches in loader")
         if self.vote_criterion is None:
-            return float(total_score / (batch_idx * loader.batch_size))  # type: ignore[operator]
+            return float(total_score / total_samples)
         else:
             return self.vote_criterion(torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0))
 
@@ -208,4 +229,4 @@ class PytorchLearner(MachineLearningInterface):
         """
 
         self.set_weights(weights)
-        self.vote_score = self.test(self.train_loader)
+        self.vote_score = self.test(self.vote_loader)

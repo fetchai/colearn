@@ -181,7 +181,8 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             proposed_weights = self.learner.mli_test_weights(weights)
             pw.vote_score = proposed_weights.vote_score
             pw.test_score = proposed_weights.test_score
-            pw.vote = proposed_weights.vote
+            if proposed_weights.vote is not None:
+                pw.vote = proposed_weights.vote
             _logger.debug("Testing done!")
         except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in TestWeights: {ex} {type(ex)}")

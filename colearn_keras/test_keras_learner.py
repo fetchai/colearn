@@ -28,6 +28,8 @@ def get_mock_model() -> mock.Mock:
     model.evaluate.return_value = {"loss": 1,
                                    "accuracy": 3}
     model.get_weights.return_value = "all the weights"
+    model.optimizer.get_config.return_value = {"name": "Adam"}
+    model._get_compile_args.return_value = {}  # pylint: disable=protected-access
     return model
 
 
@@ -40,7 +42,8 @@ def nkl():
     """Returns a Keraslearner"""
     model = get_mock_model()
     dl = get_mock_dataloader()
-    nkl = KerasLearner(model, dl)
+    vote_dl = get_mock_dataloader()
+    nkl = KerasLearner(model, dl, vote_dl)
     return nkl
 
 
@@ -48,7 +51,7 @@ def test_vote(nkl):
     assert nkl.vote_score == get_mock_model().evaluate.return_value["loss"]
 
     assert nkl.vote(1.1) is False
-    assert nkl.vote(1) is True
+    assert nkl.vote(1) is False
     assert nkl.vote(0.9) is True
 
 
@@ -56,7 +59,7 @@ def test_minimise_criterion(nkl):
     nkl.minimise_criterion = False
 
     assert nkl.vote(1.1) is True
-    assert nkl.vote(1) is True
+    assert nkl.vote(1) is False
     assert nkl.vote(0.9) is False
 
 

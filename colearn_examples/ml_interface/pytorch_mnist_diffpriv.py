@@ -39,6 +39,7 @@ testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
 n_rounds = 10 if not testing_mode else 1
 vote_threshold = 0.5
 train_fraction = 0.9
+vote_fraction = 0.05
 learning_rate = 0.001
 height = 28
 width = 28
@@ -63,16 +64,24 @@ transform = transforms.Compose([
     transforms.ToTensor()])
 DATA_DIR = os.environ.get('PYTORCH_DATA_DIR',
                           os.path.expanduser(os.path.join('~', 'pytorch_datasets')))
-data = datasets.MNIST(DATA_DIR, transform=transform, download=True)
+data = datasets.MNIST(DATA_DIR, transform=transform, download=True,
+                      target_transform=int)
 n_train = int(train_fraction * len(data))
-n_test = len(data) - n_train
-train_data, test_data = torch.utils.data.random_split(data, [n_train, n_test])
+n_vote = int(vote_fraction * len(data))
+n_test = len(data) - n_train - n_vote
+train_data, vote_data, test_data = torch.utils.data.random_split(data, [n_train, n_vote, n_test])
 
 data_split = [len(train_data) // n_learners] * n_learners
 learner_train_data = torch.utils.data.random_split(train_data, data_split)
 learner_train_dataloaders = [torch.utils.data.DataLoader(
     ds,
-    batch_size=batch_size, shuffle=True, drop_last=True, **kwargs) for ds in learner_train_data]
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_train_data]
+
+data_split = [len(vote_data) // n_learners] * n_learners
+learner_vote_data = torch.utils.data.random_split(vote_data, data_split)
+learner_vote_dataloaders = [torch.utils.data.DataLoader(
+    ds,
+    batch_size=batch_size, shuffle=True, **kwargs) for ds in learner_vote_data]
 
 data_split = [len(test_data) // n_learners] * n_learners
 learner_test_data = torch.utils.data.random_split(test_data, data_split)
@@ -106,18 +115,16 @@ all_learner_models = []
 for i in range(n_learners):
     model = Net().to(device)
     opt = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    privacy_engine = PrivacyEngine(
-        model,
-        batch_size=batch_size,
-        sample_size=sample_size,
-        alphas=alphas,
+    privacy_engine = PrivacyEngine()
+    model, opt, data_loader = privacy_engine.make_private(
+        optimizer=opt, module=model, data_loader=learner_train_dataloaders[i],
         noise_multiplier=noise_multiplier,
         max_grad_norm=max_grad_norm
     )
-    privacy_engine.attach(opt)
     learner = PytorchLearner(
         model=model,
-        train_loader=learner_train_dataloaders[i],
+        train_loader=data_loader,
+        vote_loader=learner_vote_dataloaders[i],
         test_loader=learner_test_dataloaders[i],
         device=device,
         optimizer=opt,

@@ -18,22 +18,22 @@
 import setuptools
 
 keras_deps = [
-    'tensorflow~=2.2.0',
-    'tensorflow_datasets~=4.2.0',
-    'tensorflow-privacy~=0.5.0',
+    'tensorflow>=2.2,<2.8',
+    'tensorflow_datasets>=4.2,<4.5',
+    'tensorflow-privacy>=0.5,<0.8',
 ]
 other_deps = [
     'pandas~=1.1.0',
-    'scikit-learn~=0.23.0',
+    'scikit-learn>=0.23,<1.1',
 ]
 pytorch_deps = [
-    'opacus~=0.10.0',
-    'Pillow~=8.0.1',
-    'scikit-learn~=0.23.0',
-    'scipy~=1.5.0',
-    'torch~=1.7.0',
+    'opacus>=1.0.0,<1.1',
+    'Pillow>=8.0.1,<9.1.0',
+    'scikit-learn>=0.23,<1.1',
+    'scipy>=1.5,<1.8',
+    'torch>=1.7,<1.11',
     'torchsummary~=1.5.0',
-    'torchvision~=0.8.0',
+    'torchvision>=0.8,<0.12',
 ]
 docs_deps = [
     "mkdocs",
@@ -43,9 +43,9 @@ docs_deps = [
     "markdown-include",
 ]
 
-grpc_deps = ['grpcio~=1.35.0',
-             'grpcio-tools~=1.35.0',
-             'prometheus_client==0.9.0',
+grpc_deps = ['grpcio>=1.35,<1.43',
+             'grpcio-tools>=1.35,<1.43',
+             'prometheus_client==0.12.0',
              'click'
              ]
 all_deps = list(set(keras_deps + other_deps + pytorch_deps + grpc_deps)) + ["xgboost"]
@@ -72,14 +72,14 @@ setuptools.setup(
         # Need to fill in
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6, <3.9',
+    python_requires='>=3.7, <3.9',
     install_requires=[
-        'google-cloud-storage~=1.35.0',
-        'matplotlib~=3.3.0',
+        'google-cloud-storage>=1.35,<1.44',
+        'matplotlib>=3.3,<3.6',
         'numpy~=1.16.0',
-        'pydantic~=1.7.0',
+        'pydantic>=1.7,<1.10',
     ],
-    tests_require=["tox~=3.20.0"],
+    tests_require=["tox>=3.20,<3.25"],
     extras_require={
         'keras': keras_deps,
         'other': other_deps,

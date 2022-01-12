@@ -17,8 +17,8 @@
 # ------------------------------------------------------------------------------
 import argparse
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
@@ -88,6 +88,7 @@ if not Path.is_dir(Path(args.data_dir)):
 
 data_dir = args.data_dir
 train_fraction = 0.9
+vote_fraction = 0.05
 n_learners = 5
 
 testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
@@ -101,17 +102,22 @@ fraud_data, labels = fraud_preprocessing(data_dir, use_cache=args.use_cache)
 n_datapoints = fraud_data.shape[0]
 random_indices = np.random.permutation(np.arange(n_datapoints))
 n_train = int(n_datapoints * train_fraction)
+n_vote = int(n_datapoints * vote_fraction)
 train_data = fraud_data[random_indices[:n_train]]
 train_labels = labels[random_indices[:n_train]]
-test_data = fraud_data[random_indices[n_train:]]
-test_labels = labels[random_indices[n_train:]]
+vote_data = fraud_data[random_indices[n_train: n_train + n_vote]]
+vote_labels = labels[random_indices[n_train:n_train + n_vote]]
+test_data = fraud_data[random_indices[n_train + n_vote:]]
+test_labels = labels[random_indices[n_train + n_vote:]]
 
 # make a tensorflow dataloader out of np arrays
 train_dataset = tf.data.Dataset.from_tensor_slices((train_data, train_labels))
+vote_dataset = tf.data.Dataset.from_tensor_slices((vote_data, vote_labels))
 test_dataset = tf.data.Dataset.from_tensor_slices((test_data, test_labels))
 
 # shard the dataset into n_learners pieces and add batching
 train_datasets = [train_dataset.shard(num_shards=n_learners, index=i).batch(batch_size) for i in range(n_learners)]
+vote_datasets = [vote_dataset.shard(num_shards=n_learners, index=i).batch(batch_size) for i in range(n_learners)]
 test_datasets = [test_dataset.shard(num_shards=n_learners, index=i).batch(batch_size) for i in range(n_learners)]
 
 all_learner_models = []
@@ -121,6 +127,7 @@ for i in range(n_learners):
         KerasLearner(
             model=model,
             train_loader=train_datasets[i],
+            vote_loader=vote_datasets[i],
             test_loader=test_datasets[i],
             model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
             model_evaluate_kwargs={"steps": vote_batches},

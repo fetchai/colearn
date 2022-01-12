@@ -21,6 +21,8 @@ or the documentation for the latest release at [docs.fetch.ai/colearn](https://d
 
 ## Installation
 
+Currently we only support macos and unix systems.
+
 To use the latest stable release we recommend installing the [package from PyPi](https://pypi.org/project/colearn/)
 
 To install with support for Keras and Pytorch:

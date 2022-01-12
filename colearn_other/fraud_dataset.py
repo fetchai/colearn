@@ -28,9 +28,9 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
 
-from colearn_grpc.factory_registry import FactoryRegistry
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
 from colearn.utils.data import get_data, split_list_into_fractions
+from colearn_grpc.factory_registry import FactoryRegistry
 
 DATA_FL = "data.pickle"
 LABEL_FL = "labels.pickle"
@@ -44,6 +44,8 @@ class FraudLearner(MachineLearningInterface):
     def __init__(self,
                  train_data: np.array,
                  train_labels: np.array,
+                 vote_data: np.array,
+                 vote_labels: np.array,
                  test_data: np.array,
                  test_labels: np.array,
                  batch_size: int = 10000,
@@ -60,6 +62,8 @@ class FraudLearner(MachineLearningInterface):
         self.batch_size = batch_size
         self.train_data = train_data
         self.train_labels = train_labels
+        self.vote_data = vote_data
+        self.vote_labels = vote_labels
         self.test_data = test_data
         self.test_labels = test_labels
 
@@ -69,7 +73,7 @@ class FraudLearner(MachineLearningInterface):
         self.model = SGDClassifier(max_iter=1, verbose=0, loss="modified_huber")
         self.model.partial_fit(self.train_data[0:1], self.train_labels[0:1],
                                classes=self.class_labels)  # this needs to be called before predict
-        self.vote_score = self.test(self.train_data, self.train_labels)
+        self.vote_score = self.test(self.vote_data, self.vote_labels)
 
     def mli_propose_weights(self) -> Weights:
         """
@@ -100,7 +104,7 @@ class FraudLearner(MachineLearningInterface):
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
 
-        vote_score = self.test(self.train_data, self.train_labels)
+        vote_score = self.test(self.vote_data, self.vote_labels)
 
         test_score = self.test(self.test_data, self.test_labels)
 
@@ -119,7 +123,7 @@ class FraudLearner(MachineLearningInterface):
         :param weights: The new weights
         """
         self.set_weights(weights)
-        self.vote_score = self.test(self.train_data, self.train_labels)
+        self.vote_score = self.test(self.vote_data, self.vote_labels)
 
     def mli_get_current_weights(self):
         """
@@ -155,7 +159,8 @@ class FraudLearner(MachineLearningInterface):
 @FactoryRegistry.register_dataloader("FRAUD")
 def prepare_data_loaders(location: str,
                          train_ratio: float = 0.8,
-                         ) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]]:
+                         vote_ratio: float = 0.1,
+                         ) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array], Tuple[np.array, np.array]]:
     """
     Load training data from folders and create train and test arrays
 
@@ -170,14 +175,19 @@ def prepare_data_loaders(location: str,
     labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
 
     n_cases = int(train_ratio * len(data))
+    n_vote_cases = int(vote_ratio * len(data))
     assert (n_cases > 0), "There are no cases"
 
-    # (train_data, train_labels), (test_data, test_labels)
-    return (data[:n_cases], labels[:n_cases]), (data[n_cases:], labels[n_cases:])
+    train_data, train_labels = data[:n_cases], labels[:n_cases]
+    vote_data, vote_labels = data[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases]
+    test_data, test_labels = data[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:]
+
+    return (train_data, train_labels), (vote_data, vote_labels), (test_data, test_labels)
 
 
 @FactoryRegistry.register_model_architecture("FRAUD", ["FRAUD"])
-def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array]],
+def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array],
+                                        Tuple[np.array, np.array]],
                     ) -> FraudLearner:
     """
     Creates a new instance of FraudLearner
@@ -187,8 +197,10 @@ def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.arra
     return FraudLearner(
         train_data=data_loaders[0][0],
         train_labels=data_loaders[0][1],
-        test_data=data_loaders[1][0],
-        test_labels=data_loaders[1][1]
+        vote_data=data_loaders[1][0],
+        vote_labels=data_loaders[1][1],
+        test_data=data_loaders[2][0],
+        test_labels=data_loaders[2][1]
     )
 
 
