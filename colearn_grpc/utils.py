@@ -87,7 +87,7 @@ async def iterator_to_weights_async(request_iterator, decode=True) -> Weights:
 
             if weights_part.HasField('training_summary'):
                 training_summary = transform_training_summary_from_pb(weights_part.training_summary)
-  
+
             first_time = False
         else:
             end_index = weights_part.byte_index + len(weights_part.weights)
