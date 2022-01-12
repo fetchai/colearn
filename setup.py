@@ -76,11 +76,9 @@ setuptools.setup(
     install_requires=[
         'google-cloud-storage>=1.35,<1.44',
         'matplotlib>=3.3,<3.6',
-        'tensorflow_datasets>=4.2,<4.5',
         'numpy~=1.16.0',
         'onnx==1.8.1',
         'onnxmltools==1.10.0',
-        'tf2onnx==1.9.3',
         'pydantic>=1.7,<1.10',
     ],
     tests_require=["tox>=3.20,<3.25"],
