@@ -20,13 +20,20 @@ from typing import Any, Optional
 from pydantic import BaseModel
 
 
+class DiffPrivBudget(BaseModel):
+    target_epsilon: float
+    target_delta: float
+    consumed_epsilon: float
+    consumed_delta: float
+
+
+class TrainingSummary(BaseModel):
+    dp_budget: Optional[DiffPrivBudget]
+
+
 class Weights(BaseModel):
     weights: Any
-
-
-class DiffPrivBudget(BaseModel):
-    target: float
-    consumed: float
+    training_summary: Optional[TrainingSummary]
 
 
 class DiffPrivConfig(BaseModel):
@@ -41,7 +48,6 @@ class ProposedWeights(BaseModel):
     vote_score: float
     test_score: float
     vote: Optional[bool]
-    diff_priv_budget: Optional[DiffPrivBudget]
 
 
 class MachineLearningInterface(abc.ABC):

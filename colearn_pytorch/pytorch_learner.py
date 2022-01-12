@@ -147,7 +147,7 @@ class PytorchLearner(MachineLearningInterface):
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)
-        return new_weights
+        return TrainedWeights(weights=new_weights)  # diff priv budget reporting comes here, diff_priv_budget=DiffPrivBudget(...)
 
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         """

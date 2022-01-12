@@ -94,7 +94,7 @@ class KerasLearner(MachineLearningInterface):
 
         self.model.compile(**compile_args)
 
-    def mli_propose_weights(self) -> Weights:
+    def mli_propose_weights(self) -> TrainedWeights:
         """
         Trains model on training set and returns new weights after training
         - Current model is reverted to original state after training
@@ -104,7 +104,7 @@ class KerasLearner(MachineLearningInterface):
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)
-        return new_weights
+        return TrainedWeights(weights=new_weights)  # diff priv budget reporting comes here, diff_priv_budget=DiffPrivBudget(...)
 
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         """

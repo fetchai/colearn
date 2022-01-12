@@ -21,8 +21,8 @@ from typing import Iterator
 
 from prometheus_client import Summary
 
-from colearn.ml_interface import Weights
-from colearn_grpc.proto.generated.interface_pb2 import WeightsPart
+from colearn.ml_interface import Weights, TrainingSummary
+from colearn_grpc.proto.generated.interface_pb2 import WeightsPart, TrainingSummary as TrainingSummaryPb
 
 # the default limit for gRPC messages is 4MB, so the part size is set a bit smaller
 WEIGHTS_PART_SIZE_BYTES = 4 * 10 ** 6
@@ -49,7 +49,7 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
     first_weights_part = next(request_iterator)
     full_weights = bytearray(first_weights_part.total_bytes)
     bytes_sum = 0
-
+    training_summary = None
     end_index = first_weights_part.byte_index + len(first_weights_part.weights)
     full_weights[first_weights_part.byte_index: end_index] = first_weights_part.weights
     bytes_sum += len(first_weights_part.weights)
@@ -58,21 +58,23 @@ def iterator_to_weights(request_iterator: Iterator[WeightsPart], decode=True) ->
         end_index = weights_part.byte_index + len(weights_part.weights)
         full_weights[weights_part.byte_index: end_index] = weights_part.weights
         bytes_sum += len(weights_part.weights)
+        if weights_part.HasField('training_summary'):
+            training_summary = transform_training_summary_from_pb(weights_part.training_summary)
 
     weights_bytes = bytes(full_weights)
     if decode:
-        return decode_weights(weights_bytes)
+        return Weights(weights=decode_weights(weights_bytes), training_summary=training_summary)
     else:
         # On the client side we can't necessarily unpickle the Weights object because the relevant libraries might not
         # be importable. But we need to return a Weights object to match the MLI. So we wrap the pickled Weights in
         # another Weights object.
-        return Weights(weights=weights_bytes)
+        return Weights(weights=weights_bytes, training_summary=training_summary)
 
 
 @_time_reconstruct_weights.time()
 async def iterator_to_weights_async(request_iterator, decode=True) -> Weights:
     first_time = True
-
+    training_summary = None
     async for weights_part in request_iterator:
         if first_time:
             first_weights_part = weights_part
@@ -83,6 +85,9 @@ async def iterator_to_weights_async(request_iterator, decode=True) -> Weights:
             full_weights[first_weights_part.byte_index: end_index] = first_weights_part.weights
             bytes_sum += len(first_weights_part.weights)
 
+            if weights_part.HasField('training_summary'):
+                training_summary = transform_training_summary_from_pb(weights_part.training_summary)
+  
             first_time = False
         else:
             end_index = weights_part.byte_index + len(weights_part.weights)
@@ -91,19 +96,39 @@ async def iterator_to_weights_async(request_iterator, decode=True) -> Weights:
 
     weights_bytes = bytes(full_weights)
     if decode:
-        return decode_weights(weights_bytes)
+        return Weights(weights=decode_weights(weights_bytes), training_summary=training_summary)
     else:
         # On the client side we can't necessarily unpickle the Weights object because the relevant libraries might not
         # be importable. But we need to return a Weights object to match the MLI. So we wrap the pickled Weights in
         # another Weights object.
-        return Weights(weights=weights_bytes)
+        return Weights(weights=weights_bytes, training_summary=training_summary)
+
+
+def transform_training_summary_to_pb(ts: TrainingSummary) -> TrainingSummaryPb:
+    tsn = TrainingSummaryPb()
+    for field in ["dp_budget"]:
+        target = getattr(tsn, field)
+        source = getattr(ts, field)
+        for entry in source.__fields_set__:
+            setattr(target, entry, getattr(source, entry))
+    return tsn
+
+
+def transform_training_summary_from_pb(ts: TrainingSummaryPb) -> TrainingSummary:
+    tsn = TrainingSummary()
+    for field in ["dp_budget"]:
+        target = getattr(tsn, field)
+        source = getattr(ts, field)
+        for entry in target.__fields__.keys():
+            setattr(target, entry, getattr(source, entry))
+    return tsn
 
 
 @_time_deconstruct_weights.time()
 def weights_to_iterator(input_weights: Weights, encode=True) -> Iterator[WeightsPart]:
     enc_weights: bytes  # this is a pickled Weights object
     if encode:
-        enc_weights = encode_weights(input_weights)
+        enc_weights = encode_weights(input_weights.weights)
     else:
         # On the client side input_weights is a wrapper around a pickled Weights object - see note
         # in iterator_to_weights
@@ -113,7 +138,17 @@ def weights_to_iterator(input_weights: Weights, encode=True) -> Iterator[Weights
     total_size = len(enc_weights)
     total_parts = ceil(total_size / part_size)
 
-    for i in range(total_parts):
+    start_idx = 0
+    if input_weights.training_summary:
+        start_idx = 1
+        w = WeightsPart()
+        w.byte_index = 0
+        w.total_bytes = total_size
+        w.weights = enc_weights[0:part_size]
+        w.training_summary = transform_training_summary_to_pb(input_weights.training_summary)
+        yield w
+
+    for i in range(start_idx, total_parts):
         w = WeightsPart()
         w.byte_index = i * part_size
         w.total_bytes = total_size
