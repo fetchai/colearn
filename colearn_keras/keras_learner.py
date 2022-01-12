@@ -104,7 +104,8 @@ class KerasLearner(MachineLearningInterface):
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)
-        return Weights(weights=new_weights)  # diff priv budget reporting comes here, training_summary=...
+        # new_weights.training_summary = ...
+        return new_weights
 
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         """
