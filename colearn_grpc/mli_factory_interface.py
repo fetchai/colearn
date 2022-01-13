@@ -17,8 +17,8 @@
 # ------------------------------------------------------------------------------
 import abc
 from typing import Dict, Set, Any
-from pkg_resources import get_distribution, DistributionNotFound
 import os.path
+from pkg_resources import get_distribution, DistributionNotFound
 
 from colearn.ml_interface import MachineLearningInterface
 
