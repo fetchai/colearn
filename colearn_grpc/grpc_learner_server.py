@@ -19,9 +19,9 @@ import json
 from threading import Lock
 from typing import Optional
 
+from google.protobuf import empty_pb2
 import grpc
 from colearn.ml_interface import MachineLearningInterface
-from google.protobuf import empty_pb2
 from prometheus_client import Counter, Summary
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
@@ -80,6 +80,12 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         self.learner: Optional[MachineLearningInterface] = None
         self._learner_mutex = Lock()
         self.mli_factory = mli_factory
+
+    def QueryVersion(self, request, context):
+        response = ipb2.ResponseVersion()
+        response.version = self.mli_factory.get_version()
+
+        return response
 
     def QuerySupportedSystem(self, request, context):
         response = ipb2.ResponseSupportedSystem()
@@ -243,3 +249,15 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             else:
                 r.status = ipb2.SystemStatus.NO_MODEL
             yield r
+
+    @_time_test.time()
+    def GetCurrentModel(self, request, context):
+        response = ipb2.ResponseCurrentModel()
+
+        if self.learner is not None:
+            current_model = self.learner.mli_get_current_model()
+            response.model_format = current_model.model_format.value
+            response.model_file = current_model.model_file
+            response.model = current_model.model.SerializeToString()
+
+        return response
