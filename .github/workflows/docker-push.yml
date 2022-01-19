@@ -14,14 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: xxyy
-        run: |
-          ls
-
-      - name: Login to Docker Hub
-        run: |
-          echo ${{ secrets.DOCKERHUB_USERNAME }}
-          docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
+    - name: Log in to Docker Hub
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Publish Public Images
         uses: ejfitzgerald/action-docker-tag@v0.2.0
