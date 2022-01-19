@@ -3,6 +3,8 @@ on:
   push:
     tags:
       - '*'
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build-and-push:
@@ -12,8 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: xxyy
+        run: |
+          ls
+
       - name: Login to Docker Hub
         run: |
+          echo ${{ secrets.DOCKERHUB_USERNAME }}
           docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and Publish Public Images
