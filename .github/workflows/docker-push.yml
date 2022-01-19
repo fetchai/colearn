@@ -18,6 +18,11 @@ jobs:
         run: |
           docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      - name: Get tags
+        run: |
+          git pull --tags --force
+          git tag
+
       - name: Build and Publish Public Images
         uses: ejfitzgerald/action-docker-tag@v0.2.0
         with:
