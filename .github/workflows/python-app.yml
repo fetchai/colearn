@@ -7,7 +7,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master, new_mli ]
+    branches: [ master ]
 
 jobs:
   code_quality_checks:
