@@ -20,7 +20,8 @@ jobs:
 
       - name: Get tags
         run: |
-          git pull master --tags --force
+          git co master
+          git pull --tags --force
           git tag
 
       - name: Build and Publish Public Images
