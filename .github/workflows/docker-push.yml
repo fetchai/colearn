@@ -20,7 +20,7 @@ jobs:
 
       - name: Get tags
         run: |
-          git co master
+          git checkout master
           git pull --tags --force
           git tag
 
