@@ -43,7 +43,7 @@ def get_mock_model() -> Mock:
 
 def get_mock_dataloader() -> Mock:
     dl = tf.data.Dataset.range(42)
-    dl._batch_size = 42
+    dl._batch_size = 42  # pylint: disable=protected-access
     return dl
 
 
@@ -53,14 +53,13 @@ def nkl():
     model = get_mock_model()
     dl = get_mock_dataloader()
     vote_dl = get_mock_dataloader()
-    nkl = KerasLearner(model, dl, vote_dl, 
-                    diff_priv_config=DiffPrivConfig(
-                        target_epsilon = 5,
-                        target_delta = 1e-5,
-                        max_grad_norm = 2,
-                        noise_multiplier = 3
-                    )
-    )
+    nkl = KerasLearner(model, dl, vote_dl, diff_priv_config=DiffPrivConfig(
+        target_epsilon=5,
+        target_delta=1e-5,
+        max_grad_norm=2,
+        noise_multiplier=3
+    ))
+
     return nkl
 
 
@@ -107,12 +106,12 @@ def test_privacy_training(nkl):
     # no training when budget is overconsumed
     nkl.diff_priv_budget.target_epsilon = 0
     w = nkl.mli_propose_weights()
-    assert w.weights == None
+    assert w.weights is None
 
     # do training when budget is not overcompsumed
     nkl.diff_priv_budget.target_epsilon = 9999999
     w = nkl.mli_propose_weights()
-    assert w.weights != None
+    assert w.weights is not None
 
 
 def test_reset_optimizer(nkl):
@@ -122,9 +121,9 @@ def test_reset_optimizer(nkl):
 
     # with privacy
     nkl.diff_priv_config = DiffPrivConfig(
-        target_epsilon = 5,
-        target_delta = 1e-5,
-        max_grad_norm = 2,
-        noise_multiplier = 3
+        target_epsilon=5,
+        target_delta=1e-5,
+        max_grad_norm=2,
+        noise_multiplier=3
     )
     nkl.reset_optimizer()

@@ -30,6 +30,7 @@ from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary
 from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_optimizer_class
 
+
 class KerasLearner(MachineLearningInterface):
     """
     Tensorflow Keras learner implementation of machine learning interface
@@ -66,15 +67,14 @@ class KerasLearner(MachineLearningInterface):
         self.model_fit_kwargs = model_fit_kwargs or {}
         self.diff_priv_config = diff_priv_config
         self.cumulative_epochs = 0
-        self.train_batch_size = self.get_train_batch_size()
 
         if self.diff_priv_config is not None:
             self.diff_priv_budget = DiffPrivBudget(
-                target_epsilon = diff_priv_config.target_epsilon,
-                target_delta = diff_priv_config.target_delta,
-                consumed_epsilon = 0.0,
-                # we will always use the highest available delta
-                consumed_delta = diff_priv_config.target_delta
+                target_epsilon=self.diff_priv_config.target_epsilon,
+                target_delta=self.diff_priv_config.target_delta,
+                consumed_epsilon=0.0,
+                # we will always use the highest available delta now
+                consumed_delta=self.diff_priv_config.target_delta
             )
             if 'epochs' in self.model_fit_kwargs.keys():
                 self.epochs_per_proposal = self.model_fit_kwargs['epochs']
@@ -138,8 +138,8 @@ class KerasLearner(MachineLearningInterface):
             epsilon_after_training = self.get_privacy_budget()
             if epsilon_after_training > self.diff_priv_budget.target_epsilon:
                 return Weights(
-                    weights = None,
-                    training_summary = TrainingSummary(dp_budget = self.diff_priv_budget)
+                    weights=None,
+                    training_summary=TrainingSummary(dp_budget=self.diff_priv_budget)
                 )
 
         current_weights = self.mli_get_current_weights()
@@ -150,7 +150,7 @@ class KerasLearner(MachineLearningInterface):
         if self.diff_priv_config is not None:
             self.diff_priv_budget.consumed_epsilon = epsilon_after_training
             self.cumulative_epochs += self.epochs_per_proposal
-            new_weights.training_summary = TrainingSummary(dp_budget = self.diff_priv_budget)
+            new_weights.training_summary = TrainingSummary(dp_budget=self.diff_priv_budget)
 
         return new_weights
 
@@ -203,28 +203,29 @@ class KerasLearner(MachineLearningInterface):
         Calculates train batch size.
         """
         if hasattr(self.train_loader, '_batch_size'):
-            return self.train_loader._batch_size
+            return self.train_loader._batch_size  # pylint: disable=protected-access
         else:
-            return self.train_loader._input_dataset._batch_size
+            return self.train_loader._input_dataset._batch_size  # pylint: disable=protected-access
 
     def get_privacy_budget(self) -> float:
         """
         Calculates, what epsilon will apply after another model training.
         Need to calculate it in advance to see if another training would result in privacy budget violation.
         """
+        batch_size = self.get_train_batch_size()
         iterations_per_epoch = tf.data.experimental.cardinality(self.train_loader).numpy()
-        n_samples = self.train_batch_size * iterations_per_epoch
+        n_samples = batch_size * iterations_per_epoch
         planned_epochs = self.cumulative_epochs + self.epochs_per_proposal
 
         epsilon, _ = compute_dp_sgd_privacy(
             n=n_samples,
-            batch_size=self.train_batch_size,
-            noise_multiplier=self.diff_priv_config.noise_multiplier,
+            batch_size=batch_size,
+            noise_multiplier=self.diff_priv_config.noise_multiplier,  # type: ignore
             epochs=planned_epochs,
             delta=self.diff_priv_budget.target_delta
         )
         return epsilon
-    
+
     def mli_get_current_weights(self) -> Weights:
         """
         :return: The current weights of the model
