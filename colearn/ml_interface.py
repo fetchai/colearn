@@ -48,8 +48,27 @@ def convert_model_to_onnx(model: Any):
         raise Exception("Attempt to convert unsupported model to onnx: {model}")
 
 
+class DiffPrivBudget(BaseModel):
+    target_epsilon: float
+    target_delta: float
+    consumed_epsilon: float
+    consumed_delta: float
+
+
+class TrainingSummary(BaseModel):
+    dp_budget: Optional[DiffPrivBudget]
+
+
 class Weights(BaseModel):
     weights: Any
+    training_summary: Optional[TrainingSummary]
+
+
+class DiffPrivConfig(BaseModel):
+    target_epsilon: float
+    target_delta: float
+    max_grad_norm: float
+    noise_multiplier: float
 
 
 class ProposedWeights(BaseModel):
