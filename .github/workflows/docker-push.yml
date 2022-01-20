@@ -24,7 +24,7 @@ jobs:
         run: |
           git checkout master
           git pull --tags --force
-          git checkout 0.2.8
+          git checkout v0.2.8
           git tag
 
       - name: Build and Publish Public Images
