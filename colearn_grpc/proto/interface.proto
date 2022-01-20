@@ -22,10 +22,23 @@ message ResponseMLSetup {
     string description = 2;
 };
 
+message DiffPrivBudget {
+    float target_epsilon   = 1;
+    float target_delta     = 2;
+    float consumed_epsilon = 3;
+    float consumed_delta   = 4;
+};
+
+message TrainingSummary {
+    DiffPrivBudget dp_budget = 1;
+};
+
 message WeightsPart {
-    bytes weights = 1;
-    uint32 byte_index = 2;
+    bytes weights      = 1;
+    uint32 byte_index  = 2;
     uint64 total_bytes = 3;
+
+    TrainingSummary training_summary = 10;
 };
 
 message ProposedWeights {
