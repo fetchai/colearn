@@ -251,7 +251,7 @@ class XrayDataset(Dataset):
         """
         return len(self.cases)
 
-    def __getitem__(self, idx) -> Tuple[np.array, np.array]:
+    def __getitem__(self, idx) -> Tuple[np.ndarray, np.ndarray]:
         """
         :param idx: Array of indices
         :return: batch of samples as tuple (data, labels)
@@ -281,7 +281,7 @@ class XrayDataset(Dataset):
     def to_rgb_normalize_and_resize(
             filename: str,
             width: int,
-            height: int) -> np.array:
+            height: int) -> np.ndarray:
         """
         Loads, resize and normalize image
         :param filename: Path to image

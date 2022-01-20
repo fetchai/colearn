@@ -35,8 +35,8 @@ IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
 
 
-def _make_loader(images: np.array,
-                 labels: np.array,
+def _make_loader(images: np.ndarray,
+                 labels: np.ndarray,
                  batch_size: int) -> PrefetchDataset:
     """
     Converts array of images and labels to Tensorflow dataset

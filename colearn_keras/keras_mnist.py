@@ -181,8 +181,8 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     return learner
 
 
-def _make_loader(images: np.array,
-                 labels: np.array,
+def _make_loader(images: np.ndarray,
+                 labels: np.ndarray,
                  batch_size: int) -> PrefetchDataset:
     """
     Converts array of images and labels to Tensorflow dataset
