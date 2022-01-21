@@ -44,7 +44,7 @@ docs_deps = [
 ]
 
 grpc_deps = ['grpcio>=1.35,<1.43',
-             'grpcio-tools>=1.35,<1.43',
+             'grpcio-tools>=1.35,<1.44',
              'prometheus_client==0.12.0',
              'click'
              ]
@@ -76,10 +76,10 @@ setuptools.setup(
     install_requires=[
         'google-cloud-storage>=1.35,<1.44',
         'matplotlib>=3.3,<3.6',
-        'numpy~=1.16.0',
         'onnx==1.8.1',
         'tf2onnx==1.9.3',
         'onnxmltools==1.10.0',
+        'numpy>=1.16,<1.23',
         'pydantic>=1.7,<1.10',
     ],
     tests_require=["tox>=3.20,<3.25"],

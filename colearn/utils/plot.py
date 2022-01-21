@@ -106,11 +106,11 @@ class ColearnPlot:
 
         votes_array = votes_array.transpose()
 
-        coloured_votes_array = np.zeros((votes_array.shape[0], votes_array.shape[1], 3), dtype=np.int)
+        coloured_votes_array = np.zeros((votes_array.shape[0], votes_array.shape[1], 3), dtype=np.uint)
 
-        green_colour = np.array([204, 255, 204], dtype=np.int)
-        red_colour = np.array([255, 153, 153], dtype=np.int)
-        grey_colour = np.array([53, 53, 53], dtype=np.int)
+        green_colour = np.array([204, 255, 204], dtype=np.uint)
+        red_colour = np.array([255, 153, 153], dtype=np.uint)
+        grey_colour = np.array([53, 53, 53], dtype=np.uint)
 
         # Default fill: grey colour. Green and red will not match to 'None' in the votes_array
         coloured_votes_array[votes_array == 1] = green_colour
