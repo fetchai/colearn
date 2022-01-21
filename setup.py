@@ -43,7 +43,7 @@ docs_deps = [
     "markdown-include",
 ]
 
-grpc_deps = ['grpcio>=1.35,<1.43',
+grpc_deps = ['grpcio>=1.35,<1.44',
              'grpcio-tools>=1.35,<1.44',
              'prometheus_client==0.12.0',
              'click'
