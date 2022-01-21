@@ -23,12 +23,12 @@ from pathlib import Path
 from typing import Tuple, Optional, List
 
 import numpy as np
+from typing_extensions import TypedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
-from typing_extensions import TypedDict
 
 from colearn.utils.data import get_data
 from colearn_grpc.factory_registry import FactoryRegistry

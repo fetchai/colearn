@@ -15,10 +15,10 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+import numpy as np
 import matplotlib.axes._axes as mpl_ax
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-import numpy as np
 
 from colearn.utils.results import Results
 

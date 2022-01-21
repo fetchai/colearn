@@ -15,16 +15,16 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+import ssl
 import time
 import traceback
-import ssl
 
-import grpc
 from google.protobuf import empty_pb2
+import grpc
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
-from colearn.ml_interface import MachineLearningInterface, ProposedWeights, Weights
+from colearn.ml_interface import MachineLearningInterface, ProposedWeights, Weights, ColearnModel
 from colearn_grpc.logging import get_logger
 from colearn_grpc.utils import iterator_to_weights, weights_to_iterator
 
@@ -73,9 +73,11 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                         # create credentials
                         credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs.encode())
                     except ssl.SSLError as e:
-                        _logger.warning(f"Encountered ssl error when attempting to get certificate from learner server: {e}")
+                        _logger.warning(
+                            f"Encountered ssl error when attempting to get certificate from learner server: {e}")
                     except OSError:
-                        _logger.warning(f"Encountered os error when attempting to get certificate from learner server: {e}")
+                        _logger.warning(
+                            f"Encountered os error when attempting to get certificate from learner server: {e}")
 
                     if credentials:
                         _logger.info("Creating secure channel")
@@ -98,7 +100,7 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                 _logger.warning(traceback.format_exc(limit=1, chain=False))
                 caught_exception = e
                 time.sleep(5)
-            except Exception as e:   # pylint: disable=W0703
+            except Exception as e:  # pylint: disable=W0703
                 _logger.warning("Non grpc-based exception when trying to connect:")
                 _logger.warning(traceback.format_exc(limit=1, chain=False))
                 caught_exception = e
@@ -126,6 +128,13 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         for c in response.compatibilities:
             r["compatibilities"][c.model_architecture] = c.dataloaders
         return r
+
+    def get_version(self):
+        """ Get the version from the learner """
+        request = empty_pb2.Empty()
+        response = self.stub.QueryVersion(request)
+
+        return response.version
 
     def setup_ml(self, dataset_loader_name, dataset_loader_parameters,
                  model_arch_name, model_parameters):
@@ -196,3 +205,9 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         except grpc.RpcError as ex:
             _logger.exception(f"Failed to get_current_weights: {ex}")
             raise Exception(f"Failed to get_current_weights: {ex}")
+
+    def mli_get_current_model(self) -> ColearnModel:
+        request = empty_pb2.Empty()
+        response = self.stub.GetCurrentModel(request)
+
+        return ColearnModel(model_format=response.model_format, model_file=response.model_file, model=response.model)

@@ -15,10 +15,20 @@ class GRPCLearnerStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.QueryVersion = channel.unary_unary(
+                '/contract_learn.grpc.GRPCLearner/QueryVersion',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=interface__pb2.ResponseVersion.FromString,
+                )
         self.QuerySupportedSystem = channel.unary_unary(
                 '/contract_learn.grpc.GRPCLearner/QuerySupportedSystem',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=interface__pb2.ResponseSupportedSystem.FromString,
+                )
+        self.GetCurrentModel = channel.unary_unary(
+                '/contract_learn.grpc.GRPCLearner/GetCurrentModel',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=interface__pb2.ResponseCurrentModel.FromString,
                 )
         self.MLSetup = channel.unary_unary(
                 '/contract_learn.grpc.GRPCLearner/MLSetup',
@@ -55,7 +65,19 @@ class GRPCLearnerStub(object):
 class GRPCLearnerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
+    def QueryVersion(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def QuerySupportedSystem(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetCurrentModel(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -100,10 +122,20 @@ class GRPCLearnerServicer(object):
 
 def add_GRPCLearnerServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'QueryVersion': grpc.unary_unary_rpc_method_handler(
+                    servicer.QueryVersion,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=interface__pb2.ResponseVersion.SerializeToString,
+            ),
             'QuerySupportedSystem': grpc.unary_unary_rpc_method_handler(
                     servicer.QuerySupportedSystem,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=interface__pb2.ResponseSupportedSystem.SerializeToString,
+            ),
+            'GetCurrentModel': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetCurrentModel,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=interface__pb2.ResponseCurrentModel.SerializeToString,
             ),
             'MLSetup': grpc.unary_unary_rpc_method_handler(
                     servicer.MLSetup,
@@ -146,6 +178,23 @@ class GRPCLearner(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
+    def QueryVersion(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/QueryVersion',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            interface__pb2.ResponseVersion.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def QuerySupportedSystem(request,
             target,
             options=(),
@@ -159,6 +208,23 @@ class GRPCLearner(object):
         return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/QuerySupportedSystem',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             interface__pb2.ResponseSupportedSystem.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetCurrentModel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/GetCurrentModel',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            interface__pb2.ResponseCurrentModel.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

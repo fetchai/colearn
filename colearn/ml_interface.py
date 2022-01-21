@@ -16,8 +16,36 @@
 #
 # ------------------------------------------------------------------------------
 import abc
+from enum import Enum
 from typing import Any, Optional
+
+import onnx
+import onnxmltools
+import sklearn
+import tensorflow as tf
+import torch
 from pydantic import BaseModel
+from tensorflow import keras
+
+model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
+model_classes_scipy = (torch.nn.Module)
+model_classes_sklearn = (sklearn.base.ClassifierMixin)
+
+
+def convert_model_to_onnx(model: Any):
+    """
+    Helper function to convert a ML model to onnx format
+    """
+    if isinstance(model, model_classes_keras):
+        return onnxmltools.convert_keras(model)
+    if isinstance(model, model_classes_sklearn):
+        return onnxmltools.convert_sklearn(model)
+    if 'xgboost' in model.__repr__():
+        return onnxmltools.convert_sklearn(model)
+    if isinstance(model, model_classes_scipy):
+        raise Exception("Pytorch models not yet supported to onnx")
+    else:
+        raise Exception("Attempt to convert unsupported model to onnx: {model}")
 
 
 class DiffPrivBudget(BaseModel):
@@ -50,6 +78,24 @@ class ProposedWeights(BaseModel):
     vote: Optional[bool]
 
 
+class ModelFormat(Enum):
+    PICKLE_WEIGHTS_ONLY = 1
+    ONNX = 2
+
+
+class ColearnModel(BaseModel):
+    model_format: ModelFormat
+    model_file: Optional[str]
+    model: Optional[Any]
+
+
+def deser_model(model: Any) -> onnx.ModelProto:
+    """
+    Helper function to recover a onnx model from its deserialized form
+    """
+    return onnx.load_model_from_string(model)
+
+
 class MachineLearningInterface(abc.ABC):
     @abc.abstractmethod
     def mli_propose_weights(self) -> Weights:
@@ -76,5 +122,12 @@ class MachineLearningInterface(abc.ABC):
     def mli_get_current_weights(self) -> Weights:
         """
         Returns the current weights of the model
+        """
+        pass
+
+    @abc.abstractmethod
+    def mli_get_current_model(self) -> ColearnModel:
+        """
+        Returns the current model
         """
         pass

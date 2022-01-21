@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 from colearn.ml_interface import MachineLearningInterface, ProposedWeights, \
-    Weights
+    Weights, ColearnModel
 
 
 class PlusOneLearner(MachineLearningInterface):
@@ -54,3 +54,10 @@ class PlusOneLearner(MachineLearningInterface):
 
     def mli_get_current_weights(self) -> Weights:
         return Weights(weights=self.current_value)
+
+    def mli_get_current_model(self) -> ColearnModel:
+        """
+        :return: The current model and its format - not relevant here
+        """
+
+        return ColearnModel()
