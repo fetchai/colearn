@@ -47,7 +47,7 @@ num_microbatches = 64  # how many batches to split a batch into
 diff_priv_config = DiffPrivConfig(
     target_epsilon=1.0,  # epsilon budget for the epsilon-delta DP
     target_delta=1e-5,  # delta budget for the epsilon-delta DP
-    max_grand_norm=1.5,
+    max_grad_norm=1.5,
     noise_multiplier=1.3  # more noise -> more privacy, less utility
 )
 
@@ -106,7 +106,7 @@ def get_model():
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
     opt = DPKerasAdamOptimizer(
-        l2_norm_clip=diff_priv_config.max_grand_norm,
+        l2_norm_clip=diff_priv_config.max_grad_norm,
         noise_multiplier=diff_priv_config.noise_multiplier,
         num_microbatches=num_microbatches,
         learning_rate=l_rate)
