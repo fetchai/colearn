@@ -23,7 +23,7 @@ keras_deps = [
     'tensorflow-privacy>=0.5,<0.8',
 ]
 other_deps = [
-    'pandas~=1.1.0',
+    'pandas>=1.1,<1.5',
     'scikit-learn>=0.23,<1.1',
 ]
 pytorch_deps = [
