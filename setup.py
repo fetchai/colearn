@@ -80,7 +80,7 @@ setuptools.setup(
         'onnx==1.8.1',
         'tf2onnx==1.9.3',
         'onnxmltools==1.10.0',
-        'onnx_tf'==1.8.0,
+        'onnx_tf==1.8.0',
         'pydantic>=1.7,<1.10',
     ],
     tests_require=["tox>=3.20,<3.25"],

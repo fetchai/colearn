@@ -150,6 +150,9 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         return response
 
     def MLSetup(self, request, context):
+
+        print(f"GOT ML SETUP!")
+
         response = ipb2.ResponseMLSetup()
         self._learner_mutex.acquire()
         try:
