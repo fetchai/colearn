@@ -86,6 +86,19 @@ message ResponseCurrentModel {
     bytes model = 3;
 };
 
+message ResponseSetCurrentModel {
+    MLSetupStatus status = 1;
+    string description = 2;
+};
+
+message RequestSetCurrentModel {
+    string dataset_loader_name = 1;
+    string dataset_loader_parameters = 2;
+    uint32 model_format = 3;
+    string model_file = 4;
+    bytes model = 5;
+};
+
 message ResponseSupportedSystem {
     repeated DatasetLoaderSpec data_loaders    = 1;
     repeated ModelArchSpec model_architectures = 2;
@@ -96,6 +109,7 @@ service GRPCLearner {
     rpc QueryVersion(google.protobuf.Empty) returns (ResponseVersion);
     rpc QuerySupportedSystem(google.protobuf.Empty) returns (ResponseSupportedSystem);
     rpc GetCurrentModel(google.protobuf.Empty) returns (ResponseCurrentModel);
+    rpc SetCurrentModel(RequestSetCurrentModel) returns (ResponseSetCurrentModel);
     rpc MLSetup(RequestMLSetup) returns (ResponseMLSetup);
     rpc ProposeWeights(google.protobuf.Empty) returns (stream WeightsPart);
     rpc TestWeights(stream WeightsPart) returns (ProposedWeights);

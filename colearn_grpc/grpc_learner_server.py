@@ -19,6 +19,10 @@ import json
 from threading import Lock
 from typing import Optional
 
+# Delete these two lines(?)
+from onnx_tf.backend import prepare
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+
 from google.protobuf import empty_pb2
 import grpc
 from colearn.ml_interface import MachineLearningInterface
@@ -63,6 +67,38 @@ _time_set = Summary("contract_learner_grpc_server_set_time",
 _time_get = Summary("contract_learner_grpc_server_get_time",
                     "This metric measures the time it takes to get the current weights")
 
+
+# Temporarily put this class here - this is the class that
+# is used as the generic model loader
+class GenericMLI(MachineLearningInterface):
+
+    # Initialize it with a valid onnx model
+    def __init__(self, onnx_model: any):
+        self.model = onnx_model
+        self.tf_rep = prepare(onnx_model)  # prepare tf representation
+
+    def mli_propose_weights(self) -> Weights:
+        return Weights()
+
+    def mli_test_weights(self, weights: Weights) -> ProposedWeights:
+        return ProposedWeights()
+
+    def mli_accept_weights(self, weights: Weights):
+        return
+
+    def mli_get_current_weights(self) -> Weights:
+        return Weights()
+
+    def mli_get_current_model(self) -> ColearnModel:
+        """
+        :return: The current model and its format
+        """
+
+        return ColearnModel(
+            model_format=ModelFormat(ModelFormat.ONNX),
+            model_file="",
+            model=convert_model_to_onnx(self.model),
+        )
 
 class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     """
@@ -259,5 +295,29 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             response.model_format = current_model.model_format.value
             response.model_file = current_model.model_file
             response.model = current_model.model.SerializeToString()
+
+            print(f"Checking that model can be un-serialized... {typeof(current_model.model)}")
+
+            xx = onnx.load_from_string(response.model)
+
+            print(f"whee {xx}")
+
+        return response
+
+    @_time_test.time()
+    def SetCurrentModel(self, request, context):
+        response = ipb2.ResponseSetCurrentModel()
+
+        print(f"WE ARE HERE...")
+        self._learner_mutex.acquire()
+
+        try:
+            _logger.info(f"Got SetCurrentModel request: {request}")
+
+            #tf_rep = prepare(onnx_model)  # prepare tf representation
+            self.learner = GenericMLI(response.model)
+
+        finally:
+            self._learner_mutex.release()
 
         return response
