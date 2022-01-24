@@ -43,7 +43,7 @@ batch_size = 64
 vote_batches = 2
 
 # Differential privacy parameters
-num_microbatches = 64  # how many batches to split a batch into
+num_microbatches = 4  # how many batches to split a batch into
 diff_priv_config = DiffPrivConfig(
     target_epsilon=1.0,  # epsilon budget for the epsilon-delta DP
     target_delta=1e-5,  # delta budget for the epsilon-delta DP
