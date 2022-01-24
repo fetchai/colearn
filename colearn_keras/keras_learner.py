@@ -172,10 +172,11 @@ class KerasLearner(MachineLearningInterface):
         vote = self.vote(vote_score)
 
         self.set_weights(current_weights)
+
         return ProposedWeights(weights=weights,
                                vote_score=vote_score,
                                test_score=test_score,
-                               vote=vote
+                               vote=vote,
                                )
 
     def vote(self, new_score) -> bool:
@@ -231,6 +232,17 @@ class KerasLearner(MachineLearningInterface):
         :return: The current weights of the model
         """
         return Weights(weights=self.model.get_weights())
+
+    def mli_get_current_model(self) -> ColearnModel:
+        """
+        :return: The current model and its format
+        """
+
+        return ColearnModel(
+            model_format=ModelFormat(ModelFormat.ONNX),
+            model_file="",
+            model=convert_model_to_onnx(self.model),
+        )
 
     def set_weights(self, weights: Weights):
         """

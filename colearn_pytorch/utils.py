@@ -17,8 +17,8 @@
 # ------------------------------------------------------------------------------
 from typing import List
 
-import torch
 from sklearn.metrics import roc_auc_score
+import torch
 
 
 def binary_accuracy_from_logits(outputs: torch.Tensor, labels: torch.Tensor) -> float:

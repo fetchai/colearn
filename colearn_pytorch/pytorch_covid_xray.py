@@ -23,14 +23,14 @@ from typing import Tuple, List, Optional
 
 import numpy as np
 import scipy.io as sio
+from sklearn.decomposition import KernelPCA
+from sklearn.preprocessing import MinMaxScaler
+from typing_extensions import TypedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as nn_func
-from sklearn.decomposition import KernelPCA
-from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
-from typing_extensions import TypedDict
 
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
@@ -126,8 +126,8 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader, DataLoader],
     return learner
 
 
-def _make_loader(data: np.array,
-                 labels: np.array,
+def _make_loader(data: np.ndarray,
+                 labels: np.ndarray,
                  batch_size: int,
                  **loader_kwargs) -> DataLoader:
     """

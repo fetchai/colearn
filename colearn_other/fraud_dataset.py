@@ -19,16 +19,16 @@ import os
 import pickle
 import tempfile
 from pathlib import Path
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Generator
 
-import numpy as np
-import pandas as pd
-import sklearn
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import scale
+import sklearn
+import numpy as np
+import pandas as pd
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
 
@@ -42,12 +42,12 @@ class FraudLearner(MachineLearningInterface):
     """
 
     def __init__(self,
-                 train_data: np.array,
-                 train_labels: np.array,
-                 vote_data: np.array,
-                 vote_labels: np.array,
-                 test_data: np.array,
-                 test_labels: np.array,
+                 train_data: np.ndarray,
+                 train_labels: np.ndarray,
+                 vote_data: np.ndarray,
+                 vote_labels: np.ndarray,
+                 test_data: np.ndarray,
+                 test_labels: np.ndarray,
                  batch_size: int = 10000,
                  steps_per_round: int = 1):
         """
@@ -133,6 +133,17 @@ class FraudLearner(MachineLearningInterface):
         return Weights(weights=dict(coef_=self.model.coef_,
                                     intercept_=self.model.intercept_))
 
+    def mli_get_current_model(self) -> ColearnModel:
+        """
+        :return: The current model and its format
+        """
+
+        return ColearnModel(
+            model_format=ModelFormat(ModelFormat.ONNX),
+            model_file="",
+            model=convert_model_to_onnx(self.model),
+        )
+
     def set_weights(self, weights: Weights):
         """
         Rewrites weight of current model
@@ -142,7 +153,7 @@ class FraudLearner(MachineLearningInterface):
         self.model.coef_ = weights.weights['coef_']
         self.model.intercept_ = weights.weights['intercept_']
 
-    def test(self, data: np.array, labels: np.array) -> float:
+    def test(self, data: np.ndarray, labels: np.ndarray) -> float:
         """
         Tests performance of the model on specified dataset
         :param data: np.array of data
@@ -160,7 +171,7 @@ class FraudLearner(MachineLearningInterface):
 def prepare_data_loaders(location: str,
                          train_ratio: float = 0.8,
                          vote_ratio: float = 0.1,
-                         ) -> Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array], Tuple[np.array, np.array]]:
+                         ) -> Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
     """
     Load training data from folders and create train and test arrays
 
@@ -186,8 +197,8 @@ def prepare_data_loaders(location: str,
 
 
 @FactoryRegistry.register_model_architecture("FRAUD", ["FRAUD"])
-def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.array, np.array],
-                                        Tuple[np.array, np.array]],
+def prepare_learner(data_loaders: Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray],
+                                        Tuple[np.ndarray, np.ndarray]],
                     ) -> FraudLearner:
     """
     Creates a new instance of FraudLearner
@@ -205,7 +216,7 @@ def prepare_learner(data_loaders: Tuple[Tuple[np.array, np.array], Tuple[np.arra
 
 
 def _infinite_batch_sampler(data_size: int,
-                            batch_size: int) -> np.array:
+                            batch_size: int) -> Generator:
     """
     Generates random array of indices
     :param data_size: Number of samples in dataset

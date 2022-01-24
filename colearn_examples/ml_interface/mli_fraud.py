@@ -24,7 +24,7 @@ import numpy as np
 import sklearn
 from sklearn.linear_model import SGDClassifier
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
@@ -105,6 +105,17 @@ class FraudLearner(MachineLearningInterface):
         self.set_weights(weights)
         self.vote_score = self.test(self.vote_data, self.vote_labels)
 
+    def mli_get_current_model(self) -> ColearnModel:
+        """
+        :return: The current model and its format
+        """
+
+        return ColearnModel(
+            model_format=ModelFormat(ModelFormat.ONNX),
+            model_file="",
+            model=convert_model_to_onnx(self.model),
+        )
+
     def mli_get_current_weights(self):
         return Weights(weights=dict(coef_=self.model.coef_,
                                     intercept_=self.model.intercept_))
@@ -121,7 +132,6 @@ class FraudLearner(MachineLearningInterface):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument("data_dir", help="Path to data directory", type=str)
     parser.add_argument("--use_cache", help="Use cached preprocessed data", type=bool, default=True)
