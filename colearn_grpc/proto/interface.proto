@@ -76,6 +76,16 @@ message CompatibilitySpec {
     repeated string dataloaders = 2;
 };
 
+message ResponseVersion {
+    string version = 1;
+};
+
+message ResponseCurrentModel {
+    uint32 model_format = 1;
+    string model_file = 2;
+    bytes model = 3;
+};
+
 message ResponseSupportedSystem {
     repeated DatasetLoaderSpec data_loaders    = 1;
     repeated ModelArchSpec model_architectures = 2;
@@ -83,7 +93,9 @@ message ResponseSupportedSystem {
 };
 
 service GRPCLearner {
+    rpc QueryVersion(google.protobuf.Empty) returns (ResponseVersion);
     rpc QuerySupportedSystem(google.protobuf.Empty) returns (ResponseSupportedSystem);
+    rpc GetCurrentModel(google.protobuf.Empty) returns (ResponseCurrentModel);
     rpc MLSetup(RequestMLSetup) returns (ResponseMLSetup);
     rpc ProposeWeights(google.protobuf.Empty) returns (stream WeightsPart);
     rpc TestWeights(stream WeightsPart) returns (ProposedWeights);

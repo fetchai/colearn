@@ -67,6 +67,9 @@ ENABLED:
 # R0801: similar lines
 
 [IMPORTS]
-ignored-modules=click,google,grpc,matplotlib,numpy,opacus,pandas,PIL,prometheus_client,pydantic,pytest,
+ignored-modules=click,google,grpc,matplotlib,numpy,opacus,onnx,onnxmltools,pandas,PIL,prometheus_client,pydantic,pytest,
     tensorflow,tensorflow_core,tensorflow_datasets,tensorflow_privacy,torch,torchsummary,torchvision,typing_extensions,
     scipy,sklearn,xgboost
+
+[TYPECHECK]
+ignored-classes=ResponseSupportedSystem

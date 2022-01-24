@@ -22,6 +22,7 @@ import sys
 import tempfile
 from glob import glob
 from pathlib import Path
+from typing_extensions import TypedDict
 
 import numpy as np
 import torch.nn as nn
@@ -30,7 +31,6 @@ import torch.utils.data
 from PIL import Image
 from torch.utils.data import Dataset
 from torchsummary import summary
-from typing_extensions import TypedDict
 
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
