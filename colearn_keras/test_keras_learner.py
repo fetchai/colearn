@@ -106,12 +106,12 @@ def test_privacy_training(nkl):
     # no training when budget is overconsumed
     nkl.diff_priv_budget.target_epsilon = 0
     w = nkl.mli_propose_weights()
-    assert w.weights is None
+    assert w.training_summary.error_code.name == 'DP_BUDGET_EXCEEDED'
 
     # do training when budget is not overcompsumed
     nkl.diff_priv_budget.target_epsilon = 9999999
     w = nkl.mli_propose_weights()
-    assert w.weights is not None
+    assert w.training_summary.error_code is None
 
 
 def test_reset_optimizer(nkl):
