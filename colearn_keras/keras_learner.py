@@ -26,7 +26,7 @@ except ImportError:
 from tensorflow import keras
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
-from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary
+from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary, ErrorCodes
 from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_optimizer_class
 
@@ -134,15 +134,19 @@ class KerasLearner(MachineLearningInterface):
         - Current model is reverted to original state after training
         :return: Weights after training
         """
+        current_weights = self.mli_get_current_weights()
+
         if self.diff_priv_config is not None:
             epsilon_after_training = self.get_privacy_budget()
             if epsilon_after_training > self.diff_priv_budget.target_epsilon:
                 return Weights(
-                    weights=None,
-                    training_summary=TrainingSummary(dp_budget=self.diff_priv_budget)
+                    weights=current_weights,
+                    training_summary=TrainingSummary(
+                        dp_budget=self.diff_priv_budget,
+                        error_code=ErrorCodes.DP_BUDGET_EXCEEDED
+                    )
                 )
 
-        current_weights = self.mli_get_current_weights()
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)
