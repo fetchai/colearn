@@ -55,8 +55,13 @@ class DiffPrivBudget(BaseModel):
     consumed_delta: float
 
 
+class ErrorCodes(Enum):
+    DP_BUDGET_EXCEEDED = 1
+
+
 class TrainingSummary(BaseModel):
     dp_budget: Optional[DiffPrivBudget]
+    error_code: Optional[ErrorCodes]
 
 
 class Weights(BaseModel):
