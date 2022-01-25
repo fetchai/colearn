@@ -73,10 +73,10 @@ def prepare_data_loaders(location: str,
 # The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader("KERAS_MNIST_WITH_DP")
 def prepare_data_loaders_dp(location: str,
-                         train_ratio: float = 0.9,
-                         vote_ratio: float = 0.05,
-                         batch_size: int = 32,
-                         ) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
+                            train_ratio: float = 0.9,
+                            vote_ratio: float = 0.05,
+                            batch_size: int = 32,
+                            ) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
 
