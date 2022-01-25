@@ -20,7 +20,6 @@ import pickle
 import tempfile
 from pathlib import Path
 from typing import Tuple, List, Optional
-from colearn.ml_interface import DiffPrivConfig
 
 import numpy as np
 import tensorflow as tf
@@ -30,6 +29,7 @@ from tensorflow.python.keras.applications.resnet import ResNet50
 from tensorflow.python.keras.layers import Dropout
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
 
+from colearn.ml_interface import DiffPrivConfig
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_keras.keras_learner import KerasLearner
@@ -72,7 +72,7 @@ def prepare_data_loaders(location: str,
 
 # The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader("KERAS_MNIST_WITH_DP")
-def prepare_data_loaders(location: str,
+def prepare_data_loaders_dp(location: str,
                          train_ratio: float = 0.9,
                          vote_ratio: float = 0.05,
                          batch_size: int = 32,
