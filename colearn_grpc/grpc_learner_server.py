@@ -20,8 +20,10 @@ from threading import Lock
 from typing import Optional
 
 # Delete these two lines(?)
+import onnx
 from onnx_tf.backend import prepare
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from hashlib import sha256
 
 from google.protobuf import empty_pb2
 import grpc
@@ -70,7 +72,11 @@ _time_get = Summary("contract_learner_grpc_server_get_time",
 
 # Temporarily put this class here - this is the class that
 # is used as the generic model loader
-class GenericMLI(MachineLearningInterface):
+class GenericMLIOnnx(MachineLearningInterface):
+    """
+    Generic implementation of machine learning interface - requires an onnx
+    model on construction
+    """
 
     # Initialize it with a valid onnx model
     def __init__(self, onnx_model: any):
@@ -291,19 +297,29 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
 
     @_time_test.time()
     def GetCurrentModel(self, request, context):
-        response = ipb2.ResponseCurrentModel()
+        response = ipb2.ResponseGetCurrentModel()
+
+        print(f"gettung current model... :(")
 
         if self.learner is not None:
             current_model = self.learner.mli_get_current_model()
             response.model_format = current_model.model_format.value
             response.model_file = current_model.model_file
             response.model = current_model.model.SerializeToString()
+            #response.model = "XXYYZZPLZ"
 
-            print(f"Checking that model can be un-serialized... {typeof(current_model.model)}")
+            print(f"Checking that model can be un-serialized... {type(current_model.model)}")
+            print(f"Checking that model can be un-serialized... {type(current_model.model.SerializeToString())}")
+            print(f"The hashof the result is {sha256(current_model.model.SerializeToString()).hexdigest()}")
+            print(f"The hashof the serialized model is {sha256(response.model).hexdigest()}")
 
-            xx = onnx.load_from_string(response.model)
+            print(f"first 10 is {response.model[0:10]}")
 
-            print(f"whee {xx}")
+            #xx = onnx.load_from_string(response.model)
+            #print(f"whee {xx}")
+
+            #yy = onnx.load_from_string(current_model.model.SerializeToString())
+            #print(f"whee {yy}")
 
         return response
 
@@ -312,6 +328,14 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         response = ipb2.ResponseSetCurrentModel()
 
         print(f"WE ARE HERE...")
+        print(f"The hashof XXX is {sha256(request.model).hexdigest()}")
+
+        print(f"first 10 is {request.model[0:10]}")
+
+        xxyy = onnx.load_from_string(request.model)
+
+        print(f"WE ARE HERE... with success! {xxyy}")
+
         self._learner_mutex.acquire()
 
         try:
