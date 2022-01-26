@@ -87,6 +87,7 @@ class ColearnModel(BaseModel):
     model_format: ModelFormat
     model_file: Optional[str]
     model: Optional[Any]
+    model_serial: Optional[bytes]
 
 
 def deser_model(model: Any) -> onnx.ModelProto:

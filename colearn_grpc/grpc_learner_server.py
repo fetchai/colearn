@@ -312,11 +312,13 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             print(f"Checking that model can be un-serialized... {type(current_model.model.SerializeToString())}")
             print(f"The hashof the result is {sha256(current_model.model.SerializeToString()).hexdigest()}")
             print(f"The hashof the serialized model is {sha256(response.model).hexdigest()}")
+            print(f"The length the serialized model is {len(response.model)}")
 
             print(f"first 10 is {response.model[0:10]}")
+            print(f"last 10 is {response.model[-10:len(response.model)-1]}")
 
-            #xx = onnx.load_from_string(response.model)
-            #print(f"whee {xx}")
+            xx = onnx.load_from_string(response.model)
+            print(f"wheeeeii")
 
             #yy = onnx.load_from_string(current_model.model.SerializeToString())
             #print(f"whee {yy}")
@@ -327,24 +329,26 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def SetCurrentModel(self, request, context):
         response = ipb2.ResponseSetCurrentModel()
 
-        print(f"WE ARE HERE...")
+        print(f"WE ARE HERE1...")
         print(f"The hashof XXX is {sha256(request.model).hexdigest()}")
 
+        print(f"The length the serialized model is {len(request.model)}")
         print(f"first 10 is {request.model[0:10]}")
+        print(f"last 10 is {request.model[-10:len(request.model)-1]}")
 
         xxyy = onnx.load_from_string(request.model)
 
         print(f"WE ARE HERE... with success! {xxyy}")
 
-        self._learner_mutex.acquire()
+        #self._learner_mutex.acquire()
 
-        try:
-            _logger.info(f"Got SetCurrentModel request: {request}")
+        #try:
+        #    _logger.info(f"Got SetCurrentModel request: {request}")
 
-            #tf_rep = prepare(onnx_model)  # prepare tf representation
-            self.learner = GenericMLI(response.model)
+        #    #tf_rep = prepare(onnx_model)  # prepare tf representation
+        #    self.learner = GenericMLI(response.model)
 
-        finally:
-            self._learner_mutex.release()
+        #finally:
+        #    self._learner_mutex.release()
 
         return response
