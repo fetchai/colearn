@@ -86,7 +86,8 @@ class ExampleMliFactory(MliFactory):
                                 "accept it.")
         if "diff_priv_config" in model_config:
             c = model_config["diff_priv_config"]
-            model_config["diff_priv_config"] = DiffPrivConfig(**c)
+            if c is not None:
+                model_config["diff_priv_config"] = DiffPrivConfig(**c)
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
 
         return prepare_learner(data_loaders=data_loaders, **model_config)

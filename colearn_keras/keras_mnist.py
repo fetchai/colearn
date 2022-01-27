@@ -39,6 +39,28 @@ IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
 
 
+# prepare dataloader implementation
+def prepare_loaders_impl(location: str,
+                         train_ratio: float = 0.9,
+                         vote_ratio: float = 0.05,
+                         batch_size: int = 32,
+                         dp_enabled: bool = False,
+                         ) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
+    data_folder = get_data(location)
+
+    images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
+    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(images))
+    n_vote_cases = int(vote_ratio * len(images))
+    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size, dp_enabled=dp_enabled)
+    vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
+                               batch_size)
+    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
+
+    return train_loader, vote_loader, test_loader
+
+
 # The dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_dataloader("KERAS_MNIST")
 def prepare_data_loaders(location: str,
@@ -54,20 +76,7 @@ def prepare_data_loaders(location: str,
     :param batch_size:
     :return: Tuple of train_loader and test_loader
     """
-
-    data_folder = get_data(location)
-
-    images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(images))
-    n_vote_cases = int(vote_ratio * len(images))
-    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
-    vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
-                               batch_size)
-    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
-
-    return train_loader, vote_loader, test_loader
+    return prepare_loaders_impl(location, train_ratio, vote_ratio, batch_size, False)
 
 
 # The dataloader needs to be registered before the models that reference it
@@ -85,20 +94,7 @@ def prepare_data_loaders_dp(location: str,
     :param batch_size:
     :return: Tuple of train_loader and test_loader
     """
-
-    data_folder = get_data(location)
-
-    images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
-
-    n_cases = int(train_ratio * len(images))
-    n_vote_cases = int(vote_ratio * len(images))
-    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size, dp_enabled=True)
-    vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
-                               batch_size)
-    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
-
-    return train_loader, vote_loader, test_loader
+    return prepare_loaders_impl(location, train_ratio, vote_ratio, batch_size, True)
 
 
 @FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"])
