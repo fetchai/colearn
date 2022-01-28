@@ -19,7 +19,7 @@ import copy
 import json
 from typing import Set, Dict, Any
 
-from colearn.ml_interface import MachineLearningInterface
+from colearn.ml_interface import DiffPrivConfig, MachineLearningInterface
 from colearn_grpc.mli_factory_interface import MliFactory
 from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_grpc.logging import get_logger
@@ -84,7 +84,10 @@ class ExampleMliFactory(MliFactory):
             else:
                 _logger.warning(f"Key {key} was included in the model params but this model ({model_name}) does not "
                                 "accept it.")
-
+        if "diff_priv_config" in model_config:
+            c = model_config["diff_priv_config"]
+            if c is not None:
+                model_config["diff_priv_config"] = DiffPrivConfig(**c)
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
 
         return prepare_learner(data_loaders=data_loaders, **model_config)

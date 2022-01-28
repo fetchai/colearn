@@ -21,7 +21,7 @@ from typing import Iterator
 
 from prometheus_client import Summary
 
-from colearn.ml_interface import Weights, TrainingSummary
+from colearn.ml_interface import Weights, TrainingSummary, DiffPrivBudget
 from colearn_grpc.proto.generated.interface_pb2 import WeightsPart, TrainingSummary as TrainingSummaryPb
 
 # the default limit for gRPC messages is 4MB, so the part size is set a bit smaller
@@ -116,11 +116,20 @@ def transform_training_summary_to_pb(ts: TrainingSummary) -> TrainingSummaryPb:
 
 def transform_training_summary_from_pb(ts: TrainingSummaryPb) -> TrainingSummary:
     tsn = TrainingSummary()
-    for field in ["dp_budget"]:
-        target = getattr(tsn, field)
+    parts = [
+        ("dp_budget", DiffPrivBudget, {
+            "target_epsilon": 0,
+            "target_delta": 0,
+            "consumed_epsilon": 0,
+            "consumed_delta": 0
+        })
+    ]
+    for (field, cls, default_params) in parts:
         source = getattr(ts, field)
-        for entry in target.__fields__.keys():
-            setattr(target, entry, getattr(source, entry))
+        obj = cls(**default_params)
+        for entry in source.DESCRIPTOR.fields_by_name.keys():
+            setattr(obj, entry, getattr(source, entry))
+        setattr(tsn, field, obj)
     return tsn
 
 
@@ -145,7 +154,7 @@ def weights_to_iterator(input_weights: Weights, encode=True) -> Iterator[Weights
         w.byte_index = 0
         w.total_bytes = total_size
         w.weights = enc_weights[0:part_size]
-        w.training_summary = transform_training_summary_to_pb(input_weights.training_summary)
+        w.training_summary.CopyFrom(transform_training_summary_to_pb(input_weights.training_summary))
         yield w
 
     for i in range(start_idx, total_parts):
