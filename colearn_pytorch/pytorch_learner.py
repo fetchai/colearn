@@ -29,6 +29,7 @@ import torch.optim
 import torch.utils
 import torch.utils.data
 from torch.nn.modules.loss import _Loss
+import onnx
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, \
     ModelFormat
@@ -100,9 +101,13 @@ class PytorchLearner(MachineLearningInterface):
         :return: The current model and its format
         """
 
+        _sample_data = None
+        for _sample_data, _ in self.train_loader:
+            break
+
         torch.onnx.export(
             self.model,
-            self.train_loader[0],  # example model input
+            _sample_data,  # example model input
             'torch_model.onnx',
         )
 
