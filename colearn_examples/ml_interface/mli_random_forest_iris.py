@@ -19,10 +19,12 @@ import os
 import pickle
 
 import numpy as np
+import onnxmltools
+from onnxmltools.convert.common.data_types import FloatTensorType
 from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
@@ -105,7 +107,7 @@ class IrisLearner(MachineLearningInterface):
         return ColearnModel(
             model_format=ModelFormat(ModelFormat.ONNX),
             model_file="",
-            model=convert_model_to_onnx(self.model),
+            model=onnxmltools.convert_sklearn(self.model, initial_types=[('input', FloatTensorType([None, self.train_data.shape[1]]))]),
         )
 
     def set_weights(self, weights: Weights):

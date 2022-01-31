@@ -21,10 +21,12 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import onnxmltools
+from onnxmltools.convert.common.data_types import FloatTensorType
 import sklearn
 from sklearn.linear_model import SGDClassifier
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
@@ -113,7 +115,7 @@ class FraudLearner(MachineLearningInterface):
         return ColearnModel(
             model_format=ModelFormat(ModelFormat.ONNX),
             model_file="",
-            model=convert_model_to_onnx(self.model),
+            model=onnxmltools.convert_sklearn(self.model, initial_types=[('input', FloatTensorType([1, self.train_data.shape[1]]))]),
         )
 
     def mli_get_current_weights(self):

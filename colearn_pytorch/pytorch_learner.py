@@ -31,7 +31,7 @@ import torch.utils.data
 from torch.nn.modules.loss import _Loss
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, \
-    convert_model_to_onnx, ModelFormat
+    ModelFormat
 
 _DEFAULT_DEVICE = torch.device("cpu")
 
@@ -100,10 +100,16 @@ class PytorchLearner(MachineLearningInterface):
         :return: The current model and its format
         """
 
+        torch.onnx.export(
+            self.model,
+            self.train_loader[0],  # example model input
+            'torch_model.onnx',
+        )
+
         return ColearnModel(
             model_format=ModelFormat(ModelFormat.ONNX),
             model_file="",
-            model=convert_model_to_onnx(self.model),
+            model=onnx.load('torch_model.onnx'),
         )
 
     def set_weights(self, weights: Weights):

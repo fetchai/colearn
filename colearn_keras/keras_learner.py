@@ -18,6 +18,7 @@
 from inspect import signature
 from typing import Optional
 
+import onnxmltools
 try:
     import tensorflow as tf
 except ImportError:
@@ -25,7 +26,7 @@ except ImportError:
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
 from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary, ErrorCodes
 from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_optimizer_class
@@ -245,7 +246,7 @@ class KerasLearner(MachineLearningInterface):
         return ColearnModel(
             model_format=ModelFormat(ModelFormat.ONNX),
             model_file="",
-            model=convert_model_to_onnx(self.model),
+            model=onnxmltools.covert_keras(self.model),
         )
 
     def set_weights(self, weights: Weights):

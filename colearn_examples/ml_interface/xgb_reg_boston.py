@@ -18,12 +18,14 @@
 import os
 from typing import Optional
 
+import onnxmltools
+from onnxmltools.convert.common.data_types import FloatTensorType
 from sklearn import datasets
 from sklearn.metrics import mean_squared_error as mse
 import numpy as np
 import xgboost as xgb
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.data import split_list_into_fractions
 from colearn.utils.plot import ColearnPlot
@@ -106,7 +108,7 @@ class XGBoostLearner(MachineLearningInterface):
         return ColearnModel(
             model_format=ModelFormat(ModelFormat.ONNX),
             model_file="",
-            model=convert_model_to_onnx(self.model),
+            model=onnxmltools.convert_xgboost(self.model, initial_types=[('input', FloatTensorType([None, self.xg_train.num_col()]))]),
         )
 
     def test(self, data_matrix):
