@@ -115,7 +115,7 @@ class FraudLearner(MachineLearningInterface):
         return ColearnModel(
             model_format=ModelFormat(ModelFormat.ONNX),
             model_file="",
-            model=onnxmltools.convert_sklearn(self.model, initial_types=[('input', FloatTensorType([1, self.train_data.shape[1]]))]),
+            model=onnxmltools.convert_sklearn(self.model, initial_types=[('input', FloatTensorType([None, self.train_data.shape[1]]))]),
         )
 
     def mli_get_current_weights(self):

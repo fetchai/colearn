@@ -74,7 +74,7 @@ def prepare_data_loaders(location: str,
 
     train_loader = _make_loader(data[:n_cases], labels[:n_cases], batch_size, **loader_kwargs)
     vote_loader = _make_loader(data[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases], batch_size)
-    test_loader = _make_loader(data[n_cases:], labels[n_cases:], batch_size, **loader_kwargs)
+    test_loader = _make_loader(data[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:], batch_size, **loader_kwargs)
 
     return train_loader, vote_loader, test_loader
 
