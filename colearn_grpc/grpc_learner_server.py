@@ -27,7 +27,7 @@ from hashlib import sha256
 
 from google.protobuf import empty_pb2
 import grpc
-from colearn.ml_interface import MachineLearningInterface
+from colearn.ml_interface import MachineLearningInterface, deser_model
 from prometheus_client import Counter, Summary
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
@@ -79,8 +79,8 @@ class GenericMLIOnnx(MachineLearningInterface):
     """
 
     # Initialize it with a valid onnx model
-    def __init__(self, onnx_model: any):
-        self.model = onnx_model
+    def __init__(self, onnx_model: bytes):
+        self.model = deser_model(onnx_model)
         self.tf_rep = prepare(onnx_model)  # prepare tf representation
 
     def mli_propose_weights(self) -> Weights:
@@ -317,8 +317,8 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             print(f"first 10 is {response.model[0:10]}")
             print(f"last 10 is {response.model[-10:len(response.model)-1]}")
 
-            xx = onnx.load_from_string(response.model)
-            print(f"wheeeeii")
+            #xx = onnx.load_from_string(response.model)
+            #print(f"wheeeeii")
 
             #yy = onnx.load_from_string(current_model.model.SerializeToString())
             #print(f"whee {yy}")
@@ -336,19 +336,18 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         print(f"first 10 is {request.model[0:10]}")
         print(f"last 10 is {request.model[-10:len(request.model)-1]}")
 
-        xxyy = onnx.load_from_string(request.model)
+        #xxyy = onnx.load_from_string(request.model)
+        #print(f"WE ARE HERE... with success! {xxyy}")
 
-        print(f"WE ARE HERE... with success! {xxyy}")
+        self._learner_mutex.acquire()
 
-        #self._learner_mutex.acquire()
+        try:
+            _logger.info(f"Got SetCurrentModel request: {request}")
 
-        #try:
-        #    _logger.info(f"Got SetCurrentModel request: {request}")
+            #tf_rep = prepare(onnx_model)  # prepare tf representation
+            self.learner = GenericMLIOnnx(response.model)
 
-        #    #tf_rep = prepare(onnx_model)  # prepare tf representation
-        #    self.learner = GenericMLI(response.model)
-
-        #finally:
-        #    self._learner_mutex.release()
+        finally:
+            self._learner_mutex.release()
 
         return response
