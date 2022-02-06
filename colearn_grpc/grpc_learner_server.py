@@ -305,7 +305,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             current_model = self.learner.mli_get_current_model()
             response.model_format = current_model.model_format.value
             response.model_file = current_model.model_file
-            response.model = current_model.model.SerializeToString()
+            response.model = current_model.model
             #response.model = "XXYYZZPLZ"
 
             print(f"Checking that model can be un-serialized... {type(current_model.model)}")
@@ -313,7 +313,6 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             print(f"The hashof the result is {sha256(current_model.model.SerializeToString()).hexdigest()}")
             print(f"The hashof the serialized model is {sha256(response.model).hexdigest()}")
             print(f"The length the serialized model is {len(response.model)}")
-
             print(f"first 10 is {response.model[0:10]}")
             print(f"last 10 is {response.model[-10:len(response.model)-1]}")
 

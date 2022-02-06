@@ -17,6 +17,7 @@
 # ------------------------------------------------------------------------------
 from inspect import signature
 from typing import Optional
+import glob
 
 try:
     import tensorflow as tf
@@ -25,7 +26,7 @@ except ImportError:
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx, MODEL_SAVE_LOCATION
 
 
 class KerasLearner(MachineLearningInterface):
@@ -163,10 +164,18 @@ class KerasLearner(MachineLearningInterface):
         :return: The current model and its format
         """
 
+        # Save the model
+        print(f"Saving model.")
+        self.model.save(MODEL_SAVE_LOCATION)
+
+        for filename in glob.iglob('/home/geeks/Desktop/gfg/**/*.txt',
+                           recursive = True):
+            print(filename)
+
         return ColearnModel(
-            model_format=ModelFormat(ModelFormat.ONNX),
+            model_format=ModelFormat(ModelFormat.NATIVE),
             model_file="",
-            model=convert_model_to_onnx(self.model),
+            model=bytes(b'wheee'),
         )
 
     def set_weights(self, weights: Weights):

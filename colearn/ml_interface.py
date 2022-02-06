@@ -27,6 +27,8 @@ import torch
 from pydantic import BaseModel
 from tensorflow import keras
 
+MODEL_SAVE_LOCATION = "./saved_model"
+
 model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
 model_classes_scipy = (torch.nn.Module)
 model_classes_sklearn = (sklearn.base.ClassifierMixin)
@@ -80,7 +82,8 @@ class ProposedWeights(BaseModel):
 
 class ModelFormat(Enum):
     PICKLE_WEIGHTS_ONLY = 1
-    ONNX = 2
+    NATIVE = 2
+    ONNX = 3
 
 
 class ColearnModel(BaseModel):
