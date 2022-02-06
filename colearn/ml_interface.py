@@ -28,6 +28,7 @@ from pydantic import BaseModel
 from tensorflow import keras
 
 MODEL_SAVE_LOCATION = "./saved_model_colearn"
+MODEL_BACKUP_LOCATION = "./backup_model_colearn"
 
 model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
 model_classes_scipy = (torch.nn.Module)
@@ -75,6 +76,11 @@ class DiffPrivConfig(BaseModel):
 
 class ProposedWeights(BaseModel):
     weights: Weights
+    vote_score: float
+    test_score: float
+    vote: Optional[bool]
+
+class TestResponse(BaseModel):
     vote_score: float
     test_score: float
     vote: Optional[bool]
@@ -140,5 +146,12 @@ class MachineLearningInterface(abc.ABC):
     def mli_set_current_model(self, model: ColearnModel):
         """
         Sets the current model
+        """
+        pass
+
+    @abc.abstractmethod
+    def mli_test_current_model(self, model: ColearnModel) -> TestResponse:
+        """
+        Tests the current model
         """
         pass

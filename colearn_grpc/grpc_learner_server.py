@@ -318,3 +318,37 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             self._learner_mutex.release()
 
         return response
+
+    @_time_test.time()
+    def TestCurrentModel(self, request, context):
+        response = ipb2.ResponseTestCurrentModel()
+
+        print(f"WE ARE HERE1, TEST current model(!!)...")
+        print(f"The hashof XXX is {sha256(request.model).hexdigest()}")
+        print(f"The length the serialized model is {len(request.model)}")
+        print(f"first 10 is {request.model[0:10]}")
+        print(f"last 10 is {request.model[-10:len(request.model)-1]}")
+
+        #xxyy = onnx.load_from_string(request.model)
+        #print(f"WE ARE HERE... with success! {xxyy}")
+
+        self._learner_mutex.acquire()
+
+        try:
+            #_logger.info(f"Got SetCurrentModel request: {request}")
+
+            #tf_rep = prepare(onnx_model)  # prepare tf representation
+            #self.learner = GenericMLIOnnx(response.model)
+
+            print(f"here we are setting...")
+
+            resp = self.learner.mli_test_current_model(ColearnModel(model=request.model,
+                                                                 model_file="",
+                                                                 model_format=ModelFormat.NATIVE))
+
+            (response.vote_score, response.test_score, response.vote) = (resp.vote_score, resp.test_score, resp.vote)
+
+        finally:
+            self._learner_mutex.release()
+
+        return response

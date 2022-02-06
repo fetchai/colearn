@@ -30,7 +30,7 @@ except ImportError:
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx, MODEL_SAVE_LOCATION
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx, MODEL_SAVE_LOCATION, MODEL_BACKUP_LOCATION, TestResponse
 
 
 class KerasLearner(MachineLearningInterface):
@@ -251,3 +251,51 @@ class KerasLearner(MachineLearningInterface):
         result = self.model.evaluate(x=loader, return_dict=True,
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]
+
+    def mli_test_current_model(self, model: ColearnModel) -> TestResponse:
+
+        print("TESTING current model(!!!)")
+
+        # Backup the current model
+        self.model.save(MODEL_BACKUP_LOCATION)
+
+        # Clear directory
+        dirpath = Path(MODEL_SAVE_LOCATION)
+        if dirpath.exists() and dirpath.is_dir():
+            shutil.rmtree(dirpath)
+
+        # Save the model
+        print(f"deser model.")
+
+        dict_deser = json.loads(model.model)
+
+        print(dict_deser)
+
+        for key, value in dict_deser.items():
+            # Make sure the directory for the file exists if not so
+            print(f"Writing {key}")
+            Path(key).parents[0].mkdir(parents=True, exist_ok=True)
+            fp = open(key, "wb")
+            fp.write(base64.b64decode(value))
+            fp.close()
+
+        print(f"loading modelllll.")
+        self.model = keras.models.load_model(MODEL_SAVE_LOCATION)
+
+        #current_weights = self.mli_get_current_weights()
+        #self.set_weights(weights)
+
+        vote_score = self.test(self.vote_loader)
+
+        if self.test_loader:
+            test_score = self.test(self.test_loader)
+        else:
+            test_score = 0
+        vote = self.vote(vote_score)
+
+        # Return to original state
+        model = keras.models.load_model(MODEL_BACKUP_LOCATION)
+
+        return TestResponse(vote_score=vote_score,
+                               test_score=test_score,
+                               vote=vote, )
