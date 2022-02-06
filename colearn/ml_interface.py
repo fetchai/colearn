@@ -90,7 +90,7 @@ class ColearnModel(BaseModel):
     model_format: ModelFormat
     model_file: Optional[str]
     model: Optional[Any]
-    model_serial: Optional[bytes]
+    #model_serial: Optional[bytes]
 
 
 def deser_model(model: Any) -> onnx.ModelProto:
@@ -133,5 +133,12 @@ class MachineLearningInterface(abc.ABC):
     def mli_get_current_model(self) -> ColearnModel:
         """
         Returns the current model
+        """
+        pass
+
+    @abc.abstractmethod
+    def mli_set_current_model(self, model: ColearnModel):
+        """
+        Sets the current model
         """
         pass

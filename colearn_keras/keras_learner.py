@@ -18,6 +18,10 @@
 from inspect import signature
 from typing import Optional
 import glob
+from pathlib import Path
+import shutil
+import base64
+import json
 
 try:
     import tensorflow as tf
@@ -164,6 +168,11 @@ class KerasLearner(MachineLearningInterface):
         :return: The current model and its format
         """
 
+        # Clear directory
+        dirpath = Path(MODEL_SAVE_LOCATION)
+        if dirpath.exists() and dirpath.is_dir():
+            shutil.rmtree(dirpath)
+
         # Save the model
         print(f"Saving model.")
         self.model.save(MODEL_SAVE_LOCATION)
@@ -173,16 +182,47 @@ class KerasLearner(MachineLearningInterface):
 
         for filename in glob.iglob(MODEL_SAVE_LOCATION+"/**/*", recursive = True):
             print(filename)
-            files[filename] = open(filename, "rb").read()
+            if Path(filename).is_file():
+                files[filename] = base64.b64encode(open(filename, "rb").read()).decode("utf-8")
 
         print(f"xxxyy")
-        print(f"{files}")
+        as_string = json.dumps(files)
+
+        print(f"as bytes success")
+        #print(f"{files}")
 
         return ColearnModel(
             model_format=ModelFormat(ModelFormat.NATIVE),
             model_file="",
-            model=bytes(b'wheee'),
+            model=bytes(as_string, encoding='utf8'),
         )
+
+    def mli_set_current_model(self, model: ColearnModel):
+
+        print("setting current model(!!!)")
+
+        # Clear directory
+        dirpath = Path(MODEL_SAVE_LOCATION)
+        if dirpath.exists() and dirpath.is_dir():
+            shutil.rmtree(dirpath)
+
+        # Save the model
+        print(f"deser model.")
+
+        dict_deser = json.loads(model.model)
+
+        print(dict_deser)
+
+        for key, value in dict_deser.items():
+            # Make sure the directory for the file exists if not so
+            print(f"Writing {key}")
+            Path(key).parents[0].mkdir(parents=True, exist_ok=True)
+            fp = open(key, "wb")
+            fp.write(base64.b64decode(value))
+            fp.close()
+
+        print(f"loading modelllll.")
+        self.model = keras.models.load_model(MODEL_SAVE_LOCATION)
 
     def set_weights(self, weights: Weights):
         """

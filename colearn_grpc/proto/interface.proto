@@ -91,12 +91,24 @@ message ResponseSetCurrentModel {
     string description = 2;
 };
 
+message ResponseTestCurrentModel {
+    float vote_score = 1;
+    float test_score = 2;
+    bool vote = 3;
+};
+
 message RequestSetCurrentModel {
     string dataset_loader_name = 1;
     string dataset_loader_parameters = 2;
     uint32 model_format = 3;
     string model_file = 4;
     bytes model = 5;
+};
+
+message RequestTestCurrentModel {
+    uint32 model_format = 1;
+    string model_file = 2;
+    bytes model = 3;
 };
 
 message ResponseSupportedSystem {
@@ -110,6 +122,7 @@ service GRPCLearner {
     rpc QuerySupportedSystem(google.protobuf.Empty) returns (ResponseSupportedSystem);
     rpc GetCurrentModel(google.protobuf.Empty) returns (ResponseGetCurrentModel);
     rpc SetCurrentModel(RequestSetCurrentModel) returns (ResponseSetCurrentModel);
+    rpc TestCurrentModel(RequestTestCurrentModel) returns (ResponseTestCurrentModel);
     rpc MLSetup(RequestMLSetup) returns (ResponseMLSetup);
     rpc ProposeWeights(google.protobuf.Empty) returns (stream WeightsPart);
     rpc TestWeights(stream WeightsPart) returns (ProposedWeights);

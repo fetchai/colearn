@@ -69,43 +69,6 @@ _time_set = Summary("contract_learner_grpc_server_set_time",
 _time_get = Summary("contract_learner_grpc_server_get_time",
                     "This metric measures the time it takes to get the current weights")
 
-
-# Temporarily put this class here - this is the class that
-# is used as the generic model loader
-class GenericMLIOnnx(MachineLearningInterface):
-    """
-    Generic implementation of machine learning interface - requires an onnx
-    model on construction
-    """
-
-    # Initialize it with a valid onnx model
-    def __init__(self, onnx_model: bytes):
-        self.model = deser_model(onnx_model)
-        self.tf_rep = prepare(onnx_model)  # prepare tf representation
-
-    def mli_propose_weights(self) -> Weights:
-        return Weights()
-
-    def mli_test_weights(self, weights: Weights) -> ProposedWeights:
-        return ProposedWeights()
-
-    def mli_accept_weights(self, weights: Weights):
-        return
-
-    def mli_get_current_weights(self) -> Weights:
-        return Weights()
-
-    def mli_get_current_model(self) -> ColearnModel:
-        """
-        :return: The current model and its format
-        """
-
-        return ColearnModel(
-            model_format=ModelFormat(ModelFormat.ONNX),
-            model_file="",
-            model=convert_model_to_onnx(self.model),
-        )
-
 class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     """
         This class implements the GRPC interface methods. This class lives on the machine learning
@@ -305,7 +268,9 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             current_model = self.learner.mli_get_current_model()
             response.model_format = current_model.model_format.value
             response.model_file = current_model.model_file
+            print(f"return???")
             response.model = current_model.model
+            print(f"return???xx")
             #response.model = "XXYYZZPLZ"
 
             #print(f"Checking that model can be un-serialized... {type(current_model.model)}")
@@ -328,9 +293,8 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def SetCurrentModel(self, request, context):
         response = ipb2.ResponseSetCurrentModel()
 
-        print(f"WE ARE HERE1...")
+        print(f"WE ARE HERE1, setting current model(!!)...")
         print(f"The hashof XXX is {sha256(request.model).hexdigest()}")
-
         print(f"The length the serialized model is {len(request.model)}")
         print(f"first 10 is {request.model[0:10]}")
         print(f"last 10 is {request.model[-10:len(request.model)-1]}")
@@ -341,10 +305,14 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         self._learner_mutex.acquire()
 
         try:
-            _logger.info(f"Got SetCurrentModel request: {request}")
+            #_logger.info(f"Got SetCurrentModel request: {request}")
 
             #tf_rep = prepare(onnx_model)  # prepare tf representation
-            self.learner = GenericMLIOnnx(response.model)
+            #self.learner = GenericMLIOnnx(response.model)
+
+            print(f"here we are setting...")
+
+            self.learner.mli_set_current_model(ColearnModel(model=request.model, model_file="", model_format=ModelFormat.NATIVE))
 
         finally:
             self._learner_mutex.release()

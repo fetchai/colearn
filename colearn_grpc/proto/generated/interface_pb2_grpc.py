@@ -35,6 +35,11 @@ class GRPCLearnerStub(object):
                 request_serializer=interface__pb2.RequestSetCurrentModel.SerializeToString,
                 response_deserializer=interface__pb2.ResponseSetCurrentModel.FromString,
                 )
+        self.TestCurrentModel = channel.unary_unary(
+                '/contract_learn.grpc.GRPCLearner/TestCurrentModel',
+                request_serializer=interface__pb2.RequestTestCurrentModel.SerializeToString,
+                response_deserializer=interface__pb2.ResponseTestCurrentModel.FromString,
+                )
         self.MLSetup = channel.unary_unary(
                 '/contract_learn.grpc.GRPCLearner/MLSetup',
                 request_serializer=interface__pb2.RequestMLSetup.SerializeToString,
@@ -89,6 +94,12 @@ class GRPCLearnerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SetCurrentModel(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def TestCurrentModel(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -152,6 +163,11 @@ def add_GRPCLearnerServicer_to_server(servicer, server):
                     servicer.SetCurrentModel,
                     request_deserializer=interface__pb2.RequestSetCurrentModel.FromString,
                     response_serializer=interface__pb2.ResponseSetCurrentModel.SerializeToString,
+            ),
+            'TestCurrentModel': grpc.unary_unary_rpc_method_handler(
+                    servicer.TestCurrentModel,
+                    request_deserializer=interface__pb2.RequestTestCurrentModel.FromString,
+                    response_serializer=interface__pb2.ResponseTestCurrentModel.SerializeToString,
             ),
             'MLSetup': grpc.unary_unary_rpc_method_handler(
                     servicer.MLSetup,
@@ -258,6 +274,23 @@ class GRPCLearner(object):
         return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/SetCurrentModel',
             interface__pb2.RequestSetCurrentModel.SerializeToString,
             interface__pb2.ResponseSetCurrentModel.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def TestCurrentModel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/TestCurrentModel',
+            interface__pb2.RequestTestCurrentModel.SerializeToString,
+            interface__pb2.ResponseTestCurrentModel.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
