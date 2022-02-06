@@ -168,8 +168,7 @@ class KerasLearner(MachineLearningInterface):
         print(f"Saving model.")
         self.model.save(MODEL_SAVE_LOCATION)
 
-        for filename in glob.iglob('/home/geeks/Desktop/gfg/**/*.txt',
-                           recursive = True):
+        for filename in glob.iglob(MODEL_SAVE_LOCATION, recursive = True):
             print(filename)
 
         return ColearnModel(
