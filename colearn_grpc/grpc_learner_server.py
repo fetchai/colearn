@@ -308,13 +308,13 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             response.model = current_model.model
             #response.model = "XXYYZZPLZ"
 
-            print(f"Checking that model can be un-serialized... {type(current_model.model)}")
-            print(f"Checking that model can be un-serialized... {type(current_model.model.SerializeToString())}")
-            print(f"The hashof the result is {sha256(current_model.model.SerializeToString()).hexdigest()}")
-            print(f"The hashof the serialized model is {sha256(response.model).hexdigest()}")
-            print(f"The length the serialized model is {len(response.model)}")
-            print(f"first 10 is {response.model[0:10]}")
-            print(f"last 10 is {response.model[-10:len(response.model)-1]}")
+            #print(f"Checking that model can be un-serialized... {type(current_model.model)}")
+            #print(f"Checking that model can be un-serialized... {type(current_model.model.SerializeToString())}")
+            #print(f"The hashof the result is {sha256(current_model.model.SerializeToString()).hexdigest()}")
+            #print(f"The hashof the serialized model is {sha256(response.model).hexdigest()}")
+            #print(f"The length the serialized model is {len(response.model)}")
+            #print(f"first 10 is {response.model[0:10]}")
+            #print(f"last 10 is {response.model[-10:len(response.model)-1]}")
 
             #xx = onnx.load_from_string(response.model)
             #print(f"wheeeeii")

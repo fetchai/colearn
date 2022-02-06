@@ -167,6 +167,7 @@ class KerasLearner(MachineLearningInterface):
         # Save the model
         print(f"Saving model.")
         self.model.save(MODEL_SAVE_LOCATION)
+        print(f"Saved model.")
 
         for filename in glob.iglob(MODEL_SAVE_LOCATION, recursive = True):
             print(filename)

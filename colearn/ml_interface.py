@@ -27,7 +27,7 @@ import torch
 from pydantic import BaseModel
 from tensorflow import keras
 
-MODEL_SAVE_LOCATION = "./saved_model"
+MODEL_SAVE_LOCATION = "./saved_model_colearn"
 
 model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
 model_classes_scipy = (torch.nn.Module)
