@@ -169,8 +169,14 @@ class KerasLearner(MachineLearningInterface):
         self.model.save(MODEL_SAVE_LOCATION)
         print(f"Saved model.")
 
-        for filename in glob.iglob(MODEL_SAVE_LOCATION, recursive = True):
+        files = {}
+
+        for filename in glob.iglob(MODEL_SAVE_LOCATION+"/**/*", recursive = True):
             print(filename)
+            files[filename] = open(filename, "rb").read()
+
+        print(f"xxxyy")
+        print(f"{files}")
 
         return ColearnModel(
             model_format=ModelFormat(ModelFormat.NATIVE),
