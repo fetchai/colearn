@@ -265,7 +265,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         print(f"gettung current model... :(")
 
         if self.learner is not None:
-            current_model = self.learner.mli_get_current_model()
+            current_model = self.learner.mli_get_model()
             response.model_format = current_model.model_format.value
             response.model_file = current_model.model_file
             print(f"return???")
@@ -312,7 +312,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
 
             print(f"here we are setting...")
 
-            self.learner.mli_set_current_model(ColearnModel(model=request.model, model_file="", model_format=ModelFormat.NATIVE))
+            self.learner.mli_set_model(ColearnModel(model=request.model, model_file="", model_format=ModelFormat.NATIVE))
 
         finally:
             self._learner_mutex.release()
@@ -342,7 +342,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
 
             print(f"here we are setting...")
 
-            resp = self.learner.mli_test_current_model(ColearnModel(model=request.model,
+            resp = self.learner.mli_test_model(ColearnModel(model=request.model,
                                                                  model_file="",
                                                                  model_format=ModelFormat.NATIVE))
 

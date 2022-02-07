@@ -97,7 +97,7 @@ class IrisLearner(MachineLearningInterface):
     def mli_get_current_weights(self):
         return Weights(weights=pickle.dumps(self.model))
 
-    def mli_get_current_model(self) -> ColearnModel:
+    def mli_get_model(self) -> ColearnModel:
         """
         :return: The current model and its format
         """

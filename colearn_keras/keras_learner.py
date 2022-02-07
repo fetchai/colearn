@@ -163,7 +163,7 @@ class KerasLearner(MachineLearningInterface):
         """
         return Weights(weights=self.model.get_weights())
 
-    def mli_get_current_model(self) -> ColearnModel:
+    def mli_get_model(self) -> ColearnModel:
         """
         :return: The current model and its format
         """
@@ -197,7 +197,7 @@ class KerasLearner(MachineLearningInterface):
             model=bytes(as_string, encoding='utf8'),
         )
 
-    def mli_set_current_model(self, model: ColearnModel):
+    def mli_set_model(self, model: ColearnModel):
 
         print("setting current model(!!!)")
 
@@ -252,7 +252,7 @@ class KerasLearner(MachineLearningInterface):
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]
 
-    def mli_test_current_model(self, model: ColearnModel) -> TestResponse:
+    def mli_test_model(self, model: ColearnModel) -> TestResponse:
 
         print("TESTING current model(!!!)")
 
@@ -299,3 +299,17 @@ class KerasLearner(MachineLearningInterface):
         return TestResponse(vote_score=vote_score,
                                test_score=test_score,
                                vote=vote, )
+
+    def mli_propose_model(self) -> ColearnModel:
+        """
+        Trains model on training set and returns new model after training
+        - Current model is reverted to original state after training
+        :return: Model after training
+        """
+        # todo: this is kinda useful, keeping the current weights fn.
+        current_weights = self.mli_get_current_weights()
+        self.train()
+        new_model = self.mli_get_model()
+        self.set_weights(current_weights)
+        # new_weights.training_summary = ...
+        return new_model

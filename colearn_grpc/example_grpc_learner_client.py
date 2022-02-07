@@ -206,7 +206,7 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
             _logger.exception(f"Failed to get_current_weights: {ex}")
             raise Exception(f"Failed to get_current_weights: {ex}")
 
-    def mli_get_current_model(self) -> ColearnModel:
+    def mli_get_model(self) -> ColearnModel:
         request = empty_pb2.Empty()
         response = self.stub.GetCurrentModel(request)
 

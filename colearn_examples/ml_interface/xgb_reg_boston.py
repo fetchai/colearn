@@ -98,7 +98,7 @@ class XGBoostLearner(MachineLearningInterface):
         model_path = weights.weights
         self.model.load_model(model_path)
 
-    def mli_get_current_model(self) -> ColearnModel:
+    def mli_get_model(self) -> ColearnModel:
         """
         :return: The current model and its format
         """

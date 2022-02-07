@@ -105,7 +105,7 @@ class FraudLearner(MachineLearningInterface):
         self.set_weights(weights)
         self.vote_score = self.test(self.vote_data, self.vote_labels)
 
-    def mli_get_current_model(self) -> ColearnModel:
+    def mli_get_model(self) -> ColearnModel:
         """
         :return: The current model and its format
         """

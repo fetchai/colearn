@@ -133,7 +133,7 @@ class FraudLearner(MachineLearningInterface):
         return Weights(weights=dict(coef_=self.model.coef_,
                                     intercept_=self.model.intercept_))
 
-    def mli_get_current_model(self) -> ColearnModel:
+    def mli_get_model(self) -> ColearnModel:
         """
         :return: The current model and its format
         """

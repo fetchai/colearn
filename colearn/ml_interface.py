@@ -94,9 +94,9 @@ class ModelFormat(Enum):
 
 class ColearnModel(BaseModel):
     model_format: ModelFormat
+    # If the model resides in a file (use when model is empty)
     model_file: Optional[str]
     model: Optional[Any]
-    #model_serial: Optional[bytes]
 
 
 def deser_model(model: Any) -> onnx.ModelProto:
@@ -136,22 +136,29 @@ class MachineLearningInterface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def mli_get_current_model(self) -> ColearnModel:
+    def mli_get_model(self) -> ColearnModel:
         """
         Returns the current model
         """
         pass
 
     @abc.abstractmethod
-    def mli_set_current_model(self, model: ColearnModel):
+    def mli_set_model(self, model: ColearnModel):
         """
         Sets the current model
         """
         pass
 
     @abc.abstractmethod
-    def mli_test_current_model(self, model: ColearnModel) -> TestResponse:
+    def mli_test_model(self, model: ColearnModel) -> TestResponse:
         """
         Tests the current model
+        """
+        pass
+
+    @abc.abstractmethod
+    def mli_propose_model(self) -> ColearnModel:
+        """
+        Trains the model. Returns the model. Does not change the current weights of the model.
         """
         pass
