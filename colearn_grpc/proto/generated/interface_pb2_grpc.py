@@ -25,21 +25,6 @@ class GRPCLearnerStub(object):
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=interface__pb2.ResponseSupportedSystem.FromString,
                 )
-        self.GetCurrentModel = channel.unary_unary(
-                '/contract_learn.grpc.GRPCLearner/GetCurrentModel',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=interface__pb2.ResponseGetCurrentModel.FromString,
-                )
-        self.SetCurrentModel = channel.unary_unary(
-                '/contract_learn.grpc.GRPCLearner/SetCurrentModel',
-                request_serializer=interface__pb2.RequestSetCurrentModel.SerializeToString,
-                response_deserializer=interface__pb2.ResponseSetCurrentModel.FromString,
-                )
-        self.TestCurrentModel = channel.unary_unary(
-                '/contract_learn.grpc.GRPCLearner/TestCurrentModel',
-                request_serializer=interface__pb2.RequestTestCurrentModel.SerializeToString,
-                response_deserializer=interface__pb2.ResponseTestCurrentModel.FromString,
-                )
         self.MLSetup = channel.unary_unary(
                 '/contract_learn.grpc.GRPCLearner/MLSetup',
                 request_serializer=interface__pb2.RequestMLSetup.SerializeToString,
@@ -70,6 +55,26 @@ class GRPCLearnerStub(object):
                 request_serializer=interface__pb2.RequestStatus.SerializeToString,
                 response_deserializer=interface__pb2.ResponseStatus.FromString,
                 )
+        self.GetModel = channel.unary_unary(
+                '/contract_learn.grpc.GRPCLearner/GetModel',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=interface__pb2.ResponseGetModel.FromString,
+                )
+        self.SetModel = channel.unary_unary(
+                '/contract_learn.grpc.GRPCLearner/SetModel',
+                request_serializer=interface__pb2.RequestSetModel.SerializeToString,
+                response_deserializer=interface__pb2.ResponseSetModel.FromString,
+                )
+        self.TestModel = channel.unary_unary(
+                '/contract_learn.grpc.GRPCLearner/TestModel',
+                request_serializer=interface__pb2.RequestTestModel.SerializeToString,
+                response_deserializer=interface__pb2.ResponseTestModel.FromString,
+                )
+        self.ProposeModel = channel.unary_unary(
+                '/contract_learn.grpc.GRPCLearner/ProposeModel',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=interface__pb2.ResponseProposeModel.FromString,
+                )
 
 
 class GRPCLearnerServicer(object):
@@ -82,24 +87,6 @@ class GRPCLearnerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def QuerySupportedSystem(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetCurrentModel(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def SetCurrentModel(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def TestCurrentModel(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -141,6 +128,30 @@ class GRPCLearnerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetModel(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetModel(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def TestModel(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ProposeModel(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_GRPCLearnerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -153,21 +164,6 @@ def add_GRPCLearnerServicer_to_server(servicer, server):
                     servicer.QuerySupportedSystem,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=interface__pb2.ResponseSupportedSystem.SerializeToString,
-            ),
-            'GetCurrentModel': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetCurrentModel,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=interface__pb2.ResponseGetCurrentModel.SerializeToString,
-            ),
-            'SetCurrentModel': grpc.unary_unary_rpc_method_handler(
-                    servicer.SetCurrentModel,
-                    request_deserializer=interface__pb2.RequestSetCurrentModel.FromString,
-                    response_serializer=interface__pb2.ResponseSetCurrentModel.SerializeToString,
-            ),
-            'TestCurrentModel': grpc.unary_unary_rpc_method_handler(
-                    servicer.TestCurrentModel,
-                    request_deserializer=interface__pb2.RequestTestCurrentModel.FromString,
-                    response_serializer=interface__pb2.ResponseTestCurrentModel.SerializeToString,
             ),
             'MLSetup': grpc.unary_unary_rpc_method_handler(
                     servicer.MLSetup,
@@ -198,6 +194,26 @@ def add_GRPCLearnerServicer_to_server(servicer, server):
                     servicer.StatusStream,
                     request_deserializer=interface__pb2.RequestStatus.FromString,
                     response_serializer=interface__pb2.ResponseStatus.SerializeToString,
+            ),
+            'GetModel': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetModel,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=interface__pb2.ResponseGetModel.SerializeToString,
+            ),
+            'SetModel': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetModel,
+                    request_deserializer=interface__pb2.RequestSetModel.FromString,
+                    response_serializer=interface__pb2.ResponseSetModel.SerializeToString,
+            ),
+            'TestModel': grpc.unary_unary_rpc_method_handler(
+                    servicer.TestModel,
+                    request_deserializer=interface__pb2.RequestTestModel.FromString,
+                    response_serializer=interface__pb2.ResponseTestModel.SerializeToString,
+            ),
+            'ProposeModel': grpc.unary_unary_rpc_method_handler(
+                    servicer.ProposeModel,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=interface__pb2.ResponseProposeModel.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -240,57 +256,6 @@ class GRPCLearner(object):
         return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/QuerySupportedSystem',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             interface__pb2.ResponseSupportedSystem.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetCurrentModel(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/GetCurrentModel',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            interface__pb2.ResponseGetCurrentModel.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def SetCurrentModel(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/SetCurrentModel',
-            interface__pb2.RequestSetCurrentModel.SerializeToString,
-            interface__pb2.ResponseSetCurrentModel.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def TestCurrentModel(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/TestCurrentModel',
-            interface__pb2.RequestTestCurrentModel.SerializeToString,
-            interface__pb2.ResponseTestCurrentModel.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -393,5 +358,73 @@ class GRPCLearner(object):
         return grpc.experimental.stream_stream(request_iterator, target, '/contract_learn.grpc.GRPCLearner/StatusStream',
             interface__pb2.RequestStatus.SerializeToString,
             interface__pb2.ResponseStatus.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetModel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/GetModel',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            interface__pb2.ResponseGetModel.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SetModel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/SetModel',
+            interface__pb2.RequestSetModel.SerializeToString,
+            interface__pb2.ResponseSetModel.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def TestModel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/TestModel',
+            interface__pb2.RequestTestModel.SerializeToString,
+            interface__pb2.ResponseTestModel.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ProposeModel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/ProposeModel',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            interface__pb2.ResponseProposeModel.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

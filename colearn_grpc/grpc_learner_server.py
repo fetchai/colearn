@@ -259,8 +259,8 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             yield r
 
     @_time_test.time()
-    def GetCurrentModel(self, request, context):
-        response = ipb2.ResponseGetCurrentModel()
+    def GetModel(self, request, context):
+        response = ipb2.ResponseGetModel()
 
         print(f"gettung current model... :(")
 
@@ -290,8 +290,8 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         return response
 
     @_time_test.time()
-    def SetCurrentModel(self, request, context):
-        response = ipb2.ResponseSetCurrentModel()
+    def SetModel(self, request, context):
+        response = ipb2.ResponseSetModel()
 
         print(f"WE ARE HERE1, setting current model(!!)...")
         print(f"The hashof XXX is {sha256(request.model).hexdigest()}")
@@ -305,7 +305,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         self._learner_mutex.acquire()
 
         try:
-            #_logger.info(f"Got SetCurrentModel request: {request}")
+            #_logger.info(f"Got SeturrentModel request: {request}")
 
             #tf_rep = prepare(onnx_model)  # prepare tf representation
             #self.learner = GenericMLIOnnx(response.model)
@@ -320,8 +320,8 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         return response
 
     @_time_test.time()
-    def TestCurrentModel(self, request, context):
-        response = ipb2.ResponseTestCurrentModel()
+    def TestModel(self, request, context):
+        response = ipb2.ResponseTestModel()
 
         print(f"WE ARE HERE1, TEST current model(!!)...")
         print(f"The hashof XXX is {sha256(request.model).hexdigest()}")

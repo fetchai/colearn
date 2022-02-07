@@ -208,6 +208,6 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
 
     def mli_get_model(self) -> ColearnModel:
         request = empty_pb2.Empty()
-        response = self.stub.GetCurrentModel(request)
+        response = self.stub.GetModel(request)
 
         return ColearnModel(model_format=response.model_format, model_file=response.model_file, model=response.model)
