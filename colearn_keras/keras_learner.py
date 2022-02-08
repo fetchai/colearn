@@ -211,7 +211,7 @@ class KerasLearner(MachineLearningInterface):
 
         dict_deser = json.loads(model.model)
 
-        print(dict_deser)
+        #print(dict_deser)
 
         for key, value in dict_deser.items():
             # Make sure the directory for the file exists if not so
@@ -282,7 +282,7 @@ class KerasLearner(MachineLearningInterface):
 
         dict_deser = json.loads(model.model)
 
-        print(dict_deser)
+        #print(dict_deser)
 
         for key, value in dict_deser.items():
             # Make sure the directory for the file exists if not so
