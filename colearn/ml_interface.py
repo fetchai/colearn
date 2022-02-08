@@ -91,6 +91,24 @@ class ModelFormat(IntEnum):
     NATIVE = 2
     ONNX = 3
 
+# Convenience function for ColearnModel
+def get_model_bytes(model: ColearnModel):
+
+    file_bytes = model.model
+
+    if file_bytes is None:
+        if model.model_file is not None:
+            try:
+                file_bytes = open(model.model_file, 'rb').read()
+            except FileNotFoundError as e:
+                _logger.error(f"Found error when trying to load model file {model.model_file}: {e}")
+                return None
+        else:
+            _logger.error(f"No model or model filename supplied by colearn model when testing!")
+            return None
+
+    return file_bytes
+
 
 class ColearnModel(BaseModel):
     model_format: ModelFormat
