@@ -91,7 +91,14 @@ class ModelFormat(IntEnum):
     NATIVE = 2
     ONNX = 3
 
-# Convenience function for ColearnModel
+class ColearnModel(BaseModel):
+    model_format: ModelFormat
+    # If the model resides in a file (use when model is empty)
+    model_file: Optional[str]
+    model: Optional[Any]
+
+
+# Convenience function for ColearnModel - bytes are either in a file or in the class
 def get_model_bytes(model: ColearnModel):
 
     file_bytes = model.model
@@ -108,13 +115,6 @@ def get_model_bytes(model: ColearnModel):
             return None
 
     return file_bytes
-
-
-class ColearnModel(BaseModel):
-    model_format: ModelFormat
-    # If the model resides in a file (use when model is empty)
-    model_file: Optional[str]
-    model: Optional[Any]
 
 
 def deser_model(model: Any) -> onnx.ModelProto:
