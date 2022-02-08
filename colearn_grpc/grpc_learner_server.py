@@ -348,6 +348,8 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
 
             (response.vote_score, response.test_score, response.vote) = (resp.vote_score, resp.test_score, resp.vote)
 
+            print(f"here we are responding..... {response}")
+
         finally:
             self._learner_mutex.release()
 
