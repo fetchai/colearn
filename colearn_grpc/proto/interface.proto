@@ -101,6 +101,9 @@ message ResponseProposeModel {
     uint32 model_format = 1;
     string model_file = 2;
     bytes model = 3;
+    float vote_score = 4;
+    float test_score = 5;
+    bool vote = 6;
 };
 
 message RequestSetModel {

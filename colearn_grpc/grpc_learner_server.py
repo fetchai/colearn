@@ -352,3 +352,43 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             self._learner_mutex.release()
 
         return response
+
+    @_time_test.time()
+    def ProposeModel(self, request, context):
+
+        print(f"WE ARE PoRORORPOSE")
+        response = ipb2.ResponseProposeModel()
+
+        _count_propose.inc()
+
+        if not self._check_model(context):
+            return
+
+        self._learner_mutex.acquire()
+        try:
+            with _time_propose.time():
+                _logger.debug("Start training...")
+                current_model, model_performance = self.learner.mli_propose_model()
+                _logger.debug("Training done!")
+
+            #weights_part_iterator = weights_to_iterator(weights)
+            #for wp in weights_part_iterator:
+            #    yield wp
+
+            response.model_format = current_model.model_format.value
+            response.model_file = current_model.model_file
+            response.model = current_model.model
+
+            response.vote_score = model_performance.vote_score
+            response.test_score = model_performance.test_score
+            response.vote = model_performance.vote
+
+            return response
+
+        except Exception as ex:  # pylint: disable=W0703
+            _logger.exception(f"Exception in ProposeWeights: {ex} {type(ex)}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(ex))
+            _count_propose_err.inc()
+        finally:
+            self._learner_mutex.release()

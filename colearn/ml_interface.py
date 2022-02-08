@@ -17,7 +17,7 @@
 # ------------------------------------------------------------------------------
 import abc
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 import onnx
 import onnxmltools
@@ -157,8 +157,8 @@ class MachineLearningInterface(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def mli_propose_model(self) -> ColearnModel:
+    def mli_propose_model(self) -> Tuple[ColearnModel, TestResponse]:
         """
-        Trains the model. Returns the model. Does not change the current weights of the model.
+        Trains the model. Returns the model, and its performance. Does not change the current weights of the model.
         """
         pass

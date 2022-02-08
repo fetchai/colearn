@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 from inspect import signature
-from typing import Optional
+from typing import Optional, Tuple
 import glob
 from pathlib import Path
 import shutil
@@ -252,6 +252,19 @@ class KerasLearner(MachineLearningInterface):
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]
 
+    def _test_model_performance(self) -> TestResponse:
+        vote_score = self.test(self.vote_loader)
+
+        if self.test_loader:
+            test_score = self.test(self.test_loader)
+        else:
+            test_score = 0
+        vote = self.vote(vote_score)
+
+        return TestResponse(vote_score=vote_score,
+                            test_score=test_score,
+                            vote=vote)
+
     def mli_test_model(self, model: ColearnModel) -> TestResponse:
 
         print("TESTING current model(!!!)")
@@ -285,22 +298,14 @@ class KerasLearner(MachineLearningInterface):
         #current_weights = self.mli_get_current_weights()
         #self.set_weights(weights)
 
-        vote_score = self.test(self.vote_loader)
-
-        if self.test_loader:
-            test_score = self.test(self.test_loader)
-        else:
-            test_score = 0
-        vote = self.vote(vote_score)
+        ret = _test_model_performance()
 
         # Return to original state
         model = keras.models.load_model(MODEL_BACKUP_LOCATION)
 
-        return TestResponse(vote_score=vote_score,
-                               test_score=test_score,
-                               vote=vote, )
+        return ret
 
-    def mli_propose_model(self) -> ColearnModel:
+    def mli_propose_model(self) -> Tuple[ColearnModel, TestResponse]:
         """
         Trains model on training set and returns new model after training
         - Current model is reverted to original state after training
@@ -308,8 +313,16 @@ class KerasLearner(MachineLearningInterface):
         """
         # todo: this is kinda useful, keeping the current weights fn.
         current_weights = self.mli_get_current_weights()
+
+        # Train model
         self.train()
+
+        # Determine performance
+        perf = _test_model_performance()
+
         new_model = self.mli_get_model()
+
+        # Set state back to initial state
         self.set_weights(current_weights)
-        # new_weights.training_summary = ...
-        return new_model
+
+        return new_model, perf
