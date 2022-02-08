@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import abc
-from enum import Enum
+from enum import IntEnum
 from typing import Any, Optional, Tuple
 
 import onnx
@@ -86,7 +86,7 @@ class TestResponse(BaseModel):
     vote: Optional[bool]
 
 
-class ModelFormat(Enum):
+class ModelFormat(IntEnum):
     PICKLE_WEIGHTS_ONLY = 1
     NATIVE = 2
     ONNX = 3
