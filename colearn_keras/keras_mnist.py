@@ -119,7 +119,7 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
 
 @FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
-                    steps_per_epoch: int = 100,
+                    steps_per_epoch: int = 10,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
                     ) -> KerasLearner:
