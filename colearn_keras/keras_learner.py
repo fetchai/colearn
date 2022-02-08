@@ -298,7 +298,7 @@ class KerasLearner(MachineLearningInterface):
         #current_weights = self.mli_get_current_weights()
         #self.set_weights(weights)
 
-        ret = _test_model_performance()
+        ret = self._test_model_performance()
 
         # Return to original state
         model = keras.models.load_model(MODEL_BACKUP_LOCATION)
@@ -318,7 +318,7 @@ class KerasLearner(MachineLearningInterface):
         self.train()
 
         # Determine performance
-        perf = _test_model_performance()
+        perf = self._test_model_performance()
 
         new_model = self.mli_get_model()
 
