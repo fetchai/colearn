@@ -16,7 +16,6 @@
 #
 # ------------------------------------------------------------------------------
 import os
-from typing import List
 
 from typing_extensions import TypedDict
 import torch.nn as nn
@@ -90,14 +89,6 @@ learner_test_dataloaders = [torch.utils.data.DataLoader(
     batch_size=batch_size, shuffle=True, drop_last=True, **kwargs) for ds in learner_test_data]
 
 
-def print_results_with_privacy_budget(results: Results, learners: List[PytorchLearner]):
-    if learners[0].get_training_summary() is not None:
-        last_result = results.data[-1]
-        for learner in learners:
-            last_result.privacy_budgets.append(learner.get_training_summary())
-    print_results(results)
-
-
 # define the neural net architecture in Pytorch
 class Net(nn.Module):
     def __init__(self):
@@ -159,7 +150,7 @@ for round_index in range(n_rounds):
         collective_learning_round(all_learner,
                                   vote_threshold, round_index)
     )
-    print_results_with_privacy_budget(results, all_learner)
+    print_results(results)
 
     plot.plot_results_and_votes(results)
 

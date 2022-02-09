@@ -51,6 +51,11 @@ def collective_learning_round(learners: Sequence[MachineLearningInterface], vote
     result.vote_scores = [pw.vote_score for pw in
                           proposed_weights_list]
     result.test_scores = [pw.test_score for pw in proposed_weights_list]
+    result.training_summaries = [
+        l.mli_get_current_weights().training_summary
+        for l in learners
+        if l.mli_get_current_weights().training_summary is not None
+    ]
     result.block_proposer = round_index % len(learners)
 
     return result

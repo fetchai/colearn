@@ -108,14 +108,12 @@ class PytorchLearner(MachineLearningInterface):
                 self.model,
                 self.optimizer,
                 self.train_loader,
-            ) = self.dp_privacy_engine.make_private_with_epsilon(
+            ) = self.dp_privacy_engine.make_private(
                 module=self.model,
                 optimizer=self.optimizer,
                 data_loader=self.train_loader,
-                epochs=self.num_train_batches,
-                target_epsilon=diff_priv_config.target_epsilon,
-                target_delta=diff_priv_config.target_delta,
                 max_grad_norm=diff_priv_config.max_grad_norm,
+                noise_multiplier=diff_priv_config.noise_multiplier,
             )
 
         self.vote_score = self.test(self.vote_loader)
@@ -195,6 +193,14 @@ class PytorchLearner(MachineLearningInterface):
         """
 
         current_weights = self.mli_get_current_weights()
+        training_summary = current_weights.training_summary
+        if (
+            training_summary is not None
+            and training_summary.error_code is not None
+            and training_summary.error_code == ErrorCodes.DP_BUDGET_EXCEEDED
+        ):
+            return current_weights
+
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)

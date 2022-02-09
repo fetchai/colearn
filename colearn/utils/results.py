@@ -25,7 +25,7 @@ class Result:
         self.votes = []
         self.test_scores = []
         self.vote_scores = []
-        self.privacy_budgets = []
+        self.training_summaries = []
         self.block_proposer = None
 
 
@@ -80,9 +80,9 @@ def print_results(results: Results):
             )
         )
     print("--------------------------------------------------")
-    if len(last_result.privacy_budgets) != 0:
+    if len(last_result.training_summaries) != 0:
         print("learner id\t\ttarget privacy budget\t\tconsumed")
-        for i, summary in enumerate(last_result.privacy_budgets):
+        for i, summary in enumerate(last_result.training_summaries):
             print(
                 f"{i}\t\t\t\t{summary.dp_budget.target_epsilon}"
                 f"\t\t\t\t{summary.dp_budget.consumed_epsilon}"
