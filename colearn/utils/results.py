@@ -25,6 +25,7 @@ class Result:
         self.votes = []
         self.test_scores = []
         self.vote_scores = []
+        self.training_summaries = []
         self.block_proposer = None
 
 
@@ -44,14 +45,22 @@ class Results:
         self.h_vote_scores = []
 
         n_rounds = len(self.data)
-        self.mean_test_scores = [np.mean(np.array(self.data[r].test_scores)) for r in range(n_rounds)]
-        self.mean_vote_scores = [np.mean(np.array(self.data[r].vote_scores)) for r in range(n_rounds)]
+        self.mean_test_scores = [
+            np.mean(np.array(self.data[r].test_scores)) for r in range(n_rounds)
+        ]
+        self.mean_vote_scores = [
+            np.mean(np.array(self.data[r].vote_scores)) for r in range(n_rounds)
+        ]
 
         # gather individual scores
         n_learners = len(self.data[0].vote_scores)
         for i in range(n_learners):
-            self.h_test_scores.append([self.data[r].test_scores[i] for r in range(n_rounds)])
-            self.h_vote_scores.append([self.data[r].vote_scores[i] for r in range(n_rounds)])
+            self.h_test_scores.append(
+                [self.data[r].test_scores[i] for r in range(n_rounds)]
+            )
+            self.h_vote_scores.append(
+                [self.data[r].vote_scores[i] for r in range(n_rounds)]
+            )
 
 
 def print_results(results: Results):
@@ -62,9 +71,20 @@ def print_results(results: Results):
     print("--------------------------------------------------")
     print("learner id\t\tvote\ttest score\t\tvote score")
     for i in range(len(last_result.votes)):
-        print("{id}\t\t\t\t{vote}\t{test_score:.3f}\t\t\t{vote_score:.3f}".format(id=i,
-                                                                                  vote=last_result.votes[i],
-                                                                                  test_score=last_result.test_scores[i],
-                                                                                  vote_score=last_result.vote_scores[
-                                                                                      i]))
+        print(
+            "{id}\t\t\t\t{vote}\t{test_score:.3f}\t\t\t{vote_score:.3f}".format(
+                id=i,
+                vote=last_result.votes[i],
+                test_score=last_result.test_scores[i],
+                vote_score=last_result.vote_scores[i],
+            )
+        )
     print("--------------------------------------------------")
+    if len(last_result.training_summaries) != 0:
+        print("learner id\t\ttarget privacy budget\t\tconsumed")
+        for i, summary in enumerate(last_result.training_summaries):
+            print(
+                f"{i}\t\t\t\t{summary.dp_budget.target_epsilon}"
+                f"\t\t\t\t{summary.dp_budget.consumed_epsilon}"
+            )
+        print("--------------------------------------------------")
