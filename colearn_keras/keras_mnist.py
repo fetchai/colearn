@@ -56,7 +56,7 @@ def prepare_loaders_impl(location: str,
     train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size, dp_enabled=dp_enabled)
     vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
                                batch_size)
-    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
+    test_loader = _make_loader(images[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:], batch_size)
 
     return train_loader, vote_loader, test_loader
 
@@ -219,7 +219,7 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
         model=model,
         train_loader=data_loaders[0],
         vote_loader=data_loaders[1],
-        test_loader=data_loaders[1],
+        test_loader=data_loaders[2],
         criterion="sparse_categorical_accuracy",
         minimise_criterion=False,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
