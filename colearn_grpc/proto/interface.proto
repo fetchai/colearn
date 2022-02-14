@@ -80,7 +80,6 @@ message ResponseVersion {
     string version = 1;
 };
 
-<<<<<<< HEAD
 message ResponseGetModel {
     uint32 model_format = 1;
     string model_file = 2;
@@ -116,9 +115,6 @@ message RequestSetModel {
 };
 
 message RequestTestModel {
-=======
-message ResponseCurrentModel {
->>>>>>> master
     uint32 model_format = 1;
     string model_file = 2;
     bytes model = 3;
@@ -133,7 +129,6 @@ message ResponseSupportedSystem {
 service GRPCLearner {
     rpc QueryVersion(google.protobuf.Empty) returns (ResponseVersion);
     rpc QuerySupportedSystem(google.protobuf.Empty) returns (ResponseSupportedSystem);
-    rpc GetCurrentModel(google.protobuf.Empty) returns (ResponseCurrentModel);
     rpc MLSetup(RequestMLSetup) returns (ResponseMLSetup);
     rpc ProposeWeights(google.protobuf.Empty) returns (stream WeightsPart);
     rpc TestWeights(stream WeightsPart) returns (ProposedWeights);

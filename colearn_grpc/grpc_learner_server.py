@@ -19,13 +19,12 @@ import json
 from threading import Lock
 from typing import Optional
 
-# Delete these two lines(?)
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
 from hashlib import sha256
 
 from google.protobuf import empty_pb2
 import grpc
-from colearn.ml_interface import MachineLearningInterface, deser_model
+from colearn.ml_interface import MachineLearningInterface
 from prometheus_client import Counter, Summary
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
@@ -309,13 +308,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         self._learner_mutex.acquire()
         try:
             with _time_propose.time():
-                _logger.debug("Start training...")
                 current_model, model_performance = self.learner.mli_propose_model()
-                _logger.debug("Training done!")
-
-            #weights_part_iterator = weights_to_iterator(weights)
-            #for wp in weights_part_iterator:
-            #    yield wp
 
             response.model_format = current_model.model_format.value
             response.model_file = current_model.model_file

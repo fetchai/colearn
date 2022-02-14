@@ -23,7 +23,7 @@ from sklearn.metrics import mean_squared_error as mse
 import numpy as np
 import xgboost as xgb
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.data import split_list_into_fractions
 from colearn.utils.plot import ColearnPlot
@@ -104,9 +104,9 @@ class XGBoostLearner(MachineLearningInterface):
         """
 
         return ColearnModel(
-            model_format=ModelFormat(ModelFormat.ONNX),
+            model_format=ModelFormat(ModelFormat.SKLEARN),
             model_file="",
-            model=convert_model_to_onnx(self.model),
+            model=None,
         )
 
     def test(self, data_matrix):

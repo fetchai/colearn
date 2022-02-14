@@ -37,8 +37,6 @@ from colearn.ml_interface import (
     Weights,
     ProposedWeights,
     ColearnModel,
-    convert_model_to_onnx,
-    ColearnModel,
     ModelFormat,
     DiffPrivBudget,
     DiffPrivConfig,
@@ -139,9 +137,9 @@ class PytorchLearner(MachineLearningInterface):
         """
 
         return ColearnModel(
-            model_format=ModelFormat(ModelFormat.ONNX),
+            model_format=ModelFormat(ModelFormat.PYTORCH),
             model_file="",
-            model=convert_model_to_onnx(self.model),
+            model=None,
         )
 
     def set_weights(self, weights: Weights):

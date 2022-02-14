@@ -28,7 +28,7 @@ import sklearn
 import numpy as np
 import pandas as pd
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
 
@@ -139,9 +139,9 @@ class FraudLearner(MachineLearningInterface):
         """
 
         return ColearnModel(
-            model_format=ModelFormat(ModelFormat.ONNX),
+            model_format=ModelFormat(ModelFormat.SKLEARN),
             model_file="",
-            model=convert_model_to_onnx(self.model),
+            model=None,
         )
 
     def set_weights(self, weights: Weights):

@@ -19,8 +19,6 @@ import abc
 from enum import IntEnum
 from typing import Any, Optional, Tuple
 
-import onnx
-import onnxmltools
 import sklearn
 import tensorflow as tf
 import torch
@@ -73,7 +71,10 @@ class TestResponse(BaseModel):
 class ModelFormat(IntEnum):
     PICKLE_WEIGHTS_ONLY = 1
     NATIVE = 2
-    ONNX = 3
+    KERAS = 3
+    SKLEARN = 4
+    TENSORFLOW = 5
+    PYTORCH = 6
 
 class ColearnModel(BaseModel):
     model_format: ModelFormat
@@ -99,31 +100,6 @@ def get_model_bytes(model: ColearnModel):
             return None
 
     return file_bytes
-
-
-def deser_model(model: Any) -> onnx.ModelProto:
-    """
-    Helper function to recover a onnx model from its deserialized form
-    """
-    return onnx.load_model_from_string(model)
-
-
-class ModelFormat(Enum):
-    PICKLE_WEIGHTS_ONLY = 1
-    ONNX = 2
-
-
-class ColearnModel(BaseModel):
-    model_format: ModelFormat
-    model_file: Optional[str]
-    model: Optional[Any]
-
-
-def deser_model(model: Any) -> onnx.ModelProto:
-    """
-    Helper function to recover a onnx model from its deserialized form
-    """
-    return onnx.load_model_from_string(model)
 
 
 class MachineLearningInterface(abc.ABC):
