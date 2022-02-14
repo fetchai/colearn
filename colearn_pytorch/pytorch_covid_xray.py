@@ -126,8 +126,8 @@ def prepare_learner(data_loaders: Tuple[DataLoader, DataLoader, DataLoader],
     return learner
 
 
-def _make_loader(data: np.array,
-                 labels: np.array,
+def _make_loader(data: np.ndarray,
+                 labels: np.ndarray,
                  batch_size: int,
                  **loader_kwargs) -> DataLoader:
     """

@@ -55,7 +55,11 @@ class PlusOneLearner(MachineLearningInterface):
     def mli_get_current_weights(self) -> Weights:
         return Weights(weights=self.current_value)
 
+<<<<<<< HEAD
     def mli_get_model(self) -> ColearnModel:
+=======
+    def mli_get_current_model(self) -> ColearnModel:
+>>>>>>> master
         """
         :return: The current model and its format - not relevant here
         """

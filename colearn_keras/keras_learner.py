@@ -30,7 +30,10 @@ except ImportError:
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx, MODEL_SAVE_LOCATION, MODEL_BACKUP_LOCATION, TestResponse
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, MODEL_SAVE_LOCATION, MODEL_BACKUP_LOCATION, TestResponse
+from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary, ErrorCodes
+from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
+from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_optimizer_class
 
 
 class KerasLearner(MachineLearningInterface):
@@ -46,7 +49,8 @@ class KerasLearner(MachineLearningInterface):
                  minimise_criterion: bool = True,
                  criterion: str = 'loss',
                  model_fit_kwargs: Optional[dict] = None,
-                 model_evaluate_kwargs: Optional[dict] = None):
+                 model_evaluate_kwargs: Optional[dict] = None,
+                 diff_priv_config: Optional[DiffPrivConfig] = None):
         """
         :param model: Keras model used for training
         :param train_loader: Training dataset
@@ -56,6 +60,7 @@ class KerasLearner(MachineLearningInterface):
         :param criterion: Function to measure model performance
         :param model_fit_kwargs: Arguments to be passed on model.fit function call
         :param model_evaluate_kwargs: Arguments to be passed on model.evaluate function call
+        :param diff_priv_config: Contains differential privacy (dp) budget related configuration
         """
         self.model: keras.Model = model
         self.train_loader: tf.data.Dataset = train_loader
@@ -65,6 +70,21 @@ class KerasLearner(MachineLearningInterface):
         self.minimise_criterion: bool = minimise_criterion
         self.criterion = criterion
         self.model_fit_kwargs = model_fit_kwargs or {}
+        self.diff_priv_config = diff_priv_config
+        self.cumulative_epochs = 0
+
+        if self.diff_priv_config is not None:
+            self.diff_priv_budget = DiffPrivBudget(
+                target_epsilon=self.diff_priv_config.target_epsilon,
+                target_delta=self.diff_priv_config.target_delta,
+                consumed_epsilon=0.0,
+                # we will always use the highest available delta now
+                consumed_delta=self.diff_priv_config.target_delta
+            )
+            if 'epochs' in self.model_fit_kwargs.keys():
+                self.epochs_per_proposal = self.model_fit_kwargs['epochs']
+            else:
+                self.epochs_per_proposal = signature(self.model.fit).parameters['epochs'].default
 
         if model_fit_kwargs:
             # check that these are valid kwargs for model fit
@@ -94,8 +114,22 @@ class KerasLearner(MachineLearningInterface):
         compile_args = self.model._get_compile_args()  # pylint: disable=protected-access
         opt_config = self.model.optimizer.get_config()
 
-        compile_args['optimizer'] = getattr(keras.optimizers,
-                                            opt_config['name']).from_config(opt_config)
+        if self.diff_priv_config is not None:
+            # tensorflow_privacy optimizers get_config() miss the additional parameters
+            # was fixed here: https://github.com/tensorflow/privacy/commit/49db04e3561638fc02795edb5774d322cdd1d7d1
+            # but it is not yet in the stable version, thus I need here to do the same.
+            opt_config.update({
+                'l2_norm_clip': self.model.optimizer._l2_norm_clip,  # pylint: disable=protected-access
+                'noise_multiplier': self.model.optimizer._noise_multiplier,  # pylint: disable=protected-access
+                'num_microbatches': self.model.optimizer._num_microbatches,  # pylint: disable=protected-access
+            })
+            new_opt = make_keras_optimizer_class(
+                getattr(keras.optimizers, opt_config['name'])
+            ).from_config(opt_config)
+            compile_args['optimizer'] = new_opt
+        else:
+            compile_args['optimizer'] = getattr(keras.optimizers,
+                                                opt_config['name']).from_config(opt_config)
 
         self.model.compile(**compile_args)
 
@@ -106,10 +140,27 @@ class KerasLearner(MachineLearningInterface):
         :return: Weights after training
         """
         current_weights = self.mli_get_current_weights()
+
+        if self.diff_priv_config is not None:
+            epsilon_after_training = self.get_privacy_budget()
+            if epsilon_after_training > self.diff_priv_budget.target_epsilon:
+                return Weights(
+                    weights=current_weights,
+                    training_summary=TrainingSummary(
+                        dp_budget=self.diff_priv_budget,
+                        error_code=ErrorCodes.DP_BUDGET_EXCEEDED
+                    )
+                )
+
         self.train()
         new_weights = self.mli_get_current_weights()
         self.set_weights(current_weights)
-        # new_weights.training_summary = ...
+
+        if self.diff_priv_config is not None:
+            self.diff_priv_budget.consumed_epsilon = epsilon_after_training
+            self.cumulative_epochs += self.epochs_per_proposal
+            new_weights.training_summary = TrainingSummary(dp_budget=self.diff_priv_budget)
+
         return new_weights
 
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
@@ -157,6 +208,34 @@ class KerasLearner(MachineLearningInterface):
         self.set_weights(weights)
         self.vote_score = self.test(self.vote_loader)
 
+    def get_train_batch_size(self) -> int:
+        """
+        Calculates train batch size.
+        """
+        if hasattr(self.train_loader, '_batch_size'):
+            return self.train_loader._batch_size  # pylint: disable=protected-access
+        else:
+            return self.train_loader._input_dataset._batch_size  # pylint: disable=protected-access
+
+    def get_privacy_budget(self) -> float:
+        """
+        Calculates, what epsilon will apply after another model training.
+        Need to calculate it in advance to see if another training would result in privacy budget violation.
+        """
+        batch_size = self.get_train_batch_size()
+        iterations_per_epoch = tf.data.experimental.cardinality(self.train_loader).numpy()
+        n_samples = batch_size * iterations_per_epoch
+        planned_epochs = self.cumulative_epochs + self.epochs_per_proposal
+
+        epsilon, _ = compute_dp_sgd_privacy(
+            n=n_samples,
+            batch_size=batch_size,
+            noise_multiplier=self.diff_priv_config.noise_multiplier,  # type: ignore
+            epochs=planned_epochs,
+            delta=self.diff_priv_budget.target_delta
+        )
+        return epsilon
+
     def mli_get_current_weights(self) -> Weights:
         """
         :return: The current weights of the model
@@ -174,22 +253,15 @@ class KerasLearner(MachineLearningInterface):
             shutil.rmtree(dirpath)
 
         # Save the model
-        print(f"Saving model.")
         self.model.save(MODEL_SAVE_LOCATION)
-        print(f"Saved model.")
 
         files = {}
 
         for filename in glob.iglob(MODEL_SAVE_LOCATION+"/**/*", recursive = True):
-            print(filename)
             if Path(filename).is_file():
                 files[filename] = base64.b64encode(open(filename, "rb").read()).decode("utf-8")
 
-        print(f"xxxyy")
         as_string = json.dumps(files)
-
-        print(f"as bytes success")
-        #print(f"{files}")
 
         return ColearnModel(
             model_format=ModelFormat(ModelFormat.NATIVE),
@@ -198,8 +270,6 @@ class KerasLearner(MachineLearningInterface):
         )
 
     def mli_set_model(self, model: ColearnModel):
-
-        print("setting current model(!!!)")
 
         # Clear directory
         dirpath = Path(MODEL_SAVE_LOCATION)

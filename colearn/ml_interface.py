@@ -30,27 +30,6 @@ from tensorflow import keras
 MODEL_SAVE_LOCATION = "./saved_model_colearn"
 MODEL_BACKUP_LOCATION = "./backup_model_colearn"
 
-model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
-model_classes_scipy = (torch.nn.Module)
-model_classes_sklearn = (sklearn.base.ClassifierMixin)
-
-
-def convert_model_to_onnx(model: Any):
-    """
-    Helper function to convert a ML model to onnx format
-    """
-    if isinstance(model, model_classes_keras):
-        return onnxmltools.convert_keras(model)
-    if isinstance(model, model_classes_sklearn):
-        return onnxmltools.convert_sklearn(model)
-    if 'xgboost' in model.__repr__():
-        return onnxmltools.convert_sklearn(model)
-    if isinstance(model, model_classes_scipy):
-        raise Exception("Pytorch models not yet supported to onnx")
-    else:
-        raise Exception("Attempt to convert unsupported model to onnx: {model}")
-
-
 class DiffPrivBudget(BaseModel):
     target_epsilon: float
     target_delta: float
@@ -58,8 +37,13 @@ class DiffPrivBudget(BaseModel):
     consumed_delta: float
 
 
+class ErrorCodes(Enum):
+    DP_BUDGET_EXCEEDED = 1
+
+
 class TrainingSummary(BaseModel):
     dp_budget: Optional[DiffPrivBudget]
+    error_code: Optional[ErrorCodes]
 
 
 class Weights(BaseModel):
@@ -115,6 +99,24 @@ def get_model_bytes(model: ColearnModel):
             return None
 
     return file_bytes
+
+
+def deser_model(model: Any) -> onnx.ModelProto:
+    """
+    Helper function to recover a onnx model from its deserialized form
+    """
+    return onnx.load_model_from_string(model)
+
+
+class ModelFormat(Enum):
+    PICKLE_WEIGHTS_ONLY = 1
+    ONNX = 2
+
+
+class ColearnModel(BaseModel):
+    model_format: ModelFormat
+    model_file: Optional[str]
+    model: Optional[Any]
 
 
 def deser_model(model: Any) -> onnx.ModelProto:

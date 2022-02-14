@@ -27,7 +27,9 @@ import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 from tensorflow.python.keras.applications.resnet import ResNet50
 from tensorflow.python.keras.layers import Dropout
+from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
 
+from colearn.ml_interface import DiffPrivConfig
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_keras.keras_learner import KerasLearner
@@ -35,6 +37,28 @@ from colearn_keras.utils import normalize_img
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
+
+
+# prepare dataloader implementation
+def prepare_loaders_impl(location: str,
+                         train_ratio: float = 0.9,
+                         vote_ratio: float = 0.05,
+                         batch_size: int = 32,
+                         dp_enabled: bool = False,
+                         ) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
+    data_folder = get_data(location)
+
+    images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
+    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
+
+    n_cases = int(train_ratio * len(images))
+    n_vote_cases = int(vote_ratio * len(images))
+    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size, dp_enabled=dp_enabled)
+    vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
+                               batch_size)
+    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
+
+    return train_loader, vote_loader, test_loader
 
 
 # The dataloader needs to be registered before the models that reference it
@@ -52,20 +76,25 @@ def prepare_data_loaders(location: str,
     :param batch_size:
     :return: Tuple of train_loader and test_loader
     """
+    return prepare_loaders_impl(location, train_ratio, vote_ratio, batch_size, False)
 
-    data_folder = get_data(location)
 
-    images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
-    labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
+# The dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_dataloader("KERAS_MNIST_WITH_DP")
+def prepare_data_loaders_dp(location: str,
+                            train_ratio: float = 0.9,
+                            vote_ratio: float = 0.05,
+                            batch_size: int = 32,
+                            ) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
+    """
+    Load training data from folders and create train and test dataloader
 
-    n_cases = int(train_ratio * len(images))
-    n_vote_cases = int(vote_ratio * len(images))
-    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size)
-    vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
-                               batch_size)
-    test_loader = _make_loader(images[n_cases:], labels[n_cases:], batch_size)
-
-    return train_loader, vote_loader, test_loader
+    :param location: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param batch_size:
+    :return: Tuple of train_loader and test_loader
+    """
+    return prepare_loaders_impl(location, train_ratio, vote_ratio, batch_size, True)
 
 
 @FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"])
@@ -117,11 +146,13 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
     return learner
 
 
-@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST"])
+@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 10,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
+                    diff_priv_config: Optional[DiffPrivConfig] = None,
+                    num_microbatches: int = 4,
                     ) -> KerasLearner:
     """
     Creates new instance of KerasLearner
@@ -160,13 +191,29 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     )(x)
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
-    opt = optimizer(
-        lr=learning_rate
-    )
-    model.compile(
-        loss=loss,
-        metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
-        optimizer=opt)
+    if diff_priv_config is not None:
+        opt = DPKerasAdamOptimizer(
+            l2_norm_clip=diff_priv_config.max_grad_norm,
+            noise_multiplier=diff_priv_config.noise_multiplier,
+            num_microbatches=num_microbatches,
+            learning_rate=learning_rate)
+
+        model.compile(
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(
+                # need to calculare the loss per sample for the
+                # per sample / per microbatch gradient clipping
+                reduction=tf.losses.Reduction.NONE
+            ),
+            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
+            optimizer=opt)
+    else:
+        opt = optimizer(
+            lr=learning_rate
+        )
+        model.compile(
+            loss=loss,
+            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
+            optimizer=opt)
 
     learner = KerasLearner(
         model=model,
@@ -177,13 +224,15 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
         minimise_criterion=False,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
         model_evaluate_kwargs={"steps": vote_batches},
+        diff_priv_config=diff_priv_config,
     )
     return learner
 
 
-def _make_loader(images: np.array,
-                 labels: np.array,
-                 batch_size: int) -> PrefetchDataset:
+def _make_loader(images: np.ndarray,
+                 labels: np.ndarray,
+                 batch_size: int,
+                 dp_enabled: bool = False) -> PrefetchDataset:
     """
     Converts array of images and labels to Tensorflow dataset
     :param images: Numpy array of input data
@@ -196,7 +245,8 @@ def _make_loader(images: np.array,
 
     dataset = dataset.cache()
     dataset = dataset.shuffle(n_datapoints)
-    dataset = dataset.batch(batch_size)
+    # tf privacy expects fix batch sizes, thus drop_remainder=True
+    dataset = dataset.batch(batch_size, drop_remainder=dp_enabled)
     dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
     return dataset

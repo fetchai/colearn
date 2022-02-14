@@ -20,9 +20,7 @@ from threading import Lock
 from typing import Optional
 
 # Delete these two lines(?)
-import onnx
-from onnx_tf.backend import prepare
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat
 from hashlib import sha256
 
 from google.protobuf import empty_pb2
@@ -119,8 +117,6 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         return response
 
     def MLSetup(self, request, context):
-
-        print(f"GOT ML SETUP!")
 
         response = ipb2.ResponseMLSetup()
         self._learner_mutex.acquire()
@@ -262,30 +258,11 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def GetModel(self, request, context):
         response = ipb2.ResponseGetModel()
 
-        print(f"gettung current model... :(")
-
         if self.learner is not None:
             current_model = self.learner.mli_get_model()
             response.model_format = current_model.model_format.value
             response.model_file = current_model.model_file
-            print(f"return???")
             response.model = current_model.model
-            print(f"return???xx")
-            #response.model = "XXYYZZPLZ"
-
-            #print(f"Checking that model can be un-serialized... {type(current_model.model)}")
-            #print(f"Checking that model can be un-serialized... {type(current_model.model.SerializeToString())}")
-            #print(f"The hashof the result is {sha256(current_model.model.SerializeToString()).hexdigest()}")
-            #print(f"The hashof the serialized model is {sha256(response.model).hexdigest()}")
-            #print(f"The length the serialized model is {len(response.model)}")
-            #print(f"first 10 is {response.model[0:10]}")
-            #print(f"last 10 is {response.model[-10:len(response.model)-1]}")
-
-            #xx = onnx.load_from_string(response.model)
-            #print(f"wheeeeii")
-
-            #yy = onnx.load_from_string(current_model.model.SerializeToString())
-            #print(f"whee {yy}")
 
         return response
 
@@ -293,27 +270,10 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def SetModel(self, request, context):
         response = ipb2.ResponseSetModel()
 
-        print(f"WE ARE HERE1, setting current model(!!)...")
-        print(f"The hashof XXX is {sha256(request.model).hexdigest()}")
-        print(f"The length the serialized model is {len(request.model)}")
-        print(f"first 10 is {request.model[0:10]}")
-        print(f"last 10 is {request.model[-10:len(request.model)-1]}")
-
-        #xxyy = onnx.load_from_string(request.model)
-        #print(f"WE ARE HERE... with success! {xxyy}")
-
         self._learner_mutex.acquire()
 
         try:
-            #_logger.info(f"Got SeturrentModel request: {request}")
-
-            #tf_rep = prepare(onnx_model)  # prepare tf representation
-            #self.learner = GenericMLIOnnx(response.model)
-
-            print(f"here we are setting...")
-
             self.learner.mli_set_model(ColearnModel(model=request.model, model_file="", model_format=ModelFormat.NATIVE))
-
         finally:
             self._learner_mutex.release()
 
@@ -323,32 +283,14 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def TestModel(self, request, context):
         response = ipb2.ResponseTestModel()
 
-        print(f"WE ARE HERE1, TEST current model(!!)...")
-        print(f"The hashof XXX is {sha256(request.model).hexdigest()}")
-        print(f"The length the serialized model is {len(request.model)}")
-        print(f"first 10 is {request.model[0:10]}")
-        print(f"last 10 is {request.model[-10:len(request.model)-1]}")
-
-        #xxyy = onnx.load_from_string(request.model)
-        #print(f"WE ARE HERE... with success! {xxyy}")
-
         self._learner_mutex.acquire()
 
         try:
-            #_logger.info(f"Got SetCurrentModel request: {request}")
-
-            #tf_rep = prepare(onnx_model)  # prepare tf representation
-            #self.learner = GenericMLIOnnx(response.model)
-
-            print(f"here we are setting...")
-
             resp = self.learner.mli_test_model(ColearnModel(model=request.model,
                                                                  model_file="",
                                                                  model_format=ModelFormat.NATIVE))
 
             (response.vote_score, response.test_score, response.vote) = (resp.vote_score, resp.test_score, resp.vote)
-
-            print(f"here we are responding..... {response}")
 
         finally:
             self._learner_mutex.release()
@@ -357,8 +299,6 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
 
     @_time_test.time()
     def ProposeModel(self, request, context):
-
-        print(f"WE ARE PoRORORPOSE")
         response = ipb2.ResponseProposeModel()
 
         _count_propose.inc()
