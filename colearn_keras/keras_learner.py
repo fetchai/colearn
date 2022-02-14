@@ -32,8 +32,8 @@ from tensorflow import keras
 
 from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, MODEL_SAVE_LOCATION, MODEL_BACKUP_LOCATION, TestResponse
 from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary, ErrorCodes
-from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
-from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_optimizer_class
+#from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
+#from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_optimizer_class
 
 
 class KerasLearner(MachineLearningInterface):
@@ -123,10 +123,10 @@ class KerasLearner(MachineLearningInterface):
                 'noise_multiplier': self.model.optimizer._noise_multiplier,  # pylint: disable=protected-access
                 'num_microbatches': self.model.optimizer._num_microbatches,  # pylint: disable=protected-access
             })
-            new_opt = make_keras_optimizer_class(
-                getattr(keras.optimizers, opt_config['name'])
-            ).from_config(opt_config)
-            compile_args['optimizer'] = new_opt
+            #new_opt = make_keras_optimizer_class(
+            #    getattr(keras.optimizers, opt_config['name'])
+            #).from_config(opt_config)
+            compile_args['optimizer'] = "none"
         else:
             compile_args['optimizer'] = getattr(keras.optimizers,
                                                 opt_config['name']).from_config(opt_config)
@@ -227,14 +227,14 @@ class KerasLearner(MachineLearningInterface):
         n_samples = batch_size * iterations_per_epoch
         planned_epochs = self.cumulative_epochs + self.epochs_per_proposal
 
-        epsilon, _ = compute_dp_sgd_privacy(
-            n=n_samples,
-            batch_size=batch_size,
-            noise_multiplier=self.diff_priv_config.noise_multiplier,  # type: ignore
-            epochs=planned_epochs,
-            delta=self.diff_priv_budget.target_delta
-        )
-        return epsilon
+        #epsilon, _ = compute_dp_sgd_privacy(
+        #    n=n_samples,
+        #    batch_size=batch_size,
+        #    noise_multiplier=self.diff_priv_config.noise_multiplier,  # type: ignore
+        #    epochs=planned_epochs,
+        #    delta=self.diff_priv_budget.target_delta
+        #)
+        return 0.0
 
     def mli_get_current_weights(self) -> Weights:
         """
