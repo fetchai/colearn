@@ -27,7 +27,7 @@ import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 from tensorflow.python.keras.applications.resnet import ResNet50
 from tensorflow.python.keras.layers import Dropout
-from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
+#from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
 
 from colearn.ml_interface import DiffPrivConfig
 from colearn.utils.data import get_data, split_list_into_fractions
@@ -192,11 +192,12 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
     if diff_priv_config is not None:
-        opt = DPKerasAdamOptimizer(
-            l2_norm_clip=diff_priv_config.max_grad_norm,
-            noise_multiplier=diff_priv_config.noise_multiplier,
-            num_microbatches=num_microbatches,
-            learning_rate=learning_rate)
+        #opt = DPKerasAdamOptimizer(
+        #    l2_norm_clip=diff_priv_config.max_grad_norm,
+        #    noise_multiplier=diff_priv_config.noise_multiplier,
+        #    num_microbatches=num_microbatches,
+        #    learning_rate=learning_rate)
+        opt = None
 
         model.compile(
             loss=tf.keras.losses.SparseCategoricalCrossentropy(
