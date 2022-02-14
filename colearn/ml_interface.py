@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import abc
-from enum import IntEnum
+from enum import IntEnum, Enum
 from typing import Any, Optional, Tuple
 
 import sklearn
