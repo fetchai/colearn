@@ -23,7 +23,7 @@ keras_deps = [
     'tensorflow-privacy>=0.5,<0.8',
 ]
 other_deps = [
-    'pandas~=1.1.0',
+    'pandas>=1.1,<1.5',
     'scikit-learn>=0.23,<1.1',
 ]
 pytorch_deps = [
@@ -44,8 +44,8 @@ docs_deps = [
 ]
 
 grpc_deps = ['grpcio>=1.35,<1.43',
-             'grpcio-tools>=1.35,<1.44',
-             'prometheus_client==0.12.0',
+             'grpcio-tools>=1.35,<1.45',
+             'prometheus_client==0.13.1',
              'click'
              ]
 all_deps = list(set(keras_deps + other_deps + pytorch_deps + grpc_deps)) + ["xgboost"]
