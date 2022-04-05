@@ -1,0 +1,1000 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Everything you need to know about Collective Learning.">
+      
+      
+      
+        <link rel="canonical" href="https://docs.fetch.ai/grpc_tutorial/">
+      
+      
+        <meta name="author" content="developer@fetch.ai">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.7">
+    
+    
+      
+        <title>gRPC server - colearn</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.19753c6b.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.196e0c26.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../css/my-styles.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#grpc-tutorial" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://docs.fetch.ai/" title="colearn" class="md-header-nav__button md-logo" aria-label="colearn">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            colearn
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              gRPC server
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/fetchai/colearn/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://docs.fetch.ai/" title="colearn" class="md-nav__button md-logo" aria-label="colearn">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    colearn
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/fetchai/colearn/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Colearn
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../about/" class="md-nav__link">
+      Collective Learning Protocol
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    <label class="md-nav__link" for="nav-3">
+      Getting Started
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Getting Started
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro_tutorial_keras/" class="md-nav__link">
+      Keras
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro_tutorial_pytorch/" class="md-nav__link">
+      PyTorch
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro_tutorial_mli/" class="md-nav__link">
+      The MachineLearningInterface
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../differential_privacy/" class="md-nav__link">
+      Differential Privacy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        gRPC server
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      gRPC server
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-of-colearn" class="md-nav__link">
+    Architecture of colearn
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-of-grpc-server" class="md-nav__link">
+    Architecture of gRPC server
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mli-factory-interface" class="md-nav__link">
+    MLI Factory interface
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-example-mli-factory" class="md-nav__link">
+    Using the example MLI Factory
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#making-it-all-work-together" class="md-nav__link">
+    Making it all work together
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-locally-with-an-all-in-one-script" class="md-nav__link">
+    Testing locally with an all-in-one script
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-remotely" class="md-nav__link">
+    Testing remotely
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-mli-factory-interface" class="md-nav__link">
+    Using the MLI Factory interface
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" >
+    <label class="md-nav__link" for="nav-4">
+      Examples
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Examples" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Examples
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../demo/" class="md-nav__link">
+      Demo
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../examples/" class="md-nav__link">
+      Standalone examples
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../grpc_examples/" class="md-nav__link">
+      gRPC example
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-of-colearn" class="md-nav__link">
+    Architecture of colearn
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-of-grpc-server" class="md-nav__link">
+    Architecture of gRPC server
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mli-factory-interface" class="md-nav__link">
+    MLI Factory interface
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-example-mli-factory" class="md-nav__link">
+    Using the example MLI Factory
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#making-it-all-work-together" class="md-nav__link">
+    Making it all work together
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-locally-with-an-all-in-one-script" class="md-nav__link">
+    Testing locally with an all-in-one script
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-remotely" class="md-nav__link">
+    Testing remotely
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-mli-factory-interface" class="md-nav__link">
+    Using the MLI Factory interface
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/fetchai/colearn/edit/master/docs/grpc_tutorial.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="grpc-tutorial">gRPC tutorial<a class="headerlink" href="#grpc-tutorial" title="Permanent link">&para;</a></h1>
+<p>This tutorial explains how to set up the gRPC learner server.
+It assumes that you can already run colearn locally, and that you have already defined your own models and dataloaders 
+(if you're going to do so).
+If you haven't done this then see the tutorials in the <a href="../intro_tutorial_mli/">Getting Started</a> section.</p>
+<h2 id="architecture-of-colearn">Architecture of colearn<a class="headerlink" href="#architecture-of-colearn" title="Permanent link">&para;</a></h2>
+<p>There are two main parts to a collective learning system: the learner and the backend.
+The backend controls the learner, and manages the smart contracts and IPFS, and acts as a control hub for 
+all the associated learners.
+The learner is the part that executes machine learning code. 
+This consists of proposing, evaluating and accepting new weights as detailed in the Machine Learning Interface.
+The learner and the backend communicate via <a href="https://grpc.io">gRPC</a>; 
+the learner runs a gRPC server, and the backend runs a gRPC client that makes requests of the learner.
+This separation means that the learner can run on specialised hardware (e.g. a compute server) and does not need to 
+be co-located with the backend.</p>
+<h2 id="architecture-of-grpc-server">Architecture of gRPC server<a class="headerlink" href="#architecture-of-grpc-server" title="Permanent link">&para;</a></h2>
+<p>The gRPC interface is defined in 
+<a href="https://github.com/fetchai/colearn/tree/master//colearn_grpc/proto/interface.proto">colearn_grpc/proto/interface.proto</a>.
+This defines the functions that the gRPC server exposes and the format for messages between the server and the client.</p>
+<p>As we covered in the earlier tutorials, the machine learning part of colearn is contained inside the
+<code>MachineLearningInterface</code> (MLI).
+To recap: the MLI provides methods for proposing, evaluating and accepting weights.
+If you want to use your own models with colearn then you need to write an object that implements the MLI 
+(for example, an instance of a python class that inherits from <code>MachineLearningInterface</code>).
+For more about the MLI see the <a href="../intro_tutorial_mli/">MLI tutorial</a>.</p>
+<p>The gRPC server has an MLI factory, and it uses its MLI factory to make objects that implement 
+the <code>MachineLearningInterface</code>.
+The MLI factory needs to implement the MLI factory interface.
+You could write your own MLI factory, but it's easier to use the one we provide.
+Below we will discuss the MLI factory interface and then talk about how to use the example factory.</p>
+<h2 id="mli-factory-interface">MLI Factory interface<a class="headerlink" href="#mli-factory-interface" title="Permanent link">&para;</a></h2>
+<p>The MLI Factory (as the name suggests) is a factory class for creating objects that implement the machine learning 
+interface:
+<div class="highlight"><pre><span></span><code><span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1">#</span>
+<span class="c1">#   Copyright 2021 Fetch.AI Limited</span>
+<span class="c1">#</span>
+<span class="c1">#   Licensed under the Creative Commons Attribution-NonCommercial International</span>
+<span class="c1">#   License, Version 4.0 (the &quot;License&quot;); you may not use this file except in</span>
+<span class="c1">#   compliance with the License. You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#       http://creativecommons.org/licenses/by-nc/4.0/legalcode</span>
+<span class="c1">#</span>
+<span class="c1">#   Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#   See the License for the specific language governing permissions and</span>
+<span class="c1">#   limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">get_distribution</span><span class="p">,</span> <span class="n">DistributionNotFound</span>
+
+<span class="kn">from</span> <span class="nn">colearn.ml_interface</span> <span class="kn">import</span> <span class="n">MachineLearningInterface</span>
+
+
+<span class="k">class</span> <span class="nc">MliFactory</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interface a class must implement to be used as a factory by the GRPC Server</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_version</span> <span class="o">=</span> <span class="s2">&quot;0.0.0&quot;</span>
+
+    <span class="c1"># https://stackoverflow.com/questions/17583443</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_dist</span> <span class="o">=</span> <span class="n">get_distribution</span><span class="p">(</span><span class="s1">&#39;colearn&#39;</span><span class="p">)</span>
+        <span class="c1"># Normalize case for Windows systems</span>
+        <span class="n">dist_loc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="n">_dist</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+        <span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">here</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dist_loc</span><span class="p">,</span> <span class="s1">&#39;colearn&#39;</span><span class="p">)):</span>
+            <span class="c1"># not installed, but there is another version that *is*</span>
+            <span class="k">raise</span> <span class="n">DistributionNotFound</span>
+    <span class="k">except</span> <span class="n">DistributionNotFound</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_version</span> <span class="o">=</span> <span class="n">_dist</span><span class="o">.</span><span class="n">version</span>
+
+    <span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the version of this library....</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the models this factory produces.</span>
+<span class="sd">        The key is the name of the model and the values are their default parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_dataloaders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the dataloaders this factory produces.</span>
+<span class="sd">        The key is the name of the dataloader and the values are their default parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_compatibilities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A model is compatible with a dataloader if they can be used together to</span>
+<span class="sd">        construct a MachineLearningInterface with the get_MLI function.</span>
+
+<span class="sd">        Returns a dictionary that defines which model is compatible</span>
+<span class="sd">        with which dataloader.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_mli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_params</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">dataloader_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset_params</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MachineLearningInterface</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @param model_name: name of a model, must be in the set return by get_models</span>
+<span class="sd">        @param model_params: user defined parameters for the model</span>
+<span class="sd">        @param dataloader_name: name of a dataloader to be used:</span>
+<span class="sd">            - must be in the set returned by get_dataloaders</span>
+<span class="sd">            - must be compatible with model_name as defined by get_compatibilities</span>
+<span class="sd">        @param dataset_params: user defined parameters for the dataset</span>
+<span class="sd">        @return: Instance of MachineLearningInterface</span>
+<span class="sd">        Constructs an object that implements MachineLearningInterface whose</span>
+<span class="sd">        underlying model is model_name and dataset is loaded by dataloader_name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span> 
+</code></pre></div>
+The MLI Factory stores the constructors for dataloaders and models and also a list of the dataloaders that 
+are compatible with each model.
+Each constructor is stored under a specific name.
+For example, "KERAS_MNIST_MODEL" is the model for keras mnist.
+The gRPC server uses the MLI factory to construct MLI objects.
+The MLI Factory needs to implement four methods:</p>
+<ul>
+<li>get_models - returns the names of the models that are registered with the factory and their parameters.</li>
+<li>get_dataloaders - returns the names of the dataloaders that are registered with the factory and their parameters.</li>
+<li>get_compatibilities - returns a list of dataloaders for each model that can be used with that model.</li>
+<li>get_mli - takes the name and parameters for the model and dataloader and constructs the MLI object. 
+  Returns the MLI object.</li>
+</ul>
+<h2 id="using-the-example-mli-factory">Using the example MLI Factory<a class="headerlink" href="#using-the-example-mli-factory" title="Permanent link">&para;</a></h2>
+<p>The example MLI factory is defined in 
+<a href="https://github.com/fetchai/colearn/tree/master//colearn_grpc/example_mli_factory.py">colearn_grpc/example_mli_factory.py</a>.
+It stores the models and dataloaders that it knows about in factoryRegistry.py
+To add a new model and dataloader to the factory you need to do the following things:</p>
+<ol>
+<li>Define a function that loads the dataset given the location of the dataset.</li>
+<li>Define a function that takes in the dataset and loads the MLI model. </li>
+<li>Register both these functions with the factory registry. </li>
+</ol>
+<p>Registering a dataloader looks like this:
+<div class="highlight"><pre><span></span><code><span class="nd">@FactoryRegistry</span><span class="o">.</span><span class="n">register_dataloader</span><span class="p">(</span><span class="n">dataloader_tag</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">prepare_data_loaders</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                         <span class="n">train_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+                         <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PrefetchDataset</span><span class="p">,</span> <span class="n">PrefetchDataset</span><span class="p">]:</span>
+</code></pre></div>
+Registering a model is similar, but you additionally have to specify the dataloaders that this model is compatible with.
+<div class="highlight"><pre><span></span><code><span class="nd">@FactoryRegistry</span><span class="o">.</span><span class="n">register_model_architecture</span><span class="p">(</span><span class="n">model_tag</span><span class="p">,</span> <span class="p">[</span><span class="n">dataloader_tag</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">prepare_learner</span><span class="p">(</span><span class="n">data_loaders</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PrefetchDataset</span><span class="p">,</span> <span class="n">PrefetchDataset</span><span class="p">],</span>
+                    <span class="n">steps_per_epoch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+                    <span class="n">vote_batches</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                    <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span>
+                    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KerasLearner</span><span class="p">:</span>
+</code></pre></div></p>
+<p>You can see an example of how to do this in <a href="https://github.com/fetchai/colearn/tree/master//colearn_examples/grpc/mnist_grpc.py">colearn_examples/grpc/mnist_grpc.py</a>.
+The FactoryRegistry decorators get evaluated when the functions are imported, so ensure that the functions are imported 
+before constructing the gRPC server (more on that later). </p>
+<p>Constraints on the dataloader function:</p>
+<ol>
+<li>The first parameter should be a mandatory parameter called "location" which stores the location of the dataset.</li>
+<li>The subsequent parameters should have default arguments.</li>
+<li>The return type should be specified with a type annotation, and this should be the same type that is expected by the 
+   model functions that use this dataloader.</li>
+<li>The arguments that you pass to the dataloader function must be 
+   <a href="https://docs.python.org/3.7/library/json.html">JSON-encodable</a>. 
+   Native python types are fine (e.g. str, dict, list, float). </li>
+</ol>
+<p>Constraints on the model function:</p>
+<ol>
+<li>The first parameter should be a mandatory parameter called "data_loaders". 
+   This must have the same type as the return type of the compatible dataloaders.</li>
+<li>The subsequent parameters should have default arguments.</li>
+<li>The return type of model_function should be <code>MachineLearningInterface</code> or a subclass of it (e.g. <code>KerasLearner</code>).</li>
+<li>The dataloaders listed as being compatible with the model should already be registered with FactoryRegistry before
+   the model is registered. </li>
+<li>The arguments that you pass to the model function must be 
+   <a href="https://docs.python.org/3.7/library/json.html">JSON-encodable</a>.
+   Native python types are fine (e.g. str, dict, list, float). </li>
+</ol>
+<h2 id="making-it-all-work-together">Making it all work together<a class="headerlink" href="#making-it-all-work-together" title="Permanent link">&para;</a></h2>
+<p>It can be challenging to ensure that all the parts talk to each other, so we have provided some examples and 
+helper scripts.
+It is recommended to first make an all-in-one script following the example of 
+<a href="https://github.com/fetchai/colearn/tree/master//colearn_examples/grpc/mnist_grpc.py">colearn_examples/grpc/mnist_grpc.py</a>.
+Once this is working you can run <a href="https://github.com/fetchai/colearn/tree/master//colearn_grpc/scripts/run_n_servers.py">colearn_grpc/scripts/run_n_servers.py</a> or 
+<a href="https://github.com/fetchai/colearn/tree/master//colearn_grpc/scripts/run_server.py">colearn_grpc/scripts/run_grpc_server.py</a> to run the server(s).
+The script <a href="https://github.com/fetchai/colearn/tree/master//colearn_grpc/scripts/probe_grpc_server.py">colearn_grpc/scripts/probe_grpc_server.py</a> will connect to a 
+gRPC server and print the dataloaders and models that are registered on it (pass in the address as a parameter).
+The client side of the gRPC communication can then be run using 
+<a href="https://github.com/fetchai/colearn/tree/master//colearn_examples/grpc/run_grpc_demo.py">colearn_examples/grpc/run_grpc_demo.py</a>.
+More details are given below.</p>
+<p>A note about running tensorflow in multiple processes: on a system with a GPU, tensorflow will try to get all the GPU
+memory when it starts up. 
+This means that running tensorflow in multiple processes on the same machine will fail.
+To prevent this happening, tensorflow should be told to use only the CPU by setting the environment variable
+<code>CUDA_VISIBLE_DEVIES</code> to <code>-1</code>.
+This can be done in a python script (before importing tensorflow) by using:
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;-1&quot;</span>
+</code></pre></div></p>
+<h2 id="testing-locally-with-an-all-in-one-script">Testing locally with an all-in-one script<a class="headerlink" href="#testing-locally-with-an-all-in-one-script" title="Permanent link">&para;</a></h2>
+<p>You can test this locally by following the example in 
+<a href="https://github.com/fetchai/colearn/tree/master//colearn_examples/grpc/mnist_grpc.py">colearn_examples/grpc/mnist_grpc.py</a>.
+Define your dataloader and model functions as specified above, and register them with the factory.
+Then create n_learners gRPC servers:
+<div class="highlight"><pre><span></span><code><span class="n">n_learners</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">first_server_port</span> <span class="o">=</span> <span class="mi">9995</span>
+<span class="c1"># make n servers</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_learners</span><span class="p">):</span>
+    <span class="n">port</span> <span class="o">=</span> <span class="n">first_server_port</span> <span class="o">+</span> <span class="n">i</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">GRPCServer</span><span class="p">(</span><span class="n">mli_factory</span><span class="o">=</span><span class="n">ExampleMliFactory</span><span class="p">(),</span>
+                        <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">server_process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+    <span class="n">server_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre></div></p>
+<p>And then create n_learners gRPC clients:</p>
+<div class="highlight"><pre><span></span><code><span class="n">all_learner_models</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_learners</span><span class="p">):</span>
+   <span class="n">port</span> <span class="o">=</span> <span class="n">first_server_port</span> <span class="o">+</span> <span class="n">i</span>
+   <span class="n">ml_system</span> <span class="o">=</span> <span class="n">ExampleGRPCLearnerClient</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;client </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;127.0.0.1:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+   <span class="n">ml_system</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+   <span class="n">dataloader_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">data_folders</span><span class="p">[</span><span class="n">i</span><span class="p">]}</span>
+   <span class="n">ml_system</span><span class="o">.</span><span class="n">setup_ml</span><span class="p">(</span><span class="n">dataset_loader_name</span><span class="o">=</span><span class="n">dataloader_tag</span><span class="p">,</span>
+                      <span class="n">dataset_loader_parameters</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dataloader_params</span><span class="p">),</span>
+                      <span class="n">model_arch_name</span><span class="o">=</span><span class="n">model_tag</span><span class="p">,</span>
+                      <span class="n">model_parameters</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({}))</span>
+   <span class="n">all_learner_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ml_system</span><span class="p">)</span>
+</code></pre></div>
+<p><code>ExampleGRPCLearnerClient</code> inherits from the <code>MachineLearningInterface</code> so you can use it with the training functions 
+as before:
+<div class="highlight"><pre><span></span><code><span class="k">for</span> <span class="n">round_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_rounds</span><span class="p">):</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">collective_learning_round</span><span class="p">(</span><span class="n">all_learner_models</span><span class="p">,</span>
+                                  <span class="n">vote_threshold</span><span class="p">,</span> <span class="n">round_index</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div></p>
+<h2 id="testing-remotely">Testing remotely<a class="headerlink" href="#testing-remotely" title="Permanent link">&para;</a></h2>
+<p>We expect that the gRPC learner part will often be on a compute cluster and be separate from the gRPC client side.
+To test the gRPC in a setup like this you can start the servers on the computer side and the client part separately.
+For one gRPC server:
+<div class="highlight"><pre><span></span><code>python3 ./colearn_grpc/scripts/run_grpc_server.py --port <span class="m">9995</span> --metrics_port <span class="m">9091</span>
+</code></pre></div></p>
+<p>For multiple gRPC servers:
+<div class="highlight"><pre><span></span><code>python3 ./colearn_grpc/scrips/run_n_grpc_servers.py --n_learners <span class="m">5</span> --port <span class="m">9995</span> --metrics_port <span class="m">9091</span>
+</code></pre></div>
+The servers by default will start on port 9995 and use subsequent ports from there, so if three
+servers are required they will run on ports 9995, 9996 and 9997.</p>
+<p>If you have written your own dataloaders and models then you need to make sure that those functions are defined or 
+imported before the server is created.
+These are the imports of the default dataloaders and models in <code>colearn_grpc/scripts/run_grpc_server.py</code>:
+<div class="highlight"><pre><span></span><code><span class="c1"># These are imported so that they are registered in the FactoryRegistry</span>
+<span class="kn">import</span> <span class="nn">colearn_keras.keras_mnist</span>
+<span class="kn">import</span> <span class="nn">colearn_keras.keras_cifar10</span>
+<span class="kn">import</span> <span class="nn">colearn_pytorch.pytorch_xray</span>
+<span class="kn">import</span> <span class="nn">colearn_pytorch.pytorch_covid_xray</span>
+<span class="kn">import</span> <span class="nn">colearn_other.fraud_dataset</span>
+</code></pre></div></p>
+<p>Once the gRPC server(s) are running, set up whatever networking and port forwarding is required.
+You can check that the gRPC server is accessible by using the probe script:
+<div class="highlight"><pre><span></span><code>python3 ./colearn_grpc/scripts/probe_grpc_server.py --port <span class="m">9995</span>
+</code></pre></div>
+If the connection is successful this will print a list of the models and datasets registered on the server.
+These are the defaults that are registered:
+<div class="highlight"><pre><span></span><code>info: Attempt number 0 to connect to 127.0.0.1:9995
+info: Successfully connected to 127.0.0.1:9995!
+{&#39;compatibilities&#39;: {&#39;FRAUD&#39;: [&#39;FRAUD&#39;],
+                     &#39;KERAS_CIFAR10&#39;: [&#39;KERAS_CIFAR10&#39;],
+                     &#39;KERAS_MNIST&#39;: [&#39;KERAS_MNIST&#39;],
+                     &#39;KERAS_MNIST_RESNET&#39;: [&#39;KERAS_MNIST&#39;],
+                     &#39;PYTORCH_COVID_XRAY&#39;: [&#39;PYTORCH_COVID_XRAY&#39;],
+                     &#39;PYTORCH_XRAY&#39;: [&#39;PYTORCH_XRAY&#39;]},
+ &#39;data_loaders&#39;: {&#39;FRAUD&#39;: &#39;{&quot;train_ratio&quot;: 0.8}&#39;,
+                  &#39;KERAS_CIFAR10&#39;: &#39;{&quot;train_ratio&quot;: 0.9, &quot;batch_size&quot;: 32}&#39;,
+                  &#39;KERAS_MNIST&#39;: &#39;{&quot;train_ratio&quot;: 0.9, &quot;batch_size&quot;: 32}&#39;,
+                  &#39;PYTORCH_COVID_XRAY&#39;: &#39;{&quot;train_ratio&quot;: 0.8, &quot;batch_size&quot;: 8, &#39;
+                                        &#39;&quot;no_cuda&quot;: false}&#39;,
+                  &#39;PYTORCH_XRAY&#39;: &#39;{&quot;test_location&quot;: null, &quot;train_ratio&quot;: 0.96, &#39;
+                                  &#39;&quot;batch_size&quot;: 8, &quot;no_cuda&quot;: false}&#39;},
+ &#39;model_architectures&#39;: {&#39;FRAUD&#39;: &#39;{}&#39;,
+                         &#39;KERAS_CIFAR10&#39;: &#39;{&quot;steps_per_epoch&quot;: 100, &#39;
+                                          &#39;&quot;vote_batches&quot;: 10, &#39;
+                                          &#39;&quot;learning_rate&quot;: 0.001}&#39;,
+                         &#39;KERAS_MNIST&#39;: &#39;{&quot;steps_per_epoch&quot;: 100, &#39;
+                                        &#39;&quot;vote_batches&quot;: 10, &quot;learning_rate&quot;: &#39;
+                                        &#39;0.001}&#39;,
+                         &#39;KERAS_MNIST_RESNET&#39;: &#39;{&quot;steps_per_epoch&quot;: 100, &#39;
+                                               &#39;&quot;vote_batches&quot;: 10, &#39;
+                                               &#39;&quot;learning_rate&quot;: 0.001}&#39;,
+                         &#39;PYTORCH_COVID_XRAY&#39;: &#39;{&quot;learning_rate&quot;: 0.001, &#39;
+                                               &#39;&quot;steps_per_epoch&quot;: 40, &#39;
+                                               &#39;&quot;vote_batches&quot;: 10, &quot;no_cuda&quot;: &#39;
+                                               &#39;false, &quot;vote_on_accuracy&quot;: &#39;
+                                               &#39;true}&#39;,
+                         &#39;PYTORCH_XRAY&#39;: &#39;{&quot;learning_rate&quot;: 0.001, &#39;
+                                         &#39;&quot;steps_per_epoch&quot;: 40, &#39;
+                                         &#39;&quot;vote_batches&quot;: 10, &quot;no_cuda&quot;: &#39;
+                                         &#39;false, &quot;vote_on_accuracy&quot;: true}&#39;}}
+</code></pre></div></p>
+<p>Then run <code>python -m colearn_examples.grpc.run_grpc_demo</code> on the other side to run the usual demo.
+The script takes as arguments the model name and dataset name that should be run, along with the number of learners
+and the data location for each learner.
+<div class="highlight"><pre><span></span><code>python -m colearn_examples.grpc.run_grpc_demo --n_learners <span class="m">5</span> --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST <span class="se">\</span>
+--data_locations /tmp/mnist/0,/tmp/mnist/1,/tmp/mnist/2,/tmp/mnist/3,/tmp/mnist/4
+</code></pre></div></p>
+<h2 id="using-the-mli-factory-interface">Using the MLI Factory interface<a class="headerlink" href="#using-the-mli-factory-interface" title="Permanent link">&para;</a></h2>
+<p>An alternative method of using your own dataloaders and models with the gRPC server is to use the MLI Factory interface.
+This is defined in <code>colearn_grpc/mli_factory_interface.py</code>.
+An example is given in <code>colearn_examples/grpc/mlifactory_grpc_mnist.py</code>.
+The MLI Factory is implemented as shown:
+<div class="highlight"><pre><span></span><code><span class="n">dataloader_tag</span> <span class="o">=</span> <span class="s2">&quot;KERAS_MNIST_EXAMPLE_DATALOADER&quot;</span>
+<span class="n">model_tag</span> <span class="o">=</span> <span class="s2">&quot;KERAS_MNIST_EXAMPLE_MODEL&quot;</span>
+
+<span class="k">class</span> <span class="nc">SimpleFactory</span><span class="p">(</span><span class="n">MliFactory</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_dataloaders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">dataloader_tag</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">train_ratio</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                                     <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)}</span>
+
+    <span class="k">def</span> <span class="nf">get_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">model_tag</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">steps_per_epoch</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                                <span class="n">vote_batches</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                                <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)}</span>
+
+    <span class="k">def</span> <span class="nf">get_compatibilities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">model_tag</span><span class="p">:</span> <span class="p">{</span><span class="n">dataloader_tag</span><span class="p">}}</span>
+
+    <span class="k">def</span> <span class="nf">get_mli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_params</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataloader_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">dataset_params</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MachineLearningInterface</span><span class="p">:</span>
+        <span class="n">dataloader_params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">dataset_params</span><span class="p">)</span>
+        <span class="n">data_loaders</span> <span class="o">=</span> <span class="n">prepare_data_loaders</span><span class="p">(</span><span class="o">**</span><span class="n">dataloader_params</span><span class="p">)</span>
+
+        <span class="n">model_params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">model_params</span><span class="p">)</span>
+        <span class="n">mli_model</span> <span class="o">=</span> <span class="n">prepare_learner</span><span class="p">(</span><span class="n">data_loaders</span><span class="o">=</span><span class="n">data_loaders</span><span class="p">,</span> <span class="o">**</span><span class="n">model_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mli_model</span>
+</code></pre></div></p>
+<p>An instance of the <code>SimpleFactory</code> class needs to be passed to the gRPC server on creation:
+<div class="highlight"><pre><span></span><code><span class="n">n_learners</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">first_server_port</span> <span class="o">=</span> <span class="mi">9995</span>
+<span class="c1"># make n servers</span>
+<span class="n">server_processes</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_learners</span><span class="p">):</span>
+    <span class="n">port</span> <span class="o">=</span> <span class="n">first_server_port</span> <span class="o">+</span> <span class="n">i</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">GRPCServer</span><span class="p">(</span><span class="n">mli_factory</span><span class="o">=</span><span class="n">SimpleFactory</span><span class="p">(),</span>
+                        <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">server_process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;starting server&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">server_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">server_processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">server_process</span><span class="p">)</span>
+</code></pre></div>
+The rest of the example follows the <code>grpc_mnist.py</code> example.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../differential_privacy/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Differential Privacy
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../demo/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Demo
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.0ac82a11.min.js"></script>
+      <script src="../assets/javascripts/bundle.f81dfb4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1053 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Everything you need to know about Collective Learning.">
+      
+      
+      
+        <link rel="canonical" href="https://docs.fetch.ai/tasks/">
+      
+      
+        <meta name="author" content="developer@fetch.ai">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.7">
+    
+    
+      
+        <title>1. CIFAR10 dataset - colearn</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.19753c6b.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.196e0c26.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../css/my-styles.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#1-cifar10-dataset" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://docs.fetch.ai/" title="colearn" class="md-header-nav__button md-logo" aria-label="colearn">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            colearn
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              1. CIFAR10 dataset
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/fetchai/colearn/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://docs.fetch.ai/" title="colearn" class="md-nav__button md-logo" aria-label="colearn">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    colearn
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/fetchai/colearn/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Colearn
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../about/" class="md-nav__link">
+      Collective Learning Protocol
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" >
+    <label class="md-nav__link" for="nav-3">
+      Getting Started
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Getting Started
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro_tutorial_keras/" class="md-nav__link">
+      Keras
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro_tutorial_pytorch/" class="md-nav__link">
+      PyTorch
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro_tutorial_mli/" class="md-nav__link">
+      The MachineLearningInterface
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../differential_privacy/" class="md-nav__link">
+      Differential Privacy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../grpc_tutorial/" class="md-nav__link">
+      gRPC server
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" >
+    <label class="md-nav__link" for="nav-4">
+      Examples
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Examples" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Examples
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../demo/" class="md-nav__link">
+      Demo
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../examples/" class="md-nav__link">
+      Standalone examples
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../grpc_examples/" class="md-nav__link">
+      gRPC example
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#11-information-and-installation" class="md-nav__link">
+    1.1. Information and installation
+  </a>
+  
+    <nav class="md-nav" aria-label="1.1. Information and installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-information-about-the-dataset" class="md-nav__link">
+    1.1.1. Information about the dataset
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-requirements" class="md-nav__link">
+    1.1.2. Requirements
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-models" class="md-nav__link">
+    1.2. Models
+  </a>
+  
+    <nav class="md-nav" aria-label="1.2. Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-cifar10conv-keras-model" class="md-nav__link">
+    1.2.1. CIFAR10Conv Keras model
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-cifar10conv2-keras-model" class="md-nav__link">
+    1.2.2. CIFAR10Conv2 Keras model
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-cifar10resnet50-keras-model" class="md-nav__link">
+    1.2.3. CIFAR10Resnet50 Keras model
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/fetchai/colearn/edit/master/docs/tasks.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="1-cifar10-dataset">1. CIFAR10 dataset<a class="headerlink" href="#1-cifar10-dataset" title="Permanent link">&para;</a></h1>
+<h2 id="11-information-and-installation">1.1. Information and installation<a class="headerlink" href="#11-information-and-installation" title="Permanent link">&para;</a></h2>
+<h3 id="111-information-about-the-dataset">1.1.1. Information about the dataset<a class="headerlink" href="#111-information-about-the-dataset" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The CIFAR-10 dataset consists of 60000 32x32x3 colour images in 10 classes, with 6000 images per class. </li>
+<li>The 10 different classes represent airplanes, cars, birds, cats, deer, dogs, frogs, horses, ships, and trucks</li>
+<li>Input for NN are raw 32x32 3 channels GRB images</li>
+<li>
+<p>NN output is distribution of probabilities for each class i.e. 10 values that sums up to 1</p>
+</li>
+<li>
+<p>Code folder: <a href="https://github.com/fetchai/colearn/tree/master//colearn_examples/cifar10">here</a></p>
+</li>
+<li>Invoke parameter: -t CIFAR10</li>
+</ul>
+<h3 id="112-requirements">1.1.2. Requirements<a class="headerlink" href="#112-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Cifar dataset is loaded from tensorflow.keras.datasets.cifar10 and no stored data are required</li>
+</ul>
+<h2 id="12-models">1.2. Models<a class="headerlink" href="#12-models" title="Permanent link">&para;</a></h2>
+<h3 id="121-cifar10conv-keras-model">1.2.1. CIFAR10Conv Keras model<a class="headerlink" href="#121-cifar10conv-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________________
+Layer (type)                    Output Shape        Param #   
+=================================================================
+Input (InputLayer)              (32, 32, 3)         0             
+_________________________________________________________________
+Conv1_1 (Conv2D)                (32, 32, 64)        1792          
+bn1_1 (BatchNormalization)      (32, 32, 64)        256           
+Conv1_2 (Conv2D)                (32, 32, 64)        36928         
+bn1_2 (BatchNormalization)      (32, 32, 64)        256           
+pool1 (MaxPooling2D)            (16, 16, 64)        0             
+_________________________________________________________________
+Conv2_1 (Conv2D)                (16, 16, 128        73856         
+bn2_1 (BatchNormalization)      (16, 16, 128        512           
+Conv2_2 (Conv2D)                (16, 16, 128        147584    
+bn2_2 (BatchNormalization)      (16, 16, 128        512           
+pool2 (MaxPooling2D)            (8, 8, 128)         0             
+_________________________________________________________________
+Conv3_1 (Conv2D)                (8, 8, 256)         295168    
+bn3_1 (BatchNormalization)      (8, 8, 256)         1024          
+Conv3_2 (Conv2D)                (8, 8, 256)         590080    
+bn3_2 (BatchNormalization)      (8, 8, 256)         1024          
+Conv3_3 (Conv2D)                (8, 8, 256)         590080    
+bn3_3 (BatchNormalization)      (8, 8, 256)         1024          
+_________________________________________________________________
+flatten (Flatten)               (16384)             0             
+fc1 (Dense)                     (100)               1638500   
+fc2 (Dense)                     (10)                1010          
+=================================================================
+Total params: 3,379,606
+Trainable params: 3,377,302
+Non-trainable params: 2,304
+_________________________________________________________________
+</code></pre></div>
+<h3 id="122-cifar10conv2-keras-model">1.2.2. CIFAR10Conv2 Keras model<a class="headerlink" href="#122-cifar10conv2-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________
+Layer (type)                Output Shape        Param #   
+=========================================================
+Input (InputLayer)          (32, 32, 3)         0             
+_________________________________________________________
+Conv1_1 (Conv2D)            (32, 32, 32)        896           
+Conv1_2 (Conv2D)            (32, 32, 32)        9248          
+pool1 (MaxPooling2D)        (16, 16, 32)        0             
+_________________________________________________________
+Conv2_1 (Conv2D)            (16, 16, 64)        18496         
+Conv2_2 (Conv2D)            (16, 16, 64)        36928         
+pool2 (MaxPooling2D)        (8, 8, 64)          0             
+_________________________________________________________
+Conv3_1 (Conv2D)            (8, 8, 128)         73856         
+Conv3_2 (Conv2D)            (8, 8, 128)         147584    
+pool3 (MaxPooling2D)        (4, 4, 128)         0             
+_________________________________________________________
+flatten (Flatten)           (2048)              0             
+fc1 (Dense)                 (128)               262272    
+fc2 (Dense)                 (10)                1290          
+=========================================================
+Total params: 550,570
+Trainable params: 550,570
+Non-trainable params: 0
+_________________________________________________________
+</code></pre></div>
+<h3 id="123-cifar10resnet50-keras-model">1.2.3. CIFAR10Resnet50 Keras model<a class="headerlink" href="#123-cifar10resnet50-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>________________________________________________________
+Layer (type)                 Output Shape     Param #   
+========================================================
+Input (InputLayer)           (32, 32, 3)]     0             
+________________________________________________________
+resnet50 (Model)             (1, 1, 2048)     23587712  
+________________________________________________________
+Global_average_pooling2d     (2048)           0             
+flatten (Flatten)            (2048)           0             
+fc1 (Dense)                  (10)             20490         
+========================================================
+Total params: 23,608,202
+Trainable params: 23,555,082
+Non-trainable params: 53,120
+________________________________________________________
+</code></pre></div>
+<h1 id="2-covid-x-ray-dataset">2. Covid X-RAY dataset<a class="headerlink" href="#2-covid-x-ray-dataset" title="Permanent link">&para;</a></h1>
+<h2 id="21-information-and-installation">2.1. Information and installation<a class="headerlink" href="#21-information-and-installation" title="Permanent link">&para;</a></h2>
+<h3 id="211-information-about-the-dataset">2.1.1. Information about the dataset<a class="headerlink" href="#211-information-about-the-dataset" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The Covid X-Ray dataset consists of grayscale images, there are 478 covid images and 203 normal images. </li>
+<li>To increase the number of images normal/pneumonia dataset is added</li>
+<li>Final dataset, which is a combination of two previously mentioned datasets, contains 1434 images, 478 images for each class.</li>
+<li>Images are cropped and resized to 512x512 pixel and spatial domain (Texture, GLDM, GLCM) and frequency domain (FFT and Wavelet) features are used to create 256 dimensional vector representation of each image. PCA is applied after to reduce dimensionality to 64 values which represents the first 64 highest eigenvalues of the covariance matrix. </li>
+<li>Input for NN are 64 values for each image</li>
+<li>NN output is distribution of probabilities for each class i.e. 3 values</li>
+<li>Code folder: <a href="https://github.com/fetchai/colearn/tree/master//colearn_examples/covid_xray">here</a></li>
+<li>Invoke parameter: -t COVID</li>
+</ul>
+<h3 id="212-requirements">2.1.2 Requirements<a class="headerlink" href="#212-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Download Covid dataset: <a href="https://github.com/ieee8023/COVID-chestxray-dataset">here</a></li>
+<li>Download pneumonia dataset: <a href="https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia">here</a></li>
+</ul>
+<h2 id="22-models">2.2. Models<a class="headerlink" href="#22-models" title="Permanent link">&para;</a></h2>
+<h3 id="221-covid-xray-keras-model">2.2.1. Covid XRAY Keras model<a class="headerlink" href="#221-covid-xray-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________
+Layer (type)              Output Shape        Param #   
+=========================================================
+input_1 (InputLayer)      (64)                0             
+_________________________________________________________
+dense (Dense)             (128)               8320          
+dropout (Dropout)         (128)               0             
+_________________________________________________________
+dense_1 (Dense)           (16)                2064          
+dropout_1 (Dropout)       (16)                0             
+_________________________________________________________
+dense_2 (Dense)           (3)                 51            
+=========================================================
+Total params: 10,435
+Trainable params: 10,435
+Non-trainable params: 0
+_________________________________________________________
+</code></pre></div>
+<h1 id="3-fraud-dataset">3. FRAUD dataset<a class="headerlink" href="#3-fraud-dataset" title="Permanent link">&para;</a></h1>
+<h2 id="31-information-and-installation">3.1. Information and installation<a class="headerlink" href="#31-information-and-installation" title="Permanent link">&para;</a></h2>
+<h3 id="311-information-about-the-dataset">3.1.1. Information about the dataset<a class="headerlink" href="#311-information-about-the-dataset" title="Permanent link">&para;</a></h3>
+<ul>
+<li>EEE-CIS Fraud Detection, contains multiple files with credit card transactions</li>
+<li>Raw dataset files are automatically merged and pre-processed and input files for neural network are created</li>
+<li>X.csv with data - has 431 values for each transaction</li>
+<li>
+<p>Y.csv with labels - v has 1 value for each transaction</p>
+<ul>
+<li>0 = not a fraud</li>
+<li>1 = fraud </li>
+</ul>
+</li>
+<li>
+<p>Code folder: <a href="https://github.com/fetchai/colearn/tree/master//colearn_examples/fraud">here</a></p>
+</li>
+<li>Invoke parameter: -t FRAUD</li>
+</ul>
+<h3 id="312-requirements">3.1.2. Requirements<a class="headerlink" href="#312-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Download dataset: <a href="https://www.kaggle.com/c/ieee-fraud-detection">here</a></li>
+</ul>
+<h2 id="32-models">3.2. Models<a class="headerlink" href="#32-models" title="Permanent link">&para;</a></h2>
+<h3 id="321-frauddense1-keras-model">3.2.1. FraudDense1 Keras model<a class="headerlink" href="#321-frauddense1-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________
+Layer (type)             Output Shape          Param #   
+=========================================================
+Input (InputLayer)       (431)                 0             
+_________________________________________________________
+dense (Dense)            (512)                 221184    
+Batch_normalization      (512)                 2048          
+_________________________________________________________
+dense_1 (Dense)          (512)                 262656    
+Batch_normalization_1    (512)                 2048          
+_________________________________________________________
+dense_2 (Dense)          (512)                 262656    
+Batch_normalization_2    (512)                 2048          
+_________________________________________________________
+fc1 (Dense)              (1)                   513           
+=========================================================
+Total params: 753,153
+Trainable params: 750,081
+Non-trainable params: 3,072
+_________________________________________________________
+</code></pre></div>
+<h3 id="322-fraudsvm-scikit-learn-model">3.2.2. FraudSVM Scikit-learn model<a class="headerlink" href="#322-fraudsvm-scikit-learn-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Model is defined as SGDClassifier(max_iter=1, verbose=0, loss="modified_huber")</li>
+<li>Which is support vector machine linear classifier</li>
+</ul>
+<h1 id="4-mnist">4. MNIST<a class="headerlink" href="#4-mnist" title="Permanent link">&para;</a></h1>
+<h2 id="41-information-and-installation">4.1. Information and installation<a class="headerlink" href="#41-information-and-installation" title="Permanent link">&para;</a></h2>
+<h3 id="411-information-about-the-dataset">4.1.1. Information about the dataset<a class="headerlink" href="#411-information-about-the-dataset" title="Permanent link">&para;</a></h3>
+<ul>
+<li>This is a dataset of 70,000 28x28x1 grayscale images of the 10 digits</li>
+<li>Input for NN are raw 28x28 1 channel images</li>
+<li>
+<p>NN output is distribution of probabilities for each class i.e. 10 values that sums up to 1</p>
+</li>
+<li>
+<p>Code folder: <a href="https://github.com/fetchai/colearn/tree/master//colearn_examples/mnist">here</a></p>
+</li>
+<li>Invoke parameter: -t MNIST</li>
+</ul>
+<h3 id="412-requirements">4.1.2 Requirements<a class="headerlink" href="#412-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MNIST dataset is loaded from tensorflow.keras.datasets.cifar10 and no stored data are required</li>
+</ul>
+<h2 id="42-models">4.2. Models<a class="headerlink" href="#42-models" title="Permanent link">&para;</a></h2>
+<h3 id="421-mnistconv-keras-model">4.2.1. MNISTConv Keras model<a class="headerlink" href="#421-mnistconv-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________
+Layer (type)                   Output Shape       Param #   
+=========================================================
+Input (InputLayer)             (28, 28, 1)        0             
+_________________________________________________________
+Conv1_1 (Conv2D)               (28, 28, 64)       640           
+bn1 (BatchNormalization)       (28, 28, 64)       256           
+pool1 (MaxPooling2D)           (14, 14, 64)       0             
+_________________________________________________________
+Conv2_1 (Conv2D)               (14, 14, 128)      73856         
+bn4 (BatchNormalization)       (14, 14, 128)      512           
+pool2 (MaxPooling2D)           (7, 7, 128)        0             
+_________________________________________________________
+flatten (Flatten)              (6272)             0             
+fc1 (Dense)                    (10)               62730         
+=========================================================
+Total params: 137,994
+Trainable params: 137,610
+Non-trainable params: 384
+_________________________________________________________
+</code></pre></div>
+<h3 id="422-mnist-pytorch-model">4.2.2. MNIST Pytorch model<a class="headerlink" href="#422-mnist-pytorch-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>---------------------------------------------------------
+Layer (type)           Output Shape             Param #
+=========================================================
+Input                  [28,28,1]                0
+Conv2d-1               [20, 24, 24]             520
+Conv2d-2               [50, 8, 8]               25,050
+Linear-3               [500]                    400,500
+Linear-4               [10]                     5,010
+=========================================================
+Total params: 431,080
+Trainable params: 431,080
+Non-trainable params: 0
+---------------------------------------------------------
+</code></pre></div>
+<h3 id="423-mnistsupermini-keras-model">4.2.3. MNISTSupermini Keras model<a class="headerlink" href="#423-mnistsupermini-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>________________________________________________________________________________________
+Layer (type)                Output Shape    Param #      Connected to                         
+========================================================================================
+input_1 (InputLayer)        (28, 28, 1)     0                                                
+________________________________________________________________________________________
+conv2d (Conv2D)             (26, 26, 8)     80           input_1[0][0]                        
+Batch_normalization         (26, 26, 8)     32           conv2d[0][0]                         
+Max_pooling2d               (13, 13, 8)     0            batch_normalization[0][0]            
+dropout (Dropout)           (13, 13, 8)     0            max_pooling2d[0][0]                  
+________________________________________________________________________________________
+Separable_conv2d            (11, 11, 26)    306          dropout[0][0]                        
+batch_normalization_1       (11, 11, 26)    104          separable_conv2d[0][0]               
+dropout_1 (Dropout)         (11, 11, 26)    0            batch_normalization_1[0][0]          
+________________________________________________________________________________________
+Separable_conv2d_1          (11, 11, 26)    936          dropout_1[0][0]                      
+                                                         dropout_2[0][0]                      
+                                                         dropout_3[0][0]                      
+________________________________________________________________________________________
+Batch_normalization_2        (11, 11, 26)   104          separable_conv2d_1[0][0]             
+dropout_2 (Dropout)          (11, 11, 26)   0            batch_normalization_2[0][0]          
+________________________________________________________________________________________
+Batch_normalization_3        (11, 11, 26)   104          separable_conv2d_1[1][0]             
+dropout_3 (Dropout)          (11, 11, 26)   0            batch_normalization_3[0][0]          
+________________________________________________________________________________________
+Batch_normalization_4        (11, 11, 26)   104          separable_conv2d_1[2][0]             
+dropout_4 (Dropout)          (11, 11, 26)   0            batch_normalization_4[0][0]          
+________________________________________________________________________________________
+Global_average_pooling2d     (26)           0            dropout_4[0][0]                      
+dense (Dense)                (16)           432          global_average_pooling2d[0][0]   
+Batch_normalization_5        (16)           64           dense[0][0]                          
+dropout_5 (Dropout)          (16)           0            batch_normalization_5[0][0]          
+dense_1 (Dense)              (10)           170          dropout_5[0][0]                      
+========================================================================================
+Total params: 2,436
+Trainable params: 2,180
+Non-trainable params: 256
+________________________________________________________________________________________
+</code></pre></div>
+<h1 id="5-pneumonia-xray">5. Pneumonia XRAY<a class="headerlink" href="#5-pneumonia-xray" title="Permanent link">&para;</a></h1>
+<h2 id="51-information-and-installation">5.1. Information and installation<a class="headerlink" href="#51-information-and-installation" title="Permanent link">&para;</a></h2>
+<h3 id="511-information-about-the-dataset">5.1.1. Information about the dataset<a class="headerlink" href="#511-information-about-the-dataset" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The Chest X-Ray Images (Pneumonia) dataset consists of 5856 grayscale images of various sizes in 2 classes (normal/pneumonia). </li>
+<li>Labels are determined by folder name - NORMAL or PNEUMONIA</li>
+<li>Input for NN are raw resized 128x128 1 channel images</li>
+<li>
+<p>NN output is distribution of probabilities for each class i.e. 2 values</p>
+</li>
+<li>
+<p>Code folder: <a href="https://github.com/fetchai/colearn/tree/master//colearn_examples/xray">here</a></p>
+</li>
+<li>Invoke parameter: -t XRAY</li>
+</ul>
+<h3 id="512-requirements">5.1.2 Requirements<a class="headerlink" href="#512-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Download dataset: <a href="https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia">here</a></li>
+</ul>
+<h2 id="52-models">5.2. Models<a class="headerlink" href="#52-models" title="Permanent link">&para;</a></h2>
+<h3 id="521-xraysupermini-keras-model">5.2.1. XraySupermini Keras model<a class="headerlink" href="#521-xraysupermini-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________________
+Layer (type)                     Output Shape            Param #   
+=================================================================
+Input (InputLayer)               [(128, 128, 1)]         0             
+_________________________________________________________________
+Conv1_1 (Conv2D)                 (128, 128, 32)          320           
+_________________________________________________________________
+bn1 (BatchNormalization)         (128, 128, 32)          128           
+_________________________________________________________________
+pool1 (MaxPooling2D)             (32, 32, 32)            0             
+_________________________________________________________________
+Conv2_1 (Conv2D)                 (32, 32, 64)            18496         
+_________________________________________________________________
+bn2 (BatchNormalization)         (32, 32, 64)            256           
+_________________________________________________________________
+Global_max_pooling2d             (64)                    0             
+_________________________________________________________________
+fc1 (Dense)                      (1)                     65            
+=================================================================
+Total params: 19,265
+Trainable params: 19,073
+Non-trainable params: 192
+_________________________________________________________________
+</code></pre></div>
+<h3 id="522-xrayresnet50-keras-model">5.2.2. XrayResnet50 Keras model<a class="headerlink" href="#522-xrayresnet50-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________________
+Layer (type)                     Output Shape            Param #   
+=================================================================
+Input (InputLayer)               [(128, 128, 1)]         0             
+_________________________________________________________________
+resnet50 (Model)                 (4, 4, 2048)            23581440  
+_________________________________________________________________
+global_average_pooling2d         (2048)                  0             
+_________________________________________________________________
+flatten (Flatten)                (2048)                  0             
+_________________________________________________________________
+fc1 (Dense)                      (1)                     2049          
+=================================================================
+Total params: 23,583,489
+Trainable params: 23,530,369
+Non-trainable params: 53,120
+_________________________________________________________________
+</code></pre></div>
+<h3 id="523-xraypretrainedresnet50-keras-model">5.2.3. XrayPretrainedResnet50 Keras model<a class="headerlink" href="#523-xraypretrainedresnet50-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_____________________________________________________________________________________
+Layer (type)                Output Shape    Param #   Connected to                
+=====================================================================================
+Input (InputLayer)          (128, 128, 1)   0                                       
+_____________________________________________________________________________________
+concatenate (Concatenate)   (128, 128, 3)   0         Input[0][0]                                                                                     Input[0][0]                                                                                    Input[0][0]                 
+_____________________________________________________________________________________
+tf_op_layer_mul             (128, 128, 3)  0          concatenate[0][0]           
+tf_op_layer_strided_slice   (128, 128, 3)  0          tf_op_layer_mul[0][0]       
+tf_op_layer_BiasAdd         (128, 128, 3)  0          tf_op_layer_strided_slice[0][0]  
+_____________________________________________________________________________________
+resnet50 (Model)            (4, 4, 2048)   23587712   tf_op_layer_BiasAdd[0][0]            
+_____________________________________________________________________________________
+global_average_pooling2d    (2048)         0          resnet50[1][0]              
+flatten (Flatten)           (2048)         0          global_average_pooling2d[0][0]   
+_____________________________________________________________________________________
+fc1 (Dense)                 (1)            2049       flatten[0][0]              
+=====================================================================================
+Total params: 23,589,761
+Trainable params: 23,536,641
+Non-trainable params: 53,120
+_____________________________________________________________________________________
+</code></pre></div>
+<h3 id="524-xraydropout-keras-model">5.2.4. XrayDropout Keras model<a class="headerlink" href="#524-xraydropout-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________________
+Layer (type)                     Output Shape            Param #   
+=================================================================
+Input (InputLayer)               [(128, 128, 1)]         0             
+_________________________________________________________________
+Conv1_1 (Conv2D)                 (128, 128, 128)         1280          
+bn1 (BatchNormalization)         (128, 128, 128)         512           
+pool1 (MaxPooling2D)             (32, 32, 128)           0             
+_________________________________________________________________
+Conv2_1 (Conv2D)                 (32, 32, 256)           295168    
+bn2 (BatchNormalization)         (32, 32, 256)           1024          
+pool2 (MaxPooling2D)             (8, 8, 256)             0             
+_________________________________________________________________
+flatten (Flatten)                (16384)                 0             
+fc1 (Dense)                      (128)                   2097280   
+bn3 (BatchNormalization)         (128)                   512           
+dropout (Dropout)                (128)                   0             
+_________________________________________________________________
+fc2 (Dense)                      (64)                    8256          
+bn4 (BatchNormalization)         (64)                    256           
+dropout_1 (Dropout)              (64)                    0             
+_________________________________________________________________
+fc3 (Dense)                      (1)                     65            
+=================================================================
+Total params: 2,404,353
+Trainable params: 2,403,201
+Non-trainable params: 1,152
+_________________________________________________________________
+</code></pre></div>
+<h3 id="525-xraydropout2-keras-model">5.2.5. XrayDropout2 Keras model<a class="headerlink" href="#525-xraydropout2-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________________
+Layer (type)                     Output Shape            Param #   
+=================================================================
+Input (InputLayer)               (128, 128, 1)           0             
+_________________________________________________________________
+Conv1_1 (Conv2D)                 (128, 128, 64)          640           
+bn1 (BatchNormalization)         (128, 128, 64)          256           
+pool1 (MaxPooling2D)             (64, 64, 64)            0             
+_________________________________________________________________
+Conv2_1 (Conv2D)                 (64, 64, 128)           73856         
+bn2 (BatchNormalization)         (64, 64, 128)           512           
+pool2 (MaxPooling2D)             (32, 32, 128)           0             
+_________________________________________________________________
+Conv3_1 (Conv2D)                 (32, 32, 256)           295168    
+bn3 (BatchNormalization)         (32, 32, 256)           1024          
+pool3 (MaxPooling2D)             (16, 16, 256)           0             
+_________________________________________________________________
+Conv4_1 (Conv2D)                 (16, 16, 512)           1180160   
+bn4 (BatchNormalization)         (16, 16, 512)           2048          
+pool4 (MaxPooling2D)             (8, 8, 512)             0             
+_________________________________________________________________
+Conv5_1 (Conv2D)                 (8, 8, 512)             2359808   
+bn5 (BatchNormalization)         (8, 8, 512)             2048          
+pool5 (MaxPooling2D)             (4, 4, 512)             0             
+_________________________________________________________________
+flatten (Flatten)                (8192)                  0             
+fc1 (Dense)                      (256)                   2097408   
+bn6 (BatchNormalization)         (256)                   1024          
+dropout (Dropout)                (256)                   0             
+_________________________________________________________________
+fc2 (Dense)                      (128)                   32896         
+bn7 (BatchNormalization)         (128)                   512           
+dropout_1 (Dropout)              (128)                   0             
+_________________________________________________________________
+fc3 (Dense)                      (64)                    8256          
+bn8 (BatchNormalization)         (64)                    256           
+dropout_2 (Dropout)              (64)                    0             
+_________________________________________________________________
+fc4 (Dense)                      (1)                     65            
+=================================================================
+Total params: 6,055,937
+Trainable params: 6,052,097
+Non-trainable params: 3,840
+_________________________________________________________________
+</code></pre></div>
+<h3 id="526-xrayvgg16-keras-model">5.2.6. XrayVGG16 Keras model<a class="headerlink" href="#526-xrayvgg16-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_____________________________________________________________________________________
+Layer (type)                 Output Shape     Param #    Connected to                
+=====================================================================================
+Input (InputLayer)           (128, 128, 1)    0                  
+_____________________________________________________________________________________
+concatenate (Concatenate)    (128, 128, 3)    0          Input[0][0]                 
+                                                         Input[0][0]                 
+                                                         Input[0][0]                 
+_____________________________________________________________________________________
+tf_op_layer_mul               (128, 128, 3)    0         concatenate[0][0]           
+Tf_op_layer_strided_slice     (28, 128, 3)     0         tf_op_layer_mul[0][0]       
+tf_op_layer_BiasAdd           (128, 128, 3)    0         tf_op_layer_strided_slice[0][0]  
+_____________________________________________________________________________________
+vgg16 (Model)                 (4, 4, 512)      14714688  tf_op_layer_BiasAdd[0][0]            
+_____________________________________________________________________________________
+flatten (Flatten)             (8192)           0         vgg16[1][0]                  
+fc1 (Dense)                   (1)              8193      flatten[0][0]                
+=====================================================================================
+Total params: 14,722,881
+Trainable params: 14,722,881
+Non-trainable params: 0
+_____________________________________________________________________________________
+</code></pre></div>
+<h3 id="527-xraymini-keras-model">5.2.7. XrayMini Keras model<a class="headerlink" href="#527-xraymini-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________________
+Layer (type)                     Output Shape            Param #   
+=================================================================
+Input (InputLayer)               [(128, 128, 1)]         0             
+_________________________________________________________________
+Conv1_1 (Conv2D)                 (128, 128, 128)         1280          
+bn1 (BatchNormalization)         (128, 128, 128)         512           
+pool1 (MaxPooling2D)             (32, 32, 128)           0             
+_________________________________________________________________
+Conv2_1 (Conv2D)                 (32, 32, 256)           295168    
+bn2 (BatchNormalization)         (32, 32, 256)           1024          
+pool2 (MaxPooling2D)             (8, 8, 256)             0             
+_________________________________________________________________
+flatten (Flatten)                (16384)                 0             
+fc1 (Dense)                      (1)                     16385         
+=================================================================
+Total params: 314,369
+Trainable params: 313,601
+Non-trainable params: 768
+_________________________________________________________________
+</code></pre></div>
+<h3 id="527-xrayonemb-keras-model">5.2.7. XrayOneMB Keras model<a class="headerlink" href="#527-xrayonemb-keras-model" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>_________________________________________________________________
+Layer (type)                   Output Shape            Param #   
+=================================================================
+Input (InputLayer)             (128, 128, 1)           0             
+_________________________________________________________________
+Conv1_1 (Conv2D)               (128, 128, 64)          640           
+bn1_1 (BatchNormalization)     (128, 128, 64)          256           
+Conv1_2 (Conv2D)               (128, 128, 64)          36928         
+bn1_2 (BatchNormalization)     (128, 128, 64)          256           
+pool1 (MaxPooling2D)           (64, 64, 64)            0             
+_________________________________________________________________
+Conv2_1 (Conv2D)               (64, 64, 64)            36928         
+bn2_1 (BatchNormalization)     (64, 64, 64)            256           
+Conv2_2 (Conv2D)               (64, 64, 64)            36928         
+bn2_2 (BatchNormalization)     (64, 64, 64)            256           
+pool2 (MaxPooling2D)           (32, 32, 64)            0             
+_________________________________________________________________
+Conv3_1 (Conv2D)               (32, 32, 128)           73856         
+bn3_1 (BatchNormalization)     (32, 32, 128)           512           
+Conv3_2 (SeparableConv2D)      (32, 32, 128)           17664         
+bn3_2 (BatchNormalization)     (32, 32, 128)           512           
+pool3 (MaxPooling2D)           (16, 16, 128)           0             
+_________________________________________________________________
+Conv4_1 (SeparableConv2D)      (16, 16, 128)           17664         
+bn4_1 (BatchNormalization)     (16, 16, 128)           512           
+_________________________________________________________________
+Conv4_2 (SeparableConv2D)      (16, 16, 128)           17664         
+bn4_2 (BatchNormalization)     (16, 16, 128)           512           
+_________________________________________________________________
+pool4 (AveragePooling2D)       (4, 4, 128)             0             
+flatten (Flatten)              (2048)                  0             
+_________________________________________________________________
+fc1 (Dense)                    (1)                     2049          
+=================================================================
+Total params: 243,393
+Trainable params: 241,857
+Non-trainable params: 1,536
+_________________________________________________________________
+</code></pre></div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.0ac82a11.min.js"></script>
+      <script src="../assets/javascripts/bundle.f81dfb4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

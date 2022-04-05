@@ -1,0 +1,801 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Everything you need to know about Collective Learning.">
+      
+      
+      
+        <link rel="canonical" href="https://docs.fetch.ai/about/">
+      
+      
+        <meta name="author" content="developer@fetch.ai">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.7">
+    
+    
+      
+        <title>Collective Learning Protocol - colearn</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.19753c6b.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.196e0c26.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../css/my-styles.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-collective-learning-works" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://docs.fetch.ai/" title="colearn" class="md-header-nav__button md-logo" aria-label="colearn">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            colearn
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Collective Learning Protocol
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/fetchai/colearn/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://docs.fetch.ai/" title="colearn" class="md-nav__button md-logo" aria-label="colearn">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    colearn
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/fetchai/colearn/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Colearn
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Collective Learning Protocol
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Collective Learning Protocol
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-training-works" class="md-nav__link">
+    How Training Works
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-algorithms-that-work-for-collective-learning" class="md-nav__link">
+    Learning algorithms that work for collective learning
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-driver" class="md-nav__link">
+    The driver
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-machine-learning-interface" class="md-nav__link">
+    The Machine Learning Interface
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" >
+    <label class="md-nav__link" for="nav-3">
+      Getting Started
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Getting Started
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro_tutorial_keras/" class="md-nav__link">
+      Keras
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro_tutorial_pytorch/" class="md-nav__link">
+      PyTorch
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro_tutorial_mli/" class="md-nav__link">
+      The MachineLearningInterface
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../differential_privacy/" class="md-nav__link">
+      Differential Privacy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../grpc_tutorial/" class="md-nav__link">
+      gRPC server
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" >
+    <label class="md-nav__link" for="nav-4">
+      Examples
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Examples" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Examples
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../demo/" class="md-nav__link">
+      Demo
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../examples/" class="md-nav__link">
+      Standalone examples
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../grpc_examples/" class="md-nav__link">
+      gRPC example
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-training-works" class="md-nav__link">
+    How Training Works
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-algorithms-that-work-for-collective-learning" class="md-nav__link">
+    Learning algorithms that work for collective learning
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-driver" class="md-nav__link">
+    The driver
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-machine-learning-interface" class="md-nav__link">
+    The Machine Learning Interface
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/fetchai/colearn/edit/master/docs/about.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="how-collective-learning-works">How collective learning works<a class="headerlink" href="#how-collective-learning-works" title="Permanent link">&para;</a></h1>
+<p>A Colearn experiment begins when a group of entities, referred to as  <em>learners</em>, decide on a model architecture and 
+begin learning. Together they will train a single global model. The goal is to train a model that performs better 
+than any of the learners can produce by training on their private data set. </p>
+<h3 id="how-training-works">How Training Works<a class="headerlink" href="#how-training-works" title="Permanent link">&para;</a></h3>
+<p>Training occurs in rounds; during each round the learners attempt to improve the performance of the global shared 
+model. 
+To do so each round an <strong>update</strong> of the global model (for example new set of weights in a neural network) is proposed. 
+The learners then <strong>validate</strong> the update and decide if the new model is better than the current global model.<br />
+If enough learners <em>approve</em> the update then the global model is updated. After an update is approved or rejected a 
+new round begins. </p>
+<p>The detailed steps of a round updating a global model <em>M</em> are as follows:</p>
+<ol>
+<li>One of the learners is selected and proposes a new updated model <em>M'</em></li>
+<li>The rest of the learners <strong>validate</strong> <em>M'</em></li>
+<li>If <em>M'</em> has better performance than <em>M</em> against their private data set then the learner votes to approve</li>
+<li>If not, the learner votes to reject</li>
+<li>The total votes are tallied</li>
+<li>If more than some threshold (typically 50%) of learners approve then <em>M'</em> becomes the new global model. If not, 
+     <em>M</em> continues to be the global model</li>
+<li>A new round begins.</li>
+</ol>
+<p>By using a decentralized ledger (a blockchain) this learning process can be run in a completely decentralized, 
+secure and auditable way. Further security can be provided by using 
+<a href="https://en.wikipedia.org/wiki/Differential_privacy">differential privacy</a> to avoid exposing your private data 
+set when generating an update.</p>
+<h2 id="learning-algorithms-that-work-for-collective-learning">Learning algorithms that work for collective learning<a class="headerlink" href="#learning-algorithms-that-work-for-collective-learning" title="Permanent link">&para;</a></h2>
+<p>Collective learning is not just for neural networks; any learning algorithm that can be trained on subsets of the 
+data and which can use the results of previous training rounds as the basis for subsequent rounds can be used.
+Neural networks fit both these constraints: training can be done on mini-batches of data and each training step uses 
+the weights of the previous training step as its starting point.
+More generally, any model that is trained using mini-batch stochastic gradient descent is fine.
+Other algorithms can be made to work with collective learning as well.
+For example, a random forest can be trained iteratively by having each learner add new trees 
+(see example in <a href="https://github.com/fetchai/colearn/tree/master//examples/mli_random_forest_iris.py">mli_random_forest_iris.py</a>).
+For more discussion, see <a href="../intro_tutorial_mli/">here</a>.</p>
+<h2 id="the-driver">The driver<a class="headerlink" href="#the-driver" title="Permanent link">&para;</a></h2>
+<p>The driver implements the voting protocol, so it handles selecting a learner to train, 
+sending the update out for voting, calculating the vote and accepting or declining the update. 
+Here we have a very minimal driver that doesn't use networking or a blockchain. Eventually the driver will be a 
+smart contract. 
+This is the code that implements one round of voting:</p>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">run_one_round</span><span class="p">(</span><span class="n">round_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">learners</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">MachineLearningInterface</span><span class="p">],</span>
+                  <span class="n">vote_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+    <span class="n">proposer</span> <span class="o">=</span> <span class="n">round_index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">learners</span><span class="p">)</span>
+    <span class="n">new_weights</span> <span class="o">=</span> <span class="n">learners</span><span class="p">[</span><span class="n">proposer</span><span class="p">]</span><span class="o">.</span><span class="n">mli_propose_weights</span><span class="p">()</span>
+
+    <span class="n">prop_weights_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ln</span><span class="o">.</span><span class="n">mli_test_weights</span><span class="p">(</span><span class="n">new_weights</span><span class="p">)</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">learners</span><span class="p">]</span>
+    <span class="n">approves</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">vote</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">prop_weights_list</span><span class="p">)</span>
+
+    <span class="n">vote</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">approves</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">learners</span><span class="p">)</span> <span class="o">*</span> <span class="n">vote_threshold</span><span class="p">:</span>
+        <span class="n">vote</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">learner</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">learners</span><span class="p">):</span>
+            <span class="n">learner</span><span class="o">.</span><span class="n">mli_accept_weights</span><span class="p">(</span><span class="n">prop_weights_list</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">prop_weights_list</span><span class="p">,</span> <span class="n">vote</span>
+</code></pre></div>
+The driver has a list of learners, and each round it selects one learner to be the proposer.
+The proposer does some training and proposes an updated set of weights.
+The driver then sends the proposed weights to each of the learners, and they each vote on whether this is 
+an improvement.
+If the number of approving votes is greater than the vote threshold the proposed weights are accepted, and if not 
+they're rejected.</p>
+<h2 id="the-machine-learning-interface">The Machine Learning Interface<a class="headerlink" href="#the-machine-learning-interface" title="Permanent link">&para;</a></h2>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1">#</span>
+<span class="c1">#   Copyright 2021 Fetch.AI Limited</span>
+<span class="c1">#</span>
+<span class="c1">#   Licensed under the Creative Commons Attribution-NonCommercial International</span>
+<span class="c1">#   License, Version 4.0 (the &quot;License&quot;); you may not use this file except in</span>
+<span class="c1">#   compliance with the License. You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#       http://creativecommons.org/licenses/by-nc/4.0/legalcode</span>
+<span class="c1">#</span>
+<span class="c1">#   Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#   See the License for the specific language governing permissions and</span>
+<span class="c1">#   limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">onnx</span>
+<span class="kn">import</span> <span class="nn">onnxmltools</span>
+<span class="kn">import</span> <span class="nn">sklearn</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">tensorflow</span> <span class="kn">import</span> <span class="n">keras</span>
+
+<span class="n">model_classes_keras</span> <span class="o">=</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">Estimator</span><span class="p">)</span>
+<span class="n">model_classes_scipy</span> <span class="o">=</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span>
+<span class="n">model_classes_sklearn</span> <span class="o">=</span> <span class="p">(</span><span class="n">sklearn</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ClassifierMixin</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">convert_model_to_onnx</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to convert a ML model to onnx format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_classes_keras</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">onnxmltools</span><span class="o">.</span><span class="n">convert_keras</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_classes_sklearn</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">onnxmltools</span><span class="o">.</span><span class="n">convert_sklearn</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;xgboost&#39;</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">onnxmltools</span><span class="o">.</span><span class="n">convert_sklearn</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_classes_scipy</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Pytorch models not yet supported to onnx&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Attempt to convert unsupported model to onnx: </span><span class="si">{model}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">DiffPrivBudget</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">target_epsilon</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">target_delta</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">consumed_epsilon</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">consumed_delta</span><span class="p">:</span> <span class="nb">float</span>
+
+
+<span class="k">class</span> <span class="nc">ErrorCodes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">DP_BUDGET_EXCEEDED</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="k">class</span> <span class="nc">TrainingSummary</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">dp_budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DiffPrivBudget</span><span class="p">]</span>
+    <span class="n">error_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorCodes</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">Weights</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="n">training_summary</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TrainingSummary</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">DiffPrivConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">target_epsilon</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">target_delta</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">max_grad_norm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">noise_multiplier</span><span class="p">:</span> <span class="nb">float</span>
+
+
+<span class="k">class</span> <span class="nc">ProposedWeights</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">Weights</span>
+    <span class="n">vote_score</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">test_score</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">vote</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ModelFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">PICKLE_WEIGHTS_ONLY</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ONNX</span> <span class="o">=</span> <span class="mi">2</span>
+
+
+<span class="k">class</span> <span class="nc">ColearnModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_format</span><span class="p">:</span> <span class="n">ModelFormat</span>
+    <span class="n">model_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">deser_model</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">onnx</span><span class="o">.</span><span class="n">ModelProto</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to recover a onnx model from its deserialized form</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">onnx</span><span class="o">.</span><span class="n">load_model_from_string</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MachineLearningInterface</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">mli_propose_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Weights</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Trains the model. Returns new weights. Does not change the current weights of the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">mli_test_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Weights</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProposedWeights</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests the proposed weights and fills in the rest of the fields</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">mli_accept_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Weights</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the model with the proposed set of weights</span>
+<span class="sd">        :param weights: The new weights</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">mli_get_current_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Weights</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the current weights of the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">mli_get_current_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ColearnModel</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the current model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span> 
+</code></pre></div>
+There are four methods that need to be implemented:</p>
+<ol>
+<li><code>propose_weights</code> causes the model to do some training and then return a
+   new set of weights that are proposed to the other learners. 
+   This method shouldn't change the current weights of the model - that
+   only happens when <code>accept_weights</code> is called.</li>
+<li><code>test_weights</code> - the models takes some new weights and returns a vote on whether the new weights are an improvement. 
+   As with propose_weights, this shouldn't change the current weights of the model - 
+   that only happens when <code>accept_weights</code> is called.</li>
+<li><code>accept_weights</code> - the models accepts some weights that have been voted on and approved by the set of learners. 
+    The old weighs of the model are discarded and replaced by the new weights.</li>
+<li><code>current_weights</code> should return the current weights of the model.</li>
+</ol>
+<p>For more details about directly implementing the machine learning interface
+see the tutorial <a href="../intro_tutorial_mli/">here</a></p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href=".." class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Colearn
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../installation/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Installation
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.0ac82a11.min.js"></script>
+      <script src="../assets/javascripts/bundle.f81dfb4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>
