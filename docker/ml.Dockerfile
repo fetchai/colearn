@@ -1,4 +1,4 @@
-FROM python:3.7.9-slim-buster as base
+FROM python:3.10.5-slim-buster as base
 
 USER root
 
