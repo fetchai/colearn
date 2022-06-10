@@ -25,8 +25,8 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
-from tensorflow.python.keras.applications.resnet import ResNet50
-from tensorflow.python.keras.layers import Dropout
+from tensorflow.keras.applications.resnet import ResNet50
+from tensorflow.keras.layers import Dropout
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
 
 from colearn.ml_interface import DiffPrivConfig
