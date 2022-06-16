@@ -18,7 +18,7 @@
 import setuptools
 
 keras_deps = [
-    'tensorflow>=2.2,<2.8',
+    'tensorflow>=2.9',
     'tensorflow_datasets>=4.2,<4.5',
     'tensorflow-privacy>=0.5,<0.8',
 ]
@@ -41,6 +41,7 @@ docs_deps = [
     "mkdocs-material",
     "mkdocs-material-extensions",
     "markdown-include",
+    "jinja2==3.0.3"
 ]
 
 grpc_deps = ['grpcio>=1.35,<1.43',
