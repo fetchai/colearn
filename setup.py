@@ -41,6 +41,7 @@ docs_deps = [
     "mkdocs-material",
     "mkdocs-material-extensions",
     "markdown-include",
+    "jinja2==3.0.3"
 ]
 
 grpc_deps = ['grpcio>=1.35,<1.43',
