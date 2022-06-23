@@ -45,7 +45,7 @@ docs_deps = [
 ]
 
 grpc_deps = ['grpcio>=1.35,<1.43',
-             'grpcio-tools>=1.35,<1.44',
+             'grpcio-tools>=1.35,<1.48',
              'prometheus_client==0.13.1',
              'click'
              ]
