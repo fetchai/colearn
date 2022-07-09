@@ -1,71 +1,78 @@
-# Using collective learning 
+# Using collective learning
 
 This tutorial is a simple guide to trying out the collective learning protocol with your
 own machine learning code. Everything runs locally.
 
 The most flexible way to use the collective learning backends is to make a class that implements
-the Collective Learning `MachineLearningInterface` defined in 
-[ml_interface.py]({{ repo_root }}/colearn/ml_interface.py). 
+the Collective Learning `MachineLearningInterface` defined in
+[ml_interface.py]({{ repo_root }}/colearn/ml_interface.py).
 This tutorial will walk through implementing the `MachineLearningInterface`.
 If you're already using keras or pytorch you might find it easier to use the `KerasLearner` or `Pytorchlearner` classes.
 See the other tutorials for details of how to do that.
 
 ## The MachineLearningInterface
-```Python 
+
+```Python
 {!../colearn/ml_interface.py!} 
 ```
+
 There are four methods that need to be implemented:
 
 1. `propose_weights` causes the model to do some training and then return a
-   new set of weights that are proposed to the other learners. 
+   new set of weights that are proposed to the other learners.
    This method shouldn't charge the current weights of the model - that
    only happens when `accept_weights` is called.
-2. `test_weights` - the models takes some new weights and returns a vote on whether the new weights are an improvement. 
-   As in propose_weights, this shouldn't change the current weights of the model - 
+2. `test_weights` - the models takes some new weights and returns a vote on whether the new weights are an improvement.
+   As in propose_weights, this shouldn't change the current weights of the model -
    that only happens when `accept_weights` is called.
-3. `accept_weights` - the model accepts some weights that have been voted on and approved by the set of learners. 
+3. `accept_weights` - the model accepts some weights that have been voted on and approved by the set of learners.
     The old weighs of the model are discarded and replaced by the new weights.
 4. `current_weights` should return the current weights of the model.
 
+## Algorithms that work with colearn
 
-## Algorithms that work with colearn:
 These conditions need to be fulfilled for algorithms to work with collective learning:
 
-* Model fitting must be incremental so that the previous model is used as the starting point for training. 
-  This is easy to achieve for neural networks because neural network training is always iterative, but for other 
+* Model fitting must be incremental so that the previous model is used as the starting point for training.
+  This is easy to achieve for neural networks because neural network training is always iterative, but for other
   learning algorithms more care must be taken. Some examples of getting this wrong:
+
 ```python
 from sklearn.linear_model import LinearRegression
 model = LinearRegression()
 model.fit(X, y)
 ```
+
 ```python
 from sklearn.ensemble import RandomForestClassifier
 model = RandomForestClassifier(n_estimators=10)  # it would be okay with warm_start=True
 model.fit(X, y)
 ```
+
 ```python
 from xgboost import XGBRegressor
 model = XGBRegressor()
 model.fit(X, y)
 ```
-  None of the training methods here use the previous result when fit is called for a second time; 
-  instead they start again from scratch. 
-  Good examples of incremental training can be seen in the [examples](./examples.md). 
-  Many sklearn models have a `warm_start` parameter which can be set to `True` to use the previous training result. 
+
+  None of the training methods here use the previous result when fit is called for a second time;
+  instead they start again from scratch.
+  Good examples of incremental training can be seen in the [examples](./examples.md).
+  Many sklearn models have a `warm_start` parameter which can be set to `True` to use the previous training result.
   XGBoost has an `xgb_model` parameter for passing in the previous training results.
 
-* The model mustn't overfit when propose_weights() is called. 
+* The model mustn't overfit when propose_weights() is called.
   You should limit training so that a learner will not overfit their training data in one round.
-  For example, if a learner overfits their own training data then the other learners will reject the 
-  proposed update because it is not a good fit for their data. 
-  For a neural network a good approach is to restrict the number of batches that are used each round; 
+  For example, if a learner overfits their own training data then the other learners will reject the
+  proposed update because it is not a good fit for their data.
+  For a neural network a good approach is to restrict the number of batches that are used each round;
   for  random forest, restrict the trees that are added each round.
   
-
 ## Implementation for fraud detection task
+
 Here is the class that implements the `MachineLearningInterface` for the task of detecting fraud in bank transactions.
-```Python 
+
+```Python
 class FraudSklearnLearner(MachineLearningInterface):
     def __init__(self, train_data, train_labels, test_data, test_labels,
                  batch_size: int = 10000,
@@ -140,6 +147,7 @@ Let's step through this and see how it works.
 The propose_weights method saves the current weights of the model.
 Then it performs some training of the model, and gets the new weights.
 It returns the new weights, and resets the model weights to be the old weights.
+
 ```Python
     def mli_propose_weights(self) -> Weights:
         current_weights = self.mli_get_current_weights()
@@ -164,7 +172,8 @@ If the vote score is the loss then the model would only vote True if the score h
 Here we're using accuracy, so the vote is true if the score increases.
 This method then resets the weights to the old values and returns the vote
 along with some scores for monitoring purposes.
-```Python 
+
+```Python
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
@@ -182,15 +191,16 @@ along with some scores for monitoring purposes.
                                vote=vote
                                )
 ```
+
 The accept_weights method sets the weights of the model to be the new weights.
 It also updates the vote score to be the current performance.
 
 !!! Note
-    You could implement a cache here. 
-    These weights will already have been tested in test_weights, so the vote 
+    You could implement a cache here.
+    These weights will already have been tested in test_weights, so the vote
     score could be retrieved from the cache instead of recomputed.
 
-```Python 
+```Python
     def mli_accept_weights(self, weights: Weights):
         self.set_weights(weights)
         self.vote_score = self.test(self.train_data, self.train_labels)
@@ -199,17 +209,18 @@ It also updates the vote score to be the current performance.
 The final method is the simplest - get_current_weights just returns the current weights of the model.
 These weights are wrapped inside a `Weights` object.
 
-```Python 
+```Python
     def mli_get_current_weights(self):
         return Weights(weights=dict(coef_=self.model.coef_,
                                     intercept_=self.model.intercept_))
 ```
 
 ## The rest of the example
+
 The data is loaded and preprocessed and then split into equal parts for each learner.
 Then a list of FraudLearner instances is created, each with its own dataset.  
 
-```Python 
+```Python
     all_learner_models = []
     for i in range(n_learners):
         all_learner_models.append(
@@ -221,8 +232,8 @@ Then a list of FraudLearner instances is created, each with its own dataset.
             ))
 ```
 
-
 Then we give all the models the same weights to start off with:
+
 ```Python
 set_equal_weights(all_learner_models)
 ```
@@ -232,7 +243,8 @@ The function `collective_learning_round` performs one round of collective learni
 One learner is selected to train and propose an update.
 The other learners vote on the update, and if the vote passes then the update is accepted.
 Then a new round begins.
-```Python 
+
+```Python
 # Train the model using Collective Learning
 results = Results()
 results.data.append(initial_result(all_learner_models))
