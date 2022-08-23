@@ -90,7 +90,7 @@ There are four methods that need to be implemented:
    As with propose_weights, this shouldn't change the current weights of the model -
    that only happens when `accept_weights` is called.
 3. `accept_weights` - the models accepts some weights that have been voted on and approved by the set of learners.
-    The old weighs of the model are discarded and replaced by the new weights.
+    The old weights of the model are discarded and replaced by the new weights.
 4. `current_weights` should return the current weights of the model.
 
 For more details about directly implementing the machine learning interface
