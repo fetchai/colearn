@@ -83,7 +83,7 @@ setuptools.setup(
         'numpy>=1.16,<1.23',
         'pydantic>=1.7,<1.10',
     ],
-    tests_require=["tox>=3.20,<3.25"],
+    tests_require=["tox>=3.20,<3.27"],
     extras_require={
         'keras': keras_deps,
         'other': other_deps,
