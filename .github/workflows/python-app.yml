@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 11
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3.1.0
     - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
@@ -49,7 +49,7 @@ jobs:
       GITHUB_ACTION: true
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3.1.0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
