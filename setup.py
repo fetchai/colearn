@@ -44,7 +44,7 @@ docs_deps = [
     "jinja2==3.0.3"
 ]
 
-grpc_deps = ['grpcio>=1.35,<1.43',
+grpc_deps = ['grpcio>=1.35,<1.51',
              'grpcio-tools>=1.35,<1.44',
              'prometheus_client==0.13.1',
              'click'
