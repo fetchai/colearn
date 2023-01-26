@@ -28,7 +28,7 @@ import sklearn
 import numpy as np
 import pandas as pd
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import _DM_PREDICTION_SUFFIX, MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
 
@@ -164,6 +164,11 @@ class FraudLearner(MachineLearningInterface):
             return self.model.score(data, labels)
         except sklearn.exceptions.NotFittedError:
             return 0
+
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        # FIXME(LR) compute the prediction using existing model
+        result = bytes(request.input_data) + _DM_PREDICTION_SUFFIX
+        return Prediction(name=request.name, prediction_data=result)
 
 
 # The dataloader needs to be registered before the models that reference it

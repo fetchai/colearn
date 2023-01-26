@@ -21,7 +21,7 @@ from typing import Optional
 
 from google.protobuf import empty_pb2
 import grpc
-from colearn.ml_interface import MachineLearningInterface
+from colearn.ml_interface import MachineLearningInterface, PredictionRequest
 from prometheus_client import Counter, Summary
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
@@ -62,6 +62,8 @@ _time_set = Summary("contract_learner_grpc_server_set_time",
                     "This metric measures the time it takes to accept a weight")
 _time_get = Summary("contract_learner_grpc_server_get_time",
                     "This metric measures the time it takes to get the current weights")
+_time_prediction = Summary("contract_learner_grpc_server_prediction_time",
+                           "This metric measures the time it takes to compute a prediction using current weights")
 
 
 class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
@@ -260,4 +262,22 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
             response.model_file = current_model.model_file
             response.model = current_model.model.SerializeToString()
 
+        return response
+
+    @_time_prediction.time()
+    def MakePrediction(self, request, context):
+        response = ipb2.PredictionResponse()
+        _logger.info(f"Got Prediction request: {request}")
+
+        if self.learner is not None:
+            self._learner_mutex.acquire()  # TODO(LR) is the mutex needed here?
+            _logger.debug(f"Computing prediction: {request.name}")
+            prediction_req = PredictionRequest(request.name, bytes(request.input_data))
+            prediction = self.learner.mli_make_prediction(prediction_req)
+            _logger.debug(f"Prediction {request.name} computed successfully")
+            response.name = request.name
+            response.prediction_data = bytes(prediction.prediction_data)
+            self._learner_mutex.release()
+
+        _logger.debug(f"Sending Prediction Response: {response}")
         return response

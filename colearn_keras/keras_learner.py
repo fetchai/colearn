@@ -25,7 +25,7 @@ except ImportError:
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import _DM_PREDICTION_SUFFIX, MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary, ErrorCodes
 from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_optimizer_class
@@ -275,3 +275,17 @@ class KerasLearner(MachineLearningInterface):
         result = self.model.evaluate(x=loader, return_dict=True,
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]
+
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        """
+        Make prediction using the current model.
+        Does not change the current weights of the model.
+
+        :param request: data to get the prediction for
+        :returns: the prediction
+        """
+
+        # FIXME(LR) compute the prediction using existing model
+        result = bytes(request.input_data) + _DM_PREDICTION_SUFFIX
+
+        return Prediction(name=request.name, prediction_data=result)

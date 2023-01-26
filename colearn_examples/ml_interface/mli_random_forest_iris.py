@@ -22,7 +22,7 @@ import numpy as np
 from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import _DM_PREDICTION_SUFFIX, MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
@@ -113,6 +113,11 @@ class IrisLearner(MachineLearningInterface):
 
     def test(self, data_array, labels_array):
         return self.model.score(data_array, labels_array)
+
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        # FIXME(LR) compute the prediction using existing model
+        result = bytes(request.input_data) + _DM_PREDICTION_SUFFIX
+        return Prediction(name=request.name, prediction_data=result)
 
 
 train_fraction = 0.9

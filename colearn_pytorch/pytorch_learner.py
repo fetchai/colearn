@@ -43,6 +43,9 @@ from colearn.ml_interface import (
     DiffPrivConfig,
     TrainingSummary,
     ErrorCodes,
+    PredictionRequest,
+    Prediction,
+    _DM_PREDICTION_SUFFIX
 )
 
 from opacus import PrivacyEngine
@@ -328,3 +331,17 @@ class PytorchLearner(MachineLearningInterface):
             dp_budget=budget,
             error_code=err,
         )
+
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        """
+        Make prediction using the current model.
+        Does not change the current weights of the model.
+
+        :param request: data to get the prediction for
+        :returns: the prediction
+        """
+
+        # FIXME(LR) compute the prediction using existing model
+        result = bytes(request.input_data) + _DM_PREDICTION_SUFFIX
+
+        return Prediction(name=request.name, prediction_data=result)

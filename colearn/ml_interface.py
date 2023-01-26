@@ -94,6 +94,16 @@ class ColearnModel(BaseModel):
     model: Optional[Any]
 
 
+class PredictionRequest(BaseModel):
+    name: str
+    input_data: Any
+
+
+class Prediction(BaseModel):
+    name: str
+    prediction_data: Any
+
+
 def deser_model(model: Any) -> onnx.ModelProto:
     """
     Helper function to recover a onnx model from its deserialized form
@@ -136,3 +146,17 @@ class MachineLearningInterface(abc.ABC):
         Returns the current model
         """
         pass
+
+    @abc.abstractmethod
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        """
+        Make prediction using the current model.
+        Does not change the current weights of the model.
+
+        :param request: data to get the prediction for
+        :returns: the prediction
+        """
+        pass
+
+
+_DM_PREDICTION_SUFFIX = b">>>result<<<"
