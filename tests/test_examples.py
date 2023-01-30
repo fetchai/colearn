@@ -55,7 +55,11 @@ EXAMPLES_WITH_KWARGS = [
     (EXAMPLES_DIR / "keras_cifar.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),  # script 0
     (EXAMPLES_DIR / "keras_fraud.py", [FRAUD_DATA_DIR], {}),
     (EXAMPLES_DIR / "keras_mnist.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    (EXAMPLES_DIR / "keras_mnist_diffpriv.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    # FIXME(LR) disabled because of following error
+    # https://github.com/tensorflow/privacy/issues/134
+    # https://github.com/tensorflow/privacy/issues/106
+    # https://github.com/tensorflow/federated/issues/1381
+    # (EXAMPLES_DIR / "keras_mnist_diffpriv.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
     (EXAMPLES_DIR / "keras_xray.py", [XRAY_DATA_DIR], {}),
     (EXAMPLES_DIR / "mli_fraud.py", [FRAUD_DATA_DIR], {}),
     (EXAMPLES_DIR / "mli_random_forest_iris.py", [], {}),
