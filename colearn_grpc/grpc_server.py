@@ -56,7 +56,7 @@ class GRPCServer:
         self.server_key = server_key
         self.server_crt = server_crt
 
-    def run(self):
+    def run(self, wait_for_termination=True):
         if self.server:
             raise ValueError("re-running grpc")
 
@@ -98,8 +98,12 @@ class GRPCServer:
             self.server.add_insecure_port(address)
 
         self.server.start()
-        _logger.info("GRPC server started. Waiting for termination...")
-        self.server.wait_for_termination()
+
+        if wait_for_termination:
+            _logger.info("GRPC server started. Waiting for termination...")
+            self.server.wait_for_termination()
+        else:
+            _logger.info("GRPC server started.")
 
     def stop(self):
         _logger.info("Stopping GRPC server...")

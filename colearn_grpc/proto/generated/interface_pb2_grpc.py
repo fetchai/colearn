@@ -60,7 +60,7 @@ class GRPCLearnerStub(object):
                 request_serializer=interface__pb2.RequestStatus.SerializeToString,
                 response_deserializer=interface__pb2.ResponseStatus.FromString,
                 )
-        self.MakePrediction = channel.stream_stream(
+        self.MakePrediction = channel.unary_unary(
                 '/contract_learn.grpc.GRPCLearner/MakePrediction',
                 request_serializer=interface__pb2.PredictionRequest.SerializeToString,
                 response_deserializer=interface__pb2.PredictionResponse.FromString,
@@ -124,7 +124,7 @@ class GRPCLearnerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def MakePrediction(self, request_iterator, context):
+    def MakePrediction(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -178,7 +178,7 @@ def add_GRPCLearnerServicer_to_server(servicer, server):
                     request_deserializer=interface__pb2.RequestStatus.FromString,
                     response_serializer=interface__pb2.ResponseStatus.SerializeToString,
             ),
-            'MakePrediction': grpc.stream_stream_rpc_method_handler(
+            'MakePrediction': grpc.unary_unary_rpc_method_handler(
                     servicer.MakePrediction,
                     request_deserializer=interface__pb2.PredictionRequest.FromString,
                     response_serializer=interface__pb2.PredictionResponse.SerializeToString,
@@ -347,7 +347,7 @@ class GRPCLearner(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def MakePrediction(request_iterator,
+    def MakePrediction(request,
             target,
             options=(),
             channel_credentials=None,
@@ -357,7 +357,7 @@ class GRPCLearner(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/contract_learn.grpc.GRPCLearner/MakePrediction',
+        return grpc.experimental.unary_unary(request, target, '/contract_learn.grpc.GRPCLearner/MakePrediction',
             interface__pb2.PredictionRequest.SerializeToString,
             interface__pb2.PredictionResponse.FromString,
             options, channel_credentials,

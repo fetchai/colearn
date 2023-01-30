@@ -15,7 +15,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-from colearn.ml_interface import _DM_PREDICTION_SUFFIX, MachineLearningInterface, Prediction, PredictionRequest, ProposedWeights, \
+from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, ProposedWeights, \
     Weights, ColearnModel
 
 
@@ -63,6 +63,4 @@ class PlusOneLearner(MachineLearningInterface):
         return ColearnModel()
 
     def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
-        # FIXME(LR) compute the prediction using existing model
-        result = bytes(request.input_data) + _DM_PREDICTION_SUFFIX
-        return Prediction(request.name, result)
+        raise NotImplementedError()

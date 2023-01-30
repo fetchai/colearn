@@ -272,7 +272,10 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         if self.learner is not None:
             self._learner_mutex.acquire()  # TODO(LR) is the mutex needed here?
             _logger.debug(f"Computing prediction: {request.name}")
-            prediction_req = PredictionRequest(request.name, bytes(request.input_data))
+            prediction_req = PredictionRequest(
+                name=request.name,
+                input_data=bytes(request.input_data),
+            )
             prediction = self.learner.mli_make_prediction(prediction_req)
             _logger.debug(f"Prediction {request.name} computed successfully")
             response.name = request.name

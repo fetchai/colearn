@@ -24,7 +24,7 @@ import grpc
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
-from colearn.ml_interface import _DM_PREDICTION_SUFFIX, MachineLearningInterface, Prediction, PredictionRequest, ProposedWeights, Weights, ColearnModel
+from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, ProposedWeights, Weights, ColearnModel
 from colearn_grpc.logging import get_logger
 from colearn_grpc.utils import iterator_to_weights, weights_to_iterator
 
@@ -213,6 +213,15 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         return ColearnModel(model_format=response.model_format, model_file=response.model_file, model=response.model)
 
     def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
-        # FIXME(LR) compute the prediction using existing model
-        result = bytes(request.input_data) + _DM_PREDICTION_SUFFIX
-        return Prediction(name=request.name, prediction_data=result)
+        request_pb = ipb2.PredictionRequest()
+        request_pb.name = request.name
+        request_pb.input_data = request.input_data
+
+        _logger.info(f"Requesting prediction {request.name}")
+
+        try:
+            response = self.stub.MakePrediction(request_pb)
+            return Prediction(name=response.name, prediction_data=response.prediction_data)
+        except grpc.RpcError as ex:
+            _logger.exception(f"Failed to make_prediction: {ex}")
+            raise ConnectionError(f"GRPC error: {ex}")

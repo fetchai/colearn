@@ -113,5 +113,5 @@ service GRPCLearner {
     rpc SetWeights(stream WeightsPart) returns (google.protobuf.Empty);
     rpc GetCurrentWeights(google.protobuf.Empty) returns (stream WeightsPart);
     rpc StatusStream(stream RequestStatus) returns (stream ResponseStatus);
-    rpc MakePrediction(stream PredictionRequest) returns (stream PredictionResponse);
+    rpc MakePrediction(PredictionRequest) returns (PredictionResponse);
 };

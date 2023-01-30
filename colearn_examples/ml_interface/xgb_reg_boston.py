@@ -23,7 +23,7 @@ from sklearn.metrics import mean_squared_error as mse
 import numpy as np
 import xgboost as xgb
 
-from colearn.ml_interface import _DM_PREDICTION_SUFFIX, MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.data import split_list_into_fractions
 from colearn.utils.plot import ColearnPlot
@@ -113,9 +113,7 @@ class XGBoostLearner(MachineLearningInterface):
         return mse(self.model.predict(data_matrix), data_matrix.get_label())
 
     def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
-        # FIXME(LR) compute the prediction using existing model
-        result = bytes(request.input_data) + _DM_PREDICTION_SUFFIX
-        return Prediction(name=request.name, prediction_data=result)
+        raise NotImplementedError()
 
 
 train_fraction = 0.9
