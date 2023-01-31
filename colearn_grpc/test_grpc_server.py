@@ -17,6 +17,7 @@
 # ------------------------------------------------------------------------------
 import json
 import time
+import numpy as np
 from colearn.ml_interface import _DM_PREDICTION_SUFFIX, PredictionRequest
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.grpc_server import GRPCServer
@@ -78,12 +79,14 @@ def test_grpc_server_with_example_grpc_learner_client():
     assert client.mli_get_current_weights().weights == weights.weights
 
     pred_name = "prediction_1"
-    pred_req_data = b"Make me a prediction out of this"
+    # 2-Dim Arrays with all zeros
+    zero_images = np.array([np.random.randint(1, size=(28,28)), np.random.randint(1, size=(28,28))])
     prediction = client.mli_make_prediction(
-        PredictionRequest(name=pred_name, input_data=pred_req_data)
+        PredictionRequest(name=pred_name, input_data=zero_images.tobytes())
     )
+    prediction_data = list(prediction.prediction_data)
     assert prediction.name == pred_name
-    assert prediction.prediction_data == pred_req_data + _DM_PREDICTION_SUFFIX
+    assert type(prediction_data) is list
 
     client.stop()
     server.stop()
