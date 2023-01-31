@@ -128,7 +128,7 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
 
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
+    model.compile(optimizer=tf.keras.optimizers.legacy.Adam(lr=learning_rate),
                   loss='sparse_categorical_crossentropy',
                   metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
                   )
