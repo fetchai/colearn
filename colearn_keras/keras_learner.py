@@ -285,10 +285,12 @@ class KerasLearner(MachineLearningInterface):
         :param request: data to get the prediction for
         :returns: the prediction
         """
+        config = self.model.get_config()
+        batch_shape = config["layers"][0]["config"]["batch_input_shape"]
         byte_data = request.input_data
         one_dim_data = np.frombuffer(byte_data)
-        no_input = int(one_dim_data.shape[0]/(28*28))
-        input_data = one_dim_data.reshape(no_input, 28,28)
+        no_input = int(one_dim_data.shape[0]/(batch_shape[1]*batch_shape[2]))
+        input_data = one_dim_data.reshape(no_input, batch_shape[1],batch_shape[2])
         input_shaped = np.expand_dims(input_data, -1)
 
         result_prob_list = self.model.predict(input_shaped)
