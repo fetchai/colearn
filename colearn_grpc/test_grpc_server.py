@@ -18,6 +18,7 @@
 import json
 import time
 import numpy as np
+import matplotlib.image as mpimg
 from colearn.ml_interface import _DM_PREDICTION_SUFFIX, PredictionRequest
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.grpc_server import GRPCServer
@@ -79,10 +80,11 @@ def test_grpc_server_with_example_grpc_learner_client():
     assert client.mli_get_current_weights().weights == weights.weights
 
     pred_name = "prediction_1"
-    # 2-Dim Arrays with all zeros
-    zero_images = np.array([np.random.randint(1, size=(28,28)), np.random.randint(1, size=(28,28))])
+    data_path = "../colearn_keras/data/"
+    img_0 = mpimg.imread(f"{data_path}img_0.jpg")/255
+    img_list = np.array([img_0])
     prediction = client.mli_make_prediction(
-        PredictionRequest(name=pred_name, input_data=zero_images.tobytes())
+        PredictionRequest(name=pred_name, input_data=img_list.tobytes())
     )
     prediction_data = list(prediction.prediction_data)
     assert prediction.name == pred_name
