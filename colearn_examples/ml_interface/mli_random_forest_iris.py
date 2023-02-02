@@ -22,7 +22,8 @@ import numpy as np
 from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
 
-from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat
+from colearn.onnxutils import convert_model_to_onnx
 from colearn.training import initial_result, collective_learning_round
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results

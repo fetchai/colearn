@@ -37,7 +37,6 @@ from colearn.ml_interface import (
     Weights,
     ProposedWeights,
     ColearnModel,
-    convert_model_to_onnx,
     ModelFormat,
     DiffPrivBudget,
     DiffPrivConfig,
@@ -47,6 +46,7 @@ from colearn.ml_interface import (
     Prediction,
     _DM_PREDICTION_SUFFIX
 )
+from colearn.onnxutils import convert_model_to_onnx
 
 from opacus import PrivacyEngine
 
