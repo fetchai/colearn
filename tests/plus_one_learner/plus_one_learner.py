@@ -15,7 +15,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-from colearn.ml_interface import MachineLearningInterface, ProposedWeights, \
+from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, ProposedWeights, \
     Weights, ColearnModel
 
 
@@ -61,3 +61,6 @@ class PlusOneLearner(MachineLearningInterface):
         """
 
         return ColearnModel()
+
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        raise NotImplementedError()

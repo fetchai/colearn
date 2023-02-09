@@ -44,7 +44,7 @@ What script does:
 input_classes = 431
 n_classes = 1
 loss = "binary_crossentropy"
-optimizer = tf.keras.optimizers.Adam
+optimizer = tf.keras.optimizers.legacy.Adam
 l_rate = 0.0001
 l_rate_decay = 1e-5
 batch_size = 10000

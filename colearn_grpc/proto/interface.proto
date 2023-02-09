@@ -92,6 +92,17 @@ message ResponseSupportedSystem {
     repeated CompatibilitySpec compatibilities = 3;
 };
 
+message PredictionRequest {
+    string name = 1;
+    bytes input_data = 2;
+};
+
+message PredictionResponse {
+    string name = 1;
+    bytes prediction_data = 2;
+};
+
+
 service GRPCLearner {
     rpc QueryVersion(google.protobuf.Empty) returns (ResponseVersion);
     rpc QuerySupportedSystem(google.protobuf.Empty) returns (ResponseSupportedSystem);
@@ -102,4 +113,5 @@ service GRPCLearner {
     rpc SetWeights(stream WeightsPart) returns (google.protobuf.Empty);
     rpc GetCurrentWeights(google.protobuf.Empty) returns (stream WeightsPart);
     rpc StatusStream(stream RequestStatus) returns (stream ResponseStatus);
+    rpc MakePrediction(PredictionRequest) returns (PredictionResponse);
 };

@@ -17,6 +17,7 @@
 # ------------------------------------------------------------------------------
 from inspect import signature
 from typing import Optional
+import numpy as np
 
 try:
     import tensorflow as tf
@@ -25,7 +26,8 @@ except ImportError:
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import _DM_PREDICTION_SUFFIX, MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat
+from colearn.onnxutils import convert_model_to_onnx
 from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary, ErrorCodes
 from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_optimizer_class
@@ -275,3 +277,24 @@ class KerasLearner(MachineLearningInterface):
         result = self.model.evaluate(x=loader, return_dict=True,
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]
+
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        """
+        Make prediction using the current model.
+        Does not change the current weights of the model.
+
+        :param request: data to get the prediction for
+        :returns: the prediction
+        """
+        config = self.model.get_config()
+        batch_shape = config["layers"][0]["config"]["batch_input_shape"]
+        byte_data = request.input_data
+        one_dim_data = np.frombuffer(byte_data)
+        no_input = int(one_dim_data.shape[0]/(batch_shape[1]*batch_shape[2]))
+        input_data = one_dim_data.reshape(no_input, batch_shape[1],batch_shape[2])
+        input_shaped = np.expand_dims(input_data, -1)
+
+        result_prob_list = self.model.predict(input_shaped)
+        result_list = [np.argmax(r) for r in result_prob_list]
+
+        return Prediction(name=request.name, prediction_data=result_list)
