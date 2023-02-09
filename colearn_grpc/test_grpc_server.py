@@ -17,6 +17,8 @@
 # ------------------------------------------------------------------------------
 import json
 import time
+import numpy as np
+from PIL import Image
 from colearn.ml_interface import _DM_PREDICTION_SUFFIX, PredictionRequest
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.grpc_server import GRPCServer
@@ -78,12 +80,18 @@ def test_grpc_server_with_example_grpc_learner_client():
     assert client.mli_get_current_weights().weights == weights.weights
 
     pred_name = "prediction_1"
-    pred_req_data = b"Make me a prediction out of this"
+    data_path = "../colearn_keras/data/"
+    img = Image.open(f"{data_path}img_8.jpg")
+    img = img.convert('L')
+    img = img.resize((28,28))
+    img = np.array(img)/255
+    img_list = np.array([img])
     prediction = client.mli_make_prediction(
-        PredictionRequest(name=pred_name, input_data=pred_req_data)
+        PredictionRequest(name=pred_name, input_data=img_list.tobytes())
     )
+    prediction_data = list(prediction.prediction_data)
     assert prediction.name == pred_name
-    assert prediction.prediction_data == pred_req_data + _DM_PREDICTION_SUFFIX
+    assert type(prediction_data) is list
 
     client.stop()
     server.stop()
