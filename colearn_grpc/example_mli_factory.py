@@ -34,9 +34,12 @@ class ExampleMliFactory(MliFactory):
                        in FactoryRegistry.model_architectures.items()}
         self.dataloaders = {name: config.default_parameters for name, config
                             in FactoryRegistry.dataloaders.items()}
-
-        self.compatibilities = {name: config.compatibilities for name, config
-                                in FactoryRegistry.model_architectures.items()}
+        self.prediction_dataloaders = {name: config.default_parameters for name, config
+                                       in FactoryRegistry.prediction_dataloaders.items()}
+        self.data_compatibilities = {name: config.data_compatibilities for name, config
+                                     in FactoryRegistry.model_architectures.items()}
+        self.pred_compatibilities = {name: config.pred_compatibilities for name, config
+                                     in FactoryRegistry.model_architectures.items()}
 
     def get_models(self) -> Dict[str, Dict[str, Any]]:
         return copy.deepcopy(self.models)
@@ -44,15 +47,23 @@ class ExampleMliFactory(MliFactory):
     def get_dataloaders(self) -> Dict[str, Dict[str, Any]]:
         return copy.deepcopy(self.dataloaders)
 
-    def get_compatibilities(self) -> Dict[str, Set[str]]:
-        return self.compatibilities
+    def get_prediction_dataloaders(self) -> Dict[str, Dict[str, Any]]:
+        return copy.deepcopy(self.prediction_dataloaders)
+
+    def get_data_compatibilities(self) -> Dict[str, Set[str]]:
+        return self.data_compatibilities
+
+    def get_pred_compatibilities(self) -> Dict[str, Set[str]]:
+        return self.pred_compatibilities
 
     def get_mli(self, model_name: str, model_params: str, dataloader_name: str,
-                dataset_params: str) -> MachineLearningInterface:
+                dataset_params: str, prediction_dataloader_name: str, prediction_dataset_params: str) -> MachineLearningInterface:
 
         print("Call to get_mli")
         print(f"model_name {model_name} -> params: {model_params}")
         print(f"dataloader_name {dataloader_name} -> params: {dataset_params}")
+        print(
+            f"prediction_dataloader_name {prediction_dataloader_name} -> params: {prediction_dataset_params}")
 
         if model_name not in self.models:
             raise Exception(f"Model {model_name} is not a valid model. "
@@ -60,11 +71,18 @@ class ExampleMliFactory(MliFactory):
         if dataloader_name not in self.dataloaders:
             raise Exception(f"Dataloader {dataloader_name} is not a valid dataloader. "
                             f"Available dataloaders are: {self.dataloaders}")
-        if dataloader_name not in self.compatibilities[model_name]:
+        if dataloader_name not in self.data_compatibilities[model_name]:
             raise Exception(f"Dataloader {dataloader_name} is not compatible with {model_name}."
-                            f"Compatible dataloaders are: {self.compatibilities[model_name]}")
+                            f"Compatible dataloaders are: {self.data_compatibilities[model_name]}")
+        if prediction_dataloader_name not in self.prediction_dataloaders:
+            raise Exception(f"Prediction Dataloader {prediction_dataloader_name} is not a valid dataloader. "
+                            f"Available dataloaders are: {self.prediction_dataloaders}")
+        if prediction_dataloader_name not in self.pred_compatibilities[model_name]:
+            raise Exception(f"Prediction Dataloader {prediction_dataloader_name} is not compatible with {model_name}."
+                            f"Compatible dataloaders are: {self.data_pred_compatibilities[model_name]}")
 
-        dataloader_config = copy.deepcopy(self.dataloaders[dataloader_name])  # Default parameters
+        dataloader_config = copy.deepcopy(
+            self.dataloaders[dataloader_name])  # Default parameters
         dataloader_new_config = json.loads(dataset_params)
         for key in dataloader_new_config.keys():
             if key in dataloader_config or key == "location":
@@ -75,6 +93,20 @@ class ExampleMliFactory(MliFactory):
 
         prepare_data_loaders = FactoryRegistry.dataloaders[dataloader_name][0]
         data_loaders = prepare_data_loaders(**dataloader_config)
+
+        pred_dataloader_config = copy.deepcopy(
+            self.prediction_dataloaders[prediction_dataloader_name])  # Default parameters
+        pred_dataloader_new_config = json.loads(prediction_dataset_params)
+        for key in pred_dataloader_new_config.keys():
+            if key in pred_dataloader_config or key == "location":
+                pred_dataloader_config[key] = pred_dataloader_new_config[key]
+            else:
+                _logger.warning(f"Key {key} was included in the dataloader params but this dataloader "
+                                f"({prediction_dataloader_name}) does not accept it.")
+
+        prepare_pred_data_loaders = FactoryRegistry.prediction_dataloaders[
+            prediction_dataloader_name][0]
+        pred_data_loaders = prepare_pred_data_loaders(**pred_dataloader_config)
 
         model_config = copy.deepcopy(self.models[model_name])  # Default parameters
         model_new_config = json.loads(model_params)
@@ -90,4 +122,4 @@ class ExampleMliFactory(MliFactory):
                 model_config["diff_priv_config"] = DiffPrivConfig(**c)
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
 
-        return prepare_learner(data_loaders=data_loaders, **model_config)
+        return prepare_learner(data_loaders=data_loaders, prediction_dataloaders=pred_data_loaders, **model_config)

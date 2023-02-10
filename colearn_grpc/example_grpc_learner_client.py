@@ -65,13 +65,15 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                     # Attempt to get the certificate from the server and use it to encrypt the
                     # connection. If the certificate cannot be found, try to create an unencrypted connection.
                     try:
-                        assert (':' in self.address), f"Poorly formatted address, needs :port - {self.address}"
+                        assert (
+                            ':' in self.address), f"Poorly formatted address, needs :port - {self.address}"
                         _logger.info(f"Connecting to server: {self.address}")
                         addr, port = self.address.split(':')
                         trusted_certs = ssl.get_server_certificate((addr, int(port)))
 
                         # create credentials
-                        credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs.encode())
+                        credentials = grpc.ssl_channel_credentials(
+                            root_certificates=trusted_certs.encode())
                     except ssl.SSLError as e:
                         _logger.warning(
                             f"Encountered ssl error when attempting to get certificate from learner server: {e}")
@@ -119,14 +121,19 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         r = {
             "data_loaders": {},
             "model_architectures": {},
-            "compatibilities": {}
+            "data_compatibilities": {},
+            "pred_compatibilities": {},
         }
         for d in response.data_loaders:
             r["data_loaders"][d.name] = d.default_parameters
+        for d in response.prediction_dataloaders:
+            r["prediction_dataloaders"][d.name] = d.default_parameters
         for m in response.model_architectures:
             r["model_architectures"][m.name] = m.default_parameters
-        for c in response.compatibilities:
-            r["compatibilities"][c.model_architecture] = c.dataloaders
+        for c in response.data_compatibilities:
+            r["data_compatibilities"][c.model_architecture] = c.dataloaders
+        for c in response.pred_compatibilities:
+            r["pred_compatibilities"][c.model_architecture] = c.prediction_dataloaders
         return r
 
     def get_version(self):
@@ -137,15 +144,20 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         return response.version
 
     def setup_ml(self, dataset_loader_name, dataset_loader_parameters,
+                 prediction_dataset_loader_name, prediction_dataset_loader_parameters,
                  model_arch_name, model_parameters):
 
-        _logger.info(f"Setting up ml: model_arch: {model_arch_name}, dataset_loader: {dataset_loader_name}")
+        _logger.info(
+            f"Setting up ml: model_arch: {model_arch_name}, dataset_loader: {dataset_loader_name},"
+            f"prediction_dataset_loader: {prediction_dataset_loader_name}")
         _logger.debug(f"Model params: {model_parameters}")
         _logger.debug(f"Dataloader params: {dataset_loader_parameters}")
 
         request = ipb2.RequestMLSetup()
         request.dataset_loader_name = dataset_loader_name
         request.dataset_loader_parameters = dataset_loader_parameters
+        request.prediction_dataset_loader_name = prediction_dataset_loader_name
+        request.prediction_dataset_loader_parameters = prediction_dataset_loader_parameters
         request.model_arch_name = model_arch_name
         request.model_parameters = model_parameters
 
@@ -173,7 +185,8 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
     def mli_test_weights(self, weights: Weights = None) -> ProposedWeights:
         try:
             if weights:
-                response = self.stub.TestWeights(weights_to_iterator(weights, encode=False))
+                response = self.stub.TestWeights(
+                    weights_to_iterator(weights, encode=False))
             else:
                 raise Exception("mli_test_weights(None) is not currently supported")
 

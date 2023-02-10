@@ -61,14 +61,18 @@ def test_grpc_server_with_example_grpc_learner_client():
 
     ml = client.get_supported_system()
     data_loader = "KERAS_MNIST"
+    prediction_data_loader = "KERAS_MNIST"
     model_architecture = "KERAS_MNIST"
     assert data_loader in ml["data_loaders"].keys()
+    assert prediction_data_loader in ml["prediction_data_loaders"].keys()
     assert model_architecture in ml["model_architectures"].keys()
 
     data_location = "gs://colearn-public/mnist/2/"
     assert client.setup_ml(
         data_loader,
         json.dumps({"location": data_location}),
+        prediction_data_loader,
+        json.dumps({"location": "prediction_data_location"}),
         model_architecture,
         json.dumps({}),
     )
@@ -83,8 +87,8 @@ def test_grpc_server_with_example_grpc_learner_client():
     data_path = "../colearn_keras/data/"
     img = Image.open(f"{data_path}img_8.jpg")
     img = img.convert('L')
-    img = img.resize((28,28))
-    img = np.array(img)/255
+    img = img.resize((28, 28))
+    img = np.array(img) / 255
     img_list = np.array([img])
     prediction = client.mli_make_prediction(
         PredictionRequest(name=pred_name, input_data=img_list.tobytes())

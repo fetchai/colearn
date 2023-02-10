@@ -53,10 +53,12 @@ def prepare_loaders_impl(location: str,
 
     n_cases = int(train_ratio * len(images))
     n_vote_cases = int(vote_ratio * len(images))
-    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size, dp_enabled=dp_enabled)
+    train_loader = _make_loader(
+        images[:n_cases], labels[:n_cases], batch_size, dp_enabled=dp_enabled)
     vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
                                batch_size)
-    test_loader = _make_loader(images[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:], batch_size)
+    test_loader = _make_loader(
+        images[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:], batch_size)
 
     return train_loader, vote_loader, test_loader
 
@@ -97,8 +99,23 @@ def prepare_data_loaders_dp(location: str,
     return prepare_loaders_impl(location, train_ratio, vote_ratio, batch_size, True)
 
 
-@FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"])
+# The prediction dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_prediction_dataloader("KERAS_MNIST")
+def prepare_prediction_data_loaders(location: str):
+    """
+    Load training data from folders and create train and test dataloader
+
+    :param location: Path to training dataset
+    :param train_ratio: What portion of train_data should be used as test set
+    :param batch_size:
+    :return: Tuple of train_loader and test_loader
+    """
+    return f"Implement prediction data loader for location {location}"
+
+
+@FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"], ["KERAS_MNIST"])
 def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
+                           prediction_data_loaders: list = None,
                            steps_per_epoch: int = 100,
                            vote_batches: int = 10,
                            learning_rate: float = 0.001,
@@ -116,8 +133,11 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
     )
     x = tf.keras.layers.ZeroPadding2D(padding=padding)(input_img)
     x = tf.keras.layers.Flatten()(x)
-    x = tf.keras.layers.RepeatVector(new_channels)(x)  # mnist only has one channel so duplicate inputs
-    x = tf.keras.layers.Reshape((rows + padding * 2, cols + padding * 2, new_channels))(x)  # who knows if this works
+    # mnist only has one channel so duplicate inputs
+    x = tf.keras.layers.RepeatVector(new_channels)(x)
+    # who knows if this works
+    x = tf.keras.layers.Reshape(
+        (rows + padding * 2, cols + padding * 2, new_channels))(x)
 
     resnet = ResNet50(include_top=False, input_tensor=x)
 
@@ -142,12 +162,14 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
         minimise_criterion=False,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
         model_evaluate_kwargs={"steps": vote_batches},
+        prediction_data_loader=prediction_data_loaders
     )
     return learner
 
 
-@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"])
+@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"], ["KERAS_MNIST"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
+                    prediction_data_loaders: list = None,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
@@ -225,6 +247,7 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
         model_evaluate_kwargs={"steps": vote_batches},
         diff_priv_config=diff_priv_config,
+        prediction_data_loader=prediction_data_loaders
     )
     return learner
 
@@ -274,7 +297,8 @@ def split_to_folders(
         data_split = [1 / n_learners] * n_learners
 
     # Load MNIST from tfds
-    train_dataset, info = tfds.load('mnist', split='train+test', as_supervised=True, with_info=True)
+    train_dataset, info = tfds.load(
+        'mnist', split='train+test', as_supervised=True, with_info=True)
     n_datapoints = info.splits['train+test'].num_examples
     train_dataset = train_dataset.map(normalize_img).batch(n_datapoints)
 
