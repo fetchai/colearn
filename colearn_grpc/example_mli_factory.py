@@ -57,7 +57,8 @@ class ExampleMliFactory(MliFactory):
         return self.pred_compatibilities
 
     def get_mli(self, model_name: str, model_params: str, dataloader_name: str,
-                dataset_params: str, prediction_dataloader_name: str, prediction_dataset_params: str) -> MachineLearningInterface:
+                dataset_params: str, prediction_dataloader_name: str,
+                prediction_dataset_params: str) -> MachineLearningInterface:
 
         print("Call to get_mli")
         print(f"model_name {model_name} -> params: {model_params}")
@@ -122,4 +123,4 @@ class ExampleMliFactory(MliFactory):
                 model_config["diff_priv_config"] = DiffPrivConfig(**c)
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
 
-        return prepare_learner(data_loaders=data_loaders, prediction_dataloaders=pred_data_loaders, **model_config)
+        return prepare_learner(data_loaders=data_loaders, prediction_data_loaders=pred_data_loaders, **model_config)

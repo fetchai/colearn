@@ -128,11 +128,15 @@ class FactoryRegistry:
                 "model must accept a 'prediction_data_loaders' parameter")
         model_dl_type = sig.parameters["prediction_data_loaders"].annotation
         for dl in compatibilities:
-            if dl not in cls.dataloaders:
+            if dl not in cls.prediction_dataloaders:
                 raise RegistryException(f"Compatible prediction dataloader {dl} is not registered."
                                         "The dataloader needs to be "
                                         "registered before the model that references it.")
-            dl_type = signature(cls.dataloaders[dl].callable).return_annotation
+            # this is empty, todo fix error here
+            dl_type = signature(
+                cls.prediction_dataloaders[dl].callable).return_annotation  # this is empty
+            print(dl_type)
+            print(model_dl_type)
             if dl_type != model_dl_type:
-                raise RegistryException(f"Compatible dataloader {dl} has return type {dl_type}"
+                raise RegistryException(f"Compatible prediction dataloader {dl} has return type {dl_type}"
                                         f" but model prediction_data_loaders expects type {model_dl_type}")

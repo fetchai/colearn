@@ -120,20 +120,21 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         response = self.stub.QuerySupportedSystem(request)
         r = {
             "data_loaders": {},
+            "prediction_data_loaders": {},
             "model_architectures": {},
             "data_compatibilities": {},
             "pred_compatibilities": {},
         }
         for d in response.data_loaders:
             r["data_loaders"][d.name] = d.default_parameters
-        for d in response.prediction_dataloaders:
-            r["prediction_dataloaders"][d.name] = d.default_parameters
+        for p in response.prediction_data_loaders:
+            r["prediction_data_loaders"][p.name] = p.default_parameters
         for m in response.model_architectures:
             r["model_architectures"][m.name] = m.default_parameters
-        for c in response.data_compatibilities:
-            r["data_compatibilities"][c.model_architecture] = c.dataloaders
-        for c in response.pred_compatibilities:
-            r["pred_compatibilities"][c.model_architecture] = c.prediction_dataloaders
+        for dc in response.data_compatibilities:
+            r["data_compatibilities"][dc.model_architecture] = dc.dataloaders
+        for pc in response.pred_compatibilities:
+            r["pred_compatibilities"][pc.model_architecture] = pc.prediction_dataloaders
         return r
 
     def get_version(self):
@@ -146,12 +147,15 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
     def setup_ml(self, dataset_loader_name, dataset_loader_parameters,
                  prediction_dataset_loader_name, prediction_dataset_loader_parameters,
                  model_arch_name, model_parameters):
+        # TODO here
 
         _logger.info(
             f"Setting up ml: model_arch: {model_arch_name}, dataset_loader: {dataset_loader_name},"
             f"prediction_dataset_loader: {prediction_dataset_loader_name}")
         _logger.debug(f"Model params: {model_parameters}")
         _logger.debug(f"Dataloader params: {dataset_loader_parameters}")
+        _logger.debug(
+            f"Prediction dataloader params: {prediction_dataset_loader_parameters}")
 
         request = ipb2.RequestMLSetup()
         request.dataset_loader_name = dataset_loader_name
@@ -229,6 +233,8 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         request_pb = ipb2.PredictionRequest()
         request_pb.name = request.name
         request_pb.input_data = request.input_data
+
+        # TODO call here preprocessing function?
 
         _logger.info(f"Requesting prediction {request.name}")
 

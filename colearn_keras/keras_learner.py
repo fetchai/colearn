@@ -48,7 +48,7 @@ class KerasLearner(MachineLearningInterface):
                  model_fit_kwargs: Optional[dict] = None,
                  model_evaluate_kwargs: Optional[dict] = None,
                  diff_priv_config: Optional[DiffPrivConfig] = None,
-                 prediction_data_loader: Optional[str] = None):
+                 prediction_data_loader=None):
         """
         :param model: Keras model used for training
         :param train_loader: Training dataset
@@ -292,6 +292,7 @@ class KerasLearner(MachineLearningInterface):
         :param request: data to get the prediction for
         :returns: the prediction
         """
+        # TODO change something here
         config = self.model.get_config()
         batch_shape = config["layers"][0]["config"]["batch_input_shape"]
         byte_data = request.input_data

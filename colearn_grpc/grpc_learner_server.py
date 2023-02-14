@@ -102,7 +102,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 d.default_parameters = json.dumps(params)
 
             for name, params in self.mli_factory.get_prediction_dataloaders().items():
-                p = response.predictiondata_loaders.add()
+                p = response.prediction_data_loaders.add()
                 p.name = name
                 p.default_parameters = json.dumps(params)
 
@@ -136,8 +136,8 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 model_params=request.model_parameters,
                 dataloader_name=request.dataset_loader_name,
                 dataset_params=request.dataset_loader_parameters,
-                prediction_dataloader_name=request.prediction_dataloader_name,
-                prediction_dataset_params=request.prediction_dataset_params
+                prediction_dataloader_name=request.prediction_dataset_loader_name,
+                prediction_dataset_params=request.prediction_dataset_loader_parameters
             )
             _logger.debug("ML MODEL CREATED")
             if self.learner is not None:
@@ -281,6 +281,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def MakePrediction(self, request, context):
         response = ipb2.PredictionResponse()
         _logger.info(f"Got Prediction request: {request}")
+        # TODO check what to change here
 
         if self.learner is not None:
             self._learner_mutex.acquire()  # TODO(LR) is the mutex needed here?

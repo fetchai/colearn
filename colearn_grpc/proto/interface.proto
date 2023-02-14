@@ -7,8 +7,10 @@ package contract_learn.grpc;
 message RequestMLSetup {
     string dataset_loader_name = 1;
     string dataset_loader_parameters = 2;
-    string model_arch_name = 3;
-    string model_parameters = 4;
+    string prediction_dataset_loader_name = 3;
+    string prediction_dataset_loader_parameters = 4;
+    string model_arch_name = 5;
+    string model_parameters = 6;
 };
 
 enum MLSetupStatus {
@@ -66,14 +68,24 @@ message DatasetLoaderSpec {
     string default_parameters = 2; // JSON encoded default parameters
 };
 
+message PredictionDatasetLoaderSpec {
+    string name = 1;
+    string default_parameters = 2; // JSON encoded default parameters
+};
+
 message ModelArchSpec {
     string name = 1;
     string default_parameters = 2; // JSON encoded default parameters for the model arch.
 };
 
-message CompatibilitySpec {
+message DataCompatibilitySpec {
     string model_architecture = 1;
     repeated string dataloaders = 2;
+};
+
+message PredictonDataCompatibilitySpec {
+    string model_architecture = 1;
+    repeated string prediction_dataloaders = 2;
 };
 
 message ResponseVersion {
@@ -88,8 +100,10 @@ message ResponseCurrentModel {
 
 message ResponseSupportedSystem {
     repeated DatasetLoaderSpec data_loaders    = 1;
-    repeated ModelArchSpec model_architectures = 2;
-    repeated CompatibilitySpec compatibilities = 3;
+    repeated PredictionDatasetLoaderSpec prediction_data_loaders    = 2;
+    repeated ModelArchSpec model_architectures = 3;
+    repeated DataCompatibilitySpec data_compatibilities = 4;
+    repeated PredictonDataCompatibilitySpec pred_compatibilities = 5;
 };
 
 message PredictionRequest {

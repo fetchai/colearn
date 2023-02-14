@@ -100,22 +100,29 @@ def prepare_data_loaders_dp(location: str,
 
 
 # The prediction dataloader needs to be registered before the models that reference it
-@FactoryRegistry.register_prediction_dataloader("KERAS_MNIST")
+@FactoryRegistry.register_prediction_dataloader("KERAS_MNIST_PRED")
 def prepare_prediction_data_loaders(location: str):
     """
-    Load training data from folders and create train and test dataloader
+    Load image data from folder and create prediction data loader
 
-    :param location: Path to training dataset
-    :param train_ratio: What portion of train_data should be used as test set
-    :param batch_size:
-    :return: Tuple of train_loader and test_loader
+    :param location: Path to image
+    :return: TODO
     """
-    return f"Implement prediction data loader for location {location}"
+    import numpy as np
+    from PIL import Image
+    # TODO implement data loader
+    data_folder = get_data(location)
+    img = Image.open(f"{data_folder}")
+    img = img.convert('L')
+    img = img.resize((28, 28))
+    img = np.array(img) / 255
+    img_list = np.array([img])
+    return img_list
 
 
-@FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"], ["KERAS_MNIST"])
+@FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"], ["KERAS_MNIST_PRED"])
 def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
-                           prediction_data_loaders: list = None,
+                           prediction_data_loaders: Tuple = None,
                            steps_per_epoch: int = 100,
                            vote_batches: int = 10,
                            learning_rate: float = 0.001,
@@ -167,9 +174,9 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
     return learner
 
 
-@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"], ["KERAS_MNIST"])
+@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"], ["KERAS_MNIST_PRED"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
-                    prediction_data_loaders: list = None,
+                    prediction_data_loaders: Tuple[np.array] = None,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
