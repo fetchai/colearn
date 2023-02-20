@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 from inspect import signature
-from typing import Optional
+from typing import Optional, Tuple
 import numpy as np
 
 try:
@@ -41,14 +41,14 @@ class KerasLearner(MachineLearningInterface):
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
                  vote_loader: tf.data.Dataset,
+                 prediction_data_loader: Tuple[np.array],
                  test_loader: Optional[tf.data.Dataset] = None,
                  need_reset_optimizer: bool = True,
                  minimise_criterion: bool = True,
                  criterion: str = 'loss',
                  model_fit_kwargs: Optional[dict] = None,
                  model_evaluate_kwargs: Optional[dict] = None,
-                 diff_priv_config: Optional[DiffPrivConfig] = None,
-                 prediction_data_loader=None):
+                 diff_priv_config: Optional[DiffPrivConfig] = None):
         """
         :param model: Keras model used for training
         :param train_loader: Training dataset

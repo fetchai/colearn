@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Tuple, List, Optional
 
 import numpy as np
+from PIL import Image
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
@@ -101,28 +102,25 @@ def prepare_data_loaders_dp(location: str,
 
 # The prediction dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_prediction_dataloader("KERAS_MNIST_PRED")
-def prepare_prediction_data_loaders(location: str):
+def prepare_prediction_data_loaders(location: str) -> Tuple[np.array]:
     """
     Load image data from folder and create prediction data loader
 
     :param location: Path to image
-    :return: TODO
+    :return: List of img_list
     """
-    import numpy as np
-    from PIL import Image
-    # TODO implement data loader
     data_folder = get_data(location)
     img = Image.open(f"{data_folder}")
     img = img.convert('L')
     img = img.resize((28, 28))
     img = np.array(img) / 255
-    img_list = np.array([img])
+    img_list = tuple((np.array([img])))
     return img_list
 
 
 @FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"], ["KERAS_MNIST_PRED"])
 def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
-                           prediction_data_loaders: Tuple = None,
+                           prediction_data_loaders: Tuple[np.array],
                            steps_per_epoch: int = 100,
                            vote_batches: int = 10,
                            learning_rate: float = 0.001,
@@ -176,7 +174,7 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
 
 @FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"], ["KERAS_MNIST_PRED"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
-                    prediction_data_loaders: Tuple[np.array] = None,
+                    prediction_data_loaders: Tuple[np.array],
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
@@ -191,7 +189,6 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     :param learning_rate: Learning rate for optimiser
     :return: New instance of KerasLearner
     """
-
     # 2D Convolutional model for image recognition
     loss = "sparse_categorical_crossentropy"
     optimizer = tf.keras.optimizers.Adam

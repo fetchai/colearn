@@ -68,7 +68,7 @@ def test_grpc_server_with_example_grpc_learner_client():
     assert model_architecture in ml["model_architectures"].keys()
 
     data_location = "gs://colearn-public/mnist/2/"
-    prediction_location = "/colearn_keras/data/img_8.jpg"
+    prediction_location = "../colearn_keras/data/img_8.jpg"
     assert client.setup_ml(
         data_loader,
         json.dumps({"location": data_location}),
@@ -84,20 +84,16 @@ def test_grpc_server_with_example_grpc_learner_client():
     client.mli_accept_weights(weights)
     assert client.mli_get_current_weights().weights == weights.weights
 
-    # pred_name = "prediction_1"
-    #
-    # TODO move this to prediction data loader
-    # img = Image.open(f"{data_path}img_8.jpg")
-    # img = img.convert('L')
-    # img = img.resize((28, 28))
-    # img = np.array(img) / 255
-    # img_list = np.array([img])
-    # prediction = client.mli_make_prediction(
-    #     PredictionRequest(name=pred_name, input_data=img_list.tobytes())
-    # )
-    # prediction_data = list(prediction.prediction_data)
-    # assert prediction.name == pred_name
-    # assert type(prediction_data) is list
+    pred_name = "prediction_1"
+
+    # TODO make this work
+    location = "../colearn_keras/data/img_0.jpg"
+    prediction = client.mli_make_prediction(
+        PredictionRequest(name=pred_name, input_data=location)
+    )
+    prediction_data = list(prediction.prediction_data)
+    assert prediction.name == pred_name
+    assert type(prediction_data) is list
 
     client.stop()
     server.stop()

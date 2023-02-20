@@ -122,5 +122,6 @@ class ExampleMliFactory(MliFactory):
             if c is not None:
                 model_config["diff_priv_config"] = DiffPrivConfig(**c)
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
+        # TODO maybe get default data loader here
 
         return prepare_learner(data_loaders=data_loaders, prediction_data_loaders=pred_data_loaders, **model_config)
