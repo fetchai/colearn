@@ -284,6 +284,13 @@ class KerasLearner(MachineLearningInterface):
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]
 
+    def get_prediction_data_loader(self) -> Tuple:
+        """
+        Get the current prediction data loader of the experiment
+        :return: Tuple with prediction data loader
+        """
+        return self.prediction_data_loader
+
     def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
         """
         Make prediction using the current model.
@@ -292,7 +299,6 @@ class KerasLearner(MachineLearningInterface):
         :param request: data to get the prediction for
         :returns: the prediction
         """
-        # TODO change something here
         config = self.model.get_config()
         batch_shape = config["layers"][0]["config"]["batch_input_shape"]
         byte_data = request.input_data

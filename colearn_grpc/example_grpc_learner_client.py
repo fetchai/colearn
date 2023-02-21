@@ -234,8 +234,6 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         request_pb.name = request.name
         request_pb.input_data = request.input_data
 
-        # TODO call here preprocessing function?
-
         _logger.info(f"Requesting prediction {request.name}")
 
         try:

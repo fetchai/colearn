@@ -281,14 +281,16 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def MakePrediction(self, request, context):
         response = ipb2.PredictionResponse()
         _logger.info(f"Got Prediction request: {request}")
-        # TODO check what to change here
+        # TODO call here the preprocessing and data loader
+        pred_data_loader = self.learner.get_prediction_data_loader()
+        img = pred_data_loader[0]
 
         if self.learner is not None:
             self._learner_mutex.acquire()  # TODO(LR) is the mutex needed here?
             _logger.debug(f"Computing prediction: {request.name}")
             prediction_req = PredictionRequest(
                 name=request.name,
-                input_data=bytes(request.input_data),
+                input_data=img.tobytes(),
             )
             prediction = self.learner.mli_make_prediction(prediction_req)
             _logger.debug(f"Prediction {request.name} computed successfully")

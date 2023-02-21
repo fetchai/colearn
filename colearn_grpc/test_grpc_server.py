@@ -89,7 +89,7 @@ def test_grpc_server_with_example_grpc_learner_client():
     # TODO make this work
     location = "../colearn_keras/data/img_0.jpg"
     prediction = client.mli_make_prediction(
-        PredictionRequest(name=pred_name, input_data=location)
+        PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'))
     )
     prediction_data = list(prediction.prediction_data)
     assert prediction.name == pred_name
