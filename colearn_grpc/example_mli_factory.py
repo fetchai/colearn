@@ -109,6 +109,9 @@ class ExampleMliFactory(MliFactory):
             prediction_dataloader_name][0]
         pred_data_loaders = prepare_pred_data_loaders(**pred_dataloader_config)
 
+        # TODO here or somewhere else add all possible prediction data loaders to Keras learner
+        # TODO if one has been specified, this should be the default and first one
+
         model_config = copy.deepcopy(self.models[model_name])  # Default parameters
         model_new_config = json.loads(model_params)
         for key in model_new_config.keys():
@@ -121,7 +124,7 @@ class ExampleMliFactory(MliFactory):
             c = model_config["diff_priv_config"]
             if c is not None:
                 model_config["diff_priv_config"] = DiffPrivConfig(**c)
+
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
-        # TODO maybe get default data loader here
 
         return prepare_learner(data_loaders=data_loaders, prediction_data_loaders=pred_data_loaders, **model_config)

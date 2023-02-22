@@ -147,8 +147,6 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
     def setup_ml(self, dataset_loader_name, dataset_loader_parameters,
                  prediction_dataset_loader_name, prediction_dataset_loader_parameters,
                  model_arch_name, model_parameters):
-        # TODO here
-
         _logger.info(
             f"Setting up ml: model_arch: {model_arch_name}, dataset_loader: {dataset_loader_name},"
             f"prediction_dataset_loader: {prediction_dataset_loader_name}")
@@ -233,6 +231,7 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         request_pb = ipb2.PredictionRequest()
         request_pb.name = request.name
         request_pb.input_data = request.input_data
+        request_pb.pred_data_loader_key = request.pred_data_loader_key
 
         _logger.info(f"Requesting prediction {request.name}")
 

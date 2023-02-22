@@ -41,7 +41,7 @@ class KerasLearner(MachineLearningInterface):
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
                  vote_loader: tf.data.Dataset,
-                 prediction_data_loader: Tuple[np.array],
+                 prediction_data_loader: dict,
                  test_loader: Optional[tf.data.Dataset] = None,
                  need_reset_optimizer: bool = True,
                  minimise_criterion: bool = True,
@@ -284,10 +284,10 @@ class KerasLearner(MachineLearningInterface):
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]
 
-    def get_prediction_data_loader(self) -> Tuple:
+    def get_prediction_data_loaders(self) -> dict:
         """
-        Get the current prediction data loader of the experiment
-        :return: Tuple with prediction data loader
+        Get all prediction data loader, wtih default one beeing the first
+        :return: Dict with keys and functions prediction data loader
         """
         return self.prediction_data_loader
 

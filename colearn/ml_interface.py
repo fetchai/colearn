@@ -72,6 +72,7 @@ class ColearnModel(BaseModel):
 class PredictionRequest(BaseModel):
     name: str
     input_data: Any
+    pred_data_loader_key: Optional[Any]
 
 
 class Prediction(BaseModel):

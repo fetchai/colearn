@@ -100,27 +100,38 @@ def prepare_data_loaders_dp(location: str,
     return prepare_loaders_impl(location, train_ratio, vote_ratio, batch_size, True)
 
 
-# The prediction dataloader needs to be registered before the models that reference it
-@FactoryRegistry.register_prediction_dataloader("KERAS_MNIST_PRED")
-def prepare_prediction_data_loaders(location: str) -> Tuple[np.array]:
+# prepare pred loader implementation
+def prepare_pred_loaders_impl(location: str) -> np.array:
     """
-    Load image data from folder and create prediction data loader
+     Load image data from folder and create prediction data loader
 
-    :param location: Path to image
-    :return: List of img_list
+    :param location: Path to prediction file
+    :return: img as numpy asrray
     """
     data_folder = get_data(location)
     img = Image.open(f"{data_folder}")
     img = img.convert('L')
     img = img.resize((28, 28))
     img = np.array(img) / 255
-    img_list = tuple((np.array([img])))
-    return img_list
+    return img
+
+
+# The prediction dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_prediction_dataloader("KERAS_MNIST_PRED")
+def prepare_prediction_data_loaders(location: str) -> dict:
+    """
+    Wrapper for loading image data from folder and create prediction data loader
+
+    :param location: Path to image
+    :return: dict of name and function
+    """
+    # TODO check how to make location optional (needed if pred data loader is specified on experiment creation)
+    return {"KERAS_MNIST_PRED": prepare_pred_loaders_impl}
 
 
 @FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"], ["KERAS_MNIST_PRED"])
 def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
-                           prediction_data_loaders: Tuple[np.array],
+                           prediction_data_loaders: dict,
                            steps_per_epoch: int = 100,
                            vote_batches: int = 10,
                            learning_rate: float = 0.001,
@@ -174,7 +185,7 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
 
 @FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"], ["KERAS_MNIST_PRED"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
-                    prediction_data_loaders: Tuple[np.array],
+                    prediction_data_loaders: dict,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
                     learning_rate: float = 0.001,
