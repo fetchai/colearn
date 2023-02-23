@@ -118,18 +118,29 @@ def prepare_pred_loaders_impl(location: str) -> np.array:
 
 # The prediction dataloader needs to be registered before the models that reference it
 @FactoryRegistry.register_prediction_dataloader("KERAS_MNIST_PRED")
-def prepare_prediction_data_loaders(location: str) -> dict:
+def prepare_prediction_data_loaders(location: str = None) -> dict:
     """
     Wrapper for loading image data from folder and create prediction data loader
 
     :param location: Path to image
     :return: dict of name and function
     """
-    # TODO check how to make location optional (needed if pred data loader is specified on experiment creation)
     return {"KERAS_MNIST_PRED": prepare_pred_loaders_impl}
 
 
-@FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"], ["KERAS_MNIST_PRED"])
+@FactoryRegistry.register_prediction_dataloader("KERAS_MNIST_PRED_TWO")
+def prepare_prediction_data_loaders_two(location: str = None) -> dict:
+    """
+    Wrapper for loading image data from folder and create prediction data loader.
+    Same as other data loader for testing purpose.
+
+    :param location: Path to image
+    :return: dict of name and function
+    """
+    return {"KERAS_MNIST_PRED_TWO": prepare_pred_loaders_impl}
+
+
+@FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"], ["KERAS_MNIST_PRED", "KERAS_MNIST_PRED_TWO"])
 def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
                            prediction_data_loaders: dict,
                            steps_per_epoch: int = 100,
@@ -183,7 +194,7 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
     return learner
 
 
-@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"], ["KERAS_MNIST_PRED"])
+@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"], ["KERAS_MNIST_PRED", "KERAS_MNIST_PRED_TWO"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
                     prediction_data_loaders: dict,
                     steps_per_epoch: int = 100,

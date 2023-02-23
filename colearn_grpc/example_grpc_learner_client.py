@@ -145,8 +145,10 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         return response.version
 
     def setup_ml(self, dataset_loader_name, dataset_loader_parameters,
-                 prediction_dataset_loader_name, prediction_dataset_loader_parameters,
-                 model_arch_name, model_parameters):
+                 model_arch_name, model_parameters,
+                 prediction_dataset_loader_name=None,
+                 prediction_dataset_loader_parameters=None,
+                 ):
         _logger.info(
             f"Setting up ml: model_arch: {model_arch_name}, dataset_loader: {dataset_loader_name},"
             f"prediction_dataset_loader: {prediction_dataset_loader_name}")
@@ -158,10 +160,13 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         request = ipb2.RequestMLSetup()
         request.dataset_loader_name = dataset_loader_name
         request.dataset_loader_parameters = dataset_loader_parameters
-        request.prediction_dataset_loader_name = prediction_dataset_loader_name
-        request.prediction_dataset_loader_parameters = prediction_dataset_loader_parameters
         request.model_arch_name = model_arch_name
         request.model_parameters = model_parameters
+
+        if request.prediction_dataset_loader_name:
+            request.prediction_dataset_loader_name = prediction_dataset_loader_name
+        if request.prediction_dataset_loader_parameters:
+            request.prediction_dataset_loader_parameters = prediction_dataset_loader_parameters
 
         _logger.info(f"Setting up ml with request: {request}")
 
@@ -231,7 +236,8 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         request_pb = ipb2.PredictionRequest()
         request_pb.name = request.name
         request_pb.input_data = request.input_data
-        request_pb.pred_data_loader_key = request.pred_data_loader_key
+        if request.pred_data_loader_key:
+            request_pb.pred_data_loader_key = request.pred_data_loader_key
 
         _logger.info(f"Requesting prediction {request.name}")
 

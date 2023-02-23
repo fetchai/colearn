@@ -66,14 +66,12 @@ def test_grpc_server_with_example_grpc_learner_client():
     assert model_architecture in ml["model_architectures"].keys()
 
     data_location = "gs://colearn-public/mnist/2/"
-    prediction_location = "../colearn_keras/data/img_8.jpg"
     assert client.setup_ml(
         data_loader,
         json.dumps({"location": data_location}),
-        prediction_data_loader,
-        json.dumps({"location": prediction_location}),
         model_architecture,
         json.dumps({}),
+        prediction_data_loader
     )
 
     weights = client.mli_propose_weights()
@@ -85,9 +83,18 @@ def test_grpc_server_with_example_grpc_learner_client():
     pred_name = "prediction_1"
 
     location = "../colearn_keras/data/img_0.jpg"
+    # Overwrite specified data loader
     prediction = client.mli_make_prediction(
         PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'),
-                          pred_data_loader_key=prediction_data_loader)
+                          pred_data_loader_key="KERAS_MNIST_PRED_TWO")
+    )
+    prediction_data = list(prediction.prediction_data)
+    assert prediction.name == pred_name
+    assert type(prediction_data) is list
+
+    # Take prediction data loader from experiment
+    prediction = client.mli_make_prediction(
+        PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'))
     )
     prediction_data = list(prediction.prediction_data)
     assert prediction.name == pred_name
