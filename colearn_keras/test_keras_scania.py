@@ -17,7 +17,6 @@
 # ------------------------------------------------------------------------------
 import json
 import time
-from colearn.ml_interface import _DM_PREDICTION_SUFFIX, PredictionRequest
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.grpc_server import GRPCServer
 from colearn_grpc.logging import get_logger
@@ -31,7 +30,7 @@ import colearn_keras.keras_scania  # type:ignore # noqa: F401
 _logger = get_logger(__name__)
 
 
-def test_grpc_server_with_example_grpc_learner_client():
+def test_keras_scania_with_grpc_sever():
     _logger.info("setting up the grpc server ...")
 
     server_port = 34567
@@ -52,7 +51,7 @@ def test_grpc_server_with_example_grpc_learner_client():
     time.sleep(2)
 
     client = ExampleGRPCLearnerClient(
-        "mnist_client", f"127.0.0.1:{server_port}", enable_encryption=enable_encryption
+        "scania_client", f"127.0.0.1:{server_port}", enable_encryption=enable_encryption
     )
 
     client.start()
@@ -63,7 +62,9 @@ def test_grpc_server_with_example_grpc_learner_client():
     assert data_loader in ml["data_loaders"].keys()
     assert model_architecture in ml["model_architectures"].keys()
 
-    data_location = "../colearn_keras/data/0/"
+    
+    # TODO make this publicly available
+    data_location = "./data/0"
     assert client.setup_ml(
         data_loader,
         json.dumps({"location": data_location}),

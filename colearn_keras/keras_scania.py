@@ -16,25 +16,48 @@
 #
 # ------------------------------------------------------------------------------
 import os
-import pickle
-import tempfile
-from pathlib import Path
-from typing import Tuple, List, Optional
+from typing import Tuple
 
+import pandas as pd
 import numpy as np
-from PIL import Image
 import tensorflow as tf
-import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 from tensorflow.keras.applications.resnet import ResNet50
 from tensorflow.keras.layers import Dropout
-from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
 
-from colearn.ml_interface import DiffPrivConfig
-from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_keras.keras_learner import KerasLearner
-from colearn_keras.utils import normalize_img
+from colearn_keras.utils import _make_loader
+
+from colearn_grpc.logging import get_logger, set_log_levels
+
+_logger = get_logger(__name__)
+set_log_levels({"default": "INFO"})
+
+
+# prepare dataloader implementation
+def prepare_loaders_impl(location: str) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
+    _logger.info(f"    -    USING DATASET FROM LOCATION: {location}")
+    _logger.info(f"    -    LOADING csv!")
+
+    def getf(type_, set_): return os.path.join(
+        location, f"{type_}_{set_}_learner.csv"
+    )
+
+    X_train = pd.read_csv(getf("X", "train"), index_col=0).values
+    y_train = pd.read_csv(getf("y", "train"), index_col=0).values
+    X_test = pd.read_csv(getf("X", "test"), index_col=0).values
+    y_test = pd.read_csv(getf("y", "test"), index_col=0).values
+    X_vote = pd.read_csv(getf("X", "vote"), index_col=0).values
+    y_vote = pd.read_csv(getf("y", "vote"), index_col=0).values
+
+    def reshape_x(X): return np.expand_dims(np.expand_dims(X, axis=1), axis=3)
+
+    train_loader = _make_loader(reshape_x(X_train), y_train.reshape(-1))
+    vote_loader = _make_loader(reshape_x(X_vote), y_vote.reshape(-1))
+    test_loader = _make_loader(reshape_x(X_test), y_test.reshape(-1))
+
+    return train_loader, vote_loader, test_loader
 
 
 # The dataloader needs to be registered before the models that reference it
@@ -46,17 +69,14 @@ def prepare_data_loaders(location: str) -> Tuple[PrefetchDataset, PrefetchDatase
     :param location: Path to training dataset
     :return: Tuple of train_loader and test_loader
     """
-    pass
+    return prepare_loaders_impl(location)
 
 
-@FactoryRegistry.register_model_architecture("KERAS_SCANIA", ["KERAS_SCANIA"], ["KERAS_SCANIA_PRED"])
+@FactoryRegistry.register_model_architecture("KERAS_SCANIA", ["KERAS_SCANIA"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
-                    prediction_data_loaders: dict,
                     steps_per_epoch: int = 100,
                     vote_batches: int = 10,
-                    learning_rate: float = 0.001,
-                    diff_priv_config: Optional[DiffPrivConfig] = None,
-                    num_microbatches: int = 4,
+                    learning_rate: float = 0.001
                     ) -> KerasLearner:
     """
     Creates new instance of KerasLearner
@@ -66,5 +86,45 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     :param learning_rate: Learning rate for optimiser
     :return: New instance of KerasLearner
     """
-    # 2 classes
-    pass
+    # RESNET model
+    rows = 1
+    cols = 162
+    channels = 1
+    new_channels = 3
+    padding = 2
+    n_classes = 2
+
+    input_img = tf.keras.Input(
+        shape=(rows, cols, channels), name="Input"
+    )
+    x = tf.keras.layers.ZeroPadding2D(padding=padding)(input_img)
+    x = tf.keras.layers.Flatten()(x)
+    x = tf.keras.layers.RepeatVector(new_channels)(x)
+    x = tf.keras.layers.Reshape(
+        (rows + padding * 2, cols + padding * 2, new_channels))(x)
+
+    resnet = ResNet50(include_top=False, input_tensor=x)
+
+    x = resnet.output
+    x = tf.keras.layers.GlobalAveragePooling2D()(x)
+    x = Dropout(0.7)(x)
+    x = tf.keras.layers.Dense(n_classes, activation='softmax')(x)
+
+    model = tf.keras.Model(inputs=input_img, outputs=x)
+
+    model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
+                  loss='sparse_categorical_crossentropy',
+                  metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
+                  )
+
+    learner = KerasLearner(
+        model=model,
+        train_loader=data_loaders[0],
+        vote_loader=data_loaders[1],
+        test_loader=data_loaders[2],
+        criterion="sparse_categorical_accuracy",
+        minimise_criterion=False,
+        model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
+        model_evaluate_kwargs={"steps": vote_batches},
+    )
+    return learner
