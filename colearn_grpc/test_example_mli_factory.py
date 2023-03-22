@@ -25,14 +25,15 @@ from colearn_keras.keras_learner import KerasLearner
 # pylint: disable=W0611
 import colearn_keras.keras_mnist  # type:ignore # noqa: F401
 import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
+import colearn_keras.keras_scania # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
 import colearn_other.fraud_dataset  # type:ignore # noqa: F401
 
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 
-DATALOADER_NAMES = {"PYTORCH_XRAY", "KERAS_MNIST", "KERAS_MNIST_WITH_DP", "KERAS_CIFAR10", "PYTORCH_COVID_XRAY", "FRAUD"}
-MODEL_NAMES = {"PYTORCH_XRAY", "KERAS_MNIST", "KERAS_MNIST_RESNET", "KERAS_CIFAR10", "PYTORCH_COVID_XRAY", "FRAUD"}
+DATALOADER_NAMES = {"PYTORCH_XRAY", "KERAS_MNIST", "KERAS_MNIST_WITH_DP", "KERAS_CIFAR10", "KERAS_SCANIA", "PYTORCH_COVID_XRAY", "FRAUD"}
+MODEL_NAMES = {"PYTORCH_XRAY", "KERAS_MNIST", "KERAS_MNIST_RESNET", "KERAS_CIFAR10", "KERAS_SCANIA", "PYTORCH_COVID_XRAY", "FRAUD"}
 
 
 @pytest.fixture

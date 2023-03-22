@@ -26,10 +26,12 @@ from tensorflow.keras.applications.resnet import ResNet50
 from tensorflow.keras.layers import Dropout
 
 from colearn_grpc.factory_registry import FactoryRegistry
+from colearn_grpc.logging import get_logger, set_log_levels
+
 from colearn_keras.keras_learner import KerasLearner
 from colearn_keras.utils import _make_loader
 
-from colearn_grpc.logging import get_logger, set_log_levels
+from colearn.utils.data import get_data
 
 _logger = get_logger(__name__)
 set_log_levels({"default": "INFO"})
@@ -40,8 +42,10 @@ def prepare_loaders_impl(location: str) -> Tuple[PrefetchDataset, PrefetchDatase
     _logger.info(f"    -    USING DATASET FROM LOCATION: {location}")
     _logger.info(f"    -    LOADING csv!")
 
+    data_folder = get_data(location)
+
     def getf(type_, set_): return os.path.join(
-        location, f"{type_}_{set_}_learner.csv"
+        data_folder, f"{type_}_{set_}_learner.csv"
     )
 
     X_train = pd.read_csv(getf("X", "train"), index_col=0).values
@@ -51,7 +55,7 @@ def prepare_loaders_impl(location: str) -> Tuple[PrefetchDataset, PrefetchDatase
     X_vote = pd.read_csv(getf("X", "vote"), index_col=0).values
     y_vote = pd.read_csv(getf("y", "vote"), index_col=0).values
 
-    def reshape_x(X): return np.expand_dims(np.expand_dims(X, axis=1), axis=3)
+    def reshape_x(x): return np.expand_dims(np.expand_dims(x, axis=1), axis=3)
 
     train_loader = _make_loader(reshape_x(X_train), y_train.reshape(-1))
     vote_loader = _make_loader(reshape_x(X_vote), y_vote.reshape(-1))
