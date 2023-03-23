@@ -37,8 +37,15 @@ _logger = get_logger(__name__)
 set_log_levels({"default": "INFO"})
 
 
+def reshape_x(x: np.array):
+    """ Reshape array to fit for resnet"""
+    return np.expand_dims(np.expand_dims(x, axis=1), axis=3)
+
+
 # prepare dataloader implementation
-def prepare_loaders_impl(location: str) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
+def prepare_loaders_impl(location: str, reshape: bool = False
+                         ) -> Tuple[PrefetchDataset, PrefetchDataset,
+                                    PrefetchDataset]:
     _logger.info(f"    -    USING DATASET FROM LOCATION: {location}")
     _logger.info(f"    -    LOADING csv!")
 
@@ -55,33 +62,52 @@ def prepare_loaders_impl(location: str) -> Tuple[PrefetchDataset, PrefetchDatase
     X_vote = pd.read_csv(getf("X", "vote"), index_col=0).values
     y_vote = pd.read_csv(getf("y", "vote"), index_col=0).values
 
-    def reshape_x(x): return np.expand_dims(np.expand_dims(x, axis=1), axis=3)
+    if reshape:
+        X_train, X_vote, X_test = reshape_x(
+            X_train), reshape_x(X_vote), reshape_x(X_test)
 
-    train_loader = _make_loader(reshape_x(X_train), y_train.reshape(-1))
-    vote_loader = _make_loader(reshape_x(X_vote), y_vote.reshape(-1))
-    test_loader = _make_loader(reshape_x(X_test), y_test.reshape(-1))
+    train_loader = _make_loader(X_train, y_train.reshape(-1))
+    vote_loader = _make_loader(X_vote, y_vote.reshape(-1))
+    test_loader = _make_loader(X_test, y_test.reshape(-1))
 
     return train_loader, vote_loader, test_loader
 
 
 # The dataloader needs to be registered before the models that reference it
-@FactoryRegistry.register_dataloader("KERAS_SCANIA")
-def prepare_data_loaders(location: str) -> Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset]:
+@FactoryRegistry.register_dataloader("KERAS_SCANIA_RESNET")
+def prepare_data_loaders_resnet(location: str) -> Tuple[PrefetchDataset,
+                                                        PrefetchDataset,
+                                                        PrefetchDataset]:
     """
     Load training data from folders and create train and test dataloader
 
     :param location: Path to training dataset
     :return: Tuple of train_loader and test_loader
     """
-    return prepare_loaders_impl(location)
+    return prepare_loaders_impl(location, reshape=True)
 
 
-@FactoryRegistry.register_model_architecture("KERAS_SCANIA", ["KERAS_SCANIA"])
-def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
-                    steps_per_epoch: int = 100,
-                    vote_batches: int = 10,
-                    learning_rate: float = 0.001
-                    ) -> KerasLearner:
+# The dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_dataloader("KERAS_SCANIA")
+def prepare_data_loaders(location: str) -> Tuple[PrefetchDataset,
+                                                 PrefetchDataset,
+                                                 PrefetchDataset]:
+    """
+    Load training data from folders and create train and test dataloader
+
+    :param location: Path to training dataset
+    :return: Tuple of train_loader and test_loader
+    """
+    return prepare_loaders_impl(location, reshape=False)
+
+
+@FactoryRegistry.register_model_architecture("KERAS_SCANIA_RESNET", ["KERAS_SCANIA_RESNET"])
+def prepare_learner_resnet(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
+                                               PrefetchDataset],
+                           steps_per_epoch: int = 100,
+                           vote_batches: int = 10,
+                           learning_rate: float = 0.001
+                           ) -> KerasLearner:
     """
     Creates new instance of KerasLearner
     :param data_loaders: Tuple of train_loader and test_loader
@@ -115,6 +141,48 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     x = tf.keras.layers.Dense(n_classes, activation='softmax')(x)
 
     model = tf.keras.Model(inputs=input_img, outputs=x)
+
+    model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
+                  loss='sparse_categorical_crossentropy',
+                  metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
+                  )
+
+    learner = KerasLearner(
+        model=model,
+        train_loader=data_loaders[0],
+        vote_loader=data_loaders[1],
+        test_loader=data_loaders[2],
+        criterion="sparse_categorical_accuracy",
+        minimise_criterion=False,
+        model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
+        model_evaluate_kwargs={"steps": vote_batches},
+    )
+    return learner
+
+
+@FactoryRegistry.register_model_architecture("KERAS_SCANIA", ["KERAS_SCANIA"])
+def prepare_learner_mlp(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
+                                            PrefetchDataset],
+                        steps_per_epoch: int = 100,
+                        vote_batches: int = 10,
+                        learning_rate: float = 0.001
+                        ) -> KerasLearner:
+    """
+    Creates new instance of KerasLearner
+    :param data_loaders: Tuple of train_loader and test_loader
+    :param steps_per_epoch: Number of batches per training epoch
+    :param vote_batches: Number of batches to get vote_accuracy
+    :param learning_rate: Learning rate for optimiser
+    :return: New instance of KerasLearner
+    """
+    # MLP model
+    n_classes = 2
+
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Dense(100, activation='relu'),
+        tf.keras.layers.Dense(50, activation='relu'),
+        tf.keras.layers.Dense(n_classes, activation='softmax'),
+    ])
 
     model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
                   loss='sparse_categorical_crossentropy',
