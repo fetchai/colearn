@@ -62,9 +62,7 @@ def test_keras_scania_with_grpc_sever():
     assert data_loader in ml["data_loaders"].keys()
     assert model_architecture in ml["model_architectures"].keys()
 
-    
-    # TODO make this publicly available
-    data_location = "./data/0"
+    data_location = "gs://colearn-public/scania/0"
     assert client.setup_ml(
         data_loader,
         json.dumps({"location": data_location}),
