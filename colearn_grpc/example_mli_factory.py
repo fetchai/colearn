@@ -80,7 +80,7 @@ class ExampleMliFactory(MliFactory):
                             f"Available prediction dataloaders are: {self.prediction_dataloaders}")
         if prediction_dataloader_name and prediction_dataloader_name not in self.pred_compatibilities[model_name]:
             raise Exception(f"Prediction Dataloader {prediction_dataloader_name} is not compatible with {model_name}."
-                            f"Compatible dataloaders are: {self.data_pred_compatibilities[model_name]}")
+                            f"Compatible prediction dataloaders are: {self.data_pred_compatibilities[model_name]}")
 
         dataloader_config = copy.deepcopy(
             self.dataloaders[dataloader_name])  # Default parameters
