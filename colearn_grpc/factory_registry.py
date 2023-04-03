@@ -87,7 +87,7 @@ class FactoryRegistry:
     @classmethod
     def register_model_architecture(cls, name: str,
                                     data_compatibilities: List[str],
-                                    pred_compatibilities: List[str] = []):
+                                    pred_compatibilities: List[str] = None):
         def wrap(model_arch_creator: Callable):
             cls.check_model_data_callable(model_arch_creator, data_compatibilities)
             cls.check_model_prediction_callable(
@@ -123,17 +123,15 @@ class FactoryRegistry:
     @classmethod
     def check_model_prediction_callable(cls, to_call: Callable, compatibilities: List[str]):
         sig = signature(to_call)
-        if "prediction_data_loaders" not in sig.parameters:
-            raise RegistryException(
-                "model must accept a 'prediction_data_loaders' parameter")
-        model_dl_type = sig.parameters["prediction_data_loaders"].annotation
-        for dl in compatibilities:
-            if dl not in cls.prediction_dataloaders:
-                raise RegistryException(f"Compatible prediction dataloader {dl} is not registered."
-                                        "The dataloader needs to be "
-                                        "registered before the model that references it.")
-            dl_type = signature(
-                cls.prediction_dataloaders[dl].callable).return_annotation
-            if dl_type != model_dl_type:
-                raise RegistryException(f"Compatible prediction dataloader {dl} has return type {dl_type}"
-                                        f" but model prediction_data_loaders expects type {model_dl_type}")
+        if "prediction_data_loaders" in sig.parameters:
+            model_dl_type = sig.parameters["prediction_data_loaders"].annotation
+            for dl in compatibilities:
+                if dl not in cls.prediction_dataloaders:
+                    raise RegistryException(f"Compatible prediction dataloader {dl} is not registered."
+                                            "The dataloader needs to be "
+                                            "registered before the model that references it.")
+                dl_type = signature(
+                    cls.prediction_dataloaders[dl].callable).return_annotation
+                if dl_type != model_dl_type:
+                    raise RegistryException(f"Compatible prediction dataloader {dl} has return type {dl_type}"
+                                            f" but model prediction_data_loaders expects type {model_dl_type}")
