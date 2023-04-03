@@ -90,7 +90,7 @@ def test_grpc_server_with_example_grpc_learner_client():
     )
     prediction_data = list(prediction.prediction_data)
     assert prediction.name == pred_name
-    assert type(prediction_data) is list
+    assert isinstance(prediction_data, list)
 
     # Take prediction data loader from experiment
     prediction = client.mli_make_prediction(
@@ -98,7 +98,7 @@ def test_grpc_server_with_example_grpc_learner_client():
     )
     prediction_data = list(prediction.prediction_data)
     assert prediction.name == pred_name
-    assert type(prediction_data) is list
+    assert isinstance(prediction_data, list)
 
     client.stop()
     server.stop()

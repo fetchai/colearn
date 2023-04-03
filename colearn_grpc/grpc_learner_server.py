@@ -114,7 +114,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
 
             pred_compatibilities = self.mli_factory.get_pred_compatibilities()
             if pred_compatibilities:
-                for model_architecture, predicton_data_loaders in self.pred_compatibilities.items():
+                for model_architecture, predicton_data_loaders in pred_compatibilities.items():
                     pc = response.pred_compatibilities.add()
                     pc.model_architecture = model_architecture
                     for pred_dataloader_name in predicton_data_loaders:
