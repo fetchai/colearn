@@ -5,7 +5,7 @@ to work with the GRPC Server (and become a Learner).
 
 There are two main types of functions:
 
-- Supported Systems (get_models, get_dataloaders, get_compatibilities)
+- Supported Systems (get_models, get_dataloaders, get_data_compatibilities)
 - Get a MachineLearningInterface (get_mli)
 
 When the GRPC server is connected to the Orchestrator, it will query the supported system

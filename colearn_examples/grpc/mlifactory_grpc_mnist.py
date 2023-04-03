@@ -140,7 +140,7 @@ class SimpleFactory(MliFactory):
                                 vote_batches=10,
                                 learning_rate=0.001)}
 
-    def get_compatibilities(self) -> Dict[str, Set[str]]:
+    def get_data_compatibilities(self) -> Dict[str, Set[str]]:
         return {model_tag: {dataloader_tag}}
 
     def get_mli(self, model_name: str, model_params: str, dataloader_name: str,
