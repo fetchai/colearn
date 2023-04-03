@@ -42,25 +42,28 @@ def reshape_x(x: np.array):
     return np.expand_dims(np.expand_dims(x, axis=1), axis=3)
 
 
+def getf(type_, set_, data_folder):
+    """Get file for prediction data loader"""
+    return os.path.join(
+        data_folder, f"{type_}_{set_}_learner.csv"
+    )
+
+
 # prepare dataloader implementation
 def prepare_loaders_impl(location: str, reshape: bool = False
                          ) -> Tuple[PrefetchDataset, PrefetchDataset,
                                     PrefetchDataset]:
     _logger.info(f"    -    USING DATASET FROM LOCATION: {location}")
-    _logger.info(f"    -    LOADING csv!")
+    _logger.info("    -    LOADING csv!")
 
     data_folder = get_data(location)
 
-    def getf(type_, set_): return os.path.join(
-        data_folder, f"{type_}_{set_}_learner.csv"
-    )
-
-    X_train = pd.read_csv(getf("X", "train"), index_col=0).values
-    y_train = pd.read_csv(getf("y", "train"), index_col=0).values
-    X_test = pd.read_csv(getf("X", "test"), index_col=0).values
-    y_test = pd.read_csv(getf("y", "test"), index_col=0).values
-    X_vote = pd.read_csv(getf("X", "vote"), index_col=0).values
-    y_vote = pd.read_csv(getf("y", "vote"), index_col=0).values
+    X_train = pd.read_csv(getf("X", "train", data_folder), index_col=0).values
+    y_train = pd.read_csv(getf("y", "train", data_folder), index_col=0).values
+    X_test = pd.read_csv(getf("X", "test", data_folder), index_col=0).values
+    y_test = pd.read_csv(getf("y", "test", data_folder), index_col=0).values
+    X_vote = pd.read_csv(getf("X", "vote", data_folder), index_col=0).values
+    y_vote = pd.read_csv(getf("y", "vote", data_folder), index_col=0).values
 
     if reshape:
         X_train, X_vote, X_test = reshape_x(
