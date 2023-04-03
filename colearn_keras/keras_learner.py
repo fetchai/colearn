@@ -41,7 +41,7 @@ class KerasLearner(MachineLearningInterface):
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
                  vote_loader: tf.data.Dataset,
-                 prediction_data_loader: dict = None,
+                 prediction_data_loader: Optional[dict] = None,
                  test_loader: Optional[tf.data.Dataset] = None,
                  need_reset_optimizer: bool = True,
                  minimise_criterion: bool = True,

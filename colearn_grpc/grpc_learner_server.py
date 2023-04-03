@@ -112,11 +112,13 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 for dataloader_name in data_loaders:
                     dc.dataloaders.append(dataloader_name)
 
-            for model_architecture, predicton_data_loaders in self.mli_factory.get_pred_compatibilities().items():
-                pc = response.pred_compatibilities.add()
-                pc.model_architecture = model_architecture
-                for pred_dataloader_name in predicton_data_loaders:
-                    pc.prediction_dataloaders.append(pred_dataloader_name)
+            pred_compatibilities = self.mli_factory.get_pred_compatibilities()
+            if pred_compatibilities:
+                for model_architecture, predicton_data_loaders in self.pred_compatibilities.items():
+                    pc = response.pred_compatibilities.add()
+                    pc.model_architecture = model_architecture
+                    for pred_dataloader_name in predicton_data_loaders:
+                        pc.prediction_dataloaders.append(pred_dataloader_name)
 
         except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in QuerySupportedSystem: {ex} {type(ex)}")
