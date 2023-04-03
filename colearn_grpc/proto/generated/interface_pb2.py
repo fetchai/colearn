@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0finterface.proto\x12\x13\x63ontract_learn.grpc\x1a\x1bgoogle/protobuf/empty.proto\"\xaf\x02\n\x0eRequestMLSetup\x12\x1b\n\x13\x64\x61taset_loader_name\x18\x01 \x01(\t\x12!\n\x19\x64\x61taset_loader_parameters\x18\x02 \x01(\t\x12\x17\n\x0fmodel_arch_name\x18\x03 \x01(\t\x12\x18\n\x10model_parameters\x18\x04 \x01(\t\x12+\n\x1eprediction_dataset_loader_name\x18\x05 \x01(\tH\x00\x88\x01\x01\x12\x31\n$prediction_dataset_loader_parameters\x18\x06 \x01(\tH\x01\x88\x01\x01\x42!\n\x1f_prediction_dataset_loader_nameB\'\n%_prediction_dataset_loader_parameters\"Z\n\x0fResponseMLSetup\x12\x32\n\x06status\x18\x01 \x01(\x0e\x32\".contract_learn.grpc.MLSetupStatus\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\"p\n\x0e\x44iffPrivBudget\x12\x16\n\x0etarget_epsilon\x18\x01 \x01(\x02\x12\x14\n\x0ctarget_delta\x18\x02 \x01(\x02\x12\x18\n\x10\x63onsumed_epsilon\x18\x03 \x01(\x02\x12\x16\n\x0e\x63onsumed_delta\x18\x04 \x01(\x02\"I\n\x0fTrainingSummary\x12\x36\n\tdp_budget\x18\x01 \x01(\x0b\x32#.contract_learn.grpc.DiffPrivBudget\"\x87\x01\n\x0bWeightsPart\x12\x0f\n\x07weights\x18\x01 \x01(\x0c\x12\x12\n\nbyte_index\x18\x02 \x01(\r\x12\x13\n\x0btotal_bytes\x18\x03 \x01(\x04\x12>\n\x10training_summary\x18\n \x01(\x0b\x32$.contract_learn.grpc.TrainingSummary\"G\n\x0fProposedWeights\x12\x12\n\nvote_score\x18\x01 \x01(\x02\x12\x12\n\ntest_score\x18\x02 \x01(\x02\x12\x0c\n\x04vote\x18\x03 \x01(\x08\"\x0f\n\rRequestStatus\"C\n\x0eResponseStatus\x12\x31\n\x06status\x18\x01 \x01(\x0e\x32!.contract_learn.grpc.SystemStatus\"=\n\x11\x44\x61tasetLoaderSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"G\n\x1bPredictionDatasetLoaderSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"9\n\rModelArchSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"H\n\x15\x44\x61taCompatibilitySpec\x12\x1a\n\x12model_architecture\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x61taloaders\x18\x02 \x03(\t\"\\\n\x1ePredictonDataCompatibilitySpec\x12\x1a\n\x12model_architecture\x18\x01 \x01(\t\x12\x1e\n\x16prediction_dataloaders\x18\x02 \x03(\t\"\"\n\x0fResponseVersion\x12\x0f\n\x07version\x18\x01 \x01(\t\"O\n\x14ResponseCurrentModel\x12\x14\n\x0cmodel_format\x18\x01 \x01(\r\x12\x12\n\nmodel_file\x18\x02 \x01(\t\x12\r\n\x05model\x18\x03 \x01(\x0c\"\x88\x03\n\x17ResponseSupportedSystem\x12<\n\x0c\x64\x61ta_loaders\x18\x01 \x03(\x0b\x32&.contract_learn.grpc.DatasetLoaderSpec\x12Q\n\x17prediction_data_loaders\x18\x02 \x03(\x0b\x32\x30.contract_learn.grpc.PredictionDatasetLoaderSpec\x12?\n\x13model_architectures\x18\x03 \x03(\x0b\x32\".contract_learn.grpc.ModelArchSpec\x12H\n\x14\x64\x61ta_compatibilities\x18\x04 \x03(\x0b\x32*.contract_learn.grpc.DataCompatibilitySpec\x12Q\n\x14pred_compatibilities\x18\x05 \x03(\x0b\x32\x33.contract_learn.grpc.PredictonDataCompatibilitySpec\"q\n\x11PredictionRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\ninput_data\x18\x02 \x01(\x0c\x12!\n\x14pred_data_loader_key\x18\x03 \x01(\tH\x00\x88\x01\x01\x42\x17\n\x15_pred_data_loader_key\";\n\x12PredictionResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x17\n\x0fprediction_data\x18\x02 \x01(\x0c*6\n\rMLSetupStatus\x12\r\n\tUNDEFINED\x10\x00\x12\x0b\n\x07SUCCESS\x10\x01\x12\t\n\x05\x45RROR\x10\x02*J\n\x0cSystemStatus\x12\x0b\n\x07WORKING\x10\x00\x12\x0c\n\x08NO_MODEL\x10\x01\x12\x12\n\x0eINTERNAL_ERROR\x10\x02\x12\x0b\n\x07UNKNOWN\x10\x03\x32\xe7\x06\n\x0bGRPCLearner\x12L\n\x0cQueryVersion\x12\x16.google.protobuf.Empty\x1a$.contract_learn.grpc.ResponseVersion\x12\\\n\x14QuerySupportedSystem\x12\x16.google.protobuf.Empty\x1a,.contract_learn.grpc.ResponseSupportedSystem\x12T\n\x0fGetCurrentModel\x12\x16.google.protobuf.Empty\x1a).contract_learn.grpc.ResponseCurrentModel\x12T\n\x07MLSetup\x12#.contract_learn.grpc.RequestMLSetup\x1a$.contract_learn.grpc.ResponseMLSetup\x12L\n\x0eProposeWeights\x12\x16.google.protobuf.Empty\x1a .contract_learn.grpc.WeightsPart0\x01\x12W\n\x0bTestWeights\x12 .contract_learn.grpc.WeightsPart\x1a$.contract_learn.grpc.ProposedWeights(\x01\x12H\n\nSetWeights\x12 .contract_learn.grpc.WeightsPart\x1a\x16.google.protobuf.Empty(\x01\x12O\n\x11GetCurrentWeights\x12\x16.google.protobuf.Empty\x1a .contract_learn.grpc.WeightsPart0\x01\x12[\n\x0cStatusStream\x12\".contract_learn.grpc.RequestStatus\x1a#.contract_learn.grpc.ResponseStatus(\x01\x30\x01\x12\x61\n\x0eMakePrediction\x12&.contract_learn.grpc.PredictionRequest\x1a\'.contract_learn.grpc.PredictionResponseb\x06proto3'
+  serialized_pb=b'\n\x0finterface.proto\x12\x13\x63ontract_learn.grpc\x1a\x1bgoogle/protobuf/empty.proto\"\xaf\x02\n\x0eRequestMLSetup\x12\x1b\n\x13\x64\x61taset_loader_name\x18\x01 \x01(\t\x12!\n\x19\x64\x61taset_loader_parameters\x18\x02 \x01(\t\x12\x17\n\x0fmodel_arch_name\x18\x03 \x01(\t\x12\x18\n\x10model_parameters\x18\x04 \x01(\t\x12+\n\x1eprediction_dataset_loader_name\x18\x05 \x01(\tH\x00\x88\x01\x01\x12\x31\n$prediction_dataset_loader_parameters\x18\x06 \x01(\tH\x01\x88\x01\x01\x42!\n\x1f_prediction_dataset_loader_nameB\'\n%_prediction_dataset_loader_parameters\"Z\n\x0fResponseMLSetup\x12\x32\n\x06status\x18\x01 \x01(\x0e\x32\".contract_learn.grpc.MLSetupStatus\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\"p\n\x0e\x44iffPrivBudget\x12\x16\n\x0etarget_epsilon\x18\x01 \x01(\x02\x12\x14\n\x0ctarget_delta\x18\x02 \x01(\x02\x12\x18\n\x10\x63onsumed_epsilon\x18\x03 \x01(\x02\x12\x16\n\x0e\x63onsumed_delta\x18\x04 \x01(\x02\"I\n\x0fTrainingSummary\x12\x36\n\tdp_budget\x18\x01 \x01(\x0b\x32#.contract_learn.grpc.DiffPrivBudget\"\x87\x01\n\x0bWeightsPart\x12\x0f\n\x07weights\x18\x01 \x01(\x0c\x12\x12\n\nbyte_index\x18\x02 \x01(\r\x12\x13\n\x0btotal_bytes\x18\x03 \x01(\x04\x12>\n\x10training_summary\x18\n \x01(\x0b\x32$.contract_learn.grpc.TrainingSummary\"G\n\x0fProposedWeights\x12\x12\n\nvote_score\x18\x01 \x01(\x02\x12\x12\n\ntest_score\x18\x02 \x01(\x02\x12\x0c\n\x04vote\x18\x03 \x01(\x08\"\x0f\n\rRequestStatus\"C\n\x0eResponseStatus\x12\x31\n\x06status\x18\x01 \x01(\x0e\x32!.contract_learn.grpc.SystemStatus\"=\n\x11\x44\x61tasetLoaderSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"G\n\x1bPredictionDatasetLoaderSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"9\n\rModelArchSpec\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1a\n\x12\x64\x65\x66\x61ult_parameters\x18\x02 \x01(\t\"H\n\x15\x44\x61taCompatibilitySpec\x12\x1a\n\x12model_architecture\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x61taloaders\x18\x02 \x03(\t\"\\\n\x1ePredictonDataCompatibilitySpec\x12\x1a\n\x12model_architecture\x18\x01 \x01(\t\x12\x1e\n\x16prediction_dataloaders\x18\x02 \x03(\t\"\"\n\x0fResponseVersion\x12\x0f\n\x07version\x18\x01 \x01(\t\"O\n\x14ResponseCurrentModel\x12\x14\n\x0cmodel_format\x18\x01 \x01(\r\x12\x12\n\nmodel_file\x18\x02 \x01(\t\x12\r\n\x05model\x18\x03 \x01(\x0c\"\x88\x03\n\x17ResponseSupportedSystem\x12<\n\x0c\x64\x61ta_loaders\x18\x01 \x03(\x0b\x32&.contract_learn.grpc.DatasetLoaderSpec\x12Q\n\x17prediction_data_loaders\x18\x02 \x03(\x0b\x32\x30.contract_learn.grpc.PredictionDatasetLoaderSpec\x12?\n\x13model_architectures\x18\x03 \x03(\x0b\x32\".contract_learn.grpc.ModelArchSpec\x12H\n\x14\x64\x61ta_compatibilities\x18\x04 \x03(\x0b\x32*.contract_learn.grpc.DataCompatibilitySpec\x12Q\n\x14pred_compatibilities\x18\x05 \x03(\x0b\x32\x33.contract_learn.grpc.PredictonDataCompatibilitySpec\"o\n\x11PredictionRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\ninput_data\x18\x02 \x01(\x0c\x12 \n\x13pred_dataloader_key\x18\x03 \x01(\tH\x00\x88\x01\x01\x42\x16\n\x14_pred_dataloader_key\";\n\x12PredictionResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x17\n\x0fprediction_data\x18\x02 \x01(\x0c*6\n\rMLSetupStatus\x12\r\n\tUNDEFINED\x10\x00\x12\x0b\n\x07SUCCESS\x10\x01\x12\t\n\x05\x45RROR\x10\x02*J\n\x0cSystemStatus\x12\x0b\n\x07WORKING\x10\x00\x12\x0c\n\x08NO_MODEL\x10\x01\x12\x12\n\x0eINTERNAL_ERROR\x10\x02\x12\x0b\n\x07UNKNOWN\x10\x03\x32\xe7\x06\n\x0bGRPCLearner\x12L\n\x0cQueryVersion\x12\x16.google.protobuf.Empty\x1a$.contract_learn.grpc.ResponseVersion\x12\\\n\x14QuerySupportedSystem\x12\x16.google.protobuf.Empty\x1a,.contract_learn.grpc.ResponseSupportedSystem\x12T\n\x0fGetCurrentModel\x12\x16.google.protobuf.Empty\x1a).contract_learn.grpc.ResponseCurrentModel\x12T\n\x07MLSetup\x12#.contract_learn.grpc.RequestMLSetup\x1a$.contract_learn.grpc.ResponseMLSetup\x12L\n\x0eProposeWeights\x12\x16.google.protobuf.Empty\x1a .contract_learn.grpc.WeightsPart0\x01\x12W\n\x0bTestWeights\x12 .contract_learn.grpc.WeightsPart\x1a$.contract_learn.grpc.ProposedWeights(\x01\x12H\n\nSetWeights\x12 .contract_learn.grpc.WeightsPart\x1a\x16.google.protobuf.Empty(\x01\x12O\n\x11GetCurrentWeights\x12\x16.google.protobuf.Empty\x1a .contract_learn.grpc.WeightsPart0\x01\x12[\n\x0cStatusStream\x12\".contract_learn.grpc.RequestStatus\x1a#.contract_learn.grpc.ResponseStatus(\x01\x30\x01\x12\x61\n\x0eMakePrediction\x12&.contract_learn.grpc.PredictionRequest\x1a\'.contract_learn.grpc.PredictionResponseb\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -50,8 +50,8 @@ _MLSETUPSTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2004,
-  serialized_end=2058,
+  serialized_start=2002,
+  serialized_end=2056,
 )
 _sym_db.RegisterEnumDescriptor(_MLSETUPSTATUS)
 
@@ -86,8 +86,8 @@ _SYSTEMSTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2060,
-  serialized_end=2134,
+  serialized_start=2058,
+  serialized_end=2132,
 )
 _sym_db.RegisterEnumDescriptor(_SYSTEMSTATUS)
 
@@ -815,7 +815,7 @@ _PREDICTIONREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='pred_data_loader_key', full_name='contract_learn.grpc.PredictionRequest.pred_data_loader_key', index=2,
+      name='pred_dataloader_key', full_name='contract_learn.grpc.PredictionRequest.pred_dataloader_key', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -833,13 +833,13 @@ _PREDICTIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='_pred_data_loader_key', full_name='contract_learn.grpc.PredictionRequest._pred_data_loader_key',
+      name='_pred_dataloader_key', full_name='contract_learn.grpc.PredictionRequest._pred_dataloader_key',
       index=0, containing_type=None,
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
   serialized_start=1828,
-  serialized_end=1941,
+  serialized_end=1939,
 )
 
 
@@ -877,8 +877,8 @@ _PREDICTIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1943,
-  serialized_end=2002,
+  serialized_start=1941,
+  serialized_end=2000,
 )
 
 _REQUESTMLSETUP.oneofs_by_name['_prediction_dataset_loader_name'].fields.append(
@@ -896,9 +896,9 @@ _RESPONSESUPPORTEDSYSTEM.fields_by_name['prediction_data_loaders'].message_type 
 _RESPONSESUPPORTEDSYSTEM.fields_by_name['model_architectures'].message_type = _MODELARCHSPEC
 _RESPONSESUPPORTEDSYSTEM.fields_by_name['data_compatibilities'].message_type = _DATACOMPATIBILITYSPEC
 _RESPONSESUPPORTEDSYSTEM.fields_by_name['pred_compatibilities'].message_type = _PREDICTONDATACOMPATIBILITYSPEC
-_PREDICTIONREQUEST.oneofs_by_name['_pred_data_loader_key'].fields.append(
-  _PREDICTIONREQUEST.fields_by_name['pred_data_loader_key'])
-_PREDICTIONREQUEST.fields_by_name['pred_data_loader_key'].containing_oneof = _PREDICTIONREQUEST.oneofs_by_name['_pred_data_loader_key']
+_PREDICTIONREQUEST.oneofs_by_name['_pred_dataloader_key'].fields.append(
+  _PREDICTIONREQUEST.fields_by_name['pred_dataloader_key'])
+_PREDICTIONREQUEST.fields_by_name['pred_dataloader_key'].containing_oneof = _PREDICTIONREQUEST.oneofs_by_name['_pred_dataloader_key']
 DESCRIPTOR.message_types_by_name['RequestMLSetup'] = _REQUESTMLSETUP
 DESCRIPTOR.message_types_by_name['ResponseMLSetup'] = _RESPONSEMLSETUP
 DESCRIPTOR.message_types_by_name['DiffPrivBudget'] = _DIFFPRIVBUDGET
@@ -1056,8 +1056,8 @@ _GRPCLEARNER = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2137,
-  serialized_end=3008,
+  serialized_start=2135,
+  serialized_end=3006,
   methods=[
   _descriptor.MethodDescriptor(
     name='QueryVersion',

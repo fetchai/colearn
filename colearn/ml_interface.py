@@ -72,7 +72,7 @@ class ColearnModel(BaseModel):
 class PredictionRequest(BaseModel):
     name: str
     input_data: Any
-    pred_data_loader_key: Optional[Any]
+    pred_dataloader_key: Optional[Any]
 
 
 class Prediction(BaseModel):
@@ -133,6 +133,3 @@ class MachineLearningInterface(abc.ABC):
         :returns: the prediction
         """
         pass
-
-
-_DM_PREDICTION_SUFFIX = b">>>result<<<"

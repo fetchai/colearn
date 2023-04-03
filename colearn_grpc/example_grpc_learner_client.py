@@ -236,8 +236,8 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         request_pb = ipb2.PredictionRequest()
         request_pb.name = request.name
         request_pb.input_data = request.input_data
-        if request.pred_data_loader_key:
-            request_pb.pred_data_loader_key = request.pred_data_loader_key
+        if request.pred_dataloader_key:
+            request_pb.pred_dataloader_key = request.pred_dataloader_key
 
         _logger.info(f"Requesting prediction {request.name}")
 

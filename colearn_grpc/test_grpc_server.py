@@ -17,7 +17,7 @@
 # ------------------------------------------------------------------------------
 import json
 import time
-from colearn.ml_interface import _DM_PREDICTION_SUFFIX, PredictionRequest
+from colearn.ml_interface import PredictionRequest
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.grpc_server import GRPCServer
 from colearn_grpc.logging import get_logger
@@ -82,11 +82,11 @@ def test_grpc_server_with_example_grpc_learner_client():
 
     pred_name = "prediction_1"
 
-    location = "../colearn_keras/data/img_0.jpg"
+    location = "../tests/test_data/img_0.jpg"
     # Overwrite specified data loader
     prediction = client.mli_make_prediction(
         PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'),
-                          pred_data_loader_key="KERAS_MNIST_PRED_TWO")
+                          pred_dataloader_key="KERAS_MNIST_PRED_TWO")
     )
     prediction_data = list(prediction.prediction_data)
     assert prediction.name == pred_name

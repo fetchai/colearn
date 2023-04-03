@@ -283,8 +283,8 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
         _logger.info(f"Got Prediction request: {request}")
         pred_data_loaders = self.learner.get_prediction_data_loaders()
 
-        if request.pred_data_loader_key:
-            pred_func = pred_data_loaders[request.pred_data_loader_key]
+        if request.pred_dataloader_key:
+            pred_func = pred_data_loaders[request.pred_dataloader_key]
         else:
             # Get first in list as default
             pred_key = list(pred_data_loaders.keys())[0]

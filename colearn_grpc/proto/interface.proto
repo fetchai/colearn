@@ -109,7 +109,7 @@ message ResponseSupportedSystem {
 message PredictionRequest {
     string name = 1;
     bytes input_data = 2;
-    optional string pred_data_loader_key = 3;
+    optional string pred_dataloader_key = 3;
 };
 
 message PredictionResponse {

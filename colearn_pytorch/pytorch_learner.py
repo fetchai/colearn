@@ -43,8 +43,7 @@ from colearn.ml_interface import (
     TrainingSummary,
     ErrorCodes,
     PredictionRequest,
-    Prediction,
-    _DM_PREDICTION_SUFFIX
+    Prediction
 )
 from colearn.onnxutils import convert_model_to_onnx
 
@@ -342,6 +341,6 @@ class PytorchLearner(MachineLearningInterface):
         """
 
         # FIXME(LR) compute the prediction using existing model
-        result = bytes(request.input_data) + _DM_PREDICTION_SUFFIX
+        result = bytes(request.input_data)
 
         return Prediction(name=request.name, prediction_data=result)

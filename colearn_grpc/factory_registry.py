@@ -52,7 +52,7 @@ class FactoryRegistry:
         callable: Callable
         default_parameters: Dict[str, Any]
         data_compatibilities: List[str]
-        pred_compatibilities: List[str]
+        pred_compatibilities: List[str] = []
 
     model_architectures: Dict[str, ModelArchitectureDef] = {}
 
@@ -87,7 +87,7 @@ class FactoryRegistry:
     @classmethod
     def register_model_architecture(cls, name: str,
                                     data_compatibilities: List[str],
-                                    pred_compatibilities: List[str]):
+                                    pred_compatibilities: List[str] = []):
         def wrap(model_arch_creator: Callable):
             cls.check_model_data_callable(model_arch_creator, data_compatibilities)
             cls.check_model_prediction_callable(

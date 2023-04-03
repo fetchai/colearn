@@ -26,7 +26,7 @@ except ImportError:
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
 
-from colearn.ml_interface import _DM_PREDICTION_SUFFIX, MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat
+from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat
 from colearn.onnxutils import convert_model_to_onnx
 from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary, ErrorCodes
 from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
@@ -41,7 +41,7 @@ class KerasLearner(MachineLearningInterface):
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
                  vote_loader: tf.data.Dataset,
-                 prediction_data_loader: dict,
+                 prediction_data_loader: dict = None,
                  test_loader: Optional[tf.data.Dataset] = None,
                  need_reset_optimizer: bool = True,
                  minimise_criterion: bool = True,
