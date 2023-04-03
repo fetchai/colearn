@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 from inspect import signature
-from typing import Optional
+from typing import Optional, Tuple
 import numpy as np
 
 try:
@@ -41,6 +41,7 @@ class KerasLearner(MachineLearningInterface):
     def __init__(self, model: keras.Model,
                  train_loader: tf.data.Dataset,
                  vote_loader: tf.data.Dataset,
+                 prediction_data_loader: dict,
                  test_loader: Optional[tf.data.Dataset] = None,
                  need_reset_optimizer: bool = True,
                  minimise_criterion: bool = True,
@@ -58,6 +59,7 @@ class KerasLearner(MachineLearningInterface):
         :param model_fit_kwargs: Arguments to be passed on model.fit function call
         :param model_evaluate_kwargs: Arguments to be passed on model.evaluate function call
         :param diff_priv_config: Contains differential privacy (dp) budget related configuration
+        :param prediction_data_loader: Data loader and preprocessor for prediction
         """
         self.model: keras.Model = model
         self.train_loader: tf.data.Dataset = train_loader
@@ -69,6 +71,7 @@ class KerasLearner(MachineLearningInterface):
         self.model_fit_kwargs = model_fit_kwargs or {}
         self.diff_priv_config = diff_priv_config
         self.cumulative_epochs = 0
+        self.prediction_data_loader = prediction_data_loader
 
         if self.diff_priv_config is not None:
             self.diff_priv_budget = DiffPrivBudget(
@@ -81,7 +84,8 @@ class KerasLearner(MachineLearningInterface):
             if 'epochs' in self.model_fit_kwargs.keys():
                 self.epochs_per_proposal = self.model_fit_kwargs['epochs']
             else:
-                self.epochs_per_proposal = signature(self.model.fit).parameters['epochs'].default
+                self.epochs_per_proposal = signature(
+                    self.model.fit).parameters['epochs'].default
 
         if model_fit_kwargs:
             # check that these are valid kwargs for model fit
@@ -156,7 +160,8 @@ class KerasLearner(MachineLearningInterface):
         if self.diff_priv_config is not None:
             self.diff_priv_budget.consumed_epsilon = epsilon_after_training
             self.cumulative_epochs += self.epochs_per_proposal
-            new_weights.training_summary = TrainingSummary(dp_budget=self.diff_priv_budget)
+            new_weights.training_summary = TrainingSummary(
+                dp_budget=self.diff_priv_budget)
 
         return new_weights
 
@@ -220,7 +225,8 @@ class KerasLearner(MachineLearningInterface):
         Need to calculate it in advance to see if another training would result in privacy budget violation.
         """
         batch_size = self.get_train_batch_size()
-        iterations_per_epoch = tf.data.experimental.cardinality(self.train_loader).numpy()
+        iterations_per_epoch = tf.data.experimental.cardinality(
+            self.train_loader).numpy()
         n_samples = batch_size * iterations_per_epoch
         planned_epochs = self.cumulative_epochs + self.epochs_per_proposal
 
@@ -278,6 +284,13 @@ class KerasLearner(MachineLearningInterface):
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]
 
+    def get_prediction_data_loaders(self) -> dict:
+        """
+        Get all prediction data loader, wtih default one beeing the first
+        :return: Dict with keys and functions prediction data loader
+        """
+        return self.prediction_data_loader
+
     def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
         """
         Make prediction using the current model.
@@ -290,8 +303,8 @@ class KerasLearner(MachineLearningInterface):
         batch_shape = config["layers"][0]["config"]["batch_input_shape"]
         byte_data = request.input_data
         one_dim_data = np.frombuffer(byte_data)
-        no_input = int(one_dim_data.shape[0]/(batch_shape[1]*batch_shape[2]))
-        input_data = one_dim_data.reshape(no_input, batch_shape[1],batch_shape[2])
+        no_input = int(one_dim_data.shape[0] / (batch_shape[1] * batch_shape[2]))
+        input_data = one_dim_data.reshape(no_input, batch_shape[1], batch_shape[2])
         input_shaped = np.expand_dims(input_data, -1)
 
         result_prob_list = self.model.predict(input_shaped)

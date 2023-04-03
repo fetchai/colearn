@@ -101,11 +101,22 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 d.name = name
                 d.default_parameters = json.dumps(params)
 
-            for model_architecture, data_loaders in self.mli_factory.get_compatibilities().items():
-                c = response.compatibilities.add()
-                c.model_architecture = model_architecture
+            for name, params in self.mli_factory.get_prediction_dataloaders().items():
+                p = response.prediction_data_loaders.add()
+                p.name = name
+                p.default_parameters = json.dumps(params)
+
+            for model_architecture, data_loaders in self.mli_factory.get_data_compatibilities().items():
+                dc = response.data_compatibilities.add()
+                dc.model_architecture = model_architecture
                 for dataloader_name in data_loaders:
-                    c.dataloaders.append(dataloader_name)
+                    dc.dataloaders.append(dataloader_name)
+
+            for model_architecture, predicton_data_loaders in self.mli_factory.get_pred_compatibilities().items():
+                pc = response.pred_compatibilities.add()
+                pc.model_architecture = model_architecture
+                for pred_dataloader_name in predicton_data_loaders:
+                    pc.prediction_dataloaders.append(pred_dataloader_name)
 
         except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in QuerySupportedSystem: {ex} {type(ex)}")
@@ -124,7 +135,9 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 model_name=request.model_arch_name,
                 model_params=request.model_parameters,
                 dataloader_name=request.dataset_loader_name,
-                dataset_params=request.dataset_loader_parameters
+                dataset_params=request.dataset_loader_parameters,
+                prediction_dataloader_name=request.prediction_dataset_loader_name,
+                prediction_dataset_params=request.prediction_dataset_loader_parameters
             )
             _logger.debug("ML MODEL CREATED")
             if self.learner is not None:
@@ -268,13 +281,22 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
     def MakePrediction(self, request, context):
         response = ipb2.PredictionResponse()
         _logger.info(f"Got Prediction request: {request}")
+        pred_data_loaders = self.learner.get_prediction_data_loaders()
+
+        if request.pred_data_loader_key:
+            pred_func = pred_data_loaders[request.pred_data_loader_key]
+        else:
+            # Get first in list as default
+            pred_key = list(pred_data_loaders.keys())[0]
+            pred_func = pred_data_loaders[pred_key]
+        img = pred_func(request.input_data.decode("utf-8"))
 
         if self.learner is not None:
             self._learner_mutex.acquire()  # TODO(LR) is the mutex needed here?
             _logger.debug(f"Computing prediction: {request.name}")
             prediction_req = PredictionRequest(
                 name=request.name,
-                input_data=bytes(request.input_data),
+                input_data=img.tobytes(),
             )
             prediction = self.learner.mli_make_prediction(prediction_req)
             _logger.debug(f"Prediction {request.name} computed successfully")

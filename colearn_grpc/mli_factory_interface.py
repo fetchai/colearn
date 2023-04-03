@@ -66,7 +66,15 @@ class MliFactory(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_compatibilities(self) -> Dict[str, Set[str]]:
+    def get_prediction_dataloaders(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Returns the prediction dataloaders this factory produces.
+        The key is the name of the dataloader and the values are their default parameters
+        """
+        pass
+
+    @abc.abstractmethod
+    def get_data_compatibilities(self) -> Dict[str, Set[str]]:
         """
         A model is compatible with a dataloader if they can be used together to
         construct a MachineLearningInterface with the get_MLI function.
@@ -77,16 +85,33 @@ class MliFactory(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def get_pred_compatibilities(self) -> Dict[str, Set[str]]:
+        """
+        A model is compatible with a prediction dataloader if they can be used together to
+        construct a MachineLearningInterface with the get_MLI function.
+
+        Returns a dictionary that defines which model is compatible
+        with which prediction dataloader.
+        """
+        pass
+
+    @abc.abstractmethod
     def get_mli(self,
                 model_name: str, model_params: str,
-                dataloader_name: str, dataset_params: str) -> MachineLearningInterface:
+                dataloader_name: str, dataset_params: str,
+                prediction_dataloader_name: str,
+                prediction_dataset_params: str) -> MachineLearningInterface:
         """
         @param model_name: name of a model, must be in the set return by get_models
         @param model_params: user defined parameters for the model
         @param dataloader_name: name of a dataloader to be used:
             - must be in the set returned by get_dataloaders
-            - must be compatible with model_name as defined by get_compatibilities
+            - must be compatible with model_name as defined by get_data_compatibilities
         @param dataset_params: user defined parameters for the dataset
+        @param prediction_dataloader_name: name of a prediction dataloader to be used:
+            - must be in the set returned by get_prediction_dataloaders
+            - must be compatible with model_name as defined by get_pred_compatibilities
+        @param prediction_dataset_params: user defined parameters for the prediction and preprocessing
         @return: Instance of MachineLearningInterface
         Constructs an object that implements MachineLearningInterface whose
         underlying model is model_name and dataset is loaded by dataloader_name.
