@@ -77,7 +77,7 @@ class ExampleMliFactory(MliFactory):
                             f"Compatible dataloaders are: {self.data_compatibilities[model_name]}")
         if prediction_dataloader_name and prediction_dataloader_name not in self.prediction_dataloaders:
             raise Exception(f"Prediction Dataloader {prediction_dataloader_name} is not a valid dataloader. "
-                            f"Available dataloaders are: {self.prediction_dataloaders}")
+                            f"Available prediction dataloaders are: {self.prediction_dataloaders}")
         if prediction_dataloader_name and prediction_dataloader_name not in self.pred_compatibilities[model_name]:
             raise Exception(f"Prediction Dataloader {prediction_dataloader_name} is not compatible with {model_name}."
                             f"Compatible dataloaders are: {self.data_pred_compatibilities[model_name]}")
