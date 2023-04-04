@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 import abc
-from typing import Dict, Set, Any
+from typing import Dict, Set, Any, Optional
 import os.path
 from pkg_resources import get_distribution, DistributionNotFound
 
@@ -99,8 +99,8 @@ class MliFactory(abc.ABC):
     def get_mli(self,
                 model_name: str, model_params: str,
                 dataloader_name: str, dataset_params: str,
-                prediction_dataloader_name: str,
-                prediction_dataset_params: str) -> MachineLearningInterface:
+                prediction_dataloader_name: Optional[str],
+                prediction_dataset_params: Optional[str]) -> MachineLearningInterface:
         """
         @param model_name: name of a model, must be in the set return by get_models
         @param model_params: user defined parameters for the model
