@@ -37,7 +37,7 @@ _logger = get_logger(__name__)
 set_log_levels({"default": "INFO"})
 
 
-def reshape_x(x: np.array):
+def reshape_x(x):
     """ Reshape array to fit for resnet"""
     return np.expand_dims(np.expand_dims(x, axis=1), axis=3)
 
