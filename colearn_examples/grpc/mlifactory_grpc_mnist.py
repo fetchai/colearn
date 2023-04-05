@@ -142,7 +142,7 @@ class SimpleFactory(MliFactory):
 
     def get_data_compatibilities(self) -> Dict[str, Set[str]]:
         return {model_tag: {dataloader_tag}}
-    
+
     def get_prediction_dataloaders(self) -> Dict[str, Dict[str, Any]]:
         raise NotImplementedError
 
