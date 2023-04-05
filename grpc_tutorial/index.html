@@ -14,8 +14,14 @@
       
         <link rel="canonical" href="https://docs.fetch.ai/grpc_tutorial/">
       
+      
+        <link rel="prev" href="../differential_privacy/">
+      
+      
+        <link rel="next" href="../demo/">
+      
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.5">
     
     
       
@@ -23,11 +29,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.472b142f.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.7a7fce14.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.08040f6c.min.css">
-        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
       
       
 
@@ -60,7 +65,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="None" data-md-color-accent="None">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
   
     
     
@@ -82,7 +87,9 @@
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="colearn" class="md-header__button md-logo" aria-label="colearn" data-md-component="logo">
       
@@ -138,7 +145,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -150,7 +157,7 @@
         <a href="https://github.com/fetchai/colearn/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -195,7 +202,7 @@
       <a href="https://github.com/fetchai/colearn/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -248,17 +255,18 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
       
       
       
-      
-        <label class="md-nav__link" for="__nav_3">
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
           Getting Started
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
           Getting Started
@@ -344,7 +352,7 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
         
@@ -456,17 +464,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_4">
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
           Examples
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Examples" data-md-level="1">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_4">
           <span class="md-nav__icon md-icon"></span>
           Examples
@@ -617,10 +626,8 @@
                 
                   
 
-  <a href="https://github.com/fetchai/colearn/edit/master/docs/grpc_tutorial.md" title="Edit this page" class="md-content__button md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
-  </a>
+  
+  
 
 
 <h1 id="grpc-tutorial">gRPC tutorial<a class="headerlink" href="#grpc-tutorial" title="Permanent link">&para;</a></h1>
@@ -682,7 +689,7 @@ interface:</p>
 
 
 <span class="k">class</span> <span class="nc">MliFactory</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interface a class must implement to be used as a factory by the GRPC Server</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_version</span> <span class="o">=</span> <span class="s2">&quot;0.0.0&quot;</span>
@@ -702,14 +709,14 @@ interface:</p>
         <span class="n">_version</span> <span class="o">=</span> <span class="n">_dist</span><span class="o">.</span><span class="n">version</span>
 
     <span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the version of this library....</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the models this factory produces.</span>
 <span class="sd">        The key is the name of the model and the values are their default parameters</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -717,7 +724,7 @@ interface:</p>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_dataloaders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the dataloaders this factory produces.</span>
 <span class="sd">        The key is the name of the dataloader and the values are their default parameters</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -725,7 +732,7 @@ interface:</p>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_compatibilities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A model is compatible with a dataloader if they can be used together to</span>
 <span class="sd">        construct a MachineLearningInterface with the get_MLI function.</span>
 
@@ -738,7 +745,7 @@ interface:</p>
     <span class="k">def</span> <span class="nf">get_mli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_params</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                 <span class="n">dataloader_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset_params</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MachineLearningInterface</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        @param model_name: name of a model, must be in the set return by get_models</span>
 <span class="sd">        @param model_params: user defined parameters for the model</span>
 <span class="sd">        @param dataloader_name: name of a dataloader to be used:</span>
@@ -874,10 +881,10 @@ as before:</p>
 <p>We expect that the gRPC learner part will often be on a compute cluster and be separate from the gRPC client side.
 To test the gRPC in a setup like this you can start the servers on the computer side and the client part separately.
 For one gRPC server:</p>
-<div class="highlight"><pre><span></span><code>python3 ./colearn_grpc/scripts/run_grpc_server.py --port <span class="m">9995</span> --metrics_port <span class="m">9091</span>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>./colearn_grpc/scripts/run_grpc_server.py<span class="w"> </span>--port<span class="w"> </span><span class="m">9995</span><span class="w"> </span>--metrics_port<span class="w"> </span><span class="m">9091</span>
 </code></pre></div>
 <p>For multiple gRPC servers:</p>
-<div class="highlight"><pre><span></span><code>python3 ./colearn_grpc/scrips/run_n_grpc_servers.py --n_learners <span class="m">5</span> --port <span class="m">9995</span> --metrics_port <span class="m">9091</span>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>./colearn_grpc/scrips/run_n_grpc_servers.py<span class="w"> </span>--n_learners<span class="w"> </span><span class="m">5</span><span class="w"> </span>--port<span class="w"> </span><span class="m">9995</span><span class="w"> </span>--metrics_port<span class="w"> </span><span class="m">9091</span>
 </code></pre></div>
 <p>The servers by default will start on port 9995 and use subsequent ports from there, so if three
 servers are required they will run on ports 9995, 9996 and 9997.</p>
@@ -893,7 +900,7 @@ These are the imports of the default dataloaders and models in <code>colearn_grp
 </code></pre></div>
 <p>Once the gRPC server(s) are running, set up whatever networking and port forwarding is required.
 You can check that the gRPC server is accessible by using the probe script:</p>
-<div class="highlight"><pre><span></span><code>python3 ./colearn_grpc/scripts/probe_grpc_server.py --port <span class="m">9995</span>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>./colearn_grpc/scripts/probe_grpc_server.py<span class="w"> </span>--port<span class="w"> </span><span class="m">9995</span>
 </code></pre></div>
 <p>If the connection is successful this will print a list of the models and datasets registered on the server.
 These are the defaults that are registered:</p>
@@ -935,8 +942,8 @@ info: Successfully connected to 127.0.0.1:9995!
 <p>Then run <code>python -m colearn_examples.grpc.run_grpc_demo</code> on the other side to run the usual demo.
 The script takes as arguments the model name and dataset name that should be run, along with the number of learners
 and the data location for each learner.</p>
-<div class="highlight"><pre><span></span><code>python -m colearn_examples.grpc.run_grpc_demo --n_learners <span class="m">5</span> --dataloader_tag KERAS_MNIST --model_tag KERAS_MNIST <span class="se">\</span>
---data_locations /tmp/mnist/0,/tmp/mnist/1,/tmp/mnist/2,/tmp/mnist/3,/tmp/mnist/4
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>colearn_examples.grpc.run_grpc_demo<span class="w"> </span>--n_learners<span class="w"> </span><span class="m">5</span><span class="w"> </span>--dataloader_tag<span class="w"> </span>KERAS_MNIST<span class="w"> </span>--model_tag<span class="w"> </span>KERAS_MNIST<span class="w"> </span><span class="se">\</span>
+--data_locations<span class="w"> </span>/tmp/mnist/0,/tmp/mnist/1,/tmp/mnist/2,/tmp/mnist/3,/tmp/mnist/4
 </code></pre></div>
 <h2 id="using-the-mli-factory-interface">Using the MLI Factory interface<a class="headerlink" href="#using-the-mli-factory-interface" title="Permanent link">&para;</a></h2>
 <p>An alternative method of using your own dataloaders and models with the gRPC server is to use the MLI Factory interface.
@@ -999,42 +1006,6 @@ The MLI Factory is implemented as shown:</p>
       
         <footer class="md-footer">
   
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="../differential_privacy/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Differential Privacy" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Differential Privacy
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="../demo/" class="md-footer__link md-footer__link--next" aria-label="Next: Demo" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Demo
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
-  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
@@ -1056,10 +1027,10 @@ The MLI Factory is implemented as shown:</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d6c3db9e.min.js"></script>
+      <script src="../assets/javascripts/bundle.407015b8.min.js"></script>
       
     
   </body>
