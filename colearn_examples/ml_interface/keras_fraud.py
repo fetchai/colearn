@@ -46,7 +46,6 @@ n_classes = 1
 loss = "binary_crossentropy"
 optimizer = tf.keras.optimizers.Adam
 l_rate = 0.0001
-l_rate_decay = 1e-5
 batch_size = 10000
 vote_batches = 1
 
@@ -67,9 +66,7 @@ def get_model():
 
     model = tf.keras.Model(inputs=model_input, outputs=x)
 
-    opt = optimizer(
-        lr=l_rate, decay=l_rate_decay
-    )
+    opt = optimizer(lr=l_rate)
     model.compile(
         loss=loss,
         metrics=[tf.keras.metrics.BinaryAccuracy()],

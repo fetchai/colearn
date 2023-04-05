@@ -15,9 +15,34 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+import numpy as np
 import tensorflow as tf
+from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 
 
 def normalize_img(image, label):
     """Normalizes images: `uint8` -> `float32`."""
     return tf.cast(image, tf.float32) / 255., label
+
+
+def _make_loader(images: np.ndarray,
+                 labels: np.ndarray,
+                 batch_size: int = 32,
+                 dp_enabled: bool = False) -> PrefetchDataset:
+    """
+    Converts array of images and labels to Tensorflow dataset
+    :param images: Numpy array of input data
+    :param labels:  Numpy array of output labels
+    :param batch_size: Batch size
+    :return: Shuffled Tensorflow prefetch dataset holding images and labels
+    """
+    dataset = tf.data.Dataset.from_tensor_slices((images, labels))
+    n_datapoints = images.shape[0]
+
+    dataset = dataset.cache()
+    dataset = dataset.shuffle(n_datapoints)
+    # tf privacy expects fix batch sizes, thus drop_remainder=True
+    dataset = dataset.batch(batch_size, drop_remainder=dp_enabled)
+    dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+
+    return dataset

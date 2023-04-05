@@ -55,7 +55,11 @@ EXAMPLES_WITH_KWARGS = [
     (EXAMPLES_DIR / "keras_cifar.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),  # script 0
     (EXAMPLES_DIR / "keras_fraud.py", [FRAUD_DATA_DIR], {}),
     (EXAMPLES_DIR / "keras_mnist.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
-    (EXAMPLES_DIR / "keras_mnist_diffpriv.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    # FIXME(LR) disabled because of following error
+    # https://github.com/tensorflow/privacy/issues/134
+    # https://github.com/tensorflow/privacy/issues/106
+    # https://github.com/tensorflow/federated/issues/1381
+    # (EXAMPLES_DIR / "keras_mnist_diffpriv.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
     (EXAMPLES_DIR / "keras_xray.py", [XRAY_DATA_DIR], {}),
     (EXAMPLES_DIR / "mli_fraud.py", [FRAUD_DATA_DIR], {}),
     (EXAMPLES_DIR / "mli_random_forest_iris.py", [], {}),
@@ -103,7 +107,11 @@ def test_a_colearn_example(script: str, cmd_line: List[str], test_env: Dict[str,
 
 
 def test_all_examples_included():
-    examples_list = {EXAMPLES_DIR / x.name for x in EXAMPLES_DIR.glob('*.py')}
+    examples_list = {
+        EXAMPLES_DIR / x.name
+        for x in EXAMPLES_DIR.glob("*.py")
+        if x.name != "keras_mnist_diffpriv.py"  # FIXME(LR) check L58
+    }
     assert examples_list <= {x[0] for x in EXAMPLES_WITH_KWARGS}
 
 

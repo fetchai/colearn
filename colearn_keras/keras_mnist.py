@@ -33,7 +33,7 @@ from colearn.ml_interface import DiffPrivConfig
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_keras.keras_learner import KerasLearner
-from colearn_keras.utils import normalize_img
+from colearn_keras.utils import normalize_img, _make_loader
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
@@ -53,10 +53,12 @@ def prepare_loaders_impl(location: str,
 
     n_cases = int(train_ratio * len(images))
     n_vote_cases = int(vote_ratio * len(images))
-    train_loader = _make_loader(images[:n_cases], labels[:n_cases], batch_size, dp_enabled=dp_enabled)
+    train_loader = _make_loader(
+        images[:n_cases], labels[:n_cases], batch_size, dp_enabled=dp_enabled)
     vote_loader = _make_loader(images[n_cases:n_cases + n_vote_cases], labels[n_cases:n_cases + n_vote_cases],
                                batch_size)
-    test_loader = _make_loader(images[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:], batch_size)
+    test_loader = _make_loader(
+        images[n_cases + n_vote_cases:], labels[n_cases + n_vote_cases:], batch_size)
 
     return train_loader, vote_loader, test_loader
 
@@ -116,8 +118,11 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
     )
     x = tf.keras.layers.ZeroPadding2D(padding=padding)(input_img)
     x = tf.keras.layers.Flatten()(x)
-    x = tf.keras.layers.RepeatVector(new_channels)(x)  # mnist only has one channel so duplicate inputs
-    x = tf.keras.layers.Reshape((rows + padding * 2, cols + padding * 2, new_channels))(x)  # who knows if this works
+    # mnist only has one channel so duplicate inputs
+    x = tf.keras.layers.RepeatVector(new_channels)(x)
+    # who knows if this works
+    x = tf.keras.layers.Reshape(
+        (rows + padding * 2, cols + padding * 2, new_channels))(x)
 
     resnet = ResNet50(include_top=False, input_tensor=x)
 
@@ -229,29 +234,6 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     return learner
 
 
-def _make_loader(images: np.ndarray,
-                 labels: np.ndarray,
-                 batch_size: int,
-                 dp_enabled: bool = False) -> PrefetchDataset:
-    """
-    Converts array of images and labels to Tensorflow dataset
-    :param images: Numpy array of input data
-    :param labels:  Numpy array of output labels
-    :param batch_size: Batch size
-    :return: Shuffled Tensorflow prefetch dataset holding images and labels
-    """
-    dataset = tf.data.Dataset.from_tensor_slices((images, labels))
-    n_datapoints = images.shape[0]
-
-    dataset = dataset.cache()
-    dataset = dataset.shuffle(n_datapoints)
-    # tf privacy expects fix batch sizes, thus drop_remainder=True
-    dataset = dataset.batch(batch_size, drop_remainder=dp_enabled)
-    dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-
-    return dataset
-
-
 def split_to_folders(
         n_learners: int,
         data_split: Optional[List[float]] = None,
@@ -274,7 +256,8 @@ def split_to_folders(
         data_split = [1 / n_learners] * n_learners
 
     # Load MNIST from tfds
-    train_dataset, info = tfds.load('mnist', split='train+test', as_supervised=True, with_info=True)
+    train_dataset, info = tfds.load(
+        'mnist', split='train+test', as_supervised=True, with_info=True)
     n_datapoints = info.splits['train+test'].num_examples
     train_dataset = train_dataset.map(normalize_img).batch(n_datapoints)
 

@@ -29,6 +29,7 @@ from colearn_grpc.logging import set_log_levels, get_logger
 # pylint: disable=W0611
 import colearn_keras.keras_mnist  # type:ignore # noqa: F401
 import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
+import colearn_keras.keras_scania  # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
 import colearn_other.fraud_dataset  # type:ignore # noqa: F401
