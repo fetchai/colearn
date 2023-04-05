@@ -32,75 +32,73 @@ _logger = get_logger(__name__)
 
 
 def test_grpc_server_with_example_grpc_learner_client():
-    # _logger.info("setting up the grpc server ...")
+    _logger.info("setting up the grpc server ...")
 
-    # server_port = 34567
-    # server_key = ""
-    # server_crt = ""
-    # enable_encryption = False
+    server_port = 34567
+    server_key = ""
+    server_crt = ""
+    enable_encryption = False
 
-    # server = GRPCServer(
-    #     mli_factory=ExampleMliFactory(),
-    #     port=server_port,
-    #     enable_encryption=enable_encryption,
-    #     server_key=server_key,
-    #     server_crt=server_crt,
-    # )
+    server = GRPCServer(
+        mli_factory=ExampleMliFactory(),
+        port=server_port,
+        enable_encryption=enable_encryption,
+        server_key=server_key,
+        server_crt=server_crt,
+    )
 
-    # server.run(wait_for_termination=False)
+    server.run(wait_for_termination=False)
 
-    # time.sleep(2)
+    time.sleep(2)
 
-    # client = ExampleGRPCLearnerClient(
-    #     "mnist_client", f"127.0.0.1:{server_port}", enable_encryption=enable_encryption
-    # )
+    client = ExampleGRPCLearnerClient(
+        "mnist_client", f"127.0.0.1:{server_port}", enable_encryption=enable_encryption
+    )
 
-    # client.start()
+    client.start()
 
-    # ml = client.get_supported_system()
-    # data_loader = "KERAS_MNIST"
-    # prediction_data_loader = "KERAS_MNIST_PRED"
-    # model_architecture = "KERAS_MNIST"
-    # assert data_loader in ml["data_loaders"].keys()
-    # assert prediction_data_loader in ml["prediction_data_loaders"].keys()
-    # assert model_architecture in ml["model_architectures"].keys()
+    ml = client.get_supported_system()
+    data_loader = "KERAS_MNIST"
+    prediction_data_loader = "KERAS_MNIST_PRED"
+    model_architecture = "KERAS_MNIST"
+    assert data_loader in ml["data_loaders"].keys()
+    assert prediction_data_loader in ml["prediction_data_loaders"].keys()
+    assert model_architecture in ml["model_architectures"].keys()
 
-    # data_location = "gs://colearn-public/mnist/2/"
-    # assert client.setup_ml(
-    #     data_loader,
-    #     json.dumps({"location": data_location}),
-    #     model_architecture,
-    #     json.dumps({}),
-    #     prediction_data_loader
-    # )
+    data_location = "gs://colearn-public/mnist/2/"
+    assert client.setup_ml(
+        data_loader,
+        json.dumps({"location": data_location}),
+        model_architecture,
+        json.dumps({}),
+        prediction_data_loader
+    )
 
-    # weights = client.mli_propose_weights()
-    # assert weights.weights is not None
+    weights = client.mli_propose_weights()
+    assert weights.weights is not None
 
-    # client.mli_accept_weights(weights)
-    # assert client.mli_get_current_weights().weights == weights.weights
+    client.mli_accept_weights(weights)
+    assert client.mli_get_current_weights().weights == weights.weights
 
-    # pred_name = "prediction_1"
+    pred_name = "prediction_1"
 
-    # location = "../tests/test_data/img_0.jpg"
-    # # Overwrite specified data loader
-    # prediction = client.mli_make_prediction(
-    #     PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'),
-    #                       pred_dataloader_key="KERAS_MNIST_PRED_TWO")
-    # )
-    # prediction_data = list(prediction.prediction_data)
-    # assert prediction.name == pred_name
-    # assert isinstance(prediction_data, list)
+    location = "/home/hanwag/Documents/lytix/colearn/tests/test_data/img_0.jpg"
+    # Overwrite specified data loader
+    prediction = client.mli_make_prediction(
+        PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'),
+                          pred_dataloader_key="KERAS_MNIST_PRED_TWO")
+    )
+    prediction_data = list(prediction.prediction_data)
+    assert prediction.name == pred_name
+    assert isinstance(prediction_data, list)
 
-    # # Take prediction data loader from experiment
-    # prediction = client.mli_make_prediction(
-    #     PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'))
-    # )
-    # prediction_data = list(prediction.prediction_data)
-    # assert prediction.name == pred_name
-    # assert isinstance(prediction_data, list)
+    # Take prediction data loader from experiment
+    prediction = client.mli_make_prediction(
+        PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'))
+    )
+    prediction_data = list(prediction.prediction_data)
+    assert prediction.name == pred_name
+    assert isinstance(prediction_data, list)
 
-    # client.stop()
-    # server.stop()
-    # TODO fix this test
-    pass
+    client.stop()
+    server.stop()

@@ -114,7 +114,10 @@ class ExampleMliFactory(MliFactory):
 
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
 
-        return prepare_learner(data_loaders=data_loaders, prediction_data_loaders=pred_data_loaders, **model_config)
+        if len(pred_data_loaders) >= 1:
+            return prepare_learner(data_loaders=data_loaders, prediction_data_loaders=pred_data_loaders, **model_config)
+        else:
+            return prepare_learner(data_loaders=data_loaders, **model_config)
 
 
 def load_all_prediction_data_loaders(self,
