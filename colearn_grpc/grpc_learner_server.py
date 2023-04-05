@@ -119,7 +119,7 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
                 if predicton_data_loaders:
                     for pred_dataloader_name in predicton_data_loaders:
                         pc.prediction_dataloaders.append(pred_dataloader_name)
-                   
+
         except Exception as ex:  # pylint: disable=W0703
             _logger.exception(f"Exception in QuerySupportedSystem: {ex} {type(ex)}")
             context.set_code(grpc.StatusCode.INTERNAL)

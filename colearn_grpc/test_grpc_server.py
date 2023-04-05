@@ -82,7 +82,7 @@ def test_grpc_server_with_example_grpc_learner_client():
 
     pred_name = "prediction_1"
 
-    location = "/home/hanwag/Documents/lytix/colearn/tests/test_data/img_0.jpg"
+    location = "../tests/test_data/img_0.jpg"
     # Overwrite specified data loader
     prediction = client.mli_make_prediction(
         PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'),
