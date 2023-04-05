@@ -284,7 +284,7 @@ class KerasLearner(MachineLearningInterface):
                                      **self.model_evaluate_kwargs)
         return result[self.criterion]
 
-    def get_prediction_data_loaders(self) -> dict:
+    def get_prediction_data_loaders(self) -> Optional[dict]:
         """
         Get all prediction data loader, wtih default one beeing the first
         :return: Dict with keys and functions prediction data loader

@@ -150,7 +150,8 @@ class SimpleFactory(MliFactory):
         raise NotImplementedError
 
     def get_mli(self, model_name: str, model_params: str, dataloader_name: str,
-                dataset_params: str) -> MachineLearningInterface:
+                dataset_params: str, prediction_dataloader_name: str = None,
+                prediction_dataset_params: str = None) -> MachineLearningInterface:
         dataloader_kwargs = json.loads(dataset_params)
         data_loaders = prepare_data_loaders(**dataloader_kwargs)
 

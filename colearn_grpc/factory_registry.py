@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 from inspect import signature
-from typing import Callable, Dict, Any, List, NamedTuple
+from typing import Callable, Dict, Any, List, NamedTuple, Optional
 
 
 class RegistryException(Exception):
@@ -52,7 +52,7 @@ class FactoryRegistry:
         callable: Callable
         default_parameters: Dict[str, Any]
         data_compatibilities: List[str]
-        pred_compatibilities: List[str] = []
+        pred_compatibilities: Optional[List[str]]
 
     model_architectures: Dict[str, ModelArchitectureDef] = {}
 
@@ -121,9 +121,9 @@ class FactoryRegistry:
                                         f" but model data_loaders expects type {model_dl_type}")
 
     @classmethod
-    def check_model_prediction_callable(cls, to_call: Callable, compatibilities: List[str]):
+    def check_model_prediction_callable(cls, to_call: Callable, compatibilities: List[str] = None):
         sig = signature(to_call)
-        if "prediction_data_loaders" in sig.parameters:
+        if "prediction_data_loaders" in sig.parameters and compatibilities:
             model_dl_type = sig.parameters["prediction_data_loaders"].annotation
             for dl in compatibilities:
                 if dl not in cls.prediction_dataloaders:

@@ -101,7 +101,7 @@ def prepare_data_loaders_dp(location: str,
 
 
 # prepare pred loader implementation
-def prepare_pred_loaders_impl(location: str) -> np.array:
+def prepare_pred_loaders_impl(location: str):
     """
      Load image data from folder and create prediction data loader
 

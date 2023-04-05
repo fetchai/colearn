@@ -121,8 +121,8 @@ class ExampleMliFactory(MliFactory):
 
 
 def load_all_prediction_data_loaders(self,
-                                     prediction_dataloader_name: str = None,
-                                     prediction_dataset_params: dict = None):
+                                     prediction_dataloader_name = None,
+                                     prediction_dataset_params = None):
     pred_dict = {}
     keys = list(self.prediction_dataloaders.keys())
     for name in keys:
