@@ -64,8 +64,7 @@ test_datasets = [test_dataset.shard(num_shards=2 * n_learners, index=i) for i in
 for i in range(n_learners):
     ds_train = train_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    ds_train = ds_train.cache()
-    ds_train = ds_train.shuffle(n_datapoints // n_learners)
+    ds_train = ds_train.shuffle(n_datapoints // n_learners).cache()
     # tf privacy expects fix batch sizes, thus drop_remainder=True
     ds_train = ds_train.batch(batch_size, drop_remainder=True)
     train_datasets[i] = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
@@ -73,15 +72,13 @@ for i in range(n_learners):
     ds_vote = vote_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     ds_vote = ds_vote.batch(batch_size)
-    ds_vote = ds_vote.cache()
-    ds_vote = ds_vote.prefetch(tf.data.experimental.AUTOTUNE)
+    ds_vote = ds_vote.prefetch(tf.data.experimental.AUTOTUNE).cache()
     vote_datasets[i] = ds_vote
 
     ds_test = test_datasets[i].map(
         normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     ds_test = ds_test.batch(batch_size)
-    ds_test = ds_test.cache()
-    ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
+    ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE).cache()
     test_datasets[i] = ds_test
 
 
