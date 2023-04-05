@@ -18,7 +18,6 @@
 import json
 import time
 import os
-from pathlib import Path
 from colearn.ml_interface import PredictionRequest
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.grpc_server import GRPCServer
@@ -84,14 +83,9 @@ def test_grpc_server_with_example_grpc_learner_client():
 
     pred_name = "prediction_1"
 
-    GITHUB_ACTION = bool(os.getenv("GITHUB_ACTION", ""))
-    if GITHUB_ACTION:
-        COLEARN_DATA_DIR = Path("/pvc-data/")
-        location = str(COLEARN_DATA_DIR / "tests/test_data/img_0.jpg")
-    else:
-        # change this to your local directory
-        location = "../tests/test_data/img_0.jpg"
-    # Overwrite specified data loader
+    rel_path = "../tests/test_data/img_0.jpg"
+    location = os.path.join(os.path.dirname(os.path.realpath(__file__)), rel_path)
+
     prediction = client.mli_make_prediction(
         PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'),
                           pred_dataloader_key="KERAS_MNIST_PRED_TWO")
