@@ -31,6 +31,7 @@ from colearn_other.demo_utils import get_split_to_folders, get_score_name
 # pylint: disable=W0611
 import colearn_keras.keras_mnist  # type:ignore # noqa: F401
 import colearn_keras.keras_cifar10  # type:ignore # noqa: F401
+import colearn_keras.keras_scania  # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_xray  # type:ignore # noqa: F401
 import colearn_pytorch.pytorch_covid_xray  # type:ignore # noqa: F401
 import colearn_other.fraud_dataset  # type:ignore # noqa: F401

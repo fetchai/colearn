@@ -34,7 +34,7 @@ from colearn.ml_interface import DiffPrivConfig
 from colearn.utils.data import get_data, split_list_into_fractions
 from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_keras.keras_learner import KerasLearner
-from colearn_keras.utils import normalize_img
+from colearn_keras.utils import normalize_img, _make_loader
 
 IMAGE_FL = "images.pickle"
 LABEL_FL = "labels.pickle"
@@ -276,29 +276,6 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
         prediction_data_loader=prediction_data_loaders
     )
     return learner
-
-
-def _make_loader(images: np.ndarray,
-                 labels: np.ndarray,
-                 batch_size: int,
-                 dp_enabled: bool = False) -> PrefetchDataset:
-    """
-    Converts array of images and labels to Tensorflow dataset
-    :param images: Numpy array of input data
-    :param labels:  Numpy array of output labels
-    :param batch_size: Batch size
-    :return: Shuffled Tensorflow prefetch dataset holding images and labels
-    """
-    dataset = tf.data.Dataset.from_tensor_slices((images, labels))
-    n_datapoints = images.shape[0]
-
-    dataset = dataset.cache()
-    dataset = dataset.shuffle(n_datapoints)
-    # tf privacy expects fix batch sizes, thus drop_remainder=True
-    dataset = dataset.batch(batch_size, drop_remainder=dp_enabled)
-    dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-
-    return dataset
 
 
 def split_to_folders(
