@@ -95,11 +95,9 @@ class ExampleMliFactory(MliFactory):
         prepare_data_loaders = FactoryRegistry.dataloaders[dataloader_name][0]
         data_loaders = prepare_data_loaders(**dataloader_config)
 
-        pred_data_loaders = {}
-        if prediction_dataloader_name:
-           pred_data_loaders = load_all_prediction_data_loaders(self,
-                                                                prediction_dataloader_name,
-                                                                prediction_dataset_params)
+        pred_data_loaders = load_all_prediction_data_loaders(self,
+                                                             prediction_dataloader_name,
+                                                             prediction_dataset_params)
 
         model_config = copy.deepcopy(self.models[model_name])  # Default parameters
         model_new_config = json.loads(model_params)
@@ -116,7 +114,11 @@ class ExampleMliFactory(MliFactory):
 
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
 
+        print(f"Pred data loaders: {pred_data_loaders}")
+        print(f"Len Pred data loaders: {len(pred_data_loaders)}")
+        print(f"Model config: {model_config}")
         if len(pred_data_loaders) >= 1:
+            print("Preparing learner with pred data loaders")
             return prepare_learner(data_loaders=data_loaders, prediction_data_loaders=pred_data_loaders, **model_config)
         else:
             return prepare_learner(data_loaders=data_loaders, **model_config)
@@ -126,6 +128,7 @@ def load_all_prediction_data_loaders(self,
                                      prediction_dataloader_name=None,
                                      prediction_dataset_params=None):
     pred_dict = {}
+    print(f"Pred data loaders: {self.prediction_dataloaders}")
     keys = list(self.prediction_dataloaders.keys())
     for name in keys:
         pred_dataloader_config = copy.deepcopy(
