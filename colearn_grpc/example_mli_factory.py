@@ -95,9 +95,11 @@ class ExampleMliFactory(MliFactory):
         prepare_data_loaders = FactoryRegistry.dataloaders[dataloader_name][0]
         data_loaders = prepare_data_loaders(**dataloader_config)
 
-        pred_data_loaders = load_all_prediction_data_loaders(self,
-                                                             prediction_dataloader_name,
-                                                             prediction_dataset_params)
+        pred_data_loaders = {}
+        if prediction_dataloader_name:
+           pred_data_loaders = load_all_prediction_data_loaders(self,
+                                                                prediction_dataloader_name,
+                                                                prediction_dataset_params)
 
         model_config = copy.deepcopy(self.models[model_name])  # Default parameters
         model_new_config = json.loads(model_params)
