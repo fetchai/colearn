@@ -31,10 +31,8 @@ from colearn_other.fraud_dataset import fraud_preprocessing
 
 """
 Fraud training example using Tensorflow Keras
-
 Used dataset:
 - Fraud, download from kaggle: https://www.kaggle.com/c/ieee-fraud-detection
-
 What script does:
 - Sets up the Keras model and some configuration parameters
 - Randomly splits the dataset between multiple learners
@@ -44,7 +42,7 @@ What script does:
 input_classes = 431
 n_classes = 1
 loss = "binary_crossentropy"
-optimizer = tf.keras.optimizers.legacy.Adam
+optimizer = tf.keras.optimizers.Adam
 l_rate = 0.0001
 batch_size = 10000
 vote_batches = 1
@@ -67,7 +65,6 @@ def get_model():
     model = tf.keras.Model(inputs=model_input, outputs=x)
 
     opt = optimizer(lr=l_rate)
-
     model.compile(
         loss=loss,
         metrics=[tf.keras.metrics.BinaryAccuracy()],
