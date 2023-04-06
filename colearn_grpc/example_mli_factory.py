@@ -124,7 +124,7 @@ def load_all_prediction_data_loaders(self, model_name: str,
                                      prediction_dataloader_name=None,
                                      prediction_dataset_params=None):
     keys = self.pred_compatibilities[model_name]
-    pred_dict = {str, function}
+    pred_dict: Dict[str, Any] = {}
     if keys:
         for name in keys:
             pred_dataloader_config = copy.deepcopy(
