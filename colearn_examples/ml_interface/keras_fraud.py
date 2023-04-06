@@ -67,6 +67,7 @@ def get_model():
     model = tf.keras.Model(inputs=model_input, outputs=x)
 
     opt = optimizer(lr=l_rate)
+
     model.compile(
         loss=loss,
         metrics=[tf.keras.metrics.BinaryAccuracy()],
