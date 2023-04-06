@@ -123,8 +123,8 @@ class ExampleMliFactory(MliFactory):
 def load_all_prediction_data_loaders(self, model_name: str,
                                      prediction_dataloader_name=None,
                                      prediction_dataset_params=None):
-    pred_dict = {}
     keys = self.pred_compatibilities[model_name]
+    pred_dict = {}  # type: ignore
     if keys:
         for name in keys:
             pred_dataloader_config = copy.deepcopy(

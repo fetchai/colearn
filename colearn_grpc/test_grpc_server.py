@@ -72,7 +72,8 @@ def test_grpc_server_with_example_grpc_learner_client():
         json.dumps({"location": data_location}),
         model_architecture,
         json.dumps({}),
-        prediction_data_loader
+        prediction_data_loader,
+        json.dumps({})
     )
 
     weights = client.mli_propose_weights()

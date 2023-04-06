@@ -163,9 +163,9 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         request.model_arch_name = model_arch_name
         request.model_parameters = model_parameters
 
-        if request.prediction_dataset_loader_name:
+        if prediction_dataset_loader_name:
             request.prediction_dataset_loader_name = prediction_dataset_loader_name
-        if request.prediction_dataset_loader_parameters:
+        if prediction_dataset_loader_parameters:
             request.prediction_dataset_loader_parameters = prediction_dataset_loader_parameters
 
         _logger.info(f"Setting up ml with request: {request}")
