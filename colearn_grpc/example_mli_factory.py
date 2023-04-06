@@ -95,7 +95,7 @@ class ExampleMliFactory(MliFactory):
         prepare_data_loaders = FactoryRegistry.dataloaders[dataloader_name][0]
         data_loaders = prepare_data_loaders(**dataloader_config)
 
-        pred_data_loaders = load_all_prediction_data_loaders(self,
+        pred_data_loaders = load_all_prediction_data_loaders(self, model_name,
                                                              prediction_dataloader_name,
                                                              prediction_dataset_params)
 
@@ -114,39 +114,35 @@ class ExampleMliFactory(MliFactory):
 
         prepare_learner = FactoryRegistry.model_architectures[model_name][0]
 
-        print(f"Pred data loaders: {pred_data_loaders}")
-        print(f"Len Pred data loaders: {len(pred_data_loaders)}")
-        print(f"Model config: {model_config}")
         if len(pred_data_loaders) >= 1:
-            print("Preparing learner with pred data loaders")
             return prepare_learner(data_loaders=data_loaders, prediction_data_loaders=pred_data_loaders, **model_config)
         else:
             return prepare_learner(data_loaders=data_loaders, **model_config)
 
 
-def load_all_prediction_data_loaders(self,
+def load_all_prediction_data_loaders(self, model_name: str,
                                      prediction_dataloader_name=None,
                                      prediction_dataset_params=None):
     pred_dict = {}
-    print(f"Pred data loaders: {self.prediction_dataloaders}")
-    keys = list(self.prediction_dataloaders.keys())
-    for name in keys:
-        pred_dataloader_config = copy.deepcopy(
-            self.prediction_dataloaders[name])  # Default parameters
-        if prediction_dataloader_name and prediction_dataset_params:
-            pred_dataloader_new_config = json.loads(prediction_dataset_params)
-            for key in pred_dataloader_new_config.keys():
-                if key in pred_dataloader_config or key == "location":
-                    pred_dataloader_config[key] = pred_dataloader_new_config[key]
-                else:
-                    _logger.warning(f"Key {key} was included in the dataloader params but this dataloader "
-                                    f"({name}) does not accept it.")
-        prepare_pred_data_loader = FactoryRegistry.prediction_dataloaders[name][0]
-        pred_tmp_dict = prepare_pred_data_loader(**pred_dataloader_config)
-        if prediction_dataloader_name and prediction_dataloader_name == name:
-            pred_tmp_dict.update(pred_dict)
-            pred_dict = pred_tmp_dict
-        else:
-            pred_dict.update(pred_tmp_dict)
+    keys = self.pred_compatibilities[model_name]
+    if keys:
+        for name in keys:
+            pred_dataloader_config = copy.deepcopy(
+                self.prediction_dataloaders[name])  # Default parameters
+            if prediction_dataloader_name and prediction_dataset_params:
+                pred_dataloader_new_config = json.loads(prediction_dataset_params)
+                for key in pred_dataloader_new_config.keys():
+                    if key in pred_dataloader_config or key == "location":
+                        pred_dataloader_config[key] = pred_dataloader_new_config[key]
+                    else:
+                        _logger.warning(f"Key {key} was included in the dataloader params but this dataloader "
+                                        f"({name}) does not accept it.")
+            prepare_pred_data_loader = FactoryRegistry.prediction_dataloaders[name][0]
+            pred_tmp_dict = prepare_pred_data_loader(**pred_dataloader_config)
+            if prediction_dataloader_name and prediction_dataloader_name == name:
+                pred_tmp_dict.update(pred_dict)
+                pred_dict = pred_tmp_dict
+            else:
+                pred_dict.update(pred_tmp_dict)
 
     return pred_dict
