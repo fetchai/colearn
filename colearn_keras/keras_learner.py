@@ -303,11 +303,10 @@ class KerasLearner(MachineLearningInterface):
         batch_shape = config["layers"][0]["config"]["batch_input_shape"]
         byte_data = request.input_data
         one_dim_data = np.frombuffer(byte_data)
-        no_input = int(one_dim_data.shape[0] / (batch_shape[1] * batch_shape[2]))
-        input_data = one_dim_data.reshape(no_input, batch_shape[1], batch_shape[2])
-        input_shaped = np.expand_dims(input_data, -1)
+        no_input = int(one_dim_data.shape[0] / (np.prod(batch_shape[1:])))
+        input_data = one_dim_data.reshape([no_input] + list(batch_shape[1:]))
 
-        result_prob_list = self.model.predict(input_shaped)
+        result_prob_list = self.model.predict(input_data)
         result_list = [np.argmax(r) for r in result_prob_list]
 
         return Prediction(name=request.name, prediction_data=result_list)

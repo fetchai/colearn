@@ -104,9 +104,54 @@ def prepare_data_loaders(location: str) -> Tuple[PrefetchDataset,
     return prepare_loaders_impl(location, reshape=False)
 
 
-@FactoryRegistry.register_model_architecture("KERAS_SCANIA_RESNET", ["KERAS_SCANIA_RESNET"])
+# prepare pred loader implementation
+def prepare_pred_loaders_impl(location: str, reshape: bool = False):
+    """
+     Load prediction data from folder and create prediction data loader
+
+    :param location: Path to prediction file
+    :return: np.array
+    """
+    _logger.info(f"    -    LOADING PRED DATASET FROM LOCATION: {location}")
+
+    data_folder = get_data(location)
+
+    X_pred = pd.read_csv(data_folder, index_col=0).values
+
+    if reshape:
+        X_pred = reshape_x(X_pred)
+
+    return X_pred
+
+
+# The prediction dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_prediction_dataloader("KERAS_SCANIA_PRED")
+def prepare_prediction_data_loaders(location: str = None) -> dict:
+    """
+    Wrapper for loading image data from folder and create prediction data loader
+
+    :param location: Path to image
+    :return: dict of name and function
+    """
+    return {"KERAS_SCANIA_PRED": prepare_pred_loaders_impl}
+
+
+@FactoryRegistry.register_prediction_dataloader("KERAS_SCANIA_PRED_TWO")
+def prepare_prediction_data_loaders_two(location: str = None) -> dict:
+    """
+    Wrapper for loading image data from folder and create prediction data loader.
+    Same as other data loader for testing purpose.
+
+    :param location: Path to image
+    :return: dict of name and function
+    """
+    return {"KERAS_SCANIA_PRED_TWO": prepare_pred_loaders_impl}
+
+
+@FactoryRegistry.register_model_architecture("KERAS_SCANIA_RESNET", ["KERAS_SCANIA_RESNET"], ["KERAS_SCANIA_PRED", "KERAS_SCANIA_PRED_TWO"])
 def prepare_learner_resnet(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
                                                PrefetchDataset],
+                           prediction_data_loaders: dict,
                            steps_per_epoch: int = 100,
                            vote_batches: int = 10,
                            learning_rate: float = 0.001
@@ -159,13 +204,15 @@ def prepare_learner_resnet(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
         minimise_criterion=False,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
         model_evaluate_kwargs={"steps": vote_batches},
+        prediction_data_loader=prediction_data_loaders
     )
     return learner
 
 
-@FactoryRegistry.register_model_architecture("KERAS_SCANIA", ["KERAS_SCANIA"])
+@FactoryRegistry.register_model_architecture("KERAS_SCANIA", ["KERAS_SCANIA"], ["KERAS_SCANIA_PRED", "KERAS_SCANIA_PRED_TWO"])
 def prepare_learner_mlp(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
                                             PrefetchDataset],
+                        prediction_data_loaders: dict,
                         steps_per_epoch: int = 100,
                         vote_batches: int = 10,
                         learning_rate: float = 0.001
@@ -201,5 +248,6 @@ def prepare_learner_mlp(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
         minimise_criterion=False,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
         model_evaluate_kwargs={"steps": vote_batches},
+        prediction_data_loader=prediction_data_loaders
     )
     return learner
