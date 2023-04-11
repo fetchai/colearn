@@ -60,10 +60,8 @@ def test_keras_scania_with_grpc_sever():
 
     ml = client.get_supported_system()
     data_loader = "KERAS_SCANIA"
-    prediction_data_loader = "KERAS_SCANIA_PRED"
     model_architecture = "KERAS_SCANIA"
     assert data_loader in ml["data_loaders"].keys()
-    assert prediction_data_loader in ml["prediction_data_loaders"].keys()
     assert model_architecture in ml["model_architectures"].keys()
 
     data_location = "gs://colearn-public/scania/0"
@@ -71,8 +69,6 @@ def test_keras_scania_with_grpc_sever():
         data_loader,
         json.dumps({"location": data_location}),
         model_architecture,
-        json.dumps({}),
-        prediction_data_loader,
         json.dumps({})
     )
 
@@ -89,13 +85,41 @@ def test_keras_scania_with_grpc_sever():
 
     prediction = client.mli_make_prediction(
         PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'),
-                          pred_dataloader_key="KERAS_SCANIA_PRED_TWO")
+                          pred_dataloader_key="KERAS_SCANIA_PRED")
     )
     prediction_data = list(prediction.prediction_data)
     assert prediction.name == pred_name
     assert isinstance(prediction_data, list)
 
-    # Take prediction data loader from experiment
+    ml = client.get_supported_system()
+    data_loader = "KERAS_SCANIA_RESNET"
+    prediction_data_loader = "KERAS_SCANIA_PRED_RESNET"
+    model_architecture = "KERAS_SCANIA_RESNET"
+    assert data_loader in ml["data_loaders"].keys()
+    assert prediction_data_loader in ml["prediction_data_loaders"].keys()
+    assert model_architecture in ml["model_architectures"].keys()
+
+    data_location = "gs://colearn-public/scania/1"
+    assert client.setup_ml(
+        data_loader,
+        json.dumps({"location": data_location}),
+        model_architecture,
+        json.dumps({}),
+        prediction_data_loader,
+        json.dumps({})
+    )
+
+    weights = client.mli_propose_weights()
+    assert weights.weights is not None
+
+    client.mli_accept_weights(weights)
+    assert client.mli_get_current_weights().weights == weights.weights
+
+    pred_name = "prediction_scania_2"
+
+    rel_path = "../tests/test_data/scania_test_x.csv"
+    location = os.path.join(os.path.dirname(os.path.realpath(__file__)), rel_path)
+
     prediction = client.mli_make_prediction(
         PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'))
     )
