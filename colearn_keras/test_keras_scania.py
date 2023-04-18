@@ -17,6 +17,8 @@
 # ------------------------------------------------------------------------------
 import json
 import time
+import os
+from colearn.ml_interface import PredictionRequest
 from colearn_grpc.example_mli_factory import ExampleMliFactory
 from colearn_grpc.grpc_server import GRPCServer
 from colearn_grpc.logging import get_logger
@@ -75,6 +77,55 @@ def test_keras_scania_with_grpc_sever():
 
     client.mli_accept_weights(weights)
     assert client.mli_get_current_weights().weights == weights.weights
+
+    pred_name = "prediction_scania_1"
+
+    rel_path = "../tests/test_data/scania_test_x.csv"
+    location = os.path.join(os.path.dirname(os.path.realpath(__file__)), rel_path)
+
+    prediction = client.mli_make_prediction(
+        PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'),
+                          pred_dataloader_key="KERAS_SCANIA_PRED")
+    )
+    prediction_data = list(prediction.prediction_data)
+    assert prediction.name == pred_name
+    assert isinstance(prediction_data, list)
+
+    ml = client.get_supported_system()
+    data_loader = "KERAS_SCANIA_RESNET"
+    prediction_data_loader = "KERAS_SCANIA_PRED_RESNET"
+    model_architecture = "KERAS_SCANIA_RESNET"
+    assert data_loader in ml["data_loaders"].keys()
+    assert prediction_data_loader in ml["prediction_data_loaders"].keys()
+    assert model_architecture in ml["model_architectures"].keys()
+
+    data_location = "gs://colearn-public/scania/1"
+    assert client.setup_ml(
+        data_loader,
+        json.dumps({"location": data_location}),
+        model_architecture,
+        json.dumps({}),
+        prediction_data_loader,
+        json.dumps({})
+    )
+
+    weights = client.mli_propose_weights()
+    assert weights.weights is not None
+
+    client.mli_accept_weights(weights)
+    assert client.mli_get_current_weights().weights == weights.weights
+
+    pred_name = "prediction_scania_2"
+
+    rel_path = "../tests/test_data/scania_test_x.csv"
+    location = os.path.join(os.path.dirname(os.path.realpath(__file__)), rel_path)
+
+    prediction = client.mli_make_prediction(
+        PredictionRequest(name=pred_name, input_data=bytes(location, 'utf-8'))
+    )
+    prediction_data = list(prediction.prediction_data)
+    assert prediction.name == pred_name
+    assert isinstance(prediction_data, list)
 
     client.stop()
     server.stop()
