@@ -2,72 +2,82 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docs.fetch.ai/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/about/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/demo/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/dev_notes/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/differential_privacy/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/examples/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/grpc_examples/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/grpc_tutorial/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/installation/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/intro_tutorial_keras/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/intro_tutorial_mli/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/intro_tutorial_pytorch/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/mli_factory/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docs.fetch.ai/tasks/</loc>
-         <lastmod>2023-04-05</lastmod>
+         <lastmod>2023-05-09</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://docs.fetch.ai/technical/AXIM-128-docu/</loc>
+         <lastmod>2023-05-09</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://docs.fetch.ai/technical/AXIM-160-docu/</loc>
+         <lastmod>2023-05-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
