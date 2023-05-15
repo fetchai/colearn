@@ -21,6 +21,7 @@ keras_deps = [
     'tensorflow>=2.10',
     'tensorflow_datasets>=4.2,<4.5',
     'tensorflow-privacy>=0.5,<0.8',
+    'tensorflow-addons>=0.18'
 ]
 other_deps = [
     'pandas>=1.1,<1.5',
