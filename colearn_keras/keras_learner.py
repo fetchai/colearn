@@ -25,12 +25,15 @@ except ImportError:
     raise Exception("Tensorflow is not installed. To use the tensorflow/keras "
                     "add-ons please install colearn with `pip install colearn[keras]`.")
 from tensorflow import keras
-
-from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat
-from colearn.onnxutils import convert_model_to_onnx
-from colearn.ml_interface import DiffPrivBudget, DiffPrivConfig, TrainingSummary, ErrorCodes
 from tensorflow_privacy.privacy.analysis.compute_dp_sgd_privacy import compute_dp_sgd_privacy
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_optimizer_class
+
+from colearn.ml_interface import (
+    MachineLearningInterface, Prediction, PredictionRequest, Weights,
+    ProposedWeights, ColearnModel, ModelFormat, DiffPrivBudget,
+    DiffPrivConfig, TrainingSummary, ErrorCodes
+    )
+from colearn.onnxutils import convert_model_to_onnx
 
 
 class KerasLearner(MachineLearningInterface):
@@ -105,7 +108,7 @@ class KerasLearner(MachineLearningInterface):
             except TypeError:
                 raise Exception("Invalid arguments for model.evaluate")
 
-        self.vote_score: float = self.test(self.vote_loader)
+        self.vote_score: dict = self.test(self.vote_loader)
 
     def reset_optimizer(self):
         """
@@ -179,14 +182,15 @@ class KerasLearner(MachineLearningInterface):
         if self.test_loader:
             test_score = self.test(self.test_loader)
         else:
-            test_score = 0
-        vote = self.vote(vote_score)
+            test_score = dict.fromkeys(vote_score, 0)
+        vote = self.vote(vote_score[self.criterion])
 
         self.set_weights(current_weights)
 
         return ProposedWeights(weights=weights,
                                vote_score=vote_score,
                                test_score=test_score,
+                               criterion=self.criterion,
                                vote=vote,
                                )
 
@@ -196,11 +200,10 @@ class KerasLearner(MachineLearningInterface):
         :param new_score: Proposed score
         :return: bool positive or negative vote
         """
-
         if self.minimise_criterion:
-            return new_score < self.vote_score
+            return new_score < self.vote_score[self.criterion]
         else:
-            return new_score > self.vote_score
+            return new_score > self.vote_score[self.criterion]
 
     def mli_accept_weights(self, weights: Weights):
         """
@@ -274,7 +277,7 @@ class KerasLearner(MachineLearningInterface):
 
         self.model.fit(self.train_loader, **self.model_fit_kwargs)
 
-    def test(self, loader: tf.data.Dataset) -> float:
+    def test(self, loader: tf.data.Dataset) -> dict:
         """
         Tests performance of the model on specified dataset
         :param loader: Dataset for testing
@@ -282,7 +285,7 @@ class KerasLearner(MachineLearningInterface):
         """
         result = self.model.evaluate(x=loader, return_dict=True,
                                      **self.model_evaluate_kwargs)
-        return result[self.criterion]
+        return result
 
     def get_prediction_data_loaders(self) -> Optional[dict]:
         """

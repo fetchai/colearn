@@ -169,7 +169,7 @@ def prepare_learner_resnet(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
                                                PrefetchDataset],
                            prediction_data_loaders: dict,
                            steps_per_epoch: int = 100,
-                           vote_batches: int = 1, # needs to stay one for correct test calculation
+                           vote_batches: int = 1,  # needs to stay one for correct test calculation
                            learning_rate: float = 0.001
                            ) -> KerasLearner:
     """
@@ -206,7 +206,7 @@ def prepare_learner_resnet(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
 
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
-    metric_list = ["accuracy", tf.keras.metrics.AUC(), 
+    metric_list = ["accuracy", tf.keras.metrics.AUC(),
                    tfa.metrics.F1Score(average="macro", num_classes=n_classes)]
 
     model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
@@ -233,7 +233,7 @@ def prepare_learner_mlp(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
                                             PrefetchDataset],
                         prediction_data_loaders: dict,
                         steps_per_epoch: int = 100,
-                        vote_batches: int = 1, # Needs to stay 1 for correct test score calculation
+                        vote_batches: int = 1,  # Needs to stay 1 for correct test score calculation
                         learning_rate: float = 0.001
                         ) -> KerasLearner:
     """
@@ -253,7 +253,7 @@ def prepare_learner_mlp(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
         tf.keras.layers.Dense(n_classes, activation='softmax'),
     ])
 
-    metric_list = ["accuracy", tf.keras.metrics.AUC(), 
+    metric_list = ["accuracy", tf.keras.metrics.AUC(),
                    tfa.metrics.F1Score(average="macro", num_classes=n_classes)]
 
     model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),

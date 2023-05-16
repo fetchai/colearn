@@ -64,7 +64,8 @@ def nkl():
 
 
 def test_vote(nkl):
-    assert nkl.vote_score == get_mock_model().evaluate.return_value["loss"]
+    criterion = "loss"
+    assert nkl.vote_score[criterion] == get_mock_model().evaluate.return_value[criterion]
 
     assert nkl.vote(1.1) is False
     assert nkl.vote(1) is False
@@ -82,7 +83,7 @@ def test_minimise_criterion(nkl):
 def test_criterion(nkl):
     nkl.criterion = "accuracy"
     nkl.mli_accept_weights(Weights(weights="foo"))
-    assert nkl.vote_score == get_mock_model().evaluate.return_value["accuracy"]
+    assert nkl.vote_score[nkl.criterion] == get_mock_model().evaluate.return_value[nkl.criterion]
 
 
 def test_propose_weights(nkl):
