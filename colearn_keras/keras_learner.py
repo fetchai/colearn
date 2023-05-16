@@ -31,8 +31,7 @@ from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import make_keras_
 from colearn.ml_interface import (
     MachineLearningInterface, Prediction, PredictionRequest, Weights,
     ProposedWeights, ColearnModel, ModelFormat, DiffPrivBudget,
-    DiffPrivConfig, TrainingSummary, ErrorCodes
-    )
+    DiffPrivConfig, TrainingSummary, ErrorCodes)
 from colearn.onnxutils import convert_model_to_onnx
 
 
