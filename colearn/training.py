@@ -31,7 +31,6 @@ def set_equal_weights(learners: Sequence[MachineLearningInterface]):
 
 def initial_result(learners: Sequence[MachineLearningInterface]):
     result = Result()
-
     for learner in learners:
         proposed_weights = learner.mli_test_weights(learner.mli_get_current_weights())  # type: ProposedWeights
         result.test_scores.append(proposed_weights.test_score[proposed_weights.criterion])
