@@ -226,6 +226,7 @@ class PytorchLearner(MachineLearningInterface):
         """
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
+        criterion_name = self.__get_criterion_name()
 
         vote_score = self.test(self.vote_loader)
 
@@ -233,9 +234,7 @@ class PytorchLearner(MachineLearningInterface):
             test_score = self.test(self.test_loader)
         else:
             test_score = dict.fromkeys(vote_score, 0)
-        vote = self.vote(vote_score[self.vote_criterion])
-
-        criterion_name = self.__get_criterion_name()
+        vote = self.vote(vote_score[criterion_name])
 
         self.set_weights(current_weights)
         return ProposedWeights(weights=weights,
@@ -350,7 +349,7 @@ class PytorchLearner(MachineLearningInterface):
         result = bytes(request.input_data)
 
         return Prediction(name=request.name, prediction_data=result)
-    
+
     def __get_criterion_name(self):
         try:
             criterion_name = self.vote_criterion.__name__
@@ -358,4 +357,3 @@ class PytorchLearner(MachineLearningInterface):
             criterion_name = self.vote_criterion
             pass
         return criterion_name
-
