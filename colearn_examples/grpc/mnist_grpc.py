@@ -37,7 +37,7 @@ from colearn_keras.keras_learner import KerasLearner  # pylint: disable=C0413 # 
 from colearn_keras.keras_mnist import split_to_folders  # pylint: disable=C0413 # noqa: F401
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset  # pylint: disable=C0413 # noqa: F401
 import tensorflow as tf  # pylint: disable=C0413 # noqa: F401
-import tensorflow_addons as tfa # pylint: disable=C0413 # noqa: F401
+import tensorflow_addons as tfa  # pylint: disable=C0413 # noqa: F401
 
 dataloader_tag = "KERAS_MNIST_EXAMPLE_DATALOADER"
 

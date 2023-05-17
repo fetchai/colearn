@@ -104,18 +104,20 @@ class FraudLearner(MachineLearningInterface):
 
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
+        criterion = "mean_accuracy"
 
         vote_score = self.test(self.vote_data, self.vote_labels)
 
         test_score = self.test(self.test_data, self.test_labels)
 
-        vote = self.vote_score <= vote_score
+        vote = self.vote_score[criterion] <= vote_score[criterion]
 
         self.set_weights(current_weights)
         return ProposedWeights(weights=weights,
                                vote_score=vote_score,
                                test_score=test_score,
-                               vote=vote
+                               vote=vote,
+                               criterion=criterion
                                )
 
     def mli_accept_weights(self, weights: Weights):
@@ -154,7 +156,7 @@ class FraudLearner(MachineLearningInterface):
         self.model.coef_ = weights.weights['coef_']
         self.model.intercept_ = weights.weights['intercept_']
 
-    def test(self, data: np.ndarray, labels: np.ndarray) -> float:
+    def test(self, data: np.ndarray, labels: np.ndarray) -> dict:
         """
         Tests performance of the model on specified dataset
         :param data: np.array of data
@@ -162,9 +164,9 @@ class FraudLearner(MachineLearningInterface):
         :return: Value of performance metric
         """
         try:
-            return self.model.score(data, labels)
+            return {"mean_accuracy": self.model.score(data, labels)}
         except sklearn.exceptions.NotFittedError:
-            return 0
+            return {"mean_accuracy": 0}
 
     def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
         raise NotImplementedError()
