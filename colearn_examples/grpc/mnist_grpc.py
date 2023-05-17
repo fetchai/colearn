@@ -91,7 +91,7 @@ model_tag = "KERAS_MNIST_EXAMPLE_MODEL"
 @FactoryRegistry.register_model_architecture(model_tag, [dataloader_tag])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
-                    vote_batches: int = 1,
+                    vote_batches: int = 1,  # needs to stay one for correct test calculation
                     learning_rate: float = 0.001
                     ) -> KerasLearner:
     """

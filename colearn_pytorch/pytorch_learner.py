@@ -350,10 +350,8 @@ class PytorchLearner(MachineLearningInterface):
 
         return Prediction(name=request.name, prediction_data=result)
 
-    def __get_criterion_name(self):
-        try:
+    def __get_criterion_name(self) -> str:
+        criterion_name = self.criterion.__class__.__name__
+        if self.vote_criterion is not None:
             criterion_name = self.vote_criterion.__name__
-        except Exception:
-            criterion_name = self.vote_criterion
-            pass
         return criterion_name
