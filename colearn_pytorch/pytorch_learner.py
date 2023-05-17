@@ -235,12 +235,14 @@ class PytorchLearner(MachineLearningInterface):
             test_score = dict.fromkeys(vote_score, 0)
         vote = self.vote(vote_score[self.vote_criterion])
 
+        criterion_name = self.__get_criterion_name()
+
         self.set_weights(current_weights)
         return ProposedWeights(weights=weights,
                                vote_score=vote_score,
                                test_score=test_score,
                                vote=vote,
-                               criterion=self.vote_criterion)
+                               criterion=criterion_name)
 
     def vote(self, new_score) -> bool:
         """
@@ -248,11 +250,12 @@ class PytorchLearner(MachineLearningInterface):
         :param new_score: Proposed score
         :return: bool positive or negative vote
         """
+        criterion_name = self.__get_criterion_name()
 
         if self.minimise_criterion:
-            return new_score < self.vote_score[self.vote_criterion]
+            return new_score < self.vote_score[criterion_name]
         else:
-            return new_score > self.vote_score[self.vote_criterion]
+            return new_score > self.vote_score[criterion_name]
 
     def test(self, loader: torch.utils.data.DataLoader) -> dict:
         """
@@ -270,6 +273,7 @@ class PytorchLearner(MachineLearningInterface):
         all_outputs = []
         batch_idx = 0
         total_samples = 0
+        criterion_name = self.__get_criterion_name()
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
                 total_samples += labels.shape[0]
@@ -286,12 +290,12 @@ class PytorchLearner(MachineLearningInterface):
         if batch_idx == 0:
             raise Exception("No batches in loader")
         if self.vote_criterion is None:
-            return {self.vote_criterion: float(total_score / total_samples)}
+            return {criterion_name: float(total_score / total_samples)}
         else:
             final_score = self.vote_criterion(
                 torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0)
             )
-            return {self.vote_criterion: final_score}
+            return {criterion_name: final_score}
 
     def mli_accept_weights(self, weights: Weights):
         """
@@ -346,3 +350,12 @@ class PytorchLearner(MachineLearningInterface):
         result = bytes(request.input_data)
 
         return Prediction(name=request.name, prediction_data=result)
+    
+    def __get_criterion_name(self):
+        try:
+            criterion_name = self.vote_criterion.__name__
+        except Exception:
+            criterion_name = self.vote_criterion
+            pass
+        return criterion_name
+
