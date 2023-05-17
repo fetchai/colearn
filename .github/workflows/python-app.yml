@@ -59,9 +59,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install wheel
         pip install tox
-    # Tmp removal for faster fixing long pytests
-    # - name: Short pytests
-    #   run: tox -e pytest${{ matrix.python-version }}
+    - name: Short pytests
+      run: tox -e pytest${{ matrix.python-version }}
     - name: Long pytests
       run: tox -e pytest-slow${{ matrix.python-version }}
 
