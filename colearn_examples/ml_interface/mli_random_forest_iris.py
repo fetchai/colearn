@@ -77,18 +77,20 @@ class IrisLearner(MachineLearningInterface):
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
+        criterion = "mean_accuracy"
 
         vote_score = self.test(self.vote_data, self.vote_labels)
 
         test_score = self.test(self.test_data, self.test_labels)
 
-        vote = self.vote_score <= vote_score
+        vote = self.vote_score[criterion] <= vote_score[criterion]
 
         self.set_weights(current_weights)
         return ProposedWeights(weights=weights,
                                vote_score=vote_score,
                                test_score=test_score,
-                               vote=vote
+                               vote=vote,
+                               criterion=criterion
                                )
 
     def mli_accept_weights(self, weights: Weights):
@@ -113,7 +115,8 @@ class IrisLearner(MachineLearningInterface):
         self.model = pickle.loads(weights.weights)
 
     def test(self, data_array, labels_array):
-        return self.model.score(data_array, labels_array)
+        score = {"mean_accuracy": self.model.score(data_array, labels_array)}
+        return score
 
     def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
         raise NotImplementedError()

@@ -33,8 +33,8 @@ def initial_result(learners: Sequence[MachineLearningInterface]):
     result = Result()
     for learner in learners:
         proposed_weights = learner.mli_test_weights(learner.mli_get_current_weights())  # type: ProposedWeights
-        result.test_scores.append(proposed_weights.test_score)
-        result.vote_scores.append(proposed_weights.vote_score)
+        result.test_scores.append(proposed_weights.test_score[proposed_weights.criterion])
+        result.vote_scores.append(proposed_weights.vote_score[proposed_weights.criterion])
         result.votes.append(True)
     return result
 
@@ -48,9 +48,10 @@ def collective_learning_round(learners: Sequence[MachineLearningInterface], vote
                                                 vote_threshold)
     result.vote = vote
     result.votes = [pw.vote for pw in proposed_weights_list]
-    result.vote_scores = [pw.vote_score for pw in
+    # TODO does this make sense?
+    result.vote_scores = [pw.vote_score[pw.criterion] for pw in
                           proposed_weights_list]
-    result.test_scores = [pw.test_score for pw in proposed_weights_list]
+    result.test_scores = [pw.test_score[pw.criterion] for pw in proposed_weights_list]
     result.training_summaries = [
         l.mli_get_current_weights().training_summary
         for l in learners
@@ -73,7 +74,7 @@ def individual_training_round(learners: Sequence[MachineLearningInterface], roun
         learner.mli_accept_weights(weights)
 
         result.votes.append(True)
-        result.vote_scores.append(proposed_weights.vote_score)
-        result.test_scores.append(proposed_weights.test_score)
+        result.vote_scores.append(proposed_weights.vote_score[proposed_weights.criterion])
+        result.test_scores.append(proposed_weights.test_score[proposed_weights.criterion])
 
     return result

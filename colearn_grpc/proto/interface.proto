@@ -44,8 +44,8 @@ message WeightsPart {
 };
 
 message ProposedWeights {
-    map<string, string> vote_score = 1;
-    map<string, string> test_score = 2;
+    map<string, float> vote_score = 1;
+    map<string, float> test_score = 2;
     bool vote = 3;
     string criterion = 4;
 };

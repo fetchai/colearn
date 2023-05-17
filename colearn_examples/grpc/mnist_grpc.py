@@ -37,6 +37,7 @@ from colearn_keras.keras_learner import KerasLearner  # pylint: disable=C0413 # 
 from colearn_keras.keras_mnist import split_to_folders  # pylint: disable=C0413 # noqa: F401
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset  # pylint: disable=C0413 # noqa: F401
 import tensorflow as tf  # pylint: disable=C0413 # noqa: F401
+import tensorflow_addons as tfa # pylint: disable=C0413 # noqa: F401
 
 dataloader_tag = "KERAS_MNIST_EXAMPLE_DATALOADER"
 
@@ -63,6 +64,9 @@ def prepare_data_loaders(location: str,
     images = pickle.load(open(Path(data_folder) / image_fl, "rb"))
     labels = pickle.load(open(Path(data_folder) / label_fl, "rb"))
 
+    # OHE for broader metric usage
+    labels = tf.keras.utils.to_categorical(labels, 10)
+
     n_cases = int(train_ratio * len(images))
     n_vote_cases = int(vote_ratio * len(images))
 
@@ -87,7 +91,7 @@ model_tag = "KERAS_MNIST_EXAMPLE_MODEL"
 @FactoryRegistry.register_model_architecture(model_tag, [dataloader_tag])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
                     steps_per_epoch: int = 100,
-                    vote_batches: int = 10,
+                    vote_batches: int = 1,
                     learning_rate: float = 0.001
                     ) -> KerasLearner:
     """
@@ -100,8 +104,11 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     """
 
     # 2D Convolutional model for image recognition
-    loss = "sparse_categorical_crossentropy"
+    loss = "categorical_crossentropy"
     optimizer = tf.keras.optimizers.Adam
+    n_classes = 10
+    metric_list = ["accuracy", tf.keras.metrics.AUC(),
+                   tfa.metrics.F1Score(average="macro", num_classes=n_classes)]
 
     input_img = tf.keras.Input(shape=(28, 28, 1), name="Input")
     x = tf.keras.layers.Conv2D(32, (5, 5), activation="relu", padding="same", name="Conv1_1")(input_img)
@@ -112,19 +119,19 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     x = tf.keras.layers.MaxPooling2D((2, 2), name="pool3")(x)
     x = tf.keras.layers.Flatten(name="flatten")(x)
     x = tf.keras.layers.Dense(64, activation="relu", name="fc1")(x)
-    x = tf.keras.layers.Dense(10, activation="softmax", name="fc2")(x)
+    x = tf.keras.layers.Dense(n_classes, activation="softmax", name="fc2")(x)
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
     opt = optimizer(lr=learning_rate)
-    model.compile(loss=loss, metrics=[tf.keras.metrics.SparseCategoricalAccuracy()], optimizer=opt)
+    model.compile(loss=loss, metrics=metric_list, optimizer=opt)
 
     learner = KerasLearner(
         model=model,
         train_loader=data_loaders[0],
         vote_loader=data_loaders[1],
         test_loader=data_loaders[2],
-        criterion="sparse_categorical_accuracy",
-        minimise_criterion=False,
+        criterion="loss",
+        minimise_criterion=True,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
         model_evaluate_kwargs={"steps": vote_batches},
     )
@@ -167,7 +174,7 @@ set_equal_weights(all_learner_models)
 results = Results()
 results.data.append(initial_result(all_learner_models))
 
-plot = ColearnPlot(score_name="accuracy")
+plot = ColearnPlot(score_name="loss")
 
 testing_mode = bool(os.getenv("COLEARN_EXAMPLES_TEST", ""))  # for testing
 n_rounds = 10 if not testing_mode else 1
