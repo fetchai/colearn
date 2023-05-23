@@ -118,7 +118,7 @@ class PytorchLearner(MachineLearningInterface):
                 noise_multiplier=diff_priv_config.noise_multiplier,
             )
 
-        self.vote_score = self.test(self.vote_loader)
+        self.vote_score: dict = self.test(self.vote_loader)
 
     def mli_get_current_weights(self) -> Weights:
         """
@@ -224,22 +224,24 @@ class PytorchLearner(MachineLearningInterface):
         :param weights: Weights to be tested
         :return: ProposedWeights - Weights with vote and test score
         """
-
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
+        criterion_name = self.__get_criterion_name()
 
         vote_score = self.test(self.vote_loader)
 
         if self.test_loader:
             test_score = self.test(self.test_loader)
         else:
-            test_score = 0
-        vote = self.vote(vote_score)
+            test_score = dict.fromkeys(vote_score, 0)
+        vote = self.vote(vote_score[criterion_name])
 
         self.set_weights(current_weights)
-        return ProposedWeights(
-            weights=weights, vote_score=vote_score, test_score=test_score, vote=vote
-        )
+        return ProposedWeights(weights=weights,
+                               vote_score=vote_score,
+                               test_score=test_score,
+                               vote=vote,
+                               criterion=criterion_name)
 
     def vote(self, new_score) -> bool:
         """
@@ -247,13 +249,14 @@ class PytorchLearner(MachineLearningInterface):
         :param new_score: Proposed score
         :return: bool positive or negative vote
         """
+        criterion_name = self.__get_criterion_name()
 
         if self.minimise_criterion:
-            return new_score < self.vote_score
+            return new_score < self.vote_score[criterion_name]
         else:
-            return new_score > self.vote_score
+            return new_score > self.vote_score[criterion_name]
 
-    def test(self, loader: torch.utils.data.DataLoader) -> float:
+    def test(self, loader: torch.utils.data.DataLoader) -> dict:
         """
         Tests performance of the model on specified dataset
         :param loader: Dataset for testing
@@ -269,6 +272,7 @@ class PytorchLearner(MachineLearningInterface):
         all_outputs = []
         batch_idx = 0
         total_samples = 0
+        criterion_name = self.__get_criterion_name()
         with torch.no_grad():
             for batch_idx, (data, labels) in enumerate(loader):
                 total_samples += labels.shape[0]
@@ -285,11 +289,12 @@ class PytorchLearner(MachineLearningInterface):
         if batch_idx == 0:
             raise Exception("No batches in loader")
         if self.vote_criterion is None:
-            return float(total_score / total_samples)
+            return {criterion_name: float(total_score / total_samples)}
         else:
-            return self.vote_criterion(
+            final_score = self.vote_criterion(
                 torch.cat(all_outputs, dim=0), torch.cat(all_labels, dim=0)
             )
+            return {criterion_name: final_score}
 
     def mli_accept_weights(self, weights: Weights):
         """
@@ -344,3 +349,9 @@ class PytorchLearner(MachineLearningInterface):
         result = bytes(request.input_data)
 
         return Prediction(name=request.name, prediction_data=result)
+
+    def __get_criterion_name(self) -> str:
+        criterion_name = self.criterion.__class__.__name__
+        if self.vote_criterion is not None:
+            criterion_name = self.vote_criterion.__name__
+        return criterion_name

@@ -53,8 +53,9 @@ class DiffPrivConfig(BaseModel):
 
 class ProposedWeights(BaseModel):
     weights: Weights
-    vote_score: float
-    test_score: float
+    vote_score: dict
+    test_score: dict
+    criterion: str
     vote: Optional[bool]
 
 

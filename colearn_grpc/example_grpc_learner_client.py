@@ -201,7 +201,8 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                 weights=weights,
                 vote_score=response.vote_score,
                 test_score=response.test_score,
-                vote=response.vote
+                vote=response.vote,
+                criterion=response.criterion
             )
         except grpc.RpcError as ex:
             _logger.exception(f"Failed to test_model: {ex}")

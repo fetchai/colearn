@@ -80,20 +80,21 @@ def nkl():
     crit = get_mock_criterion()
     nkl = PytorchLearner(model=model, train_loader=dl, vote_loader=vote_dl,
                          optimizer=opt, criterion=crit,
-                         num_train_batches=1,
-                         num_test_batches=1)
+                         num_train_batches=1, num_test_batches=1,
+                         vote_criterion=None
+                         )
     return nkl
 
 
 def test_setup(nkl):
     assert str(MODEL_PARAMETERS) == str(nkl.mli_get_current_weights().weights)
     vote_score = LOSS / (TEST_BATCHES * BATCH_SIZE)
-    assert nkl.vote_score == vote_score
+    assert nkl.vote_score[nkl.criterion.__class__.__name__] == vote_score
 
 
 def test_vote(nkl):
     vote_score = LOSS / (TEST_BATCHES * BATCH_SIZE)
-    assert nkl.vote_score == vote_score
+    assert nkl.vote_score[nkl.criterion.__class__.__name__] == vote_score
 
     assert nkl.minimise_criterion is True
     assert nkl.vote(vote_score + 0.1) is False
@@ -103,7 +104,7 @@ def test_vote(nkl):
 
 def test_vote_minimise_criterion(nkl):
     vote_score = LOSS / (TEST_BATCHES * BATCH_SIZE)
-    assert nkl.vote_score == vote_score
+    assert nkl.vote_score[nkl.criterion.__class__.__name__] == vote_score
 
     nkl.minimise_criterion = False
 

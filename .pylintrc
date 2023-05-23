@@ -68,7 +68,7 @@ ENABLED:
 
 [IMPORTS]
 ignored-modules=click,google,grpc,matplotlib,numpy,opacus,onnx,onnxmltools,pandas,PIL,prometheus_client,pydantic,pytest,
-    tensorflow,tensorflow_core,tensorflow_datasets,tensorflow_privacy,torch,torchsummary,torchvision,typing_extensions,
+    tensorflow,tensorflow_addons,tensorflow_core,tensorflow_datasets,tensorflow_privacy,torch,torchsummary,torchvision,typing_extensions,
     scipy,sklearn,xgboost
 
 [TYPECHECK]

@@ -24,6 +24,7 @@ import tensorflow as tf
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 from tensorflow.keras.applications.resnet import ResNet50
 from tensorflow.keras.layers import Dropout
+import tensorflow_addons as tfa
 
 from colearn_grpc.factory_registry import FactoryRegistry
 from colearn_grpc.logging import get_logger, set_log_levels
@@ -65,13 +66,18 @@ def prepare_loaders_impl(location: str, reshape: bool = False
     X_vote = pd.read_csv(getf("X", "vote", data_folder), index_col=0).values
     y_vote = pd.read_csv(getf("y", "vote", data_folder), index_col=0).values
 
+    n_classes = 2
+    y_train = tf.keras.utils.to_categorical(y_train.reshape(-1), n_classes)
+    y_test = tf.keras.utils.to_categorical(y_test.reshape(-1), n_classes)
+    y_vote = tf.keras.utils.to_categorical(y_vote.reshape(-1), n_classes)
+
     if reshape:
         X_train, X_vote, X_test = reshape_x(
             X_train), reshape_x(X_vote), reshape_x(X_test)
 
-    train_loader = _make_loader(X_train, y_train.reshape(-1))
-    vote_loader = _make_loader(X_vote, y_vote.reshape(-1))
-    test_loader = _make_loader(X_test, y_test.reshape(-1))
+    train_loader = _make_loader(X_train, y_train)
+    vote_loader = _make_loader(X_vote, y_vote)
+    test_loader = _make_loader(X_test, y_test)
 
     return train_loader, vote_loader, test_loader
 
@@ -163,7 +169,7 @@ def prepare_learner_resnet(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
                                                PrefetchDataset],
                            prediction_data_loaders: dict,
                            steps_per_epoch: int = 100,
-                           vote_batches: int = 10,
+                           vote_batches: int = 1,  # needs to stay one for correct test calculation
                            learning_rate: float = 0.001
                            ) -> KerasLearner:
     """
@@ -200,9 +206,12 @@ def prepare_learner_resnet(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
 
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
+    metric_list = ["accuracy", tf.keras.metrics.AUC(),
+                   tfa.metrics.F1Score(average="macro", num_classes=n_classes)]
+
     model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
-                  loss='sparse_categorical_crossentropy',
-                  metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
+                  loss='categorical_crossentropy',
+                  metrics=metric_list
                   )
 
     learner = KerasLearner(
@@ -210,8 +219,8 @@ def prepare_learner_resnet(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
         train_loader=data_loaders[0],
         vote_loader=data_loaders[1],
         test_loader=data_loaders[2],
-        criterion="sparse_categorical_accuracy",
-        minimise_criterion=False,
+        criterion="loss",
+        minimise_criterion=True,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
         model_evaluate_kwargs={"steps": vote_batches},
         prediction_data_loader=prediction_data_loaders
@@ -224,7 +233,7 @@ def prepare_learner_mlp(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
                                             PrefetchDataset],
                         prediction_data_loaders: dict,
                         steps_per_epoch: int = 100,
-                        vote_batches: int = 10,
+                        vote_batches: int = 1,  # Needs to stay 1 for correct test score calculation
                         learning_rate: float = 0.001
                         ) -> KerasLearner:
     """
@@ -244,9 +253,12 @@ def prepare_learner_mlp(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
         tf.keras.layers.Dense(n_classes, activation='softmax'),
     ])
 
+    metric_list = ["accuracy", tf.keras.metrics.AUC(),
+                   tfa.metrics.F1Score(average="macro", num_classes=n_classes)]
+
     model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
-                  loss='sparse_categorical_crossentropy',
-                  metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
+                  loss='categorical_crossentropy',
+                  metrics=metric_list
                   )
 
     learner = KerasLearner(
@@ -254,8 +266,8 @@ def prepare_learner_mlp(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
         train_loader=data_loaders[0],
         vote_loader=data_loaders[1],
         test_loader=data_loaders[2],
-        criterion="sparse_categorical_accuracy",
-        minimise_criterion=False,
+        criterion="loss",
+        minimise_criterion=True,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
         model_evaluate_kwargs={"steps": vote_batches},
         prediction_data_loader=prediction_data_loaders

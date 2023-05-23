@@ -202,8 +202,9 @@ class GRPCLearnerServer(ipb2_grpc.GRPCLearnerServicer):
 
             weights = iterator_to_weights(request_iterator)
             proposed_weights = self.learner.mli_test_weights(weights)
-            pw.vote_score = proposed_weights.vote_score
-            pw.test_score = proposed_weights.test_score
+            pw.vote_score.update(proposed_weights.vote_score)
+            pw.test_score.update(proposed_weights.test_score)
+            pw.criterion = proposed_weights.criterion
             if proposed_weights.vote is not None:
                 pw.vote = proposed_weights.vote
             _logger.debug("Testing done!")
