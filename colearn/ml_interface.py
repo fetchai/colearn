@@ -20,32 +20,7 @@ from enum import Enum
 from typing import Any, Optional
 
 import onnx
-import onnxmltools
-import sklearn
-import tensorflow as tf
-import torch
 from pydantic import BaseModel
-from tensorflow import keras
-
-model_classes_keras = (tf.keras.Model, keras.Model, tf.estimator.Estimator)
-model_classes_scipy = (torch.nn.Module)
-model_classes_sklearn = (sklearn.base.ClassifierMixin)
-
-
-def convert_model_to_onnx(model: Any):
-    """
-    Helper function to convert a ML model to onnx format
-    """
-    if isinstance(model, model_classes_keras):
-        return onnxmltools.convert_keras(model)
-    if isinstance(model, model_classes_sklearn):
-        return onnxmltools.convert_sklearn(model)
-    if 'xgboost' in model.__repr__():
-        return onnxmltools.convert_sklearn(model)
-    if isinstance(model, model_classes_scipy):
-        raise Exception("Pytorch models not yet supported to onnx")
-    else:
-        raise Exception("Attempt to convert unsupported model to onnx: {model}")
 
 
 class DiffPrivBudget(BaseModel):
@@ -78,8 +53,9 @@ class DiffPrivConfig(BaseModel):
 
 class ProposedWeights(BaseModel):
     weights: Weights
-    vote_score: float
-    test_score: float
+    vote_score: dict
+    test_score: dict
+    criterion: str
     vote: Optional[bool]
 
 
@@ -92,6 +68,17 @@ class ColearnModel(BaseModel):
     model_format: ModelFormat
     model_file: Optional[str]
     model: Optional[Any]
+
+
+class PredictionRequest(BaseModel):
+    name: str
+    input_data: Any
+    pred_dataloader_key: Optional[Any]
+
+
+class Prediction(BaseModel):
+    name: str
+    prediction_data: Any
 
 
 def deser_model(model: Any) -> onnx.ModelProto:
@@ -134,5 +121,16 @@ class MachineLearningInterface(abc.ABC):
     def mli_get_current_model(self) -> ColearnModel:
         """
         Returns the current model
+        """
+        pass
+
+    @abc.abstractmethod
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        """
+        Make prediction using the current model.
+        Does not change the current weights of the model.
+
+        :param request: data to get the prediction for
+        :returns: the prediction
         """
         pass

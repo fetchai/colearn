@@ -15,7 +15,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-from colearn.ml_interface import MachineLearningInterface, ProposedWeights, \
+from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, ProposedWeights, \
     Weights, ColearnModel
 
 
@@ -28,23 +28,25 @@ class PlusOneLearner(MachineLearningInterface):
         return Weights(weights=self.current_value)
 
     def mli_test_weights(self, weights) -> ProposedWeights:
+        criterion = "accuracy"
         if weights.weights > self.current_value:
-            test_score = 1.0
-            vote_score = 1.0
+            test_score = {criterion: 1.0}
+            vote_score = {criterion: 1.0}
             vote = True
         elif weights == self.current_value:
-            test_score = 0.5
-            vote_score = 0.5
+            test_score = {criterion: 0.5}
+            vote_score = {criterion: 0.5}
             vote = False
         else:
-            test_score = 0.0
-            vote_score = 0.0
+            test_score = {criterion: 0.0}
+            vote_score = {criterion: 0.0}
             vote = False
 
         result = ProposedWeights(weights=weights,
                                  vote_score=vote_score,
                                  test_score=test_score,
-                                 vote=vote
+                                 vote=vote,
+                                 criterion=criterion
                                  )
 
         return result
@@ -61,3 +63,6 @@ class PlusOneLearner(MachineLearningInterface):
         """
 
         return ColearnModel()
+
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        raise NotImplementedError()

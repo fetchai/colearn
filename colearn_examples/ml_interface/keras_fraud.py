@@ -31,10 +31,8 @@ from colearn_other.fraud_dataset import fraud_preprocessing
 
 """
 Fraud training example using Tensorflow Keras
-
 Used dataset:
 - Fraud, download from kaggle: https://www.kaggle.com/c/ieee-fraud-detection
-
 What script does:
 - Sets up the Keras model and some configuration parameters
 - Randomly splits the dataset between multiple learners

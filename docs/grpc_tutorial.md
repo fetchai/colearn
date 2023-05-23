@@ -54,7 +54,7 @@ The MLI Factory needs to implement four methods:
 
 * get_models - returns the names of the models that are registered with the factory and their parameters.
 * get_dataloaders - returns the names of the dataloaders that are registered with the factory and their parameters.
-* get_compatibilities - returns a list of dataloaders for each model that can be used with that model.
+* get_data_compatibilities - returns a list of dataloaders for each model that can be used with that model.
 * get_mli - takes the name and parameters for the model and dataloader and constructs the MLI object.
   Returns the MLI object.
 

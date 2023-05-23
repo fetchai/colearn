@@ -140,11 +140,18 @@ class SimpleFactory(MliFactory):
                                 vote_batches=10,
                                 learning_rate=0.001)}
 
-    def get_compatibilities(self) -> Dict[str, Set[str]]:
+    def get_data_compatibilities(self) -> Dict[str, Set[str]]:
         return {model_tag: {dataloader_tag}}
 
+    def get_prediction_dataloaders(self) -> Dict[str, Dict[str, Any]]:
+        raise NotImplementedError
+
+    def get_pred_compatibilities(self) -> Dict[str, Set[str]]:
+        raise NotImplementedError
+
     def get_mli(self, model_name: str, model_params: str, dataloader_name: str,
-                dataset_params: str) -> MachineLearningInterface:
+                dataset_params: str, prediction_dataloader_name: str = None,
+                prediction_dataset_params: str = None) -> MachineLearningInterface:
         dataloader_kwargs = json.loads(dataset_params)
         data_loaders = prepare_data_loaders(**dataloader_kwargs)
 

@@ -72,7 +72,7 @@ parser.add_argument("-b", "--batch_size", type=int, default=None, help="Size of 
 args = parser.parse_args()
 
 model_name = args.model
-dataloader_set = mli_fac.get_compatibilities()[model_name]
+dataloader_set = mli_fac.get_data_compatibilities()[model_name]
 dataloader_name = next(iter(dataloader_set))  # use the first dataloader
 
 n_learners = args.n_learners

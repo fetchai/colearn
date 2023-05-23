@@ -22,12 +22,14 @@ from pathlib import Path
 from typing import Tuple, List, Optional
 
 import numpy as np
+from PIL import Image
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.python.data.ops.dataset_ops import PrefetchDataset
 from tensorflow.keras.applications.resnet import ResNet50
 from tensorflow.keras.layers import Dropout
 from tensorflow_privacy.privacy.optimizers.dp_optimizer_keras import DPKerasAdamOptimizer
+import tensorflow_addons as tfa
 
 from colearn.ml_interface import DiffPrivConfig
 from colearn.utils.data import get_data, split_list_into_fractions
@@ -50,6 +52,9 @@ def prepare_loaders_impl(location: str,
 
     images = pickle.load(open(Path(data_folder) / IMAGE_FL, "rb"))
     labels = pickle.load(open(Path(data_folder) / LABEL_FL, "rb"))
+
+    # OHE for broader metric usage
+    labels = tf.keras.utils.to_categorical(labels, 10)
 
     n_cases = int(train_ratio * len(images))
     n_vote_cases = int(vote_ratio * len(images))
@@ -99,10 +104,51 @@ def prepare_data_loaders_dp(location: str,
     return prepare_loaders_impl(location, train_ratio, vote_ratio, batch_size, True)
 
 
-@FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"])
+# prepare pred loader implementation
+def prepare_pred_loaders_impl(location: str):
+    """
+     Load image data from folder and create prediction data loader
+
+    :param location: Path to prediction file
+    :return: img as numpy asrray
+    """
+    data_folder = get_data(location)
+    img = Image.open(f"{data_folder}")
+    img = img.convert('L')
+    img = img.resize((28, 28))
+    img = np.array(img) / 255
+    return img
+
+
+# The prediction dataloader needs to be registered before the models that reference it
+@FactoryRegistry.register_prediction_dataloader("KERAS_MNIST_PRED")
+def prepare_prediction_data_loaders(location: str = None) -> dict:
+    """
+    Wrapper for loading image data from folder and create prediction data loader
+
+    :param location: Path to image
+    :return: dict of name and function
+    """
+    return {"KERAS_MNIST_PRED": prepare_pred_loaders_impl}
+
+
+@FactoryRegistry.register_prediction_dataloader("KERAS_MNIST_PRED_TWO")
+def prepare_prediction_data_loaders_two(location: str = None) -> dict:
+    """
+    Wrapper for loading image data from folder and create prediction data loader.
+    Same as other data loader for testing purpose.
+
+    :param location: Path to image
+    :return: dict of name and function
+    """
+    return {"KERAS_MNIST_PRED_TWO": prepare_pred_loaders_impl}
+
+
+@FactoryRegistry.register_model_architecture("KERAS_MNIST_RESNET", ["KERAS_MNIST"], ["KERAS_MNIST_PRED", "KERAS_MNIST_PRED_TWO"])
 def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
+                           prediction_data_loaders: dict,
                            steps_per_epoch: int = 100,
-                           vote_batches: int = 10,
+                           vote_batches: int = 1,  # needs to stay one for correct test calculation
                            learning_rate: float = 0.001,
                            ) -> KerasLearner:
     # RESNET model
@@ -133,9 +179,12 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
 
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
+    metric_list = ["accuracy", tf.keras.metrics.AUC(),
+                   tfa.metrics.F1Score(average="macro", num_classes=n_classes)]
+
     model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
-                  loss='sparse_categorical_crossentropy',
-                  metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
+                  loss='categorical_crossentropy',
+                  metrics=metric_list
                   )
 
     learner = KerasLearner(
@@ -143,18 +192,20 @@ def prepare_resnet_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset,
         train_loader=data_loaders[0],
         vote_loader=data_loaders[1],
         test_loader=data_loaders[2],
-        criterion="sparse_categorical_accuracy",
-        minimise_criterion=False,
+        criterion="loss",
+        minimise_criterion=True,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
         model_evaluate_kwargs={"steps": vote_batches},
+        prediction_data_loader=prediction_data_loaders
     )
     return learner
 
 
-@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"])
+@FactoryRegistry.register_model_architecture("KERAS_MNIST", ["KERAS_MNIST", "KERAS_MNIST_WITH_DP"], ["KERAS_MNIST_PRED", "KERAS_MNIST_PRED_TWO"])
 def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, PrefetchDataset],
+                    prediction_data_loaders: dict,
                     steps_per_epoch: int = 100,
-                    vote_batches: int = 10,
+                    vote_batches: int = 1,  # needs to stay one for correct test calculation
                     learning_rate: float = 0.001,
                     diff_priv_config: Optional[DiffPrivConfig] = None,
                     num_microbatches: int = 4,
@@ -167,10 +218,12 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
     :param learning_rate: Learning rate for optimiser
     :return: New instance of KerasLearner
     """
-
     # 2D Convolutional model for image recognition
-    loss = "sparse_categorical_crossentropy"
+    loss = "categorical_crossentropy"
+    n_classes = 10
     optimizer = tf.keras.optimizers.Adam
+    metric_list = ["accuracy", tf.keras.metrics.AUC(),
+                   tfa.metrics.F1Score(average="macro", num_classes=n_classes)]
 
     input_img = tf.keras.Input(
         shape=(28, 28, 1), name="Input"
@@ -192,7 +245,7 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
         64, activation="relu", name="fc1"
     )(x)
     x = tf.keras.layers.Dense(
-        10, activation="softmax", name="fc2"
+        n_classes, activation="softmax", name="fc2"
     )(x)
     model = tf.keras.Model(inputs=input_img, outputs=x)
 
@@ -202,34 +255,26 @@ def prepare_learner(data_loaders: Tuple[PrefetchDataset, PrefetchDataset, Prefet
             noise_multiplier=diff_priv_config.noise_multiplier,
             num_microbatches=num_microbatches,
             learning_rate=learning_rate)
-
-        model.compile(
-            loss=tf.keras.losses.SparseCategoricalCrossentropy(
-                # need to calculare the loss per sample for the
-                # per sample / per microbatch gradient clipping
-                reduction=tf.losses.Reduction.NONE
-            ),
-            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
-            optimizer=opt)
     else:
         opt = optimizer(
             lr=learning_rate
         )
-        model.compile(
-            loss=loss,
-            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
-            optimizer=opt)
+    model.compile(
+        loss=loss,
+        metrics=metric_list,
+        optimizer=opt)
 
     learner = KerasLearner(
         model=model,
         train_loader=data_loaders[0],
         vote_loader=data_loaders[1],
         test_loader=data_loaders[2],
-        criterion="sparse_categorical_accuracy",
-        minimise_criterion=False,
+        criterion="loss",
+        minimise_criterion=True,
         model_fit_kwargs={"steps_per_epoch": steps_per_epoch},
-        model_evaluate_kwargs={"steps": vote_batches},
+        model_evaluate_kwargs={"steps": vote_batches},  # Todo think about removing this arg
         diff_priv_config=diff_priv_config,
+        prediction_data_loader=prediction_data_loaders
     )
     return learner
 

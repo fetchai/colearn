@@ -24,7 +24,8 @@ import numpy as np
 import sklearn
 from sklearn.linear_model import SGDClassifier
 
-from colearn.ml_interface import MachineLearningInterface, Weights, ProposedWeights, ColearnModel, ModelFormat, convert_model_to_onnx
+from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, Weights, ProposedWeights, ColearnModel, ModelFormat
+from colearn.onnxutils import convert_model_to_onnx
 from colearn.training import initial_result, collective_learning_round, set_equal_weights
 from colearn.utils.plot import ColearnPlot
 from colearn.utils.results import Results, print_results
@@ -87,18 +88,20 @@ class FraudLearner(MachineLearningInterface):
     def mli_test_weights(self, weights: Weights) -> ProposedWeights:
         current_weights = self.mli_get_current_weights()
         self.set_weights(weights)
+        criterion = "mean_accuracy"
 
         vote_score = self.test(self.vote_data, self.vote_labels)
 
         test_score = self.test(self.test_data, self.test_labels)
 
-        vote = self.vote_score <= vote_score
+        vote = self.vote_score[criterion] <= vote_score[criterion]
 
         self.set_weights(current_weights)
         return ProposedWeights(weights=weights,
                                vote_score=vote_score,
                                test_score=test_score,
-                               vote=vote
+                               vote=vote,
+                               criterion=criterion
                                )
 
     def mli_accept_weights(self, weights: Weights):
@@ -126,9 +129,12 @@ class FraudLearner(MachineLearningInterface):
 
     def test(self, data, labels):
         try:
-            return self.model.score(data, labels)
+            return {"mean_accuracy": self.model.score(data, labels)}
         except sklearn.exceptions.NotFittedError:
-            return 0
+            return {"mean_accuracy": 0}
+
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        raise NotImplementedError()
 
 
 if __name__ == "__main__":

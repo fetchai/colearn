@@ -24,7 +24,7 @@ import grpc
 
 import colearn_grpc.proto.generated.interface_pb2 as ipb2
 import colearn_grpc.proto.generated.interface_pb2_grpc as ipb2_grpc
-from colearn.ml_interface import MachineLearningInterface, ProposedWeights, Weights, ColearnModel
+from colearn.ml_interface import MachineLearningInterface, Prediction, PredictionRequest, ProposedWeights, Weights, ColearnModel
 from colearn_grpc.logging import get_logger
 from colearn_grpc.utils import iterator_to_weights, weights_to_iterator
 
@@ -65,13 +65,15 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                     # Attempt to get the certificate from the server and use it to encrypt the
                     # connection. If the certificate cannot be found, try to create an unencrypted connection.
                     try:
-                        assert (':' in self.address), f"Poorly formatted address, needs :port - {self.address}"
+                        assert (
+                            ':' in self.address), f"Poorly formatted address, needs :port - {self.address}"
                         _logger.info(f"Connecting to server: {self.address}")
                         addr, port = self.address.split(':')
                         trusted_certs = ssl.get_server_certificate((addr, int(port)))
 
                         # create credentials
-                        credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs.encode())
+                        credentials = grpc.ssl_channel_credentials(
+                            root_certificates=trusted_certs.encode())
                     except ssl.SSLError as e:
                         _logger.warning(
                             f"Encountered ssl error when attempting to get certificate from learner server: {e}")
@@ -118,15 +120,21 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         response = self.stub.QuerySupportedSystem(request)
         r = {
             "data_loaders": {},
+            "prediction_data_loaders": {},
             "model_architectures": {},
-            "compatibilities": {}
+            "data_compatibilities": {},
+            "pred_compatibilities": {},
         }
         for d in response.data_loaders:
             r["data_loaders"][d.name] = d.default_parameters
+        for p in response.prediction_data_loaders:
+            r["prediction_data_loaders"][p.name] = p.default_parameters
         for m in response.model_architectures:
             r["model_architectures"][m.name] = m.default_parameters
-        for c in response.compatibilities:
-            r["compatibilities"][c.model_architecture] = c.dataloaders
+        for dc in response.data_compatibilities:
+            r["data_compatibilities"][dc.model_architecture] = dc.dataloaders
+        for pc in response.pred_compatibilities:
+            r["pred_compatibilities"][pc.model_architecture] = pc.prediction_dataloaders
         return r
 
     def get_version(self):
@@ -137,17 +145,28 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         return response.version
 
     def setup_ml(self, dataset_loader_name, dataset_loader_parameters,
-                 model_arch_name, model_parameters):
-
-        _logger.info(f"Setting up ml: model_arch: {model_arch_name}, dataset_loader: {dataset_loader_name}")
+                 model_arch_name, model_parameters,
+                 prediction_dataset_loader_name=None,
+                 prediction_dataset_loader_parameters=None,
+                 ):
+        _logger.info(
+            f"Setting up ml: model_arch: {model_arch_name}, dataset_loader: {dataset_loader_name},"
+            f"prediction_dataset_loader: {prediction_dataset_loader_name}")
         _logger.debug(f"Model params: {model_parameters}")
         _logger.debug(f"Dataloader params: {dataset_loader_parameters}")
+        _logger.debug(
+            f"Prediction dataloader params: {prediction_dataset_loader_parameters}")
 
         request = ipb2.RequestMLSetup()
         request.dataset_loader_name = dataset_loader_name
         request.dataset_loader_parameters = dataset_loader_parameters
         request.model_arch_name = model_arch_name
         request.model_parameters = model_parameters
+
+        if prediction_dataset_loader_name:
+            request.prediction_dataset_loader_name = prediction_dataset_loader_name
+        if prediction_dataset_loader_parameters:
+            request.prediction_dataset_loader_parameters = prediction_dataset_loader_parameters
 
         _logger.info(f"Setting up ml with request: {request}")
 
@@ -173,7 +192,8 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
     def mli_test_weights(self, weights: Weights = None) -> ProposedWeights:
         try:
             if weights:
-                response = self.stub.TestWeights(weights_to_iterator(weights, encode=False))
+                response = self.stub.TestWeights(
+                    weights_to_iterator(weights, encode=False))
             else:
                 raise Exception("mli_test_weights(None) is not currently supported")
 
@@ -181,7 +201,8 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
                 weights=weights,
                 vote_score=response.vote_score,
                 test_score=response.test_score,
-                vote=response.vote
+                vote=response.vote,
+                criterion=response.criterion
             )
         except grpc.RpcError as ex:
             _logger.exception(f"Failed to test_model: {ex}")
@@ -211,3 +232,19 @@ class ExampleGRPCLearnerClient(MachineLearningInterface):
         response = self.stub.GetCurrentModel(request)
 
         return ColearnModel(model_format=response.model_format, model_file=response.model_file, model=response.model)
+
+    def mli_make_prediction(self, request: PredictionRequest) -> Prediction:
+        request_pb = ipb2.PredictionRequest()
+        request_pb.name = request.name
+        request_pb.input_data = request.input_data
+        if request.pred_dataloader_key:
+            request_pb.pred_dataloader_key = request.pred_dataloader_key
+
+        _logger.info(f"Requesting prediction {request.name}")
+
+        try:
+            response = self.stub.MakePrediction(request_pb)
+            return Prediction(name=response.name, prediction_data=response.prediction_data)
+        except grpc.RpcError as ex:
+            _logger.exception(f"Failed to make_prediction: {ex}")
+            raise ConnectionError(f"GRPC error: {ex}")

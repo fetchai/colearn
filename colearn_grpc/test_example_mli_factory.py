@@ -45,7 +45,7 @@ def factory() -> ExampleMliFactory:
 def test_setup(factory):
     assert len(factory.get_models()) > 0
     assert len(factory.get_dataloaders()) > 0
-    assert len(factory.get_compatibilities()) > 0
+    assert len(factory.get_data_compatibilities()) > 0
 
 
 def test_model_names(factory):
@@ -64,7 +64,7 @@ def test_dataloader_names(factory):
 def test_compatibilities(factory):
     for model in MODEL_NAMES:
         assert model in factory.get_models().keys()
-        for dl in factory.get_compatibilities()[model]:
+        for dl in factory.get_data_compatibilities()[model]:
             assert dl in DATALOADER_NAMES
 
 

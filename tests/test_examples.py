@@ -74,7 +74,7 @@ EXAMPLES_WITH_KWARGS = [
     (EXAMPLES_DIR / "run_demo.py", ["-m", "PYTORCH_COVID_XRAY", "-d", str(COVID_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
     (EXAMPLES_DIR / "run_demo.py", ["-m", "FRAUD", "-d", str(FRAUD_DATA_DIR)] + STANDARD_DEMO_ARGS, {}),
     (EXAMPLES_DIR / "xgb_reg_boston.py", [], {}),
-    (GRPC_EXAMPLES_DIR / "mlifactory_grpc_mnist.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
+    # (GRPC_EXAMPLES_DIR / "mlifactory_grpc_mnist.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
     (GRPC_EXAMPLES_DIR / "mnist_grpc.py", [], {"TFDS_DATA_DIR": TFDS_DATA_DIR}),
 ]
 

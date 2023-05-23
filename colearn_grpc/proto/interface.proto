@@ -9,6 +9,8 @@ message RequestMLSetup {
     string dataset_loader_parameters = 2;
     string model_arch_name = 3;
     string model_parameters = 4;
+    optional string prediction_dataset_loader_name = 5;
+    optional string prediction_dataset_loader_parameters = 6;
 };
 
 enum MLSetupStatus {
@@ -42,9 +44,10 @@ message WeightsPart {
 };
 
 message ProposedWeights {
-    float vote_score = 1;
-    float test_score = 2;
+    map<string, float> vote_score = 1;
+    map<string, float> test_score = 2;
     bool vote = 3;
+    string criterion = 4;
 };
 
 message RequestStatus {
@@ -66,14 +69,24 @@ message DatasetLoaderSpec {
     string default_parameters = 2; // JSON encoded default parameters
 };
 
+message PredictionDatasetLoaderSpec {
+    string name = 1;
+    string default_parameters = 2; // JSON encoded default parameters
+};
+
 message ModelArchSpec {
     string name = 1;
     string default_parameters = 2; // JSON encoded default parameters for the model arch.
 };
 
-message CompatibilitySpec {
+message DataCompatibilitySpec {
     string model_architecture = 1;
     repeated string dataloaders = 2;
+};
+
+message PredictonDataCompatibilitySpec {
+    string model_architecture = 1;
+    repeated string prediction_dataloaders = 2;
 };
 
 message ResponseVersion {
@@ -88,9 +101,23 @@ message ResponseCurrentModel {
 
 message ResponseSupportedSystem {
     repeated DatasetLoaderSpec data_loaders    = 1;
-    repeated ModelArchSpec model_architectures = 2;
-    repeated CompatibilitySpec compatibilities = 3;
+    repeated PredictionDatasetLoaderSpec prediction_data_loaders    = 2;
+    repeated ModelArchSpec model_architectures = 3;
+    repeated DataCompatibilitySpec data_compatibilities = 4;
+    repeated PredictonDataCompatibilitySpec pred_compatibilities = 5;
 };
+
+message PredictionRequest {
+    string name = 1;
+    bytes input_data = 2;
+    optional string pred_dataloader_key = 3;
+};
+
+message PredictionResponse {
+    string name = 1;
+    bytes prediction_data = 2;
+};
+
 
 service GRPCLearner {
     rpc QueryVersion(google.protobuf.Empty) returns (ResponseVersion);
@@ -102,4 +129,5 @@ service GRPCLearner {
     rpc SetWeights(stream WeightsPart) returns (google.protobuf.Empty);
     rpc GetCurrentWeights(google.protobuf.Empty) returns (stream WeightsPart);
     rpc StatusStream(stream RequestStatus) returns (stream ResponseStatus);
+    rpc MakePrediction(PredictionRequest) returns (PredictionResponse);
 };
